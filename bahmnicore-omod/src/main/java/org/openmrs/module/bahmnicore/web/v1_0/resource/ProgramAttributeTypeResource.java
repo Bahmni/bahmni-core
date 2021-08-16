@@ -3,6 +3,7 @@ package org.openmrs.module.bahmnicore.web.v1_0.resource;
 import org.bahmni.module.bahmnicore.customdatatype.datatype.CodedConceptDatatype;
 import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.ProgramAttributeType;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
+import org.bahmni.module.bahmnicore.util.MiscUtils;
 import org.openmrs.Concept;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.webservices.rest.web.ConversionUtil;
@@ -65,7 +66,13 @@ public class ProgramAttributeTypeResource extends BaseAttributeTypeCrudResource1
     @PropertyGetter("concept")
     public Object getConcept(ProgramAttributeType delegate) {
         if (OpenmrsUtil.nullSafeEquals(delegate.getDatatypeClassname(), CodedConceptDatatype.class.getCanonicalName())) {
-            Concept concept = Context.getConceptService().getConcept(delegate.getDatatypeConfig());
+            Concept concept;
+            String id = delegate.getDatatypeConfig();
+            if (MiscUtils.onlyDigits(id)) {
+            	concept = Context.getConceptService().getConcept(Integer.valueOf(id));
+    		} else {
+    			concept = Context.getConceptService().getConceptByUuid(id);
+    		}
             return ConversionUtil.convertToRepresentation(concept, Representation.FULL);
         }
         return null;

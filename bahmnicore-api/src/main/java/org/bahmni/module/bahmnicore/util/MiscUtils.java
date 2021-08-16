@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 public class MiscUtils {
     public static List<Concept> getConceptsForNames(List<String> conceptNames, ConceptService conceptService) {
@@ -33,4 +34,9 @@ public class MiscUtils {
             }
         }
     }
+	
+	public static boolean onlyDigits(String input) {
+		Pattern onlyDigits = Pattern.compile("\\d+");
+		return onlyDigits.matcher(input).matches();
+	}
 }
