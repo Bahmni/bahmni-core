@@ -70,9 +70,9 @@ public class ProgramAttributeTypeResource extends BaseAttributeTypeCrudResource1
             String id = delegate.getDatatypeConfig();
             if (MiscUtils.onlyDigits(id)) {
             	concept = Context.getConceptService().getConcept(Integer.valueOf(id));
-    		} else {
-    			concept = Context.getConceptService().getConceptByUuid(id);
-    		}
+            } else {
+            	concept = Context.getConceptService().getConceptByUuid(id);
+            }
             return ConversionUtil.convertToRepresentation(concept, Representation.FULL);
         }
         return null;
