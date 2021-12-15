@@ -25,7 +25,7 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
 
-      - run:  gem install compass 
+      - run: gem install compass 
       - run: mvn clean package
 
       - uses: actions/upload-artifact@v2
