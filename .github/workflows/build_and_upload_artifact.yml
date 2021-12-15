@@ -13,27 +13,24 @@ jobs:
         ruby: [2.5]
 
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Set up Ruby      
-    - uses: actions/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
-    - run:  gem install compass  
-        
-    - name: Set up JDK 1.8
-    - uses: actions/setup-java@v1
-      with:
-          java-version: 1.8
+      - uses: actions/checkout@v2
 
-    - name: Build with Maven
-    - run: mvn clean package
-    - name: zip artifact
-    - run: zip -r Bahmnicore.zip bahmnicore-omod/target/bahmnicore-omod-0.94-SNAPSHOT.jar
-    
-    - uses: actions/upload-artifact@v2
-      with:
-          name: Bahmnicore
-          path: bahmnicore-omod/target/Bahmnicore.zip
+      - name: Set up JDK 1.8
+      - uses: actions/setup-java@v1
+        with:
+            java-version: 1.8
+
+      - name: Set up Ruby      
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+
+      - run:  gem install compass 
+      - run: mvn clean package
+
+      - uses: actions/upload-artifact@v2
+        with:
+            name: Bahmnicore
+            path: bahmnicore-omod/target/bahmnicore-omod-0.94-SNAPSHOT.jar
         
 
