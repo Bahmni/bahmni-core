@@ -7,10 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        ruby: [2.5]
 
     steps:
       - uses: actions/checkout@v2
@@ -23,7 +19,7 @@ jobs:
       - name: Set up Ruby      
       - uses: actions/setup-ruby@v1
         with:
-          ruby-version: ${{ matrix.ruby }}
+          ruby-version: 2.5
 
       - run: gem install compass 
       - run: mvn clean package
