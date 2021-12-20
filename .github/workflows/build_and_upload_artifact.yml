@@ -33,9 +33,9 @@ jobs:
       env:
           GITHUB_USER_REF: ${{ secrets.GIT_USERNAME }}
           GITHUB_TOKEN_REF: ${{ secrets.GIT_TOKEN }}
-    - name: Upload artifacts 
-      uses: actions/upload-artifact@v2
-      with:
-          name: Bahmnicore
-          path: bahmnicore-omod/target/bahmnicore-omod-0.94-SNAPSHOT.jar
+#     - name: Upload artifacts 
+#       uses: actions/upload-artifact@v2
+#       with:
+#           name: Bahmnicore
+#           path: bahmnicore-omod/target/bahmnicore-omod-0.94-SNAPSHOT.jar
         
