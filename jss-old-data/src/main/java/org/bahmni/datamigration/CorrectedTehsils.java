@@ -1,8 +1,8 @@
 package org.bahmni.datamigration;
 
 import au.com.bytecode.opencsv.CSVReader;
-import org.apache.log4j.Logger;
-
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CorrectedTehsils {
-    private static Logger logger = Logger.getLogger(CorrectedTehsils.class);
+    private static Logger logger = LogManager.getLogger(CorrectedTehsils.class);
     private Map<String, String> oldNewTehsils;
 
     public CorrectedTehsils(String csvLocation, String fileName) throws IOException {

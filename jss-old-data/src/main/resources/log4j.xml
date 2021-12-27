@@ -1,28 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
-    <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-    <appender name="console" class="org.apache.log4j.ConsoleAppender">
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d Thread: %t %-5p [%c] %m%n "/>
-        </layout>
-    </appender>
-
-    <appender name="fileAppender" class="org.apache.log4j.RollingFileAppender">
-        <param name="File" value="logs/migration.log"/>
-        <param name="MaxFileSize" value="10MB"/>
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p [%c] %m%n"/>
-        </layout>
-    </appender>
-
-    <logger name="org.springframework">
-        <level value="warn"/>
-        <appender-ref ref="console"/>
-    </logger>
-
-    <root>
-        <priority value="info"/>
-        <appender-ref ref="console"/>
-        <appender-ref ref="fileAppender"/>
-    </root>
-</log4j:configuration>
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration xmlns="http://logging.apache.org/log4j/2.0/">
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d Thread: %t %-5p [%c] %m%n "/>
+        </Console>
+        <File name="fileAppender" fileName="logs/migration.log" append="false">
+            <PatternLayout pattern="%d %-5p [%c] %m%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Root>
+            <priority value="info"/>
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>

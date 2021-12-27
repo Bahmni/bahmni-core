@@ -1,7 +1,8 @@
 package org.bahmni.module.bahmnicore.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.contract.patient.PatientSearchParameters;
 import org.bahmni.module.bahmnicore.contract.patient.response.PatientConfigResponse;
 import org.bahmni.module.bahmnicore.contract.patient.response.PatientResponse;
@@ -28,7 +29,7 @@ public class BahmniPatientServiceImpl implements BahmniPatientService {
     private PersonService personService;
     private ConceptService conceptService;
     private PatientDao patientDao;
-    private static final Logger log = Logger.getLogger(BahmniPatientServiceImpl.class);
+    private static final Logger log = LogManager.getLogger(BahmniPatientServiceImpl.class);
 
     //@Autowired
     public BahmniPatientServiceImpl(PersonService personService, ConceptService conceptService,

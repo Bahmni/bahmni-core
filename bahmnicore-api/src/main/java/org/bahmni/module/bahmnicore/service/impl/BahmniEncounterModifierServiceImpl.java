@@ -2,7 +2,8 @@ package org.bahmni.module.bahmnicore.service.impl;
 
 import groovy.lang.GroovyClassLoader;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.contract.encounter.data.EncounterModifierData;
 import org.bahmni.module.bahmnicore.encounterModifier.EncounterModifier;
 import org.bahmni.module.bahmnicore.encounterModifier.exception.CannotModifyEncounterException;
@@ -23,7 +24,7 @@ public class BahmniEncounterModifierServiceImpl implements BahmniEncounterModifi
     public static final String ENCOUNTER_MODIFIER_GROOVY_ALLOW_CACHING = "encounterModifier.groovy.allowCaching";
     protected Map<String, EncounterModifier> encounterModifiers = new HashMap<>();
 
-    private static final Logger log = Logger.getLogger(BahmniEncounterModifierServiceImpl.class);
+    private static final Logger log = LogManager.getLogger(BahmniEncounterModifierServiceImpl.class);
 
     @Override
     public EncounterModifierData getModifiedEncounter(EncounterModifierData encounterModifierData) throws IllegalAccessException, IOException, InstantiationException, CannotModifyEncounterException {

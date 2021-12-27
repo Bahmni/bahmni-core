@@ -4,7 +4,8 @@ import groovy.lang.GroovyClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.module.elisatomfeedclient.api.Constants;
 import org.bahmni.module.elisatomfeedclient.api.ElisAtomFeedProperties;
 import org.bahmni.module.elisatomfeedclient.api.domain.AccessionDiff;
@@ -50,7 +51,7 @@ public class OpenElisAccessionEventWorker implements EventWorker {
     public static final String LAB_MANAGER_IDENTIFIER = "LABMANAGER";
     public static final String ACCESSION_UUID_CONCEPT = "Accession Uuid";
     private static final String ACCESSION_NOTE_ENCOUNTER_TYPE = "VALIDATION NOTES";
-    private static Logger logger = Logger.getLogger(OpenElisAccessionEventWorker.class);
+    private static Logger logger = LogManager.getLogger(OpenElisAccessionEventWorker.class);
     private final EncounterHelper encounterHelper;
     private final ProviderHelper providerHelper;
     private ElisAtomFeedProperties atomFeedProperties;

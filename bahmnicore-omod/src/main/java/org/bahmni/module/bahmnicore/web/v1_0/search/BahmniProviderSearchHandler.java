@@ -1,7 +1,8 @@
 package org.bahmni.module.bahmnicore.web.v1_0.search;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openmrs.Provider;
 import org.openmrs.ProviderAttributeType;
 import org.openmrs.api.ProviderService;
@@ -34,7 +35,7 @@ public class BahmniProviderSearchHandler implements SearchHandler {
     public static final String ERR_UNDEFINED_ATTRIBUTE_NAME = "Undefined attribute %s";
     public static final String INVALID_ATTRIBUTE_VALUE = "Invalid attribute value for %s";
 
-    private static final Logger log = Logger.getLogger(BahmniProviderSearchHandler.class);
+    private static final Logger log = LogManager.getLogger(BahmniProviderSearchHandler.class);
     public static final String INVALID_ATTRIBUTE_TYPE_DEFINITION = "Invalid Attribute type definition for %s";
 
     @Autowired

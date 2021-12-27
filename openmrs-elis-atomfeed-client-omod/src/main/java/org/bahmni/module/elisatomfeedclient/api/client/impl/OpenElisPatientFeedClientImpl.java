@@ -1,7 +1,8 @@
 package org.bahmni.module.elisatomfeedclient.api.client.impl;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.module.elisatomfeedclient.api.ElisAtomFeedProperties;
 import org.bahmni.module.elisatomfeedclient.api.client.OpenElisFeedClient;
 import org.bahmni.module.elisatomfeedclient.api.client.OpenElisPatientFeedClient;
@@ -25,7 +26,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class OpenElisPatientFeedClientImpl extends OpenElisFeedClient implements OpenElisPatientFeedClient {
     private BahmniVisitAttributeService bahmniVisitAttributeSaveCommand;
     private AuditLogService auditLogService;
-    private Logger logger = Logger.getLogger(OpenElisPatientFeedClientImpl.class);
+    private Logger logger = LogManager.getLogger(OpenElisPatientFeedClientImpl.class);
 
 
     @Autowired

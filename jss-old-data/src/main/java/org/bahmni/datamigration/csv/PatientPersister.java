@@ -4,7 +4,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.bahmni.csv.EntityPersister;
 import org.bahmni.csv.RowResult;
 import org.bahmni.datamigration.AddressService;
@@ -37,7 +38,7 @@ import static org.bahmni.jss.registration.RegistrationFields.sentenceCase;
 public class PatientPersister implements EntityPersister<Patient> {
     private static ObjectMapper objectMapper = new ObjectMapper();
     private static final Log log = LogFactory.getLog(PatientPersister.class);
-    private static Logger logger = Logger.getLogger(PatientPersister.class);
+    private static Logger logger = LogManager.getLogger(PatientPersister.class);
 
     private static int count;
 
