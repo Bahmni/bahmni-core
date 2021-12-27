@@ -1,11 +1,11 @@
 package org.bahmni.datamigration;
 
-import org.apache.log4j.Logger;
-
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import java.util.HashSet;
 
 public class AmbiguousTehsils {
-    private static Logger logger = Logger.getLogger(CorrectedTehsils.class);
+    private static Logger logger = LogManager.getLogger(CorrectedTehsils.class);
     private HashSet tehsils = new HashSet();
 
     public AmbiguousTehsils(String fileLocation, String fileName) throws IOException {

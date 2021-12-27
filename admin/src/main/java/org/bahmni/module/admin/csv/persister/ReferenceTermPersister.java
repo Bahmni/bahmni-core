@@ -1,6 +1,7 @@
 package org.bahmni.module.admin.csv.persister;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.csv.EntityPersister;
 import org.bahmni.csv.Messages;
 import org.bahmni.module.admin.csv.models.ReferenceTermRow;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class ReferenceTermPersister implements EntityPersister<ReferenceTermRow> {
 
     private UserContext userContext;
-    private static final Logger log = Logger.getLogger(PatientPersister.class);
+    private static final Logger log = LogManager.getLogger(PatientPersister.class);
 
     @Autowired
     private ReferenceDataConceptReferenceTermService referenceDataConceptReferenceTermService;

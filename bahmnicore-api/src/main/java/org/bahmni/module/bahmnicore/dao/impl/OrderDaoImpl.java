@@ -1,7 +1,8 @@
 package org.bahmni.module.bahmnicore.dao.impl;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.contract.orderTemplate.OrderTemplateJson;
 import org.bahmni.module.bahmnicore.dao.ApplicationDataDirectory;
 import org.bahmni.module.bahmnicore.dao.OrderDao;
@@ -43,7 +44,7 @@ import java.util.Set;
 public class OrderDaoImpl implements OrderDao {
     private static final String ORDER_TEMPLATES_DIRECTORY = "ordertemplates";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final Logger log = Logger.getLogger(OrderDaoImpl.class);
+    private static final Logger log = LogManager.getLogger(OrderDaoImpl.class);
 
     private SessionFactory sessionFactory;
     private ApplicationDataDirectory applicationDataDirectory;

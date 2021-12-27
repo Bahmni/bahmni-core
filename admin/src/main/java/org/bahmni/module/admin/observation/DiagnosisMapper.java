@@ -1,7 +1,8 @@
 package org.bahmni.module.admin.observation;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.csv.KeyValue;
 import org.bahmni.module.admin.csv.models.EncounterRow;
 import org.openmrs.Concept;
@@ -21,7 +22,7 @@ import java.util.List;
 @Component(value = "adminDiagnosisMapper")
 public class DiagnosisMapper {
 
-    private static final org.apache.log4j.Logger log = Logger.getLogger(DiagnosisMapper.class);
+    private static final  Logger log = LogManager.getLogger(DiagnosisMapper.class);
 
     private final ConceptCache conceptCache;
 

@@ -2,7 +2,8 @@ package org.bahmni.module.bahmnicore.web.v1_0.controller.display.controls;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.extensions.BahmniExtensions;
 import org.bahmni.module.bahmnicore.service.BahmniConceptService;
 import org.bahmni.module.bahmnicore.service.BahmniObsService;
@@ -54,7 +55,7 @@ public class ObsToObsTabularFlowSheetController {
     private BahmniExtensions bahmniExtensions;
     public static final String FLOWSHEET_EXTENSION = "flowsheetExtension";
 
-    private static Logger logger = Logger.getLogger(ObsToObsTabularFlowSheetController.class);
+    private static Logger logger = LogManager.getLogger(ObsToObsTabularFlowSheetController.class);
 
     @Autowired
     public ObsToObsTabularFlowSheetController(BahmniObsService bahmniObsService, ConceptService conceptService,

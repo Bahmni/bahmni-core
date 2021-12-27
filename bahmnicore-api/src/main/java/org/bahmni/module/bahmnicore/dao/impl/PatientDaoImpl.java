@@ -1,7 +1,8 @@
 package org.bahmni.module.bahmnicore.dao.impl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.bahmni.module.bahmnicore.contract.patient.PatientSearchParameters;
@@ -46,7 +47,7 @@ public class PatientDaoImpl implements PatientDao {
 
     public static final int MAX_NGRAM_SIZE = 20;
     private SessionFactory sessionFactory;
-    private static final Logger log = Logger.getLogger(PatientDaoImpl.class);
+    private static final Logger log = LogManager.getLogger(PatientDaoImpl.class);
 
     public PatientDaoImpl(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;

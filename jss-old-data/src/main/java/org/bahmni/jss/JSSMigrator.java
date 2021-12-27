@@ -1,6 +1,7 @@
 package org.bahmni.jss;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.bahmni.csv.MigrateResult;
 import org.bahmni.csv.MigratorBuilder;
 import org.bahmni.csv.exception.MigrationException;
@@ -27,7 +28,7 @@ public class JSSMigrator {
     private String csvLocation;
     private final int numberOfValidationThreads;
     private final int numberOfMigrationThreads;
-    private static Logger logger = Logger.getLogger(JSSMigrator.class);
+    private static Logger logger = LogManager.getLogger(JSSMigrator.class);
 
     public static void main(String[] args) throws URISyntaxException, IOException, ClassNotFoundException, SQLException, InterruptedException {
         if (args.length < 2) {

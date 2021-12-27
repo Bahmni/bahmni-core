@@ -1,6 +1,7 @@
 package org.bahmni.module.bahmnicore.datamigration;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.ApplicationError;
 import org.bahmni.module.bahmnicore.BahmniCoreException;
 import org.bahmni.module.bahmnicore.model.BahmniPatient;
@@ -9,7 +10,7 @@ import org.bahmni.module.bahmnicore.model.error.ErrorMessage;
 
 public class ExecutionMode {
     private final boolean dataMigrationMode;
-    private static Logger logger = Logger.getLogger(ExecutionMode.class);
+    private static Logger logger = LogManager.getLogger(ExecutionMode.class);
 
     public ExecutionMode(String dataMigrationProperty) {
         dataMigrationMode = !(dataMigrationProperty == null || !Boolean.parseBoolean(dataMigrationProperty));

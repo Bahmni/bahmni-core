@@ -1,7 +1,8 @@
 package org.bahmni.module.admin.csv.persister;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.csv.EntityPersister;
 import org.bahmni.csv.Messages;
 import org.bahmni.module.admin.csv.models.PatientProgramRow;
@@ -27,7 +28,7 @@ public class PatientProgramPersister implements EntityPersister<PatientProgramRo
 
     private UserContext userContext;
 
-    private static final Logger log = Logger.getLogger(PatientProgramPersister.class);
+    private static final Logger log = LogManager.getLogger(PatientProgramPersister.class);
     private String patientMatchingAlgorithmClassName;
 
     public void init(UserContext userContext, String patientMatchingAlgorithmClassName) {

@@ -4,7 +4,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.common.config.registration.service.RegistrationPageService;
 import org.bahmni.common.db.JDBCConnectionProvider;
 import org.bahmni.csv.CSVFile;
@@ -60,7 +61,7 @@ import java.util.List;
 @Controller
 public class AdminImportController extends BaseRestController {
     private final String baseUrl = "/rest/" + RestConstants.VERSION_1 + "/bahmnicore/admin/upload";
-    private static Logger logger = Logger.getLogger(AdminImportController.class);
+    private static Logger logger = LogManager.getLogger(AdminImportController.class);
 
     public static final String YYYY_MM_DD_HH_MM_SS = "_yyyy-MM-dd_HH:mm:ss";
     private static final int DEFAULT_NUMBER_OF_DAYS = 30;

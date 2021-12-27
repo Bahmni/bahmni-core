@@ -1,7 +1,8 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.service.BahmniDrugOrderService;
 import org.bahmni.module.bahmnicore.service.BahmniObsService;
 import org.bahmni.module.bahmnicore.util.BahmniDateUtil;
@@ -48,7 +49,7 @@ public class BahmniDrugOrderController extends BaseRestController {
     @Autowired
     private ConceptService conceptService;
 
-    private static Logger logger = Logger.getLogger(BahmniDrugOrderController.class);
+    private static Logger logger = LogManager.getLogger(BahmniDrugOrderController.class);
 
     private BahmniDrugOrderMapper bahmniDrugOrderMapper;
 
@@ -67,7 +68,7 @@ public class BahmniDrugOrderController extends BaseRestController {
     public List<BahmniDrugOrder> getActiveDrugOrders(@RequestParam(value = "patientUuid") String patientUuid,
                                                      @RequestParam(value = "startDate", required = false) String startDateStr,
                                                      @RequestParam(value = "endDate", required = false) String endDateStr) throws ParseException {
-        logger.info("Retrieving active drug orders for patient with uuid " + patientUuid);
+        logger.info("Retrieving active drug orders for patient with uuid {}" , patientUuid);
         Date startDate = BahmniDateUtil.convertToDate(startDateStr, BahmniDateUtil.DateFormatType.UTC);
         Date endDate = BahmniDateUtil.convertToDate(endDateStr, BahmniDateUtil.DateFormatType.UTC);
         return getActiveOrders(patientUuid, startDate, endDate);
@@ -154,13 +155,13 @@ public class BahmniDrugOrderController extends BaseRestController {
 
     private List<BahmniDrugOrder> getActiveOrders(String patientUuid, Date startDate, Date endDate) {
         List<DrugOrder> activeDrugOrders = drugOrderService.getActiveDrugOrders(patientUuid, startDate, endDate);
-        logger.info(activeDrugOrders.size() + " active drug orders found");
+        logger.info("active drug orders found {}",activeDrugOrders.size() );
         return getBahmniDrugOrders(patientUuid,activeDrugOrders);
     }
 
     private List<BahmniDrugOrder> getPrescribedOrders(List<String> visitUuids, String patientUuid, Boolean includeActiveVisit, Integer numberOfVisits, Date startDate, Date endDate, Boolean getEffectiveOrdersOnly) {
         List<DrugOrder> prescribedDrugOrders = drugOrderService.getPrescribedDrugOrders(visitUuids, patientUuid, includeActiveVisit, numberOfVisits, startDate, endDate, getEffectiveOrdersOnly);
-        logger.info(prescribedDrugOrders.size() + " prescribed drug orders found");
+        logger.info("prescribed drug orders found {}",prescribedDrugOrders.size() );
         return getBahmniDrugOrders(patientUuid, prescribedDrugOrders);
     }
 

@@ -1,7 +1,8 @@
 package org.bahmni.module.admin.csv.persister;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.csv.EntityPersister;
 import org.bahmni.csv.Messages;
 import org.bahmni.module.admin.csv.models.RelationshipRow;
@@ -35,7 +36,7 @@ public class RelationshipPersister implements EntityPersister<RelationshipRow> {
     @Qualifier("adminService")
     private AdministrationService administrationService;
 
-    private static final Logger log = Logger.getLogger(RelationshipPersister.class);
+    private static final Logger log = LogManager.getLogger(RelationshipPersister.class);
     private UserContext userContext;
 
     public void init(UserContext userContext) {

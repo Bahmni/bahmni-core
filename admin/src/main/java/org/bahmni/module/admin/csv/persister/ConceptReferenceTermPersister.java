@@ -1,6 +1,7 @@
 package org.bahmni.module.admin.csv.persister;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.csv.EntityPersister;
 import org.bahmni.csv.Messages;
 import org.bahmni.module.admin.csv.models.ConceptReferenceTermRow;
@@ -22,7 +23,7 @@ import static java.util.Objects.isNull;
 
 @Service
 public class ConceptReferenceTermPersister implements EntityPersister<FormerConceptReferenceRow> {
-    private static final org.apache.log4j.Logger log = Logger.getLogger(ConceptReferenceTermPersister.class);
+    private static final Logger log = LogManager.getLogger(ConceptReferenceTermPersister.class);
 
     @Autowired
     private ReferenceDataConceptReferenceTermService referenceTermService;

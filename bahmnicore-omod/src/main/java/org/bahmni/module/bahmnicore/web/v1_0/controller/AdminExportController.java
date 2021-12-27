@@ -1,6 +1,7 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.fileexport.FileExporter;
 import org.bahmni.module.admin.csv.exporter.ConceptSetExporter;
 import org.bahmni.module.admin.csv.models.ConceptRow;
@@ -23,7 +24,7 @@ import java.util.zip.ZipOutputStream;
 @Controller
 public class AdminExportController extends BaseRestController {
     private final String baseUrl = "/rest/" + RestConstants.VERSION_1 + "/bahmnicore/admin/export";
-    private static Logger logger = Logger.getLogger(AdminExportController.class);
+    private static Logger logger = LogManager.getLogger(AdminExportController.class);
 
     @Autowired
     private ConceptSetExporter conceptSetExporter;

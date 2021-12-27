@@ -1,6 +1,7 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.contract.encounter.data.EncounterModifierData;
 import org.bahmni.module.bahmnicore.service.BahmniEncounterModifierService;
 import org.openmrs.module.webservices.rest.web.RestConstants;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/bahmnicore/bahmniencountermodifier")
 public class BahmniEncounterModifierController extends BaseRestController {
 
-    private static final Logger log = Logger.getLogger(BahmniEncounterModifierController.class);
+    private static final Logger log = LogManager.getLogger(BahmniEncounterModifierController.class);
 
 
     @Autowired

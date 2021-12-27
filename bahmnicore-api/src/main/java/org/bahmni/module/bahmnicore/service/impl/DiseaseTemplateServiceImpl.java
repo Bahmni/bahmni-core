@@ -1,7 +1,8 @@
 package org.bahmni.module.bahmnicore.service.impl;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.BahmniCoreException;
 import org.bahmni.module.bahmnicore.contract.diseasetemplate.DiseaseTemplate;
 import org.bahmni.module.bahmnicore.contract.diseasetemplate.DiseaseTemplateConfig;
@@ -45,7 +46,7 @@ public class DiseaseTemplateServiceImpl implements DiseaseTemplateService {
     private ObservationTemplateMapper observationTemplateMapper;
     private BahmniConceptService bahmniConceptService;
     private final String CASE_INTAKE_CONCEPT_CLASS = "Case Intake";
-    private static final org.apache.log4j.Logger log = Logger.getLogger(DiseaseTemplateServiceImpl.class);
+    private static final Logger log = LogManager.getLogger(DiseaseTemplateServiceImpl.class);
 
     @Autowired
     public DiseaseTemplateServiceImpl(BahmniObsService bahmniObsService, BahmniVisitService bahmniVisitService,

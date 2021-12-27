@@ -1,7 +1,9 @@
 package org.bahmni.module.bahmnicore.util;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.model.searchParams.AdditionalSearchParam;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -12,13 +14,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SqlQueryHelper {
     private final Pattern paramPlaceHolderPattern;
     private static final String PARAM_PLACE_HOLDER_REGEX = "\\$\\{[^{]*\\}";
-    private static final Logger log = Logger.getLogger(SqlQueryHelper.class);
+    private static final Logger log = LogManager.getLogger(SqlQueryHelper.class);
 
     public SqlQueryHelper() {
         this.paramPlaceHolderPattern = Pattern.compile(PARAM_PLACE_HOLDER_REGEX);

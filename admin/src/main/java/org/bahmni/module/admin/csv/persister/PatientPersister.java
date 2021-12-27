@@ -1,6 +1,7 @@
 package org.bahmni.module.admin.csv.persister;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.common.config.registration.service.RegistrationPageService;
 import org.bahmni.csv.EntityPersister;
 import org.bahmni.csv.Messages;
@@ -40,7 +41,7 @@ public class PatientPersister implements EntityPersister<PatientRow> {
 
     private CSVAddressService csvAddressService;
 
-    private static final Logger log = Logger.getLogger(PatientPersister.class);
+    private static final Logger log = LogManager.getLogger(PatientPersister.class);
 
     public void init(UserContext userContext) {
         this.userContext = userContext;

@@ -1,7 +1,8 @@
 package org.bahmni.module.bahmnicore.model;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openmrs.module.webservices.rest.SimpleObject;
 
 import java.text.ParseException;
@@ -24,7 +25,7 @@ public class BahmniPatient {
     private String uuid;
     private String balance;
     private Date personDateCreated;
-    private static Logger logger = Logger.getLogger(BahmniPatient.class);
+    private static Logger logger = LogManager.getLogger(BahmniPatient.class);
 
     public BahmniPatient() {
     }

@@ -1,7 +1,8 @@
 package org.bahmni.module.bahmnicoreui.mapper;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicoreui.constant.DiseaseSummaryConstants;
 import org.bahmni.module.bahmnicoreui.contract.DiseaseSummaryMap;
 import org.openmrs.Concept;
@@ -12,7 +13,7 @@ import java.util.List;
 
 public class DiseaseSummaryDrugOrderMapper{
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     public DiseaseSummaryMap map(List<DrugOrder> drugOrders, String groupBy)  {
         DiseaseSummaryMap diseaseSummaryMap = new DiseaseSummaryMap();

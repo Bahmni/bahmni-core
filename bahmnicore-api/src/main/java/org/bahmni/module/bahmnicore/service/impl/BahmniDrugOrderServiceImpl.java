@@ -1,7 +1,8 @@
 package org.bahmni.module.bahmnicore.service.impl;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.contract.drugorder.ConceptData;
 import org.bahmni.module.bahmnicore.contract.drugorder.DrugOrderConfigResponse;
 import org.bahmni.module.bahmnicore.contract.drugorder.OrderFrequencyData;
@@ -53,7 +54,7 @@ public class BahmniDrugOrderServiceImpl implements BahmniDrugOrderService {
 
 
     private static final String GP_DOSING_INSTRUCTIONS_CONCEPT_UUID = "order.dosingInstructionsConceptUuid";
-    private static Logger logger = Logger.getLogger(BahmniDrugOrderService.class);
+    private static Logger logger = LogManager.getLogger(BahmniDrugOrderService.class);
 
 
     @Autowired

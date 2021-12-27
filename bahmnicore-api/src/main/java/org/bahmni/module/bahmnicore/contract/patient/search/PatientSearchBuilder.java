@@ -1,6 +1,7 @@
 package org.bahmni.module.bahmnicore.contract.patient.search;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.contract.patient.response.PatientResponse;
 import org.bahmni.module.bahmnicore.customdatatype.datatype.CodedConceptDatatype;
 import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.ProgramAttributeType;
@@ -18,7 +19,7 @@ import java.util.Map;
 @Deprecated
 public class PatientSearchBuilder {
 
-	private static final Logger log = Logger.getLogger(PatientSearchBuilder.class);
+	private static final Logger log = LogManager.getLogger(PatientSearchBuilder.class);
 
 	private String visitJoin = " left outer join visit v on v.patient_id = p.person_id and v.date_stopped is null ";
 	private static String VISIT_JOIN = "_VISIT_JOIN_";

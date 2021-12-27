@@ -1,7 +1,8 @@
 package org.openmrs.module.bahmniemrapi.encountertransaction.advice;
 
 import groovy.lang.GroovyClassLoader;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
 import org.openmrs.module.bahmniemrapi.obscalculator.ObsValueCalculator;
 import org.openmrs.util.OpenmrsUtil;
@@ -14,7 +15,7 @@ import java.nio.file.Paths;
 
 public class BahmniEncounterTransactionUpdateAdvice implements MethodBeforeAdvice {
 
-    private static Logger logger = Logger.getLogger(BahmniEncounterTransactionUpdateAdvice.class);
+    private static Logger logger = LogManager.getLogger(BahmniEncounterTransactionUpdateAdvice.class);
     
     private static String BAHMNI_OBS_VALUE_CALCULATOR_FILENAME = "BahmniObsValueCalculator.groovy";
     
