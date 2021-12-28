@@ -2,9 +2,8 @@ name: Build Bahmni Core
 
 on:
   push:
-    branches:
-      - master
-      - 'BAH-*'
+    branches: [ master ]
+
   pull_request:
     branches: [ master ]
 
