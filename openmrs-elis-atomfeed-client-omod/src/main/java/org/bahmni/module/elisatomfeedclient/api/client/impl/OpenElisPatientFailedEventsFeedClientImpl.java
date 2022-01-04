@@ -77,7 +77,7 @@ public class OpenElisPatientFailedEventsFeedClientImpl extends OpenElisFeedClien
                 }
 
             } catch (Exception ex) {
-                logger.error("openelisatomfeedclient:failed feed execution while running failed events" + e, e);
+                logger.error("openelisatomfeedclient:failed feed execution while running failed events {}", e);
                 throw new RuntimeException(ex);
             }
         }

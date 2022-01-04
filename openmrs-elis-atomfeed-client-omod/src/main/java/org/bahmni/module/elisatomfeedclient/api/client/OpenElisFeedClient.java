@@ -40,7 +40,7 @@ public abstract class OpenElisFeedClient {
         try {
             return new URI(feedUri);
         } catch (URISyntaxException e) {
-            logger.error("openelisatomfeedclient:error instantiating client:" + e.getMessage(), e);
+            logger.error("openelisatomfeedclient:error instantiating client: {} {}", e.getMessage(), e);
             throw new RuntimeException("error for uri:" + feedUri);
         }
     }

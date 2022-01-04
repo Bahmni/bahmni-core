@@ -108,7 +108,7 @@ public class JSSMigrator {
             logger.info("Stage : " + migrateResult.getStageName() + ". Success count : " + migrateResult.numberOfSuccessfulRecords() +
                     ". Fail count : " + migrateResult.numberOfFailedRecords());
         } catch (MigrationException e) {
-            logger.error("There was an error during migration. " + e.getMessage());
+            logger.error("There was an error during migration. {}", e.getMessage());
         }
     }
 }
