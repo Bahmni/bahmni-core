@@ -133,7 +133,7 @@ public class OpenElisAccessionEventWorker implements EventWorker {
 
             saveUpdatedEncounters(updatedEncounters);
         } catch (IOException e) {
-            logger.error("openelisatomfeedclient:error processing event : " + accessionUrl + e.getMessage(), e);
+            logger.error("openelisatomfeedclient:error processing event : {} {} {}", accessionUrl , e.getMessage(), e);
             throw new OpenElisFeedException("could not read accession data", e);
         } catch (ParseException pe) {
             logger.error("openelisatomfeedclient:error processing lab results. Invalid result data type : " + accessionUrl + pe.getMessage(), pe);

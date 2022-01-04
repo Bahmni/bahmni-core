@@ -67,7 +67,7 @@ public class OpenElisPatientFeedClientImpl extends OpenElisFeedClient implements
                     createAtomFeedClient();
                 }
             } catch (Exception ex) {
-                logger.error("openelisatomfeedclient:failed feed execution " + e, e);
+                logger.error("openelisatomfeedclient:failed feed execution {}", e);
                 throw new RuntimeException(ex);
             }
         }

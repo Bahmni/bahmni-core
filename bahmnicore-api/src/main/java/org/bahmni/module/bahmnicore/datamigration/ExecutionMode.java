@@ -22,7 +22,7 @@ public class ExecutionMode {
         }
 
         if (ErrorCode.duplicationError(applicationError.getErrorCode()))
-            logger.warn(applicationError.getMessage() + bahmniPatient.getIdentifier());
+            logger.warn(applicationError.getMessage(), bahmniPatient.getIdentifier());
         else
             throw applicationError;
     }

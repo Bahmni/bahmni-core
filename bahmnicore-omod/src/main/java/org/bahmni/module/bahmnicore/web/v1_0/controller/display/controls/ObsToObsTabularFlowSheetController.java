@@ -261,12 +261,12 @@ public class ObsToObsTabularFlowSheetController {
 
     private void validate(String conceptSet, String groupByConcept, Concept rootConcept, Concept childConcept) {
         if (rootConcept == null) {
-            logger.error("Root concept not found for the name:  " + conceptSet);
+            logger.error("Root concept not found for the name: {} ", conceptSet);
             throw new RuntimeException("Root concept not found for the name:  " + conceptSet);
         }
 
         if (!rootConcept.getSetMembers().contains(childConcept)) {
-            logger.error("GroupByConcept: " + groupByConcept + " doesn't belong to the Root concept:  " + conceptSet);
+            logger.error("GroupByConcept: {} doesn't belong to the Root concept: {}  ", groupByConcept, conceptSet);
             throw new RuntimeException("GroupByConcept: " + groupByConcept + " doesn't belong to the Root concept:  " + conceptSet);
         }
     }
