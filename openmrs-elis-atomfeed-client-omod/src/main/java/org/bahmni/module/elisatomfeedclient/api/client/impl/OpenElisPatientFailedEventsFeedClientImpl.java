@@ -66,7 +66,7 @@ public class OpenElisPatientFailedEventsFeedClientImpl extends OpenElisFeedClien
     @Override
     public void processFailedEvents() {
         try {
-            logger.info("openelisatomfeedclient:processing failed events " + DateTime.now());
+            logger.info("openelisatomfeedclient:processing failed events {}", DateTime.now());
             getAtomFeedClient().processFailedEvents();
         } catch (Exception e) {
             try {
