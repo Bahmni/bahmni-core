@@ -89,7 +89,7 @@ public class OpenElisAccessionEventWorker implements EventWorker {
     @Override
     public void process(Event event) {
         String accessionUrl = atomFeedProperties.getOpenElisUri() + event.getContent();
-        logger.info("Processing event : " + accessionUrl);
+        logger.info("Processing event : {}", accessionUrl);
         try {
             OpenElisAccession openElisAccession = httpClient.get(accessionUrl, OpenElisAccession.class);
             if (accessionHelper.shouldIgnoreAccession(openElisAccession)) {
@@ -109,12 +109,12 @@ public class OpenElisAccessionEventWorker implements EventWorker {
             if (orderEncounter != null) {
                 AccessionDiff diff = openElisAccession.getDiff(orderEncounter);
                 if (diff.hasDifference()) {
-                    logger.info("updating encounter for accession : " + accessionUrl);
+                    logger.info("updating encounter for accession : {}" , accessionUrl);
                     accessionHelper.addOrDiscontinueOrderDifferences(openElisAccession, diff, orderEncounter);
                     shouldSaveOrderEncounter = true;
                 }
             } else {
-                logger.info("creating new encounter for accession : " + accessionUrl);
+                logger.info("creating new encounter for accession : {}" , accessionUrl);
                 orderEncounter = accessionHelper.mapToNewEncounter(openElisAccession, LAB_VISIT);
                 shouldSaveOrderEncounter = true;
             }
@@ -152,14 +152,14 @@ public class OpenElisAccessionEventWorker implements EventWorker {
                     clazz = gcl.parseClass(file);
                     if (className.equals(ElisFeedEncounterInterceptor.class)
                             && ElisFeedEncounterInterceptor.class.isAssignableFrom(clazz)) {
-                        logger.info("BahmniEncounterTransactionUpdateAdvice : Using rules in " + clazz.getName());
+                        logger.info("BahmniEncounterTransactionUpdateAdvice : Using rules in {}" , clazz.getName());
                         ElisFeedEncounterInterceptor elisFeedEncounterInterceptor = (ElisFeedEncounterInterceptor) clazz.newInstance();
                         Set<Encounter> encounters = (HashSet<Encounter>) object;
                         elisFeedEncounterInterceptor.run(encounters);
                         logger.info("BahmniEncounterTransactionUpdateAdvice : Done");
                     } else if (className.equals(ElisFeedAccessionInterceptor.class)
                             && ElisFeedAccessionInterceptor.class.isAssignableFrom(clazz)) {
-                        logger.info("BahmniEncounterTransactionUpdateAdvice : Using rules in " + clazz.getName());
+                        logger.info("BahmniEncounterTransactionUpdateAdvice : Using rules in {}" , clazz.getName());
                         ElisFeedAccessionInterceptor elisFeedAccessionInterceptor = (ElisFeedAccessionInterceptor) clazz.newInstance();
                         elisFeedAccessionInterceptor.run((OpenElisAccession) object);
                         logger.info("BahmniEncounterTransactionUpdateAdvice : Done");

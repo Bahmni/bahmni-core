@@ -59,7 +59,7 @@ public class OpenElisPatientFeedClientImpl extends OpenElisFeedClient implements
     @Override
     public void processFeed() {
         try {
-            logger.info("openelisatomfeedclient:processing feed " + DateTime.now());
+            logger.info("openelisatomfeedclient:processing feed {}", DateTime.now());
             getAtomFeedClient().processEvents();
         } catch (Exception e) {
             try {

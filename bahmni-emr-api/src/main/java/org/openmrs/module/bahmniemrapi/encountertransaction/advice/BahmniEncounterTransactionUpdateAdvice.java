@@ -21,7 +21,7 @@ public class BahmniEncounterTransactionUpdateAdvice implements MethodBeforeAdvic
     
     @Override
     public void before(Method method, Object[] args, Object target) throws Throwable {
-        logger.info(this.getClass().getName() + ": Start");
+        logger.info( "{}: Start", this.getClass().getName());
         GroovyClassLoader gcl = new GroovyClassLoader();
         String fileName = Paths.get(
         		OpenmrsUtil.getApplicationDataDirectory(),
