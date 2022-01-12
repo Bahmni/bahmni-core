@@ -53,23 +53,58 @@
         <argLine>-Xmx1024m</argLine>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>IT</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.17</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                                <configuration>
+                                    <argLine>-Xmx512m</argLine>
+                                    <includes>
+                                        <include>**/*IT.java</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 
-<!-- <distributionManagement>
-       <snapshotRepository>
-           <id>repo.mybahmni.org</id>
-           <name>bahmni-artifactory-snapshots</name>
-           <url>s3://repo.mybahmni.org/artifactory/snapshot</url>
-       </snapshotRepository>
-   </distributionManagement> -->
-         
-    <distributionManagement>
-    <repository>
-      <id>github</id>
-      <name>bahmni-core-snapshot</name>
-      <url>https://maven.pkg.github.com/Bahmni/bahmni-core</url>
-    </repository>
-   </distributionManagement>
-
+        <profile>
+            <id>mybahmni-s3</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>repo.mybahmni.org</id>
+                    <name>bahmni-artifactory-snapshots</name>
+                    <url>s3://repo.mybahmni.org/artifactory/snapshot</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
+        <profile>
+            <id>github</id>
+            <distributionManagement>
+                <repository>
+                    <id>github</id>
+                    <name>bahmni-core-snapshot</name>
+                    <url>https://maven.pkg.github.com/Bahmni/bahmni-core</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
     <dependencyManagement>
         <dependencies>
             <!--Child modules-->
@@ -482,7 +517,7 @@
        </extensions>
     </build>
 
-    <profiles>
+    <!-- <profiles>
         <profile>
             <id>IT</id>
             <build>
@@ -510,7 +545,7 @@
             </build>
         </profile>
 
-    </profiles>
+    </profiles> -->
 
     <repositories>
         <repository>

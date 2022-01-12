@@ -1,11 +1,10 @@
-name: Build Bahmni Core
+name: Build and generate artifacts for Bahmni Core
 
 on:
   push:
-    branches: [ master ]
-
-  pull_request:
-    branches: [ master ]
+    branches: 
+      - master
+      - BAH-*
 
 jobs:
   build:
@@ -31,5 +30,4 @@ jobs:
       env:
           GITHUB_USER_REF: ${{ secrets.DOCKER_HUB_USERNAME }}
           GITHUB_TOKEN_REF: ${{ secrets.GITHUB_TOKEN }}
-
         
