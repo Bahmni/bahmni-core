@@ -17,6 +17,9 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: Set up Maven environments
+      uses: s4u/maven-settings-action@v2.4.1
+      with:
         server-id: github
         server-username: GITHUB_USER_REF  
         server-password: GITHUB_TOKEN_REF
