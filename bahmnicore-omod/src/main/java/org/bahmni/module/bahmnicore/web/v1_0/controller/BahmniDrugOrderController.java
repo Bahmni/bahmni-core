@@ -155,7 +155,7 @@ public class BahmniDrugOrderController extends BaseRestController {
 
     private List<BahmniDrugOrder> getActiveOrders(String patientUuid, Date startDate, Date endDate) {
         List<DrugOrder> activeDrugOrders = drugOrderService.getActiveDrugOrders(patientUuid, startDate, endDate);
-        logger.info("active drug orders found {}", activeDrugOrders.size());
+        logger.info("{} active drug orders found", activeDrugOrders.size());
         return getBahmniDrugOrders(patientUuid,activeDrugOrders);
     }
 

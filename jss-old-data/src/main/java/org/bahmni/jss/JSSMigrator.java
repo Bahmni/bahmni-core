@@ -65,9 +65,8 @@ public class JSSMigrator {
     }
 
     private static void logPropertyUsage(String openMRSHostName, String databaseUserId, String databaseUserPassword, String openmrsUserId, String openmrsPassword) {
-        logger.info(String.format("By default uses following properties: openmrs.host.name=%s; database.user.id=%s; database.user.password=%s; openmrs.user.id=%s; openmrs.user.password=%s",
-                openMRSHostName, databaseUserId, databaseUserPassword, openmrsUserId, openmrsPassword));
-    }
+        logger.printf(Level.INFO, "By default uses following properties: openmrs.host.name=%s; database.user.id=%s; openmrs.user.id=%s;", openMRSHostName, databaseUserId, openmrsUserId);
+   }
 
     public JSSMigrator(String csvLocation, String casteFileName, String districtFileName, String stateFileName,
                        String classFileName, String tahsilFileName, OpenMRSRESTConnection openMRSRESTConnection,
