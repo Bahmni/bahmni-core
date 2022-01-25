@@ -2,10 +2,8 @@ name: Build and generate artifacts for Bahmni Core
 
 on:
   push:
-    branches: 
-      - master
-      - BAH-*
-
+    branches: [ master ]
+    
 jobs:
   build:
 
