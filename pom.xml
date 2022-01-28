@@ -457,6 +457,9 @@
                         <excludes>
                             <exclude>**/BaseIntegrationTest.java</exclude>
                         </excludes>
+                        <systemProperties>
+                            <log4j2.disable.jmx>true</log4j2.disable.jmx>
+                        </systemProperties>
                     </configuration>
                 </plugin>
             </plugins>
