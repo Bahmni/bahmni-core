@@ -1,14 +1,19 @@
-name: Build and generate artifacts for Bahmni Core
+name: Build and Publish artifacts
 
 on:
   push:
-    branches: [ master ]
-    
+    branches: [ master]
+    paths-ignore:
+      - '**.md'
+env:
+  ORG_NAME: Bahmni
+  EVENT_TYPE: bahmni-core-trigger
+  REPOSITORY_NAME: openmrs-distro-bahmni
+
 jobs:
-  build:
-
+  build-and-publish:
+    name: Build and publish artifacts
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 1.8
@@ -28,4 +33,19 @@ jobs:
       env:
           GITHUB_USER_REF: ${{ secrets.DOCKER_HUB_USERNAME }}
           GITHUB_TOKEN_REF: ${{ secrets.GITHUB_TOKEN }}
-        
+  trigger:
+    name: Trigger Workflows
+    needs: build-and-publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create repository_dispatch
+        run : |
+              trigger_result=$(curl -s -o trigger_response.txt -w "%{http_code}" -X POST -H "Accept: application/vnd.github.v3+json" -H 'authorization: Bearer ${{ secrets.BAHMNI_PAT }}' https://api.github.com/repos/${ORG_NAME}/${REPOSITORY_NAME}/dispatches -d '{"event_type":"'"${EVENT_TYPE}"'"}')
+              if [ $trigger_result == 204 ];then
+                echo "Trigger to $ORG_NAME/$REPOSITORY_NAME Success"
+              else
+                echo "Trigger to $ORG_NAME/$REPOSITORY_NAME Failed"
+                cat trigger_response.txt
+                exit 1
+              fi
+      
