@@ -9,7 +9,9 @@ env:
   ORG_NAME: Bahmni
   EVENT_TYPE: bahmni-core-trigger
   REPOSITORY_NAME: openmrs-distro-bahmni
-
+  GITHUB_USER_REF: ${{ secrets.DOCKER_HUB_USERNAME }}
+  GITHUB_TOKEN_REF: ${{ secrets.GITHUB_TOKEN }}
+  
 jobs:
   build-and-publish:
     name: Build and publish artifacts
@@ -30,9 +32,7 @@ jobs:
     - name: Build with Maven
       run: |
         mvn clean package -DattachMuleSources -Pgithub deploy
-      env:
-          GITHUB_USER_REF: ${{ secrets.DOCKER_HUB_USERNAME }}
-          GITHUB_TOKEN_REF: ${{ secrets.GITHUB_TOKEN }}
+
   trigger:
     name: Trigger Workflows
     needs: build-and-publish
