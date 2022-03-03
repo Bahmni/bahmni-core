@@ -1,0 +1,27 @@
+name: Build and Publish package
+on:
+  push:
+    branches: [ master ]
+  
+jobs:
+  build-publish-package:
+    name: Build and Publish package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+          server-id: nexus-sonatype
+          server-username: NEXUS_USERNAME
+          server-password: NEXUS_PASSWORD
+      - name: Install compass
+        run: |
+          sudo apt-get install ruby-dev
+          sudo gem install compass -v 1.0.3
+      - name: Build and deploy with Maven
+        run: mvn --no-transfer-progress clean -U deploy
+        env:
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
