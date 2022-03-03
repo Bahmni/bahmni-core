@@ -1,7 +1,7 @@
 package org.bahmni.module.referencedata.labconcepts.model.event;
 
 import org.ict4h.atomfeed.server.service.Event;
-import org.joda.time.DateTime;
+import java.time.LocalDateTime;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAttribute;
 import org.openmrs.ConceptName;
@@ -43,7 +43,7 @@ public class SaleableTypeEvent implements ConceptServiceOperationEvent {
     public Event asAtomFeedEvent(Object[] arguments) throws URISyntaxException {
         Concept concept = (Concept) arguments[0];
         String url = String.format(this.url, RESOURCES, concept.getUuid());
-        return new Event(UUID.randomUUID().toString(), RESOURCE_TITLE, DateTime.now(), new URI(url), url, this.category);
+        return new Event(UUID.randomUUID().toString(), RESOURCE_TITLE, LocalDateTime.now(), new URI(url), url, this.category);
     }
 
     @Override

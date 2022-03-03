@@ -34,7 +34,7 @@
     <concept concept_id="104" retired="false" datatype_id="1" class_id="8" is_set="false" creator="1"
              date_created="2005-01-01 00:00:00.0" uuid="6923d0e0-8734-11e3-baa7-0800200c9a66"/>
     <concept_numeric concept_id="104" hi_normal="1497.0" low_critical="99.0" low_normal="445.0" hi_critical="1800.0"
-                     hi_absolute="2500.0" low_absolute="0.0" units="cells/mmL" precise="false"/>
+                     hi_absolute="2500.0" low_absolute="0.0" units="cells/mmL" allow_decimal="false"/>
     <concept_name concept_name_id="6" concept_id="104" name="LAB_MINNORMAL" locale="en" creator="1"
                   date_created="2005-01-01 00:00:00.0" voided="false" concept_name_type="FULLY_SPECIFIED"
                   uuid="152b58c0-872e-11e3-baa7-0800200c9a66" locale_preferred="0"/>
@@ -44,7 +44,7 @@
     <concept concept_id="105" retired="false" datatype_id="1" class_id="8" is_set="false" creator="1"
              date_created="2005-01-01 00:00:00.0" uuid="6923d0e0-8734-11e3-baa7-0800200c9a76"/>
     <concept_numeric concept_id="105" hi_normal="1497.0" low_critical="99.0" low_normal="445.0" hi_critical="1800.0"
-                     hi_absolute="2500.0" low_absolute="0.0" units="cells/mmL" precise="false"/>
+                     hi_absolute="2500.0" low_absolute="0.0" units="cells/mmL" allow_decimal="false"/>
     <concept_name concept_name_id="7" concept_id="105" name="LAB_MAXNORMAL" locale="en" creator="1"
                   date_created="2005-01-01 00:00:00.0" voided="false" concept_name_type="FULLY_SPECIFIED"
                   uuid="252b58c0-872e-11e3-baa7-0800200c9a66" locale_preferred="0"/>

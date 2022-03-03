@@ -6,7 +6,7 @@ import org.ict4h.atomfeed.server.service.Event;
 import org.ict4h.atomfeed.server.service.EventService;
 import org.ict4h.atomfeed.server.service.EventServiceImpl;
 import org.ict4h.atomfeed.transaction.AFTransactionWorkWithoutResult;
-import org.joda.time.DateTime;
+import java.time.LocalDateTime;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.addresshierarchy.AddressHierarchyEntry;
 import org.openmrs.module.atomfeed.transaction.support.AtomFeedSpringTransactionManager;
@@ -62,7 +62,7 @@ public class AddressHierarchyEntryEventInterceptor implements AfterReturningAdvi
             return;
         }
         String contents = String.format(TEMPLATE, entry.getUuid());
-        final Event event = new Event(UUID.randomUUID().toString(), TITLE, DateTime.now(), (URI) null, contents, CATEGORY);
+        final Event event = new Event(UUID.randomUUID().toString(), TITLE, LocalDateTime.now(), (URI) null, contents, CATEGORY);
 
         atomFeedSpringTransactionManager.executeWithTransaction(
                 new AFTransactionWorkWithoutResult() {

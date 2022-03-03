@@ -31,12 +31,12 @@ public class ConceptMapperTest {
         conceptRow.uuid = UUID.randomUUID().toString();
         conceptRow.shortName = "UName";
         conceptRow.conceptClass = "Finding";
-        conceptRow.precise = "true";
+        conceptRow.allowDecimal = "true";
         Concept mappedConcept = conceptMapper.map(conceptRow);
         assertEquals(conceptRow.name, mappedConcept.getUniqueName());
         assertEquals(conceptRow.shortName, mappedConcept.getDisplayName());
         assertEquals(conceptRow.conceptClass, mappedConcept.getClassName());
-        assertEquals(conceptRow.precise, mappedConcept.getPrecise());
+        assertEquals(conceptRow.allowDecimal, mappedConcept.getAllowDecimal());
         assertEquals(conceptRow.getDataType(), mappedConcept.getDataType());
         assertEquals(conceptRow.getUuid(), mappedConcept.getUuid());
     }

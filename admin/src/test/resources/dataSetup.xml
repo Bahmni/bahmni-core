@@ -33,7 +33,7 @@
                            creator="1" date_created="2004-08-12 00:00:00.0"/>
     <concept_set concept_set_id="2" concept_id="1" concept_set="23" creator="1" date_created="2004-08-12 00:00:00.0"
                  sort_weight="1"/>
-    <concept_numeric concept_id="1" precise="0"/>
+    <concept_numeric concept_id="1" allow_decimal="0"/>
 
     <concept concept_id="3901" retired="false" datatype_id="1" class_id="5" is_set="false" creator="1"
              date_created="2004-08-12 00:00:00.0" version="" changed_by="1" date_changed="2005-02-25 11:43:43.0"

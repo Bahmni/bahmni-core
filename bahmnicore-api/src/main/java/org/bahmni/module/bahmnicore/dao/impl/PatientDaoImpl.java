@@ -47,7 +47,7 @@ public class PatientDaoImpl implements PatientDao {
 
     public static final int MAX_NGRAM_SIZE = 20;
     private SessionFactory sessionFactory;
-    private static final Logger log = LogManager.getLogger(PatientDaoImpl.class);
+    private final Logger log = LogManager.getLogger(PatientDaoImpl.class);
 
     public PatientDaoImpl(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;

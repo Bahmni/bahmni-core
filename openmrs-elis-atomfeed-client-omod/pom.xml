@@ -341,7 +341,7 @@
         <dependency>
             <groupId>org.ict4h.openmrs</groupId>
             <artifactId>openmrs-atomfeed-api</artifactId>
-            <version>2.5.3</version>
+            <version>${openmrsAtomfeedVersion}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -88,7 +88,7 @@
     <concept_name concept_id="343" name="SName" locale="en" creator="1" date_created="2005-01-01 00:00:00.0"
                   concept_name_id="18121" voided="false" uuid="ccid4cb7-feet-4007-lkcc-tkjt94022222"
                   concept_name_type="SHORT" locale_preferred="0"/>
-    <concept_numeric concept_id="343" precise="0"/>
+    <concept_numeric concept_id="343" allow_decimal="0"/>
 
 
     <concept concept_id="788" retired="0" datatype_id="1" class_id="11" is_set="0" creator="1"

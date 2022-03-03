@@ -22,7 +22,4 @@ jobs:
     - name: Build with Maven
       run: |
         mvn install -Dmaven.javadoc.skip=true -V -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
-        mvn verify -P IT -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -pl bahmni-emr-api/
-        mvn verify -P IT -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -pl bahmnicore-api/
-        mvn verify -P IT -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -pl bahmnicore-omod/
-        
+        mvn verify -P IT -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn

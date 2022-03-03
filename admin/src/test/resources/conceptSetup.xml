@@ -86,7 +86,7 @@
     <concept_name concept_id="149" name="Temperature" locale="en" creator="1" date_created="2020-11-17 11:36:42"
                   concept_name_id="302" voided="false" uuid="5d2d4cb7-955b-zzzz-mmm7-0ecc9415555"
                   concept_name_type="FULLY_SPECIFIED" locale_preferred="0"/>
-    <concept_numeric concept_id="149" hi_normal="104" low_normal="96" precise="0"/>
+    <concept_numeric concept_id="149" hi_normal="104" low_normal="96" allow_decimal="0"/>
 
     <!--New Text Concept-->
     <concept concept_id="151" retired="0" datatype_id="3" class_id="1" is_set="0" creator="1"

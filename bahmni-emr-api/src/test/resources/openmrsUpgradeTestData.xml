@@ -29,9 +29,9 @@
                   date_created="2015-08-18 12:32:35.0" concept_name_type="FULLY_SPECIFIED"
                   locale_preferred="1" voided="false" uuid="f4d0b584-6ce5-40e2-9ce5-fa7ec07b32a4b"/>
 
-    <concept_numeric concept_id="62" hi_normal="1497.0" low_critical="99.0" low_normal="445.0" hi_critical="1800.0" hi_absolute="2500.0" low_absolute="0.0" units="cells/mmL" precise="false"/>
-    <concept_numeric concept_id="64" hi_normal="250.0" low_critical="0.0" units="kg" precise="true" display_precision="10" />
-    <concept_numeric concept_id="65" hi_normal="250.0" low_critical="0.0" units="kg" precise="true" display_precision="10" />
+    <concept_numeric concept_id="62" hi_normal="1497.0" low_critical="99.0" low_normal="445.0" hi_critical="1800.0" hi_absolute="2500.0" low_absolute="0.0" units="cells/mmL" allow_decimal="false"/>
+    <concept_numeric concept_id="64" hi_normal="250.0" low_critical="0.0" units="kg" allow_decimal="true" display_precision="10" />
+    <concept_numeric concept_id="65" hi_normal="250.0" low_critical="0.0" units="kg" allow_decimal="true" display_precision="10" />
 
 
     <!--Vitals -> Pulse, Blood Pressure-->

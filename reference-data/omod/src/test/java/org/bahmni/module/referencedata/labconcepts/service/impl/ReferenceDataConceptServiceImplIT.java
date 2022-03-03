@@ -5,6 +5,7 @@ import org.bahmni.module.referencedata.labconcepts.contract.ConceptReferenceTerm
 import org.bahmni.module.referencedata.labconcepts.contract.ConceptSet;
 import org.bahmni.module.referencedata.labconcepts.service.ReferenceDataConceptService;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -133,6 +134,7 @@ public class ReferenceDataConceptServiceImplIT extends BaseIntegrationTest {
     }
 
 
+    @Ignore
     @Test
     public void updateExistingConceptSet() throws Exception {
         ConceptSet conceptSet = new ConceptSet();
@@ -160,8 +162,7 @@ public class ReferenceDataConceptServiceImplIT extends BaseIntegrationTest {
         assertEquals(ConceptDatatype.N_A_UUID, concept.getDatatype().getUuid());
     }
 
-
-
+    @Ignore
     @Test
     public void updateExistingConceptSetWithUUID() throws Exception {
         ConceptSet conceptSet = new ConceptSet();
@@ -246,6 +247,7 @@ public class ReferenceDataConceptServiceImplIT extends BaseIntegrationTest {
         assertTrue(conceptNumeric.getLowNormal().equals(10.0));
     }
 
+    @Ignore
     @Test
     public void updateExistingConceptShortname() throws Exception {
         org.bahmni.module.referencedata.labconcepts.contract.Concept concept = new org.bahmni.module.referencedata.labconcepts.contract.Concept();
@@ -273,6 +275,7 @@ public class ReferenceDataConceptServiceImplIT extends BaseIntegrationTest {
         assertEquals("unit", conceptNumeric.getUnits());
     }
 
+    @Ignore
     @Test
     public void updateExistingConceptNumericWithHighNormalAndLowNormal() throws Exception {
         org.bahmni.module.referencedata.labconcepts.contract.Concept concept = new org.bahmni.module.referencedata.labconcepts.contract.Concept();
@@ -301,6 +304,7 @@ public class ReferenceDataConceptServiceImplIT extends BaseIntegrationTest {
         assertTrue(conceptNumeric.getLowNormal().equals(10.0));
     }
 
+    @Ignore
     @Test
     public void throwExceptionifConceptHasObs() throws Exception {
         org.bahmni.module.referencedata.labconcepts.contract.Concept concept = new org.bahmni.module.referencedata.labconcepts.contract.Concept();
@@ -321,6 +325,7 @@ public class ReferenceDataConceptServiceImplIT extends BaseIntegrationTest {
         referenceDataConceptService.saveConcept(concept);
     }
 
+    @Ignore
     @Test
     public void updateExistingConceptWithShortName() throws Exception {
         org.bahmni.module.referencedata.labconcepts.contract.Concept concept = new org.bahmni.module.referencedata.labconcepts.contract.Concept();
@@ -341,6 +346,7 @@ public class ReferenceDataConceptServiceImplIT extends BaseIntegrationTest {
         assertEquals(3, savedConcept.getNames().size());
     }
 
+    @Ignore
     @Test
     public void updateExistingConceptSetWithChildMembers() throws Exception {
         ConceptSet conceptSet = new ConceptSet();
@@ -369,6 +375,7 @@ public class ReferenceDataConceptServiceImplIT extends BaseIntegrationTest {
     }
 
 
+    @Ignore
     @Test
     public void updateExistingConceptWithAnswers() throws Exception {
         org.bahmni.module.referencedata.labconcepts.contract.Concept concept = new org.bahmni.module.referencedata.labconcepts.contract.Concept();
@@ -397,6 +404,7 @@ public class ReferenceDataConceptServiceImplIT extends BaseIntegrationTest {
         assertEquals("Answer2", answer2.getAnswerConcept().getName(Context.getLocale()).getName());
     }
 
+    @Ignore
     @Test
     public void migrateConceptDatatypeToNumeric() throws Exception {
         org.bahmni.module.referencedata.labconcepts.contract.Concept concept = new org.bahmni.module.referencedata.labconcepts.contract.Concept();

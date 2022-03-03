@@ -52,13 +52,13 @@ public class ConceptRow extends CSVEntity {
     public String lowNormal;
 
     @CSVHeader(name = "Allow Decimal", optional = true)
-    public String precise;
+    public String allowDecimal;
 
     @CSVHeader(name = "locale", optional = true)
     public String locale;
 
     public ConceptRow(String uuid, String name, String description, String conceptClass, String shortName, String dataType,
-                      String units, String hiNormal, String lowNormal, String precise, List<ConceptReferenceTermRow> referenceTermRows,
+                      String units, String hiNormal, String lowNormal, String allowDecimal, List<ConceptReferenceTermRow> referenceTermRows,
                       List<KeyValue> synonyms, List<KeyValue> answers, String locale) {
         this.uuid = uuid;
         this.name = name;
@@ -71,10 +71,10 @@ public class ConceptRow extends CSVEntity {
         this.units = units;
         this.hiNormal = hiNormal;
         this.lowNormal = lowNormal;
-        this.precise = precise;
+        this.allowDecimal = allowDecimal;
         this.referenceTerms = referenceTermRows;
         this.locale = locale;
-        String[] aRow = {uuid, name, description, conceptClass, shortName, dataType, units, hiNormal, lowNormal, precise,locale};
+        String[] aRow = {uuid, name, description, conceptClass, shortName, dataType, units, hiNormal, lowNormal, allowDecimal,locale};
         String[] synonymsRow = getStringArray(synonyms);
         String[] answersRow = getStringArray(answers);
         aRow = ArrayUtils.addAll(aRow, ArrayUtils.addAll(synonymsRow, answersRow));
@@ -172,13 +172,9 @@ public class ConceptRow extends CSVEntity {
         this.lowNormal = lowNormal;
     }
 
-    public String getPrecise() {
-        return precise;
-    }
+    public String getAllowDecimal() { return allowDecimal; }
 
-    public void setPrecise(String precise) {
-        this.precise = precise;
-    }
+    public void setAllowDecimal(String allowDecimal) { this.allowDecimal = allowDecimal; }
 
     public String getLocale() {
         return locale;
@@ -192,7 +188,7 @@ public class ConceptRow extends CSVEntity {
         addBlankSynonyms(maxSynonyms);
         addBlankAnswers(maxAnswers);
         addBlankReferenceTerms(maxReferenceTerms);
-        String[] aRow = {uuid, name, description, conceptClass, shortName, dataType, units, hiNormal, lowNormal, precise,locale};
+        String[] aRow = {uuid, name, description, conceptClass, shortName, dataType, units, hiNormal, lowNormal, allowDecimal, locale};
         String[] synonymsRow = getStringArray(synonyms);
         String[] answersRow = getStringArray(answers);
         aRow = ArrayUtils.addAll(aRow, ArrayUtils.addAll(synonymsRow, answersRow));

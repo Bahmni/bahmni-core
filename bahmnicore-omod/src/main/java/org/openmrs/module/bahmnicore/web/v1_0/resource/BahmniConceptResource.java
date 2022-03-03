@@ -31,7 +31,6 @@ public class BahmniConceptResource extends ConceptResource2_0 {
         allowedMissingProperties.add("lowAbsolute");
         allowedMissingProperties.add("lowCritical");
         allowedMissingProperties.add("units");
-        allowedMissingProperties.add("precise");
         allowedMissingProperties.add("allowDecimal");
         allowedMissingProperties.add("handler");
     }
@@ -72,7 +71,6 @@ public class BahmniConceptResource extends ConceptResource2_0 {
                     description.addProperty("lowAbsolute");
                     description.addProperty("lowCritical");
                     description.addProperty("units");
-                    description.addProperty("precise");
                     description.addProperty("allowDecimal");
                     description.addProperty("handler");
                     description.addProperty("descriptions", Representation.DEFAULT);

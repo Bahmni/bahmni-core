@@ -644,7 +644,7 @@ public class OpenElisAccessionEventWorkerIT extends BaseModuleWebContextSensitiv
         assertEquals(2, encounters.size());
         assertNotNull(labEncounter);
         Set<Obs> allObs = labEncounter.getAllObs(true);
-        assertEquals(1, allObs.size());
+        assertEquals(17, allObs.size());
         Obs panelObs = getObsByConceptUuid(allObs, panelConceptUuid);
         final Set<Obs> testObservations = panelObs.getGroupMembers(true);
         assertEquals(3, testObservations.size()); //one voided, 1 updated, 1 new

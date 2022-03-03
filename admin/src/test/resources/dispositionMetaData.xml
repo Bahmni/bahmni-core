@@ -4,20 +4,20 @@
     <concept_name concept_id="1116" concept_name_id="1116" name="My Disposition Concept Set" locale="en" creator="1" date_created="2004-08-12 00:00:00.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="ac46eca1-51d5-11e3-8f96-0800200c9a66"/>
     <concept_reference_term concept_reference_term_id="1116" concept_source_id="1" code="Disposition Concept Set" name="Disposition Concept Set" description="Disposition Concept Set" uuid="272bb080-51d7-11e3-8f96-0800200c9a66" retired="0" creator="1" date_created="2004-08-12 00:00:00.0"></concept_reference_term>
     <concept_reference_map concept_map_id="1116" concept_id="1116" concept_reference_term_id="1116" concept_map_type_id="1" creator="1" date_created="2004-08-12 00:00:00.0" uuid="272bb080-51d7-11e3-8f96-0800200c9a66"></concept_reference_map>
-    <concept_numeric concept_id="1116" precise="0"></concept_numeric>
+    <concept_numeric concept_id="1116" allow_decimal="0"></concept_numeric>
 
     <concept concept_id="1117" retired="false" datatype_id="1" class_id="11" is_set="false" creator="501" date_created="2004-08-12 00:00:00.0" version="" changed_by="1" date_changed="2005-02-25 11:43:43.0" uuid="d00cf129-8f47-4593-8c4d-6eb28a1f1c30"/>
     <concept_name concept_id="1117" concept_name_id="1117" name="My Disposition" locale="en" creator="1" date_created="2004-08-12 00:00:00.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="d00cf129-8f47-4593-8c4d-6eb28a1f1c30"/>
     <concept_reference_term concept_reference_term_id="1117" concept_source_id="1" code="Disposition" name="Disposition" description="Disposition" uuid="d00cf129-8f47-4593-8c4d-6eb28a1f1c30" retired="0" creator="1" date_created="2004-08-12 00:00:00.0"></concept_reference_term>
     <concept_reference_map concept_map_id="1117" concept_id="1117" concept_reference_term_id="1117" concept_map_type_id="1" creator="1" date_created="2004-08-12 00:00:00.0" uuid="d00cf129-8f47-4593-8c4d-6eb28a1f1c30"></concept_reference_map>
-    <concept_numeric concept_id="1117" precise="0"></concept_numeric>
+    <concept_numeric concept_id="1117" allow_decimal="0"></concept_numeric>
 
     <concept concept_id="1118" retired="false" datatype_id="1" class_id="11" is_set="false" creator="501" date_created="2004-08-12 00:00:00.0" version="" changed_by="1" date_changed="2005-02-25 11:43:43.0" uuid="4b9df569-67c3-4bd9-9b80-a0f470fee2cf"/>
     <concept_name concept_id="1118" concept_name_id="1118" name="My Admit" locale="en" creator="1" date_created="2004-08-12 00:00:00.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="4b9df569-67c3-4bd9-9b80-a0f470fee2cf"/>
     <concept_reference_term concept_reference_term_id="1118" concept_source_id="1" code="ADMIT" name="Admit" description="Admit" uuid="4b9df569-67c3-4bd9-9b80-a0f470fee2cf" retired="0" creator="1" date_created="2004-08-12 00:00:00.0"></concept_reference_term>
     <concept_reference_map concept_map_id="1118" concept_id="1118" concept_reference_term_id="1118" concept_map_type_id="1" creator="1" date_created="2004-08-12 00:00:00.0" uuid="4b9df569-67c3-4bd9-9b80-a0f470fee2cf"></concept_reference_map>
     <concept_answer concept_answer_id="1118" concept_id="1117" answer_concept="1118" creator="1" date_created="2004-08-12 00:00:00.0"/>
-    <concept_numeric concept_id="1118" precise="0"></concept_numeric>
+    <concept_numeric concept_id="1118" allow_decimal="0"></concept_numeric>
 
     <concept concept_id="1119" retired="false" datatype_id="3" class_id="11" is_set="false" creator="501" date_created="2004-08-12 00:00:00.0" version="" changed_by="1" date_changed="2005-02-25 11:43:43.0" uuid="9169366f-3c7f-11e3-8f4c-005056823ee5"/>
     <concept_name concept_id="1119" concept_name_id="1119" name="Disposition Note" locale="en" creator="1" date_created="2004-08-12 00:00:00.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="9169366f-3c7f-11e3-8f4c-005056823ee5"/>

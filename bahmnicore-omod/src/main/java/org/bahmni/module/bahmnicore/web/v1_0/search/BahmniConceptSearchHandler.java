@@ -38,9 +38,7 @@ public class BahmniConceptSearchHandler implements SearchHandler {
     @Override
     public PageableResult search(RequestContext context) throws ResponseException {
         String conceptName = context.getParameter("name");
-
         List<Concept> conceptsByName = conceptService.getConceptsByName(conceptName);
-
         if (CollectionUtils.isEmpty(conceptsByName)) {
             return new EmptySearchResult();
         } else {

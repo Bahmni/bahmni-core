@@ -12,7 +12,7 @@ public class Concept extends ConceptCommon {
     private String units;
     private String hiNormal;
     private String lowNormal;
-    private String precise;
+    private String allowDecimal;
 
     public Concept() {
     }
@@ -65,13 +65,11 @@ public class Concept extends ConceptCommon {
         return lowNormal;
     }
 
-    public String getPrecise() {
-        return precise;
+    public String getAllowDecimal() {
+        return allowDecimal;
     }
 
-    public void setPrecise(String precise) {
-        this.precise = precise;
+    public void setAllowDecimal(String allowDecimal) {
+        this.allowDecimal = allowDecimal;
     }
-
-
 }

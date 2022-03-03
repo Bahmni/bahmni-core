@@ -1,7 +1,7 @@
 package org.bahmni.module.referencedata.labconcepts.model.event;
 
 import org.ict4h.atomfeed.server.service.Event;
-import org.joda.time.DateTime;
+import java.time.LocalDateTime;
 import org.openmrs.Drug;
 
 import java.net.URISyntaxException;
@@ -42,7 +42,7 @@ public class DrugEvent implements ConceptServiceOperationEvent {
     public Event asAtomFeedEvent(Object[] arguments) throws URISyntaxException {
         Drug drug = (Drug) arguments[0];
         String url = String.format(this.url, title, drug.getUuid());
-        return new Event(UUID.randomUUID().toString(), title, DateTime.now(), url, url, category);
+        return new Event(UUID.randomUUID().toString(), title, LocalDateTime.now(), url, url, category);
     }
 
 }

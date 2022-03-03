@@ -233,7 +233,7 @@ public class VisitDocumentControllerIT extends BaseIntegrationTest {
 
         assertEquals(1, updatedVisit.getEncounters().size());
         Encounter encounter = new ArrayList<>(updatedVisit.getEncounters()).get(0);
-        assertEquals(1, encounter.getAllObs(true).size());
+        assertEquals(2, encounter.getAllObs(true).size());
         assertEquals(true, encounter.getAllObs(true).iterator().next().getVoided());
     }
 

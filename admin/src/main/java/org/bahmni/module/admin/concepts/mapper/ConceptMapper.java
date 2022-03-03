@@ -30,10 +30,10 @@ public class ConceptMapper {
         concept.setUnits(conceptRow.getUnits());
         concept.setHiNormal(conceptRow.getHiNormal());
         concept.setLowNormal(conceptRow.getLowNormal());
-        if (Objects.equals(conceptRow.getPrecise(), "") || conceptRow.getPrecise() == null) {
-            concept.setPrecise("true");
+        if (Objects.equals(conceptRow.getAllowDecimal(), "") || conceptRow.getAllowDecimal() == null) {
+            concept.setAllowDecimal("true");
         } else {
-            concept.setPrecise(conceptRow.getPrecise());
+            concept.setAllowDecimal(conceptRow.getAllowDecimal());
         }
         concept.setLocale(conceptRow.getLocale());
         addSynonyms(conceptRow, concept);
@@ -111,8 +111,8 @@ public class ConceptMapper {
         String units = concept.getUnits();
         String hiNormal = concept.getHiNormal();
         String lowNormal = concept.getLowNormal();
-        String precise = concept.getPrecise();
+        String allowDecimal = concept.getAllowDecimal();
         return new ConceptRow(uuid, name, description, conceptClass, shortName, conceptDatatype, units, hiNormal,
-                lowNormal, precise, referenceTermRows, conceptSynonyms, conceptAnswers, locale);
+                lowNormal, allowDecimal, referenceTermRows, conceptSynonyms, conceptAnswers, locale);
     }
 }

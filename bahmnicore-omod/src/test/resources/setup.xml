@@ -22,7 +22,7 @@
 
     <concept concept_id="19021" retired="0" datatype_id="1" class_id="1" is_set="0" creator="1" date_created="2013-12-04 11:36:42" uuid="5d2d4cb7-955b-4837-80f7-0ebb94044444" />
     <concept_name concept_id="19021" name="Weight" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" concept_name_id="6" voided="false" uuid="5d2d4cb7-955b-4837-80f7-0ebb94044444" concept_name_type="FULLY_SPECIFIED" locale_preferred="0"/>
-    <concept_numeric concept_id="19021" units="/min" precise="true"/>
+    <concept_numeric concept_id="19021" units="/min" allow_decimal="true"/>
 
 
     <concept_class concept_class_id="201000" name="Bacteriology Attributes" description="attributes for bacteriology" creator="1" date_created="2004-02-02 00:00:00.0" retired="false" uuid="97097dd9-b092-2b68-cda2-e5e5be961d42"/>
@@ -67,14 +67,14 @@
     <concept_name concept_id="201116" concept_name_id="201116" name="My Disposition Concept Set" locale="en" creator="1" date_created="2004-08-12 00:00:00.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="ac46eca1-51d5-11f4-8f96-0800200c9a66"/>
     <concept_reference_term concept_reference_term_id="201116" concept_source_id="1" name="Disposition Concept Set" code="Disposition Concept Set" description="Disposition Concept Set" uuid="272bb080-51d7-11e3-8f96-0800200c9a66" retired="0" creator="1" date_created="2004-08-12 00:00:00.0"></concept_reference_term>
     <concept_reference_map concept_map_id="201116" concept_id="201116" concept_reference_term_id="201116" concept_map_type_id="1" creator="1" date_created="2004-08-12 00:00:00.0" uuid="272bb080-51d7-11e3-8f96-0800200c9a66"></concept_reference_map>
-    <concept_numeric concept_id="201116" precise="0"></concept_numeric>
+    <concept_numeric concept_id="201116" allow_decimal="0"></concept_numeric>
 
 
     <concept concept_id="201117" retired="false" datatype_id="1" class_id="11" is_set="false" creator="501" date_created="2004-08-12 00:00:00.0" version="" changed_by="1" date_changed="2005-02-25 11:43:43.0" uuid="d00cf129-8f47-4593-8c4d-6eb28a1f1c30"/>
     <concept_name concept_id="201117" concept_name_id="201117" name="My Disposition" locale="en" creator="1" date_created="2004-08-12 00:00:00.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="d00cf129-9f47-4593-8c4d-6eb28a1f1c30"/>
     <concept_reference_term concept_reference_term_id="201117" concept_source_id="1" code="Disposition" name="Disposition" description="Disposition" uuid="d00cf129-6f47-4593-8c4d-6eb28a1f1c30" retired="0" creator="1" date_created="2004-08-12 00:00:00.0"></concept_reference_term>
     <concept_reference_map concept_map_id="201117" concept_id="201117" concept_reference_term_id="201117" concept_map_type_id="1" creator="1" date_created="2004-08-12 00:00:00.0" uuid="d00cf129-5f47-4593-8c4d-6eb28a1f1c30"></concept_reference_map>
-    <concept_numeric concept_id="201117" precise="0"></concept_numeric>
+    <concept_numeric concept_id="201117" allow_decimal="0"></concept_numeric>
 
     <concept concept_id="2010001" retired="false" datatype_id="13" class_id="5" is_set="false" creator="1" date_created="2005-01-01 00:00:00.0" uuid="edd25bd1-56ef-4382-afda-4e15a33ad33a"/>
     <concept_description concept_description_id="2010001" concept_id="2010001" description="Some description" locale="en_GB" creator="1" date_created="2004-08-12 00:00:00.0" uuid="9h8d710b-d333-40b7-b449-6e0e739d15d0"/>

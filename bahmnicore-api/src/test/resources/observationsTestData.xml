@@ -92,7 +92,7 @@
     <concept_set concept_id="119012" concept_set="19011" concept_set_id="113" creator="1" sort_weight="2" date_created="2005-01-01 00:00:00.0" />
 
     <concept concept_id="19012" retired="0" datatype_id="1" class_id="2" is_set="0" creator="1" date_created="2013-12-04 11:36:42" uuid="5d2d4cb7-955b-4837-80f7-0ebb94022222" />
-    <concept_numeric concept_id="19012" units="/min" precise="true"/>
+    <concept_numeric concept_id="19012" units="/min" allow_decimal="true"/>
     <concept_name concept_id="19012" name="Pulse" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" concept_name_id="114" voided="false" uuid="5d2d4cb7-955b-4837-80f7-0ebb94022222" concept_name_type="FULLY_SPECIFIED" locale_preferred="0"/>
     <concept_set concept_id="19012" concept_set="119012" concept_set_id="117" creator="1" sort_weight="2" date_created="2005-01-01 00:00:00.0" />
 

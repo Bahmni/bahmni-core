@@ -2,7 +2,7 @@ package org.bahmni.module.referencedata.labconcepts.model.event;
 
 import org.bahmni.module.referencedata.helper.ConceptHelper;
 import org.ict4h.atomfeed.server.service.Event;
-import org.joda.time.DateTime;
+import java.time.LocalDateTime;
 import org.openmrs.Concept;
 import org.openmrs.api.context.Context;
 
@@ -42,7 +42,7 @@ public class LabTestEvent extends ConceptOperationEvent {
             concept = getParentOfTypeLabTest(concept);
         }
         String url = String.format(this.url, title, concept.getUuid());
-        return new Event(UUID.randomUUID().toString(), title, DateTime.now(), url, url, category);
+        return new Event(UUID.randomUUID().toString(), title, LocalDateTime.now(), url, url, category);
     }
 
 
