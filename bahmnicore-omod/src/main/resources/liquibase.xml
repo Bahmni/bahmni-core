@@ -4544,4 +4544,8 @@
             ALTER TABLE concept_numeric CHANGE precise allow_decimal tinyint(1);
         </sql>
     </changeSet>
+    <changeSet id="20210421" author="Priyanka, Aman">
+        <comment>SQL query to add lab-lite privilege</comment>
+        <sqlFile path="V1_99_AddLabLiteAppPrivilege.sql"/>
+    </changeSet>
 </databaseChangeLog>
