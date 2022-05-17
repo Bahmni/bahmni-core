@@ -1,1 +1,0 @@
-insert ignore into privilege values ('app:lab-lite', 'Will give access to Lab Lite app', UUID());
