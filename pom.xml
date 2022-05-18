@@ -640,10 +640,6 @@
           <name>bahmni-artifactory-release</name>
           <url>https://repo.mybahmni.org.s3.amazonaws.com/artifactory/release</url>
       </repository>
-        <repository>
-            <id>rubygems-releases</id>
-            <url>https://rubygems-proxy.torquebox.org/releases</url>
-        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
