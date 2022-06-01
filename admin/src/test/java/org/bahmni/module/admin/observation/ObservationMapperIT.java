@@ -39,14 +39,16 @@ public class ObservationMapperIT extends BaseIntegrationTest {
 
         assertEquals(2, observations.size());
 
-        final EncounterTransaction.Observation temperatureObsInForm2 = observations.get(0);
-        assertEquals("Temperature", temperatureObsInForm2.getConcept().getName());
-        assertEquals(100, Integer.parseInt((String) temperatureObsInForm2.getValue()));
-        assertEquals("Vitals.1/2-0", temperatureObsInForm2.getFormFieldPath());
-
-        final EncounterTransaction.Observation pulseObs = observations.get(1);
-        assertEquals("Pulse", pulseObs.getConcept().getName());
-        assertEquals("150", pulseObs.getValue());
+        observations
+                .forEach(observation -> {
+                    if (observation.getConcept().getName().equals("Temperature")) {
+                        assertEquals(100, Integer.parseInt((String) observation.getValue()));
+                        assertEquals("Vitals.1/2-0", observation.getFormFieldPath());
+                    } else if (observation.getConcept().getName().equals("Pulse")) {
+                        assertEquals("Pulse", observation.getConcept().getName());
+                        assertEquals("150", observation.getValue());
+                    }
+                });
     }
 
     @Test
