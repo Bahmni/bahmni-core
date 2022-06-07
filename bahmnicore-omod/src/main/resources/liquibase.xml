@@ -3401,14 +3401,6 @@
         </createIndex>
     </changeSet>
 
-
-    <changeSet id="20160329-176" author="Pankaj, Achinta">
-        <comment>Make allow decimal checkbox checked for all numeric concept</comment>
-        <sql>
-            UPDATE concept_numeric SET precise = 1 WHERE precise = 0
-        </sql>
-    </changeSet>
-
     <changeSet id="201604261630" author="Gautam">
         <comment>SQL query to get list of active patients by location</comment>
         <sqlFile path="V1_92_PatientSearch.sql"/>
@@ -3531,19 +3523,6 @@
             set @concept_name_full_id = 0;
 
             call add_concept(@concept_id, @concept_name_short_id, @concept_name_full_id, 'Cured Diagnosis', 'Cured Diagnosis', 'N/A', 'Misc', true);
-        </sql>
-    </changeSet>
-    <changeSet id="bahmni-core-201610101525" author="Bharat">
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="1">
-                SELECT COUNT(*) != 0 FROM concept WHERE datatype_id = 1 AND concept_id NOT IN (SELECT concept_id FROM concept_numeric);
-            </sqlCheck>
-        </preConditions>
-        <comment>add concept numeric row to all numeric concepts</comment>
-        <sql>
-            INSERT INTO concept_numeric (concept_id,precise) (SELECT concept_id,0 FROM concept WHERE
-            datatype_id  = (SELECT concept_datatype_id FROM concept_datatype WHERE name = 'Numeric')
-            AND concept_id NOT IN (SELECT concept_id FROM concept_numeric));
         </sql>
     </changeSet>
     <changeSet id="bahmni-new-roles-and-privileges" author="Jaswanth, Ravindra">
@@ -4548,4 +4527,24 @@
         <comment>SQL query to add lab-lite privilege</comment>
         <sqlFile path="V1_99_AddLabLiteAppPrivilege.sql"/>
     </changeSet>
+    <changeSet id="20160329-176-update" author="Pankaj, Achinta">
+        <comment>Make allow decimal checkbox checked for all numeric concept</comment>
+        <sql>
+            UPDATE concept_numeric SET allow_decimal = 1 WHERE allow_decimal = 0
+        </sql>
+    </changeSet>
+    <changeSet id="bahmni-core-201610101525-update" author="Bharat">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                SELECT COUNT(*) != 0 FROM concept WHERE datatype_id = 1 AND concept_id NOT IN (SELECT concept_id FROM concept_numeric);
+            </sqlCheck>
+        </preConditions>
+        <comment>add concept numeric row to all numeric concepts</comment>
+        <sql>
+            INSERT INTO concept_numeric (concept_id,allow_decimal) (SELECT concept_id,0 FROM concept WHERE
+            datatype_id  = (SELECT concept_datatype_id FROM concept_datatype WHERE name = 'Numeric')
+            AND concept_id NOT IN (SELECT concept_id FROM concept_numeric));
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
