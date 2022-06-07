@@ -92,6 +92,10 @@
         <name>Delete Patient Document</name>
         <description>Ability to delete any patient document</description>
     </privilege>
+    <privilege>
+        <name>app:lab-lite</name>
+        <description>Will give access to Lab Lite app</description>
+    </privilege>
 
     <advice>
         <point>org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService</point>

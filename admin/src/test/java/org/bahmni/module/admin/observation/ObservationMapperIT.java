@@ -10,9 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class ObservationMapperIT extends BaseIntegrationTest {
@@ -28,6 +30,10 @@ public class ObservationMapperIT extends BaseIntegrationTest {
 
     @Test
     public void shouldCreateForm1AndForm2Observations() throws ParseException {
+        List<String> observation = Arrays.asList("Temperature", "100", "Vitals.1/2-0");
+        List<String> anotherObservation = Arrays.asList("Pulse", "150", null);
+        List<List<String>> expectedObservations = Arrays.asList(observation, anotherObservation);
+
         EncounterRow anEncounter = new EncounterRow();
         anEncounter.obsRows = new ArrayList<>();
 
@@ -35,18 +41,19 @@ public class ObservationMapperIT extends BaseIntegrationTest {
         anEncounter.obsRows.add(new KeyValue("form2.Vitals.Section.Temperature", "100"));
         anEncounter.encounterDateTime = "2019-09-19";
 
-        final List<EncounterTransaction.Observation> observations = observationMapper.getObservations(anEncounter);
+        List<List<String>> actualObservations = convertToList(observationMapper.getObservations(anEncounter));
 
-        assertEquals(2, observations.size());
+        assertEquals(2, actualObservations.size());
+        assertTrue(actualObservations.containsAll(expectedObservations));
+    }
 
-        final EncounterTransaction.Observation temperatureObsInForm2 = observations.get(0);
-        assertEquals("Temperature", temperatureObsInForm2.getConcept().getName());
-        assertEquals(100, Integer.parseInt((String) temperatureObsInForm2.getValue()));
-        assertEquals("Vitals.1/2-0", temperatureObsInForm2.getFormFieldPath());
-
-        final EncounterTransaction.Observation pulseObs = observations.get(1);
-        assertEquals("Pulse", pulseObs.getConcept().getName());
-        assertEquals("150", pulseObs.getValue());
+    private List<List<String>> convertToList(List<EncounterTransaction.Observation> observations) {
+        List<List<String>> actualObservations = new ArrayList<>();
+        observations
+                .forEach(obs ->
+                        actualObservations.add(Arrays.asList(obs.getConcept().getName(), (String) obs.getValue(), obs.getFormFieldPath()))
+                );
+        return actualObservations;
     }
 
     @Test
