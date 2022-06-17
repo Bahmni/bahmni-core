@@ -4,7 +4,7 @@
 
     <groupId>org.bahmni.module</groupId>
     <artifactId>bahmni</artifactId>
-    <version>0.94-SNAPSHOT</version>
+    <version>0.94.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Bahmni EMR Core</name>
 
