@@ -24,7 +24,7 @@
             <version>${bahmniJavaUtilsVersion}</version>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
+            <groupId>org.bahmni.module</groupId>
             <artifactId>auditlog-api</artifactId>
             <scope>provided</scope>
         </dependency>

@@ -28,22 +28,24 @@
         <openMRSWebServicesVersion>2.29.0</openMRSWebServicesVersion>
         <springVersion>5.2.9.RELEASE</springVersion>
         <atomfeed.version>1.10.1</atomfeed.version>
-        <addressHierarchyVersion>2.12.0</addressHierarchyVersion>
-        <reportingModuleVersion>1.21.0</reportingModuleVersion>
-        <calculationModuleVersion>1.2</calculationModuleVersion>
+        <addressHierarchyVersion>2.14.2</addressHierarchyVersion>
+        <reportingModuleVersion>1.23.0</reportingModuleVersion>
+        <calculationModuleVersion>1.3.0</calculationModuleVersion>
         <serializationXstreamModuleVersion>0.2.15</serializationXstreamModuleVersion>
         <emrapi-omod.version>1.32.0</emrapi-omod.version>
-        <metadatamapping.version>1.3.5</metadatamapping.version>
-        <openmrsAtomfeedVersion>2.6.1</openmrsAtomfeedVersion>
+        <metadatamapping.version>1.4.0</metadatamapping.version>
+        <openmrsAtomfeedVersion>2.6.2-SNAPSHOT</openmrsAtomfeedVersion>
         <lombokVersion>1.16.0</lombokVersion>
-        <idgenVersion>4.6.0</idgenVersion>
-        <legacyuiVersion>1.8.0</legacyuiVersion>
-        <episodes.version>1.0-SNAPSHOT</episodes.version>
-        <auditLogVersion>1.0-SNAPSHOT</auditLogVersion>
-        <bacteriology.version>1.3.0-SNAPSHOT</bacteriology.version>
-        <rulesEngineVersion>0.92-SNAPSHOT</rulesEngineVersion>
+        <idgenVersion>4.7.0</idgenVersion>
+        <legacyuiVersion>1.8.4</legacyuiVersion>
+        <episodes.version>1.0.1-SNAPSHOT</episodes.version>
+        <auditLogVersion>1.3.0.1-SNAPSHOT</auditLogVersion>
+        <bacteriology.version>1.3.0.1-SNAPSHOT</bacteriology.version>
+        <rulesEngineVersion>0.94.1-SNAPSHOT</rulesEngineVersion>
         <bahmniJavaUtilsVersion>0.94.3.1-SNAPSHOT</bahmniJavaUtilsVersion>
+        <javaxServletVersion>4.0.1</javaxServletVersion>
         <log4jVersion>2.17.1</log4jVersion>
+        <idgenWebServicesVersion>1.3.1-SNAPSHOT</idgenWebServicesVersion>
 
         <!--test dependencies-->
 
@@ -138,7 +140,7 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.openmrs.module</groupId>
+                <groupId>org.bahmni.module</groupId>
                 <artifactId>auditlog-api</artifactId>
                 <version>${auditLogVersion}</version>
             </dependency>
@@ -336,7 +338,7 @@
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
-                <version>3.0.1</version>
+                <version>${javaxServletVersion}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>

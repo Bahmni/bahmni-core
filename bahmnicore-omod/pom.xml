@@ -47,7 +47,7 @@
         <dependency>
             <groupId>org.openmrs.module</groupId>
             <artifactId>idgen-webservices-omod</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>${idgenWebServicesVersion}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -303,7 +303,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
+            <groupId>org.bahmni.module</groupId>
             <artifactId>auditlog-api</artifactId>
             <scope>provided</scope>
         </dependency>
