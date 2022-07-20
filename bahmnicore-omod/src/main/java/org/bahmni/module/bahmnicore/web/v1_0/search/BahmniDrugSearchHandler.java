@@ -23,7 +23,7 @@ public class BahmniDrugSearchHandler implements SearchHandler {
     @Override
     public SearchConfig getSearchConfig() {
         SearchQuery searchQuery = new SearchQuery.Builder("Allows you to search for drugs").withRequiredParameters("q").build();
-        return new SearchConfig("ordered", RestConstants.VERSION_1 + "/drug", Arrays.asList("1.10.*", "1.11.*", "1.12.*","2.0.*", "2.1.*"), searchQuery);
+        return new SearchConfig("ordered", RestConstants.VERSION_1 + "/drug", Arrays.asList("1.10.* - 2.*"), searchQuery);
     }
 
     @Override

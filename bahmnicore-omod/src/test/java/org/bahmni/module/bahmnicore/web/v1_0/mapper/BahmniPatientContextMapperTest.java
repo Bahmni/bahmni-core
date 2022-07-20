@@ -1,16 +1,16 @@
 package org.bahmni.module.bahmnicore.web.v1_0.mapper;
 
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.BahmniPatientProgram;
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.PatientProgramAttribute;
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.ProgramAttributeType;
-import org.junit.Before;
-import org.junit.Test;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
 import org.openmrs.PersonAttribute;
 import org.openmrs.PersonAttributeType;
 import org.openmrs.PersonName;
+import org.openmrs.PatientProgram;
+import org.openmrs.PatientProgramAttribute;
+import org.openmrs.ProgramAttributeType;
+import org.junit.Before;
+import org.junit.Test;
 import org.openmrs.module.bahmniemrapi.patient.PatientContext;
 
 import java.util.Arrays;
@@ -46,7 +46,7 @@ public class BahmniPatientContextMapperTest {
         attributes.add(getPersonAttribute("Education", "Education", "Education Value", "java.lang.String"));
         patient.setAttributes(attributes);
 
-        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new BahmniPatientProgram(), Collections.singletonList("Caste"), Collections.singletonList("IRDB Number"), null, primaryIdentifierType);
+        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new PatientProgram(), Collections.singletonList("Caste"), Collections.singletonList("IRDB Number"), null, primaryIdentifierType);
 
         assertNotNull(patientContext);
         assertEquals(patient.getBirthdate(), patientContext.getBirthdate());
@@ -64,7 +64,7 @@ public class BahmniPatientContextMapperTest {
     public void shouldNotReturnPersonAttributesIfTheConfiguredAttributesAreNotExists() {
         Patient patient = setUpPatient();
 
-        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new BahmniPatientProgram(), Collections.singletonList("Caste"), Arrays.asList("IRDB Number"), null, primaryIdentifierType);
+        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new PatientProgram(), Collections.singletonList("Caste"), Arrays.asList("IRDB Number"), null, primaryIdentifierType);
 
         assertNotNull(patientContext);
         assertEquals(0, patientContext.getPersonAttributes().size());
@@ -89,7 +89,7 @@ public class BahmniPatientContextMapperTest {
     public void shouldMapProgramAttributesToPatientContext() {
         Patient patient = setUpPatient();
 
-        BahmniPatientProgram patientProgram = new BahmniPatientProgram();
+        PatientProgram patientProgram = new PatientProgram();
         HashSet<PatientProgramAttribute> patientProgramAttributes = new HashSet<>();
         patientProgramAttributes.add(getPatientProgramAttribute("IRDB Number", "IRDB Number Description", "1234", "String"));
         patientProgramAttributes.add(getPatientProgramAttribute("TSRT Number", "TSRT Number", "9876", "String"));
@@ -105,7 +105,7 @@ public class BahmniPatientContextMapperTest {
     public void shouldNotReturnProgramAttributesIfTheConfiguredAttributesAreNotExists() {
         Patient patient = setUpPatient();
 
-        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new BahmniPatientProgram(), Collections.singletonList("Caste"), Collections.singletonList("IRDB Number"), null, primaryIdentifierType);
+        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new PatientProgram(), Collections.singletonList("Caste"), Collections.singletonList("IRDB Number"), null, primaryIdentifierType);
 
         assertNotNull(patientContext);
         assertEquals(0, patientContext.getProgramAttributes().size());
@@ -125,7 +125,7 @@ public class BahmniPatientContextMapperTest {
     public void shouldNotReturnProgramAttributesIfNotConfigured() {
         Patient patient = setUpPatient();
 
-        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new BahmniPatientProgram(), Collections.singletonList("Caste"), null, null, primaryIdentifierType);
+        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new PatientProgram(), Collections.singletonList("Caste"), null, null, primaryIdentifierType);
 
         assertNotNull(patientContext);
         assertEquals(0, patientContext.getProgramAttributes().size());
@@ -135,7 +135,7 @@ public class BahmniPatientContextMapperTest {
     public void shouldNotReturnPersonAttributesIfNotConfigured() {
         Patient patient = setUpPatient();
 
-        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new BahmniPatientProgram(), null, Collections.singletonList("IRDTB Number"), null, primaryIdentifierType);
+        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new PatientProgram(), null, Collections.singletonList("IRDTB Number"), null, primaryIdentifierType);
 
         assertNotNull(patientContext);
         assertEquals(0, patientContext.getProgramAttributes().size());
@@ -147,7 +147,7 @@ public class BahmniPatientContextMapperTest {
         PatientIdentifier nationalIdentifier = createIdentifier("National Identifier", "NAT10020");
         patient.addIdentifier(nationalIdentifier);
 
-        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new BahmniPatientProgram(), null, null, Collections.singletonList("National Identifier"), primaryIdentifierType);
+        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new PatientProgram(), null, null, Collections.singletonList("National Identifier"), primaryIdentifierType);
 
         assertNotNull(patientContext);
         assertEquals("GAN20000", patientContext.getIdentifier());
@@ -159,7 +159,7 @@ public class BahmniPatientContextMapperTest {
     public void shouldNotReturnConfiguredExtraIdentifierIfDataIsNotCaptured() throws Exception {
         Patient patient = setUpPatient();
 
-        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new BahmniPatientProgram(), null, null, Collections.singletonList("National Identifier"), primaryIdentifierType);
+        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new PatientProgram(), null, null, Collections.singletonList("National Identifier"), primaryIdentifierType);
 
         assertNotNull(patientContext);
         assertEquals("GAN20000", patientContext.getIdentifier());
@@ -170,7 +170,7 @@ public class BahmniPatientContextMapperTest {
     public void shouldNotReturnPrimaryIdentifierInExtraIdentifiersListIfConfigured() throws Exception {
         Patient patient = setUpPatient();
 
-        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new BahmniPatientProgram(), null, null, Collections.singletonList("Primary Identifier"), primaryIdentifierType);
+        PatientContext patientContext = bahmniPatientContextMapper.map(patient, new PatientProgram(), null, null, Collections.singletonList("Primary Identifier"), primaryIdentifierType);
 
         assertNotNull(patientContext);
         assertEquals("GAN20000", patientContext.getIdentifier());

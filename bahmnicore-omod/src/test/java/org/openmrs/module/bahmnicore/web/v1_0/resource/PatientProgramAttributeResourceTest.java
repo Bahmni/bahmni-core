@@ -1,14 +1,16 @@
 package org.openmrs.module.bahmnicore.web.v1_0.resource;
 
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.PatientProgramAttribute;
+import org.openmrs.PatientProgramAttribute;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.webservices.rest.web.resource.impl.BaseDelegatingResourceTest;
+import org.openmrs.module.webservices.rest.web.v1_0.resource.openmrs2_2.PatientProgramAttributeResource2_2;
+
 @Ignore
 @org.springframework.test.context.ContextConfiguration(locations = {"classpath:TestingApplicationContext.xml"}, inheritLocations = true)
-public class PatientProgramAttributeResourceTest extends BaseDelegatingResourceTest<PatientProgramAttributeResource, PatientProgramAttribute> {
+public class PatientProgramAttributeResourceTest extends BaseDelegatingResourceTest<PatientProgramAttributeResource2_2, PatientProgramAttribute> {
 
     @Before
     public void before() throws Exception {

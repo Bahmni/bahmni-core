@@ -53,7 +53,7 @@ public class BahmniBridge {
     private OMRSObsToBahmniObsMapper omrsObsToBahmniObsMapper;
     private BahmniConceptService bahmniConceptService;
 
-    private OrderMapper drugOrderMapper = new OrderMapper1_12();
+    private OrderMapper1_12 drugOrderMapper = new OrderMapper1_12();
     /**
      * Factory method to construct objects of <code>BahmniBridge</code>.
      * <p/>

@@ -34,6 +34,7 @@ import java.util.List;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
@@ -80,8 +81,8 @@ public class BahmniFormDetailsServiceImplTest {
         List<Encounter> encounters = singletonList(encounter);
         when(encounterService.getEncounters(any(EncounterSearchCriteria.class))).thenReturn(encounters);
         when(patient.getPerson()).thenReturn(person);
-        when(obsService.getObservations(anyListOf(Person.class), anyListOf(Encounter.class), any(), any(), any(), any(),
-                any(), any(), any(), any(), any(), any(Boolean.class))).thenReturn(obs);
+        when(obsService.getObservations(anyListOf(Person.class), anyListOf(Encounter.class), eq(null), eq(null), eq(null), eq(null),
+                eq(null), eq(null), eq(null), eq(null), eq(null), eq(false))).thenReturn(obs);
     }
 
     @Test
@@ -288,13 +289,13 @@ public class BahmniFormDetailsServiceImplTest {
         verify(bahmniProgramWorkflowService, times(1)).getEncountersByPatientProgramUuid(patientProgramUuid);
     }
 
-    private void verifyCreateFormDetailsMockCall(int wantedNumberOfInvocations) {
-        verifyStatic(VerificationModeFactory.times(wantedNumberOfInvocations));
+    public void verifyCreateFormDetailsMockCall(int wantedNumberOfInvocations) {
+        verifyStatic(FormDetailsMapper.class, VerificationModeFactory.times(wantedNumberOfInvocations));
         FormDetailsMapper.createFormDetails(anyListOf(Obs.class), any(FormType.class));
     }
 
     private void verifyFilterFormBuilderObsMockCall(int wantedNumberOfInvocations) {
-        verifyStatic(VerificationModeFactory.times(wantedNumberOfInvocations));
+        verifyStatic(FormUtil.class, VerificationModeFactory.times(wantedNumberOfInvocations));
         FormUtil.filterFormBuilderObs(obs);
     }
 

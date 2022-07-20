@@ -18,6 +18,7 @@ import org.openmrs.api.EncounterService;
 import org.openmrs.api.OrderService;
 import org.openmrs.api.VisitService;
 import org.openmrs.module.rulesengine.engine.RulesEngine;
+import org.openmrs.module.rulesengine.engine.RulesEngineImpl;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.v1_0.controller.BaseRestController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +51,7 @@ public class BahmniConfigController extends BaseRestController {
     @Autowired
     private OrderService orderService;
 
-    @Autowired
-    private RulesEngine rulesEngine;
+    private RulesEngine rulesEngine = new RulesEngineImpl();
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody

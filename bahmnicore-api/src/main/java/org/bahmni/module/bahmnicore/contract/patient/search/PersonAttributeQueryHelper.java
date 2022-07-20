@@ -50,10 +50,10 @@ public class PersonAttributeQueryHelper {
             join += " LEFT OUTER JOIN person_attribute pattr_results on pattr_results.person_id = p.person_id and pattr_results.voided = 0"
                     + " and  pattr_results.person_attribute_type_id in (" + searchAttributeIds + ") "
                     + " LEFT OUTER JOIN person_attribute_type attrt_results on attrt_results.person_attribute_type_id = pattr_results.person_attribute_type_id "
-                    + " LEFT OUTER JOIN concept_name cn on cn.concept_id = pattr_results.value and cn.concept_name_type = 'FULLY_SPECIFIED'"
+                    + " LEFT OUTER JOIN concept_name cn on convert(cn.concept_id,char) = pattr_results.value and cn.concept_name_type = 'FULLY_SPECIFIED'"
                     + " and attrt_results.format = 'org.openmrs.Concept' and cn.locale = '" + Context.getLocale() + "'"
                     //+ " and pattr_results.person_attribute_type_id in (" + conceptTypeAttributeTypeIds +  ")"
-                    + " LEFT OUTER JOIN concept_name def_loc_cn on def_loc_cn.concept_id = pattr_results.value and def_loc_cn.concept_name_type = 'FULLY_SPECIFIED'"
+                    + " LEFT OUTER JOIN concept_name def_loc_cn on convert(def_loc_cn.concept_id,char) = pattr_results.value and def_loc_cn.concept_name_type = 'FULLY_SPECIFIED'"
                     + " and attrt_results.format = 'org.openmrs.Concept' and def_loc_cn.locale = 'en' ";
                     //+ " and pattr_results.person_attribute_type_id in (" + conceptTypeAttributeTypeIds +  ")";
         }

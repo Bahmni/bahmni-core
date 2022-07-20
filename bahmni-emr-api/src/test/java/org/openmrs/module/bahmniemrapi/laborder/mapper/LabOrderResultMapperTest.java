@@ -1,6 +1,6 @@
 package org.openmrs.module.bahmniemrapi.laborder.mapper;
 
-import org.databene.commons.CollectionUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -87,7 +87,7 @@ public class LabOrderResultMapperTest {
         List<Obs> testObs = new ArrayList<>(topLevelObs.getGroupMembers());
         Set<Obs> resultObs = testObs.get(0).getGroupMembers();
         assertEquals(1, testObs.size());
-        assertTrue(CollectionUtil.isEmpty(resultObs));
+        assertTrue(CollectionUtils.isEmpty(resultObs));
 
     }
 
@@ -136,7 +136,7 @@ public class LabOrderResultMapperTest {
         List<Obs> testObs = new ArrayList<>(topLevelObs.getGroupMembers());
         Set<Obs> resultObs = testObs.get(0).getGroupMembers();
         assertEquals(1, testObs.size());
-        assertTrue(CollectionUtil.isEmpty(resultObs));
+        assertTrue(CollectionUtils.isEmpty(resultObs));
 
     }
 

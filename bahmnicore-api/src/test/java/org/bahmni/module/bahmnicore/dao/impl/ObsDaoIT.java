@@ -32,8 +32,7 @@ public class ObsDaoIT extends BaseIntegrationTest {
 
     @Test
     public void retrieveAllObservationsWhenNoVisitIdsAreSpecified() throws Exception {
-        List<Obs> allObs = obsDao.getObsByPatientAndVisit("86526ed5-3c11-11de-a0ba-001e378eb67a", Arrays.asList("Blood Pressure"), new ArrayList<Integer>(), -1, ObsDaoImpl.OrderBy.ASC, null, false, null, null, null);
-
+        List<Obs> allObs = obsDao.getObsByPatientAndVisit("86526ed5-3c11-11de-a0ba-001e378eb67a", Arrays.asList("Blood Pressure"), new ArrayList<Integer>(), Integer.MAX_VALUE, ObsDaoImpl.OrderBy.ASC, null, false, null, null, null);
         assertEquals(1, allObs.size());
 
         Obs parent_obs = allObs.get(0);
@@ -63,7 +62,7 @@ public class ObsDaoIT extends BaseIntegrationTest {
 
     @Test
     public void retrieveOnlyOrphanedObservation() throws Exception {
-        List<Obs> allObs = obsDao.getObsByPatientAndVisit("341b4e41-790c-484f-b6ed-71dc8da222db", Arrays.asList("Diastolic"), new ArrayList<Integer>(), -1, ObsDaoImpl.OrderBy.ASC, null, false, null, null, null);
+        List<Obs> allObs = obsDao.getObsByPatientAndVisit("341b4e41-790c-484f-b6ed-71dc8da222db", Arrays.asList("Diastolic"), new ArrayList<Integer>(), Integer.MAX_VALUE, ObsDaoImpl.OrderBy.ASC, null, false, null, null, null);
         assertEquals(1, allObs.size());
         assertEquals("Diastolic", allObs.get(0).getConcept().getName().getName());
         assertEquals(125.0, allObs.get(0).getValueNumeric());
@@ -76,7 +75,7 @@ public class ObsDaoIT extends BaseIntegrationTest {
 
     @Test
     public void doNotFetchVoidedObservations() throws Exception {
-        List<Obs> allObs = obsDao.getObsByPatientAndVisit("86526ed5-3c11-11de-a0ba-001e378eb67a", Arrays.asList("Blood Pressure"), new ArrayList<Integer>(), -1, ObsDaoImpl.OrderBy.ASC, null, false, null, null, null);
+        List<Obs> allObs = obsDao.getObsByPatientAndVisit("86526ed5-3c11-11de-a0ba-001e378eb67a", Arrays.asList("Blood Pressure"), new ArrayList<Integer>(), Integer.MAX_VALUE, ObsDaoImpl.OrderBy.ASC, null, false, null, null, null);
         assertEquals(1, allObs.size());
     }
 
@@ -87,7 +86,7 @@ public class ObsDaoIT extends BaseIntegrationTest {
         Date endDate = dateFormat.parse("2008-08-17 15:09:05");
 
         List<Obs> allObs = obsDao.getObsByPatientAndVisit("86526ed5-3c11-11de-a0ba-001e378eb67a", Arrays.asList("Blood Pressure"),
-                                                new ArrayList<Integer>(), -1, ObsDaoImpl.OrderBy.ASC, null, false, null, startDate, endDate);
+                                                new ArrayList<Integer>(), Integer.MAX_VALUE, ObsDaoImpl.OrderBy.ASC, null, false, null, startDate, endDate);
 
         assertEquals(0, allObs.size());
 
@@ -95,7 +94,7 @@ public class ObsDaoIT extends BaseIntegrationTest {
         endDate = dateFormat.parse("2008-08-20 15:09:05");
 
         allObs = obsDao.getObsByPatientAndVisit("86526ed5-3c11-11de-a0ba-001e378eb67a", Arrays.asList("Blood Pressure"),
-                new ArrayList<Integer>(), -1, ObsDaoImpl.OrderBy.ASC, null, false, null, startDate, endDate);
+                new ArrayList<Integer>(), Integer.MAX_VALUE, ObsDaoImpl.OrderBy.ASC, null, false, null, startDate, endDate);
 
         Obs parent_obs = allObs.get(0);
         List<Obs> groupMembers = new ArrayList<>(parent_obs.getGroupMembers());
@@ -130,7 +129,7 @@ public class ObsDaoIT extends BaseIntegrationTest {
         Date endDate = null;
 
         List<Obs> allObs = obsDao.getObsByPatientAndVisit("86526ed5-3c11-11de-a0ba-001e378eb67a", Arrays.asList("Blood Pressure"),
-                new ArrayList<Integer>(), -1, ObsDaoImpl.OrderBy.ASC, null, false, null, startDate, endDate);
+                new ArrayList<Integer>(), Integer.MAX_VALUE, ObsDaoImpl.OrderBy.ASC, null, false, null, startDate, endDate);
 
         Obs parent_obs = allObs.get(0);
         List<Obs> groupMembers = new ArrayList<>(parent_obs.getGroupMembers());

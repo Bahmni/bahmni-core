@@ -24,33 +24,36 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <openMRSVersion>2.1.7</openMRSVersion>
-        <openMRSWebServicesVersion>2.17</openMRSWebServicesVersion>
-        <springVersion>3.2.7.RELEASE</springVersion>
+        <openMRSVersion>2.4.2</openMRSVersion>
+        <openMRSWebServicesVersion>2.29.0</openMRSWebServicesVersion>
+        <springVersion>5.2.9.RELEASE</springVersion>
         <atomfeed.version>1.10.1</atomfeed.version>
-        <addressHierarchyVersion>2.9</addressHierarchyVersion>
-        <reportingModuleVersion>0.10.4</reportingModuleVersion>
-        <calculationModuleVersion>1.2</calculationModuleVersion>
-        <serializationXstreamModuleVersion>0.2.12</serializationXstreamModuleVersion>
-        <emrapi-omod.version>1.23.0</emrapi-omod.version>
-        <metadatamapping.version>1.3.2</metadatamapping.version>
-        <openmrsAtomfeedVersion>2.6.1</openmrsAtomfeedVersion>
+        <addressHierarchyVersion>2.14.2</addressHierarchyVersion>
+        <reportingModuleVersion>1.23.0</reportingModuleVersion>
+        <calculationModuleVersion>1.3.0</calculationModuleVersion>
+        <serializationXstreamModuleVersion>0.2.15</serializationXstreamModuleVersion>
+        <emrapi-omod.version>1.32.0</emrapi-omod.version>
+        <metadatamapping.version>1.4.0</metadatamapping.version>
+        <openmrsAtomfeedVersion>2.6.2-SNAPSHOT</openmrsAtomfeedVersion>
         <lombokVersion>1.16.0</lombokVersion>
-        <idgenVersion>4.4.1</idgenVersion>
-        <legacyuiVersion>1.3.3</legacyuiVersion>
+        <idgenVersion>4.7.0</idgenVersion>
+        <legacyuiVersion>1.8.4</legacyuiVersion>
         <episodes.version>1.0-SNAPSHOT</episodes.version>
-        <auditLogVersion>1.0-SNAPSHOT</auditLogVersion>
-        <bacteriology.version>1.1-SNAPSHOT</bacteriology.version>
-        <rulesEngineVersion>0.92-SNAPSHOT</rulesEngineVersion>
-        <bahmniJavaUtilsVersion>0.94.2</bahmniJavaUtilsVersion>
+        <auditLogVersion>1.3.0-SNAPSHOT</auditLogVersion>
+        <bacteriology.version>1.3.0</bacteriology.version>
+        <rulesEngineVersion>0.94-SNAPSHOT</rulesEngineVersion>
+        <bahmniJavaUtilsVersion>0.94.3-SNAPSHOT</bahmniJavaUtilsVersion>
+        <javaxServletVersion>4.0.1</javaxServletVersion>
         <log4jVersion>2.17.1</log4jVersion>
+        <idgenWebServicesVersion>1.3-SNAPSHOT</idgenWebServicesVersion>
+        <providermanagementVersion>2.13.0</providermanagementVersion>
 
         <!--test dependencies-->
 
-        <junitVersion>4.12</junitVersion>
-        <powerMockVersion>1.6.5</powerMockVersion>
+        <junitVersion>4.13</junitVersion>
+        <powerMockVersion>2.0.7</powerMockVersion>
         <hamcrestVersion>1.3</hamcrestVersion>
-        <mockitoVersion>1.10.19</mockitoVersion>
+        <mockitoVersion>3.5.11</mockitoVersion>
         <argLine>-Xmx1024m</argLine>
     </properties>
 
@@ -138,7 +141,7 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.openmrs.module</groupId>
+                <groupId>org.bahmni.module</groupId>
                 <artifactId>auditlog-api</artifactId>
                 <version>${auditLogVersion}</version>
             </dependency>
@@ -245,7 +248,7 @@
             <dependency>
                 <groupId>org.openmrs.module</groupId>
                 <artifactId>appframework-api</artifactId>
-                <version>2.1</version>
+                <version>2.15.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -299,6 +302,12 @@
             </dependency>
             <dependency>
                 <groupId>org.openmrs.module</groupId>
+                <artifactId>emrapi-api-2.2</artifactId>
+                <version>${emrapi-omod.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.openmrs.module</groupId>
                 <artifactId>emrapi-omod</artifactId>
                 <version>${emrapi-omod.version}</version>
                 <type>test-jar</type>
@@ -307,7 +316,7 @@
             <dependency>
                 <groupId>org.openmrs.module</groupId>
                 <artifactId>providermanagement-api</artifactId>
-                <version>1.1.3</version>
+                <version>${providermanagementVersion}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -330,7 +339,7 @@
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
-                <version>3.0.1</version>
+                <version>${javaxServletVersion}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -372,13 +381,6 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>3.0.1</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
                 <groupId>org.jcodec</groupId>
                 <artifactId>jcodec</artifactId>
                 <version>0.2.1</version>
@@ -387,6 +389,17 @@
                 <groupId>org.jcodec</groupId>
                 <artifactId>jcodec-javase</artifactId>
                 <version>0.2.1</version>
+            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.glassfish</groupId>-->
+<!--                <artifactId>javax.el</artifactId>-->
+<!--                <version>3.0.0</version>-->
+<!--            </dependency>-->
+            <dependency>
+                <groupId>javax.el</groupId>
+                <artifactId>javax.el-api</artifactId>
+                <version>2.2.4</version>
+                <scope>provided</scope>
             </dependency>
 
             <!--test libraries-->
@@ -402,7 +415,6 @@
                 </exclusions>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-module-junit4</artifactId>
@@ -410,15 +422,21 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-all</artifactId>
-                <version>${hamcrestVersion}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-api-mockito</artifactId>
                 <version>${powerMockVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>mockito-all</artifactId>
+                        <groupId>org.mockito</groupId>
+                    </exclusion>
+                </exclusions>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-all</artifactId>
+                <version>${hamcrestVersion}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -437,6 +455,12 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockitoVersion}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib</artifactId>
+                <version>2.2.2</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

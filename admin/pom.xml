@@ -24,7 +24,7 @@
             <version>${bahmniJavaUtilsVersion}</version>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
+            <groupId>org.bahmni.module</groupId>
             <artifactId>auditlog-api</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -55,6 +55,11 @@
         <dependency>
             <groupId>org.openmrs.module</groupId>
             <artifactId>emrapi-api</artifactId>
+            <version>${emrapi-omod.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openmrs.module</groupId>
+            <artifactId>emrapi-api-2.2</artifactId>
             <version>${emrapi-omod.version}</version>
         </dependency>
         <dependency>
@@ -247,7 +252,7 @@
                 <filtering>true</filtering>
             </testResource>
         </testResources>
-        
+
         <plugins>
             <plugin>
                 <groupId>org.jacoco</groupId>

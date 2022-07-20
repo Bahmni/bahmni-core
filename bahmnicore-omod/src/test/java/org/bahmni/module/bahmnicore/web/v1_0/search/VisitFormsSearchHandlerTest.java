@@ -1,6 +1,5 @@
 package org.bahmni.module.bahmnicore.web.v1_0.search;
 
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.BahmniPatientProgram;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,7 +121,7 @@ public class VisitFormsSearchHandlerTest {
 
         PowerMockito.when(Context.getEncounterService()).thenReturn(encounterService);
         Encounter encounter = mock(Encounter.class);
-        PowerMockito.when(encounterService.getEncounters(any(Patient.class), any(Location.class), any(Date.class), any(Date.class), any(Collection.class), any(Collection.class), any(Collection.class), any(Collection.class), any(Collection.class), eq(false))).thenReturn(Arrays.asList(encounter));
+        PowerMockito.when(encounterService.getEncounters(any(Patient.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), any(Collection.class), eq(false))).thenReturn(Arrays.asList(encounter));
         PowerMockito.when(Context.getObsService()).thenReturn(obsService);
         obs = createObs(concept);
     }
@@ -135,11 +134,9 @@ public class VisitFormsSearchHandlerTest {
     }
 
     @Test
-    public void shouldSupportVersions1_10To1_12() {
+    public void shouldSupportVersions1_10To2() {
         SearchConfig searchConfig = visitFormsSearchHandler.getSearchConfig();
-        assertTrue(searchConfig.getSupportedOpenmrsVersions().contains("1.10.*"));
-        assertTrue(searchConfig.getSupportedOpenmrsVersions().contains("1.11.*"));
-        assertTrue(searchConfig.getSupportedOpenmrsVersions().contains("1.12.*"));
+        assertTrue(searchConfig.getSupportedOpenmrsVersions().contains("1.10.* - 2.*"));
     }
 
     @Test
@@ -150,7 +147,7 @@ public class VisitFormsSearchHandlerTest {
 
         PowerMockito.when(conceptService.getConcept("All Observation Templates")).thenReturn(concept);
 
-        PowerMockito.when(obsService.getObservations(any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(Integer.class), any(Integer.class), any(Date.class), any(Date.class), eq(false))).thenReturn(Arrays.asList(obs));
+        PowerMockito.when(obsService.getObservations(any(List.class), any(List.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(false))).thenReturn(Arrays.asList(obs));
         NeedsPaging<Obs> searchResults = (NeedsPaging<Obs>) visitFormsSearchHandler.search(context);
         assertThat(searchResults.getPageOfResults().size(), is(equalTo(1)));
     }
@@ -168,7 +165,7 @@ public class VisitFormsSearchHandlerTest {
         PowerMockito.when(conceptService.getConcept("All Observation Templates")).thenReturn(parentConcept);
         Obs obs2 = createObs(historyConcept);
 
-        PowerMockito.when(obsService.getObservations(any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(Integer.class), any(Integer.class), any(Date.class), any(Date.class), eq(false))).thenReturn(Arrays.asList(obs, obs2));
+        PowerMockito.when(obsService.getObservations(any(List.class), any(List.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(false))).thenReturn(Arrays.asList(obs, obs2));
         NeedsPaging<Obs> searchResults = (NeedsPaging<Obs>) visitFormsSearchHandler.search(context);
         assertThat(searchResults.getPageOfResults().size(), is(equalTo(2)));
     }
@@ -209,7 +206,7 @@ public class VisitFormsSearchHandlerTest {
         String patientProgramUuid = "patient-program-uuid";
         when(context.getRequest().getParameter("patientProgramUuid")).thenReturn(patientProgramUuid);
         when(Context.getService(BahmniProgramWorkflowService.class)).thenReturn(programWorkflowService);
-        PatientProgram patientProgram = new BahmniPatientProgram();
+        PatientProgram patientProgram = new PatientProgram();
         when(programWorkflowService.getPatientProgramByUuid(patientProgramUuid)).thenReturn(patientProgram);
         when(Context.getService(EpisodeService.class)).thenReturn(episodeService);
         Episode episode = new Episode();
@@ -224,8 +221,8 @@ public class VisitFormsSearchHandlerTest {
         verify(programWorkflowService, times(1)).getPatientProgramByUuid(patientProgramUuid);
         verify(episodeService, times(1)).getEpisodeForPatientProgram(patientProgram);
         verify(visitService, never()).getVisitsByPatient(patient);
-        verify(encounterService, never()).getEncounters(any(Patient.class), any(Location.class), any(Date.class), any(Date.class), any(Collection.class), any(Collection.class), any(Collection.class), any(Collection.class), any(Collection.class), eq(false));
-        verify(obsService, times(1)).getObservations(any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(Integer.class), any(Integer.class), any(Date.class), any(Date.class), eq(false));
+        verify(encounterService, never()).getEncounters(any(Patient.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), any(Collection.class), eq(false));
+        verify(obsService, times(1)).getObservations(any(List.class), any(List.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(false));
     }
 
     @Test
@@ -235,7 +232,7 @@ public class VisitFormsSearchHandlerTest {
         String patientProgramUuid = "patient-program-uuid";
         when(context.getRequest().getParameter("patientProgramUuid")).thenReturn(patientProgramUuid);
         when(Context.getService(BahmniProgramWorkflowService.class)).thenReturn(programWorkflowService);
-        PatientProgram patientProgram = new BahmniPatientProgram();
+        PatientProgram patientProgram = new PatientProgram();
         when(programWorkflowService.getPatientProgramByUuid(patientProgramUuid)).thenReturn(patientProgram);
         when(Context.getService(EpisodeService.class)).thenReturn(episodeService);
         when(episodeService.getEpisodeForPatientProgram(patientProgram)).thenReturn(null);
@@ -259,7 +256,7 @@ public class VisitFormsSearchHandlerTest {
         String patientProgramUuid = "patient-program-uuid";
         when(context.getRequest().getParameter("patientProgramUuid")).thenReturn(patientProgramUuid);
         when(Context.getService(BahmniProgramWorkflowService.class)).thenReturn(programWorkflowService);
-        PatientProgram patientProgram = new BahmniPatientProgram();
+        PatientProgram patientProgram = new PatientProgram();
         when(programWorkflowService.getPatientProgramByUuid(patientProgramUuid)).thenReturn(patientProgram);
         when(Context.getService(EpisodeService.class)).thenReturn(episodeService);
         Episode episode = new Episode();

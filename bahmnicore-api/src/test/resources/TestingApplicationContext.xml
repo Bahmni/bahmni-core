@@ -18,6 +18,11 @@
         <property name="mappingJarLocations">
             <ref bean="mappingJarResources"/>
         </property>
+        <property name="packagesToScan">
+            <list>
+                <value>org.openmrs</value>
+            </list>
+        </property>
         <property name="mappingResources">
             <list>
                 <value>AddressHierarchyEntry.hbm.xml</value>

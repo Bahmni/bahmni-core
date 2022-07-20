@@ -27,10 +27,13 @@ import static junit.framework.Assert.assertTrue;
  * uses a prepared statement with parameters instead of building string queries
  * with parameters.
  *
- * All the test cases have been migrated to BahmniPatientDaoIT
+ * All the test cases have been migrated to BahmniPatientDaoIT.
+ * This exists only for historical and reference point for the new tests
  * @see @{@link BahmniPatientDaoIT} instead.
  *
  */
+@Deprecated
+@Ignore
 public class BahmniPatientDaoImplIT extends BaseIntegrationTest {
     @Autowired
     private PatientDao patientDao;

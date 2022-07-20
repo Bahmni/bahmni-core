@@ -28,7 +28,7 @@ public class OrderSearchHandler implements SearchHandler{
 
     @Override
     public SearchConfig getSearchConfig() {
-        return new SearchConfig("byOrderType", RestConstants.VERSION_1 + "/order", Arrays.asList("1.9.*", "1.10.*", "1.11.*", "1.12.*","2.0.*", "2.1.*"),
+        return new SearchConfig("byOrderType", RestConstants.VERSION_1 + "/order", Arrays.asList("1.9.* - 2.*"),
                 new SearchQuery.Builder("Allows you to find orders by orderType for a patient").withRequiredParameters("patientUuid", "orderTypeUuid").build());
     }
 

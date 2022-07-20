@@ -27,7 +27,7 @@ public class ConceptSetBasedDrugSearchHandler implements SearchHandler{
     @Override
     public SearchConfig getSearchConfig() {
         SearchQuery searchQuery = new SearchQuery.Builder("Allows you to search for Drugs based on concept set").withRequiredParameters("q").build();
-        return new SearchConfig("byConceptSet", RestConstants.VERSION_1 + "/drug", Arrays.asList("1.9.*", "1.10.*", "1.11.*", "1.12.*","2.0.*", "2.1.*"), searchQuery);
+        return new SearchConfig("byConceptSet", RestConstants.VERSION_1 + "/drug", Arrays.asList("1.9.* - 2.*"), searchQuery);
     }
 
     @Override

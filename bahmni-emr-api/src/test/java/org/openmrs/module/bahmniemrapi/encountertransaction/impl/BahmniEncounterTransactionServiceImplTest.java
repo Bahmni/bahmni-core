@@ -71,6 +71,9 @@ public class BahmniEncounterTransactionServiceImplTest {
 
     @Test
     public void shouldReturnTheEncounterFromTheVisitThatIsOpenedInThatVisitLocation() throws Exception {
+
+        Patient patient = new Patient();
+
         EncounterTransaction encounterTransaction = new EncounterTransaction();
         encounterTransaction.setEncounterUuid("encounter-uuid");
 
@@ -97,6 +100,7 @@ public class BahmniEncounterTransactionServiceImplTest {
         when(baseEncounterMatcher.findEncounter(any(Visit.class), any(EncounterParameters.class))).thenReturn(encounter);
         List<Visit> visits = Arrays.asList(visit);
         when(locationService.getLocationByUuid(loginLocation.getUuid())).thenReturn(loginLocation);
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
         when(visitService.getActiveVisitsByPatient(any(Patient.class))).thenReturn(visits);
         when(encounterService.getEncounterByUuid(anyString())).thenReturn(null);
         when(bahmniVisitLocationService.getVisitLocationUuid(anyString())).thenReturn("visit-location-uuid");
@@ -111,6 +115,8 @@ public class BahmniEncounterTransactionServiceImplTest {
 
     @Test
     public void shouldReturnTheEncounterFromTheVisitThatIsOpenedInThatVisitLocationIfThereAreTwoVisitsInDiffLocations() throws Exception {
+        Patient patient = new Patient();
+
         EncounterTransaction encounterTransaction = new EncounterTransaction();
         encounterTransaction.setEncounterUuid("encounter-uuid");
 
@@ -145,6 +151,7 @@ public class BahmniEncounterTransactionServiceImplTest {
         when(locationService.getLocationByUuid(loginLocation.getUuid())).thenReturn(loginLocation);
         when(baseEncounterMatcher.findEncounter(any(Visit.class), any(EncounterParameters.class))).thenReturn(encounter);
         List<Visit> visits = Arrays.asList(visitOne, visitTwo);
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
         when(visitService.getActiveVisitsByPatient(any(Patient.class))).thenReturn(visits);
         when(encounterService.getEncounterByUuid(anyString())).thenReturn(null);
         when(bahmniVisitLocationService.getVisitLocationUuid(anyString())).thenReturn("visit-location-uuid-two");

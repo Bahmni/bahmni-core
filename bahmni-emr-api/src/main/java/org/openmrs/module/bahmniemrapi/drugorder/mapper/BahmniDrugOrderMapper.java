@@ -5,7 +5,6 @@ import org.openmrs.DrugOrder;
 import org.openmrs.module.bahmniemrapi.drugorder.contract.BahmniDrugOrder;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObservation;
 import org.openmrs.module.emrapi.encounter.ConceptMapper;
-import org.openmrs.module.emrapi.encounter.OrderMapper;
 import org.openmrs.module.emrapi.encounter.mapper.OrderMapper1_12;
 
 import java.io.IOException;
@@ -31,7 +30,7 @@ public class BahmniDrugOrderMapper {
                                                Map<String, DrugOrder> discontinuedOrderMap,
                                                String locale) throws IOException {
 
-        OrderMapper drugOrderMapper = new OrderMapper1_12();
+        OrderMapper1_12 drugOrderMapper = new OrderMapper1_12();
 
         List<BahmniDrugOrder> bahmniDrugOrders = new ArrayList<>();
 

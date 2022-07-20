@@ -10,6 +10,7 @@ import org.openmrs.ConceptName;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
 import org.openmrs.api.context.Context;
+import org.openmrs.api.context.TestUsernameAuthenticationScheme;
 import org.openmrs.api.context.UserContext;
 import org.openmrs.module.bahmniemrapi.drugogram.contract.RegimenRow;
 import org.openmrs.module.bahmniemrapi.drugogram.contract.TreatmentRegimen;
@@ -48,7 +49,7 @@ public class DrugOrderToTreatmentRegimenMapperTest {
         initMocks(this);
         mockStatic(LocaleUtility.class);
         when(LocaleUtility.getDefaultLocale()).thenReturn(Locale.ENGLISH);
-        Context.setUserContext(new UserContext());
+        Context.setUserContext(new UserContext(new TestUsernameAuthenticationScheme()));
         drugOrderToTreatmentRegimenMapper = new DrugOrderToRegimenMapper();
     }
 

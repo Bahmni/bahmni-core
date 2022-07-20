@@ -1,12 +1,12 @@
 package org.bahmni.module.bahmnicore.encounterTransaction.command;
 
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.BahmniPatientProgram;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.openmrs.Encounter;
+import org.openmrs.PatientProgram;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
 import org.openmrs.module.episodes.Episode;
 import org.openmrs.module.episodes.service.EpisodeService;
@@ -35,7 +35,7 @@ public class EpisodeEncounterCreateCommandTest {
         BahmniEncounterTransaction encounterTransaction = new BahmniEncounterTransaction();
         encounterTransaction.setPatientProgramUuid("foo");
 
-        BahmniPatientProgram testPatientProgram = testPatientProgram();
+        PatientProgram testPatientProgram = testPatientProgram();
         when(programWorkflowService.getPatientProgramByUuid("foo")).thenReturn(testPatientProgram);
         Episode testEpisode = testEpisode(testPatientProgram);
         when(episodeService.getEpisodeForPatientProgram(testPatientProgram)).thenReturn(testEpisode);
@@ -53,7 +53,7 @@ public class EpisodeEncounterCreateCommandTest {
     public void shouldIgnoreIfEncounterHasNoPatientProgramAssociated() {
         BahmniEncounterTransaction encounterTransaction = new BahmniEncounterTransaction();
 
-        BahmniPatientProgram testPatientProgram = testPatientProgram();
+        PatientProgram testPatientProgram = testPatientProgram();
         when(programWorkflowService.getPatientProgramByUuid("foo")).thenReturn(testPatientProgram);
         Episode testEpisode = testEpisode(testPatientProgram);
         when(episodeService.getEpisodeForPatientProgram(testPatientProgram)).thenReturn(testEpisode);
@@ -65,13 +65,13 @@ public class EpisodeEncounterCreateCommandTest {
         verify(episodeService, times(0)).getEpisodeForPatientProgram(testPatientProgram);
         verify(episodeService, times(0)).save(testEpisode);
     }
-    
+
     @Test
     public void shouldCreateEpisodeAndAssociatePatientProgramIfItDoesntExist() {
         BahmniEncounterTransaction encounterTransaction = new BahmniEncounterTransaction();
         encounterTransaction.setPatientProgramUuid("foo");
 
-        BahmniPatientProgram testPatientProgram = testPatientProgram();
+        PatientProgram testPatientProgram = testPatientProgram();
         when(programWorkflowService.getPatientProgramByUuid("foo")).thenReturn(testPatientProgram);
 
         when(episodeService.getEpisodeForPatientProgram(testPatientProgram)).thenReturn(null);
@@ -89,14 +89,14 @@ public class EpisodeEncounterCreateCommandTest {
     }
 
 
-    private Episode testEpisode(BahmniPatientProgram testPatientProgram) {
+    private Episode testEpisode(PatientProgram testPatientProgram) {
         Episode episode = new Episode();
         episode.addPatientProgram(testPatientProgram);
         return episode;
     }
 
-    private BahmniPatientProgram testPatientProgram() {
-        BahmniPatientProgram bahmniPatientProgram = new BahmniPatientProgram();
+    private PatientProgram testPatientProgram() {
+        PatientProgram bahmniPatientProgram = new PatientProgram();
         bahmniPatientProgram.setUuid("bar");
         return bahmniPatientProgram;
     }

@@ -1,13 +1,13 @@
 package org.bahmni.module.bahmnicore.web.v1_0.mapper;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.BahmniPatientProgram;
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.PatientProgramAttribute;
+import org.openmrs.PatientProgramAttribute;
 import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
 import org.openmrs.PersonAttribute;
+import org.openmrs.PatientProgram;
 import org.openmrs.api.ConceptService;
 import org.openmrs.module.bahmniemrapi.patient.PatientContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ public class BahmniPatientContextMapper {
     @Autowired
     private ConceptService conceptService;
 
-    public PatientContext map(Patient patient, BahmniPatientProgram patientProgram, List<String> configuredPersonAttributes, List<String> configuredProgramAttributes, List<String> configuredPatientIdentifiers, PatientIdentifierType primaryIdentifierType) {
+    public PatientContext map(Patient patient, PatientProgram patientProgram, List<String> configuredPersonAttributes, List<String> configuredProgramAttributes, List<String> configuredPatientIdentifiers, PatientIdentifierType primaryIdentifierType) {
         PatientContext patientContext = new PatientContext();
 
         patientContext.setBirthdate(patient.getBirthdate());
@@ -49,7 +49,7 @@ public class BahmniPatientContextMapper {
         }
     }
 
-    private void mapConfiguredProgramAttributes(BahmniPatientProgram patientProgram, List<String> configuredProgramAttributes, PatientContext patientContext) {
+    private void mapConfiguredProgramAttributes(PatientProgram patientProgram, List<String> configuredProgramAttributes, PatientContext patientContext) {
         if (patientProgram == null || configuredProgramAttributes == null) {
             return;
         }

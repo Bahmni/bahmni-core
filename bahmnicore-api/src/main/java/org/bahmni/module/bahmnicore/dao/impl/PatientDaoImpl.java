@@ -11,7 +11,7 @@ import org.bahmni.module.bahmnicore.contract.patient.response.PatientResponse;
 import org.bahmni.module.bahmnicore.contract.patient.search.PatientSearchBuilder;
 import org.bahmni.module.bahmnicore.contract.patient.search.PatientSearchQueryBuilder;
 import org.bahmni.module.bahmnicore.dao.PatientDao;
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.ProgramAttributeType;
+import org.openmrs.ProgramAttributeType;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
@@ -59,6 +59,7 @@ public class PatientDaoImpl implements PatientDao {
             "address9", "address10", "address11", "address12",
             "address13", "address14", "address15");
 
+    @Deprecated
     @Override
     public List<PatientResponse> getPatients(String identifier, String name, String customAttribute,
                                              String addressFieldName, String addressFieldValue, Integer length,
@@ -183,7 +184,7 @@ public class PatientDaoImpl implements PatientDao {
         }
         org.apache.lucene.search.Query nonVoidedIdentifiers = queryBuilder.keyword().onField("voided").matching(false).createQuery();
         org.apache.lucene.search.Query nonVoidedPatients = queryBuilder.keyword().onField("patient.voided").matching(false).createQuery();
-    
+
         List<String> identifierTypeNames = getIdentifierTypeNames(filterOnAllIdentifiers);
 
         BooleanJunction identifierTypeShouldJunction = queryBuilder.bool();
@@ -199,15 +200,14 @@ public class PatientDaoImpl implements PatientDao {
                 .must(nonVoidedPatients)
                 .must(identifierTypeShouldJunction.createQuery())
                 .createQuery();
-
-        Sort sort = new Sort( new SortField( "identifier", SortField.Type.STRING, false ) );
+//        Sort sort = new Sort( new SortField( "identifier", SortField.Type.STRING, false ) );
         FullTextQuery fullTextQuery = fullTextSession.createFullTextQuery(booleanQuery, PatientIdentifier.class);
-        fullTextQuery.setSort(sort);
+//        fullTextQuery.setSort(sort);
         fullTextQuery.setFirstResult(offset);
         fullTextQuery.setMaxResults(length);
         return (List<PatientIdentifier>) fullTextQuery.list();
     }
-    
+
     private List<String> getIdentifierTypeNames(Boolean filterOnAllIdentifiers) {
         List<String> identifierTypeNames = new ArrayList<>();
         addIdentifierTypeName(identifierTypeNames,"bahmni.primaryIdentifierType");

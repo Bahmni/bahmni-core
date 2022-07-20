@@ -27,9 +27,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -104,7 +102,7 @@ public class BahmniObsServiceImplTest {
         Integer numberOfVisits = 3;
         bahmniObsService.observationsFor(personUUID, asList(bloodPressureConcept), numberOfVisits, null, false, null, null, null);
         verify(obsDao).getObsByPatientAndVisit(personUUID, asList("Blood Pressure"),
-                visitDao.getVisitIdsFor(personUUID, numberOfVisits), -1, ObsDaoImpl.OrderBy.DESC, null, false, null, null, null);
+                visitDao.getVisitIdsFor(personUUID, numberOfVisits), Integer.MAX_VALUE, ObsDaoImpl.OrderBy.DESC, null, false, null, null, null);
     }
 
     @Test

@@ -9,6 +9,6 @@
 
     <context:component-scan  base-package="org.bahmni.module.admin"/>
     <context:component-scan  base-package="org.bahmni.form2"/>
-    <context:component-scan  base-package="org.bahmni.common"/>
+    <context:component-scan  base-package="org.bahmni.common.config"/>
 
 </beans>

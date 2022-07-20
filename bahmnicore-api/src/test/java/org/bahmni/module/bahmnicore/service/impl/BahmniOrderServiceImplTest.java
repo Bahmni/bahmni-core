@@ -131,6 +131,7 @@ public class BahmniOrderServiceImplTest {
         orderType.setUuid("someOrderTypeUuid");
         order.setOrderType(orderType);
         provider.setId(2);
+        provider.setUuid("88887777-eeee-4326-bb05-c6e11fe31234");
         provider.setName("Superman");
         order.setOrderer(provider);
         order.setConcept(concept);

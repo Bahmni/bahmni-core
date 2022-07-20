@@ -11,7 +11,7 @@ import org.openmrs.module.webservices.rest.web.resource.impl.DelegatingResourceD
 import org.openmrs.module.webservices.rest.web.response.ResourceDoesNotSupportOperationException;
 import org.openmrs.module.webservices.rest.web.response.ResponseException;
 
-@Resource(name = RestConstants.VERSION_1 + "/bahmniconceptanswer", supportedClass = BahmniConceptAnswer.class, supportedOpenmrsVersions = {"1.9.*", "1.10.*", "1.11.*", "1.12.*", "2.0.*", "2.1.*"}, order = 0)
+@Resource(name = RestConstants.VERSION_1 + "/bahmniconceptanswer", supportedClass = BahmniConceptAnswer.class, supportedOpenmrsVersions = {"1.9.* - 2.*"}, order = 0)
 public class BahmniConceptAnswerResource extends DelegatingCrudResource<BahmniConceptAnswer> {
 
     @Override

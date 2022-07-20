@@ -2,7 +2,6 @@ name: Build and Publish package
 on:
   push:
     branches: [ master ]
-  
 jobs:
   build-publish-package:
     name: Build and Publish package

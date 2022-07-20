@@ -86,6 +86,7 @@ public class BahmniOrderServiceImpl implements BahmniOrderService {
         bahmniOrder.setOrderTypeUuid(order.getOrderType().getUuid());
         bahmniOrder.setOrderUuid(order.getUuid());
         bahmniOrder.setProvider(order.getOrderer().getName());
+        bahmniOrder.setProviderUuid(order.getOrderer().getUuid());
         bahmniOrder.setConcept(conceptMapper.map(order.getConcept()));
         bahmniOrder.setHasObservations(CollectionUtils.isNotEmpty(bahmniObservations));
         bahmniOrder.setCommentToFulfiller(order.getCommentToFulfiller());

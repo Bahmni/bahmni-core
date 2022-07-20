@@ -10,8 +10,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.HandlerExecutionChain;
-import org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter;
-import org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -22,10 +22,10 @@ import java.util.Map;
 public class BaseWebControllerTest extends BaseModuleWebContextSensitiveTest {
 
     @Autowired
-    private AnnotationMethodHandlerAdapter handlerAdapter;
+    private RequestMappingHandlerAdapter handlerAdapter;
 
     @Autowired
-    private List<DefaultAnnotationHandlerMapping> handlerMappings;
+    private List<RequestMappingHandlerMapping> handlerMappings;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -124,7 +124,7 @@ public class BaseWebControllerTest extends BaseModuleWebContextSensitiveTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         HandlerExecutionChain handlerExecutionChain = null;
-        for (DefaultAnnotationHandlerMapping handlerMapping : handlerMappings) {
+        for (RequestMappingHandlerMapping handlerMapping : handlerMappings) {
             handlerExecutionChain = handlerMapping.getHandler(request);
             if (handlerExecutionChain != null) {
                 break;

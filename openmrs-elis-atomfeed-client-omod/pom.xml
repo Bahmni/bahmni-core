@@ -213,7 +213,7 @@
             <version>${openMRSWebServicesVersion}</version>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
+            <groupId>org.bahmni.module</groupId>
             <artifactId>auditlog-api</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -358,6 +358,12 @@
         </dependency>
         <dependency>
             <groupId>org.openmrs.module</groupId>
+            <artifactId>emrapi-api-2.2</artifactId>
+            <version>${emrapi-omod.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openmrs.module</groupId>
             <artifactId>emrapi-api-1.12</artifactId>
             <version>${emrapi-omod.version}</version>
             <scope>test</scope>
@@ -390,7 +396,17 @@
             <version>${metadatamapping.version}</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>javax.el-api</artifactId>
+            <version>2.2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.web</groupId>
+            <artifactId>javax.el</artifactId>
+            <version>2.2.4</version>
+        </dependency>
     </dependencies>
+
 
 </project>

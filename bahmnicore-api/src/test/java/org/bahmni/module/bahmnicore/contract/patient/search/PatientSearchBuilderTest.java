@@ -3,6 +3,7 @@ package org.bahmni.module.bahmnicore.contract.patient.search;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.type.Type;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +33,7 @@ public class PatientSearchBuilderTest {
     private Session session;
 
     @Mock
-    private SQLQuery mockSqlQuery;
+    private NativeQuery mockSqlQuery;
 
     @Mock
     private LocationService locationService;
@@ -48,7 +49,6 @@ public class PatientSearchBuilderTest {
         initMocks(this);
         when(sessionFactory.getCurrentSession()).thenReturn(session);
         when(session.createSQLQuery(queryCaptor.capture())).thenReturn(mockSqlQuery);
-        when(mockSqlQuery.addScalar(any(String.class))).thenReturn(mockSqlQuery);
         when(mockSqlQuery.addScalar(any(String.class),any(Type.class))).thenReturn(mockSqlQuery);
     }
 

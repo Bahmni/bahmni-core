@@ -4,7 +4,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.xerces.impl.dv.util.Base64;
 import org.bahmni.module.bahmnicore.BaseIntegrationTest;
 import org.bahmni.module.bahmnicore.properties.BahmniCoreProperties;
-import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Patient;
 import org.openmrs.util.OpenmrsUtil;
@@ -16,8 +15,6 @@ import java.nio.file.Paths;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.times;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 public class PatientDocumentServiceImplIT extends BaseIntegrationTest{
 

@@ -14,9 +14,9 @@ import org.openmrs.OrderFrequency;
 import org.openmrs.api.ConceptService;
 import org.openmrs.module.bahmniemrapi.drugorder.DrugOrderUtil;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
-import org.openmrs.module.emrapi.encounter.builder.DrugOrderBuilder;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.module.emrapi.encounter.service.OrderMetadataService;
+import org.openmrs.module.emrapi.encounter.builder.DrugOrderBuilder;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -69,7 +69,7 @@ public class DrugOrderSaveCommandImplTest {
     public void shouldSetDatesForDrugOrderConflictingWithCurrentDateOrders() {
         BahmniEncounterTransaction bahmniEncounterTransaction = new BahmniEncounterTransaction();
         Concept dayConcept = new Concept();
-        dayConcept.addConceptMapping(getConceptMap(Duration.SNOMED_CT_CONCEPT_SOURCE_HL7_CODE, Duration.SNOMED_CT_DAYS_CODE,"35543629-7d8c-11e1-909d-c80aa9edcf4e"));
+        dayConcept.addConceptMapping(getConceptMap(Duration.SNOMED_CT_CONCEPT_SOURCE_HL7_CODE, Duration.SNOMED_CT_DAYS_CODE, "35543629-7d8c-11e1-909d-c80aa9edcf4e"));
 
         when(conceptService.getConceptByName(DAY_DURATION_UNIT)).thenReturn(dayConcept);
         OrderFrequency orderFrequency = new OrderFrequency();

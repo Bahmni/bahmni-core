@@ -20,7 +20,7 @@ import org.openmrs.module.webservices.rest.web.response.ResponseException;
 import java.util.ArrayList;
 import java.util.List;
 
-@SubResource(parent = BahmniOrderSetResource.class, path = "bahmniordersetmember", supportedClass = OrderSetMember.class, supportedOpenmrsVersions = { "1.12.*" , "2.0.*", "2.1.*"})
+@SubResource(parent = BahmniOrderSetResource.class, path = "bahmniordersetmember", supportedClass = OrderSetMember.class, supportedOpenmrsVersions = { "1.12.* - 2.*"})
 public class BahmniOrderSetMemberSubResource extends DelegatingSubResource<OrderSetMember, OrderSet, BahmniOrderSetResource> {
 
     @Override

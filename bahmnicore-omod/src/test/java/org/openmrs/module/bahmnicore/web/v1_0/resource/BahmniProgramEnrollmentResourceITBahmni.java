@@ -1,6 +1,5 @@
 package org.openmrs.module.bahmnicore.web.v1_0.resource;
 
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.BahmniPatientProgram;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.bahmni.module.bahmnicore.web.v1_0.search.BahmniMainResourceControllerTest;
 import org.junit.Assert;
@@ -42,7 +41,7 @@ public class BahmniProgramEnrollmentResourceITBahmni extends BahmniMainResourceC
         Patient patient = patientService.getPatientByUuid(PATIENT_IN_A_PROGRAM_UUID);
         List<PatientProgram> patientPrograms = service.getPatientPrograms(patient, null, null, null, null, null, true);
         Assert.assertEquals(patientPrograms.size(), Util.getResultsSize(result));
-        BahmniPatientProgram bahmniPatientProgram = (BahmniPatientProgram) patientPrograms.get(0);
+        PatientProgram bahmniPatientProgram = (PatientProgram) patientPrograms.get(0);
         List results = (List) result.get("results");
         Assert.assertEquals(bahmniPatientProgram.getUuid(), ((HashMap) results.get(0)).get("uuid"));
     }

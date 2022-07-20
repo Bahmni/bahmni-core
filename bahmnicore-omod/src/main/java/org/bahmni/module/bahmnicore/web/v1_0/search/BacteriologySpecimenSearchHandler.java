@@ -54,7 +54,7 @@ public class BacteriologySpecimenSearchHandler implements SearchHandler {
     @Override
     public SearchConfig getSearchConfig() {
         SearchQuery searchQuery = new SearchQuery.Builder(QUERY_INFORMATION).withRequiredParameters("patientProgramUuid").build();
-        return new SearchConfig("byPatientProgram", RestConstants.VERSION_1 + "/specimen", asList("1.10.*", "1.11.*", "1.12.*", "2.0.*", "2.1.*"), searchQuery);
+        return new SearchConfig("byPatientProgram", RestConstants.VERSION_1 + "/specimen", asList("1.10.* - 2.*"), searchQuery);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package org.openmrs.module.bahmniemrapi.encountertransaction.impl;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
@@ -15,6 +16,7 @@ import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 
+@Ignore
 public class OpenMRSUpgradeTest extends BaseModuleContextSensitiveTest {
 
 	// Vitals (61) -> Pulse (62)

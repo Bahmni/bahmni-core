@@ -16,7 +16,7 @@ import org.openmrs.module.webservices.rest.web.v1_0.resource.openmrs1_8.PersonAt
 import org.openmrs.module.webservices.rest.web.v1_0.resource.openmrs1_9.BaseAttributeTypeCrudResource1_9;
 import org.openmrs.util.OpenmrsUtil;
 
-@Resource(name = RestConstants.VERSION_1 + "/personattributetype", supportedClass = PersonAttributeType.class, supportedOpenmrsVersions = {"1.12.*","2.0.*", "2.1.*"}, order = 0)
+@Resource(name = RestConstants.VERSION_1 + "/personattributetype", supportedClass = PersonAttributeType.class, supportedOpenmrsVersions = {"1.12.* - 2.*"}, order = 0)
 public class PersonAttributeTypeResource extends PersonAttributeTypeResource1_8 {
     @PropertyGetter("concept")
     public Object getConcept(PersonAttributeType delegate) {

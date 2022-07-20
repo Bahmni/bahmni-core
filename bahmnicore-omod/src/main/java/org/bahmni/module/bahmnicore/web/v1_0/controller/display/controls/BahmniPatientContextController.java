@@ -1,10 +1,10 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller.display.controls;
 
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.BahmniPatientProgram;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.bahmni.module.bahmnicore.web.v1_0.mapper.BahmniPatientContextMapper;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifierType;
+import org.openmrs.PatientProgram;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
@@ -40,7 +40,7 @@ public class BahmniPatientContextController {
                                             @RequestParam(value = "programAttributes", required = false) List<String> configuredProgramAttributes,
                                             @RequestParam(value = "patientIdentifiers", required = false) List<String> configuredPatientIdentifiers) {
         Patient patient = patientService.getPatientByUuid(patientUuid);
-        BahmniPatientProgram bahmniPatientProgram = (BahmniPatientProgram) Context.getService(BahmniProgramWorkflowService.class).getPatientProgramByUuid(programUuid);
+        PatientProgram bahmniPatientProgram = (PatientProgram) Context.getService(BahmniProgramWorkflowService.class).getPatientProgramByUuid(programUuid);
         PatientIdentifierType primaryIdentifierType = patientService.getPatientIdentifierTypeByUuid(administrationService.getGlobalProperty(BAHMNI_PRIMARY_IDENTIFIER_TYPE));
         return mapper.map(patient, bahmniPatientProgram, configuredPersonAttributes, configuredProgramAttributes, configuredPatientIdentifiers, primaryIdentifierType);
     }

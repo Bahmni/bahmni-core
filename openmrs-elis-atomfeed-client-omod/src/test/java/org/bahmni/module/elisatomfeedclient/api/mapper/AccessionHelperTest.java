@@ -51,6 +51,7 @@ import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyCollection;
@@ -125,7 +126,7 @@ public class AccessionHelperTest {
         when(visitService.getVisitTypes("LAB_RESULTS")).thenReturn(Arrays.asList(visits.get(0).getVisitType()));
         when(visitService.getVisits(anyCollection(), anyCollection(), anyCollection(), anyCollection(), any(Date.class), any(Date.class), any(Date.class), any(Date.class), anyMap(), anyBoolean(), anyBoolean())).thenReturn(visits);
         when(userService.getUserByUsername(anyString())).thenReturn(provider);
-        when(providerService.getProvidersByPerson(any(Person.class))).thenReturn(Arrays.asList(new Provider()));
+        when(providerService.getProvidersByPerson(eq(null))).thenReturn(Arrays.asList(new Provider()));
         when(encounterService.getEncounterRoleByUuid(EncounterRole.UNKNOWN_ENCOUNTER_ROLE_UUID)).thenReturn(new EncounterRole());
         when(orderService.getOrderTypes(true)).thenReturn(Arrays.asList(getOrderType()));
         PowerMockito.mockStatic(Context.class);
@@ -164,7 +165,7 @@ public class AccessionHelperTest {
         when(visitService.getVisitTypes("LAB_RESULTS")).thenReturn(Arrays.asList(visits.get(0).getVisitType()));
         when(visitService.getVisits(anyCollection(), anyCollection(), anyCollection(), anyCollection(), any(Date.class), any(Date.class), any(Date.class), any(Date.class), anyMap(), anyBoolean(), anyBoolean())).thenReturn(visits);
         when(userService.getUserByUsername(anyString())).thenReturn(provider);
-        when(providerService.getProvidersByPerson(any(Person.class))).thenReturn(Arrays.asList(new Provider()));
+        when(providerService.getProvidersByPerson(eq(null))).thenReturn(Arrays.asList(new Provider()));
         when(encounterService.getEncounterRoleByUuid(EncounterRole.UNKNOWN_ENCOUNTER_ROLE_UUID)).thenReturn(new EncounterRole());
         when(orderService.getOrderTypes(true)).thenReturn(Arrays.asList(getOrderType()));
         when(visitService.saveVisit(any(Visit.class))).thenReturn(visits.get(0));
@@ -198,7 +199,7 @@ public class AccessionHelperTest {
         orders.add(test);
         previousEncounter.setOrders(orders);
         when(userService.getUserByUsername(anyString())).thenReturn(new User());
-        when(providerService.getProvidersByPerson(any(Person.class))).thenReturn(Arrays.asList(new Provider()));
+        when(providerService.getProvidersByPerson(eq(null))).thenReturn(Arrays.asList(new Provider()));
         when(administrationService.getGlobalPropertyValue(Constants.GP_ALLOW_DISCONTINUE_ORDERS, Boolean.TRUE)).thenReturn(Boolean.TRUE);
         AccessionDiff diff = new AccessionDiff();
         diff.addAddedTestDetail(new OpenElisTestDetailBuilder().withTestUuid("test2").build());

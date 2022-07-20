@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anySet;
@@ -79,7 +80,7 @@ public class BahmniDrugOrderServiceImplTest {
     @Test
     public void shouldGetActiveDrugOrdersOfAPatientProgram() throws ParseException {
         when(orderDao.getActiveOrders(any(Patient.class), any(OrderType.class), any(CareSetting.class),
-                dateArgumentCaptor.capture(), anySet(), anySet(), any(Date.class), any(Date.class), anyCollection())).thenReturn(new ArrayList<Order>());
+                dateArgumentCaptor.capture(), anySet(), eq(null), eq(null), eq(null), anyCollection())).thenReturn(new ArrayList<Order>());
 
        bahmniDrugOrderService.getDrugOrders(PATIENT_UUID, true, conceptsToFilter, null, PATIENT_PROGRAM_UUID);
 

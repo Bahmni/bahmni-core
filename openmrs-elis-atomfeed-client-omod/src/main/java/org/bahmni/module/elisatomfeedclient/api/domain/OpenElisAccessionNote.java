@@ -7,6 +7,7 @@ import org.openmrs.Provider;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Locale;
 
 public class OpenElisAccessionNote {
     private String note;
@@ -73,6 +74,6 @@ public class OpenElisAccessionNote {
     }
 
     public Date getDateTimeAsDate() throws ParseException {
-        return DateUtils.parseDateStrictly(dateTime.toString(), DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.getPattern());
+        return DateUtils.parseDateStrictly(dateTime.toString(), Locale.US, DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.getPattern());
     }
 }

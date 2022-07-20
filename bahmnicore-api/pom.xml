@@ -91,7 +91,7 @@
         </dependency>
         <dependency>
             <groupId>org.openmrs.module</groupId>
-            <artifactId>emrapi-api-1.12</artifactId>
+            <artifactId>emrapi-api-2.2</artifactId>
             <version>${emrapi-omod.version}</version>
         </dependency>
         <dependency>
@@ -196,6 +196,10 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openmrs.module</groupId>
+            <artifactId>emrapi-api-1.12</artifactId>
         </dependency>
     </dependencies>
 

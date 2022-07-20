@@ -93,6 +93,11 @@
         </dependency>
         <dependency>
             <groupId>org.openmrs.module</groupId>
+            <artifactId>emrapi-api-2.2</artifactId>
+            <version>${emrapi-omod.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openmrs.module</groupId>
             <artifactId>reporting-api</artifactId>
             <scope>test</scope>
         </dependency>

@@ -33,7 +33,7 @@ public class BahmniConceptSearchByDataTypeHandler implements SearchHandler {
     @Override
     public SearchConfig getSearchConfig() {
         SearchQuery searchQuery = new SearchQuery.Builder("Allows you to search for concepts by data types").withRequiredParameters(NAME, DATA_TYPES).build();
-        return new SearchConfig("byDataType", RestConstants.VERSION_1 + "/concept", Arrays.asList("1.9.*", "1.10.*", "1.11.*", "1.12.*", "2.0.*", "2.1.*"), searchQuery);
+        return new SearchConfig("byDataType", RestConstants.VERSION_1 + "/concept", Arrays.asList("1.9.* - 2.*"), searchQuery);
     }
 
     @Override

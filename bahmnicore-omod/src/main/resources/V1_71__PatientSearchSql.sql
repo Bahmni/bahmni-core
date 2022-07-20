@@ -135,14 +135,15 @@ VALUES ('emrapi.sqlSearch.highRiskPatients',
 
 INSERT INTO global_property (`property`, `property_value`, `description`, `uuid`)
 VALUES ('emrapi.sqlSearch.additionalSearchHandler',
-        ' cn.name = \'${testName}\'',
+        ' cn.name = "${testName}"',
         'Sql query to get list of admitted patients',
         uuid()
 );
 
 insert into global_property (property,property_value,description,uuid)
-values ('emrapi.sqlSearch.activePatientsByProvider','
-  select distinct concat(pn.given_name," ", pn.family_name) as name,
+values ('emrapi.sqlSearch.activePatientsByProvider',
+  'select distinct
+  concat(pn.given_name," ", pn.family_name) as name,
   pi.identifier as identifier,
   concat("",p.uuid) as uuid,
   concat("",v.uuid) as activeVisitUuid,

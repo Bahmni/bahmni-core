@@ -28,7 +28,7 @@ public class OrderSetSearchHandler implements SearchHandler {
 
     @Override
     public SearchConfig getSearchConfig() {
-        return new SearchConfig("byQuery", RestConstants.VERSION_1 + "/bahmniorderset", Arrays.asList("1.9.*", "1.10.*", "1.11.*", "1.12.*","2.0.*", "2.1.*"),
+        return new SearchConfig("byQuery", RestConstants.VERSION_1 + "/bahmniorderset", Arrays.asList("1.9.* - 2.*"),
                 new SearchQuery.Builder("Allows you to find OrderSets by search query").withRequiredParameters("q").build());
 
     }

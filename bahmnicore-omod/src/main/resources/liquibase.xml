@@ -3785,22 +3785,24 @@
         </sql>
     </changeSet>
 
-    <changeSet id="bahmni-core-201701241540" author="Padma">
-        <preConditions onFail="HALT">
-            <sqlCheck expectedResult="1">
-                SELECT count(*) from global_property WHERE property = 'concept.true' and property_value is not null;
-            </sqlCheck>
-        </preConditions>
-        <comment>Set value coded for referred out concepts</comment>
-        <sql>
-            UPDATE obs
-            SET value_coded = (SELECT property_value
-            FROM global_property where property = 'concept.true')
-            WHERE concept_id IN (SELECT concept_id
-            FROM concept_name
-            WHERE name = 'REFERRED_OUT' AND concept_name_type = 'FULLY_SPECIFIED') AND value_coded IS NULL;
-        </sql>
-    </changeSet>
+<!--    <changeSet id="bahmni-core-201701241540" author="Padma">-->
+<!--        <preConditions onFail="HALT">-->
+<!--            <not>-->
+<!--                <sqlCheck expectedResult="0">-->
+<!--                    SELECT COUNT(*) FROM global_property WHERE property = 'concept.true' and property_value is not null;-->
+<!--                </sqlCheck>-->
+<!--            </not>-->
+<!--        </preConditions>-->
+<!--        <comment>Set value coded for referred out concepts</comment>-->
+<!--        <sql>-->
+<!--            UPDATE obs-->
+<!--            SET value_coded = (SELECT property_value-->
+<!--            FROM global_property where property = 'concept.true')-->
+<!--            WHERE concept_id IN (SELECT concept_id-->
+<!--            FROM concept_name-->
+<!--            WHERE name = 'REFERRED_OUT' AND concept_name_type = 'FULLY_SPECIFIED') AND value_coded IS NULL;-->
+<!--        </sql>-->
+<!--    </changeSet>-->
 
     <changeSet id="bahmni-core-201702061413" author="Preethi">
         <preConditions onFail="MARK_RAN">

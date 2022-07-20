@@ -12,6 +12,7 @@ import org.openmrs.api.EncounterService;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.VisitService;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.bahmniemrapi.diagnosis.contract.BahmniDiagnosisRequest;
 import org.openmrs.module.bahmniemrapi.diagnosis.helper.BahmniDiagnosisMetadata;
 import org.openmrs.module.emrapi.EmrApiProperties;
@@ -38,19 +39,17 @@ public class BahmniDiagnosisServiceImpl implements BahmniDiagnosisService {
     private VisitService visitService;
     private PatientService patientService;
     private DiagnosisMapper diagnosisMapper;
-    private DiagnosisService diagnosisService;
     private BahmniDiagnosisMetadata bahmniDiagnosisMetadata;
     private ConceptService conceptService;
     private EmrApiProperties emrApiProperties;
 
     @Autowired
-    public BahmniDiagnosisServiceImpl(EncounterService encounterService, ObsService obsService, VisitService visitService, PatientService patientService, DiagnosisMapper diagnosisMapper, DiagnosisService diagnosisService, BahmniDiagnosisMetadata bahmniDiagnosisMetadata, ConceptService conceptService, EmrApiProperties emrApiProperties) {
+    public BahmniDiagnosisServiceImpl(EncounterService encounterService, ObsService obsService, VisitService visitService, PatientService patientService, DiagnosisMapper diagnosisMapper, BahmniDiagnosisMetadata bahmniDiagnosisMetadata, ConceptService conceptService, EmrApiProperties emrApiProperties) {
         this.encounterService = encounterService;
         this.obsService = obsService;
         this.visitService = visitService;
         this.patientService = patientService;
         this.diagnosisMapper = diagnosisMapper;
-        this.diagnosisService = diagnosisService;
         this.bahmniDiagnosisMetadata = bahmniDiagnosisMetadata;
         this.conceptService = conceptService;
         this.emrApiProperties = emrApiProperties;
@@ -171,7 +170,7 @@ public class BahmniDiagnosisServiceImpl implements BahmniDiagnosisService {
         Patient patient = patientService.getPatientByUuid(patientUuid);
 
         Date fromDate = date != null ? new SimpleDateFormat("yyyy-MM-dd").parse(date) : null;
-        List<Diagnosis> diagnosisByPatientAndDate = diagnosisService.getDiagnoses(patient, fromDate);
+        List<Diagnosis> diagnosisByPatientAndDate = Context.getService(DiagnosisService.class).getDiagnoses(patient, fromDate);
 
         List<BahmniDiagnosisRequest> bahmniDiagnosisRequests = new ArrayList<>();
         boolean diagnosisSchemaContainsStatus = bahmniDiagnosisMetadata.diagnosisSchemaContainsStatus();

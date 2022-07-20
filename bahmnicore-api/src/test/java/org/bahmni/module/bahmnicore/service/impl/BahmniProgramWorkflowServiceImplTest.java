@@ -1,8 +1,6 @@
 package org.bahmni.module.bahmnicore.service.impl;
 
-import org.bahmni.module.bahmnicore.dao.BahmniProgramWorkflowDAO;
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.BahmniPatientProgram;
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.ProgramAttributeType;
+import org.openmrs.ProgramAttributeType;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +11,7 @@ import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.Program;
+import org.openmrs.api.db.ProgramWorkflowDAO;
 import org.openmrs.module.episodes.Episode;
 import org.openmrs.module.episodes.service.EpisodeService;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -33,13 +32,13 @@ public class BahmniProgramWorkflowServiceImplTest {
     private BahmniProgramWorkflowService bahmniProgramWorkflowService;
 
     @Mock
-    private BahmniProgramWorkflowDAO bahmniProgramWorkflowDAO;
+    private ProgramWorkflowDAO bahmniProgramWorkflowDAO;
 
     @Mock
     private EpisodeService episodeService;
 
     @Mock
-    private BahmniPatientProgram patientProgram;
+    private PatientProgram patientProgram;
 
     private Integer sampleId = 1234;
     private String sampleUuid = "a1b2c3";
@@ -89,7 +88,7 @@ public class BahmniProgramWorkflowServiceImplTest {
 
     @Test
     public void testSavePatientProgramShouldCreateEpisode() throws Exception {
-        BahmniPatientProgram patientProgram = new BahmniPatientProgram();
+        PatientProgram patientProgram = new PatientProgram();
         patientProgram.setPatient(new Patient());
         patientProgram.setProgram(new Program());
         when(bahmniProgramWorkflowDAO.savePatientProgram(patientProgram)).thenReturn(patientProgram);
@@ -106,7 +105,7 @@ public class BahmniProgramWorkflowServiceImplTest {
     @Test
     public void testUpdatePatientProgramShouldNotCreateNewEpisode() throws Exception {
         Episode episode = new Episode();
-        BahmniPatientProgram patientProgram = new BahmniPatientProgram();
+        PatientProgram patientProgram = new PatientProgram();
         patientProgram.setPatient(new Patient());
         patientProgram.setProgram(new Program());
         when(bahmniProgramWorkflowDAO.savePatientProgram(patientProgram)).thenReturn(patientProgram);
@@ -122,7 +121,7 @@ public class BahmniProgramWorkflowServiceImplTest {
     public void testGetEncountersByPatientProgram() {
         Episode episode = new Episode();
         String patientProgramUuid = "patientProgramUuid";
-        BahmniPatientProgram patientProgram = new BahmniPatientProgram();
+        PatientProgram patientProgram = new PatientProgram();
         patientProgram.setUuid(patientProgramUuid);
         patientProgram.setPatient(new Patient());
         patientProgram.setProgram(new Program());
@@ -139,7 +138,7 @@ public class BahmniProgramWorkflowServiceImplTest {
     @Test
     public void testNullEncountersByPatientProgramIfEpisodeCannotBeFound() {
         String patientProgramUuid = "patientProgramUuid";
-        BahmniPatientProgram patientProgram = new BahmniPatientProgram();
+        PatientProgram patientProgram = new PatientProgram();
         patientProgram.setUuid(patientProgramUuid);
         patientProgram.setPatient(new Patient());
         patientProgram.setProgram(new Program());
@@ -164,6 +163,6 @@ public class BahmniProgramWorkflowServiceImplTest {
 
         verify(patientProgram, times(1)).getOutcome();
         verify(patientProgram, times(1)).setDateCompleted(any(Date.class));
-        verify(patientProgram, times(1)).getDateCompleted();
+        verify(patientProgram, times(2)).getDateCompleted();
     }
 }

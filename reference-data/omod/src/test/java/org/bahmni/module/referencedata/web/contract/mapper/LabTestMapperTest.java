@@ -33,6 +33,7 @@ import static org.bahmni.module.referencedata.labconcepts.advice.ConceptServiceE
 import static org.bahmni.module.referencedata.labconcepts.advice.ConceptServiceEventInterceptorTest.getConceptSets;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
@@ -102,7 +103,7 @@ public class LabTestMapperTest {
                 return null;
             }
         });
-        when(conceptService.getConceptNumeric(anyInt())).thenReturn(conceptNumeric);
+        when(conceptService.getConceptNumeric(eq(null))).thenReturn(conceptNumeric);
         when(Context.getConceptService()).thenReturn(conceptService);
     }
 
@@ -119,7 +120,7 @@ public class LabTestMapperTest {
 
     @Test
     public void testUnitOfMeasureIsNullIfNotSpecified() throws Exception {
-        when(conceptService.getConceptNumeric(anyInt())).thenReturn(null);
+        when(conceptService.getConceptNumeric(eq(null))).thenReturn(null);
         LabTest testData = testMapper.map(testConcept);
         assertNull(testData.getTestUnitOfMeasure());
     }

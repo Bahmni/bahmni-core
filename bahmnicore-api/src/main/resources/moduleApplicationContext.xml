@@ -46,7 +46,7 @@
 
     <bean name="bahmniProgramWorkflowService" class="org.bahmni.module.bahmnicore.service.impl.BahmniProgramWorkflowServiceImpl">
         <property name="programWorkflowDAO">
-            <bean class="org.bahmni.module.bahmnicore.dao.impl.BahmniHibernateProgramWorkflowDAOImpl">
+            <bean class="org.openmrs.api.db.hibernate.HibernateProgramWorkflowDAO">
                 <property name="sessionFactory">
                     <ref bean="sessionFactory" />
                 </property>
@@ -84,25 +84,27 @@
         <property name="moduleService">
             <list merge="true">
                 <value>org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService</value>
-                <ref local="bahmniEncounterTransactionService"/>
+                <ref bean="bahmniEncounterTransactionService"/>
             </list>
         </property>
     </bean>
 
-    <bean parent="serviceContext">
-        <property name="moduleService">
-            <list merge="true">
-                <value>org.bahmni.module.bahmnicore.service.BahmniObsService</value>
-                <ref bean="bahmniObsServiceImpl"/>
-            </list>
-        </property>
-    </bean>
+<!--    <bean parent="serviceContext">-->
+<!--        <property name="moduleService">-->
+<!--            <list merge="true">-->
+<!--                <value>org.bahmni.module.bahmnicore.service.BahmniObsService</value>-->
+<!--                <ref bean="bahmniObsServiceImpl"/>-->
+<!--            </list>-->
+<!--        </property>-->
+<!--    </bean>-->
 
     <bean id="bahmniEncounterTransactionService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
             <ref bean="transactionManager"/>
         </property>
-        <property name="target"><ref local="bahmniEncounterTransactionServiceTarget"/></property>
+        <property name="target">
+            <ref bean="bahmniEncounterTransactionServiceTarget"/>
+        </property>
         <property name="preInterceptors">
             <ref bean="serviceInterceptors"/>
         </property>

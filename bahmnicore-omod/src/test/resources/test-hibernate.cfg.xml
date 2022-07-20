@@ -17,9 +17,6 @@
         <mapping resource="EntityMapping.hbm.xml"></mapping>
         <mapping resource="AddressHierarchyEntry.hbm.xml"></mapping>
         <mapping resource="AddressHierarchyLevel.hbm.xml"></mapping>
-        <mapping resource="ProgramAttributeType.hbm.xml"/>
-        <mapping resource="PatientProgramAttribute.hbm.xml"/>
-        <mapping resource="PatientProgram.hbm.xml"/>
         <mapping resource="Episode.hbm.xml"/>
     </session-factory>
 </hibernate-configuration>

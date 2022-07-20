@@ -13,7 +13,7 @@ import org.openmrs.module.webservices.rest.web.v1_0.resource.openmrs1_11.ObsReso
 
 import java.util.Date;
 
-@org.openmrs.module.webservices.rest.web.annotation.Resource(name = RestConstants.VERSION_1 + "/obs", supportedClass = Obs.class, supportedOpenmrsVersions = {"1.10.*", "1.11.*", "1.12.*", "2.0.*", "2.1.*"}, order = 0)
+@org.openmrs.module.webservices.rest.web.annotation.Resource(name = RestConstants.VERSION_1 + "/obs", supportedClass = Obs.class, supportedOpenmrsVersions = {"1.10.*", "1.11.*", "1.12.*", "2.0.*", "2.1.*", "2.2.*", "2.3.*", "2.4.*"}, order = 0)
 public class BahmniObsResource extends ObsResource1_11 {
 
     @Override

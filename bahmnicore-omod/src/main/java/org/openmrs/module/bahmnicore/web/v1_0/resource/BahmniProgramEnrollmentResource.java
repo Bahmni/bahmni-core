@@ -1,8 +1,7 @@
 package org.openmrs.module.bahmnicore.web.v1_0.resource;
 
 
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.BahmniPatientProgram;
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.PatientProgramAttribute;
+import org.openmrs.PatientProgramAttribute;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
@@ -37,23 +36,23 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-@Resource(name = RestConstants.VERSION_1 + "/bahmniprogramenrollment", supportedClass = BahmniPatientProgram.class, supportedOpenmrsVersions = {"1.12.*","2.0.*", "2.1.*"}, order = 0)
+@Resource(name = RestConstants.VERSION_1 + "/bahmniprogramenrollment", supportedClass = PatientProgram.class, supportedOpenmrsVersions = {"1.12.* - 2.*"}, order = 0)
 public class BahmniProgramEnrollmentResource extends ProgramEnrollmentResource1_10 {
 
     @PropertySetter("attributes")
-    public static void setAttributes(BahmniPatientProgram instance, List<PatientProgramAttribute> attrs) {
+    public static void setAttributes(PatientProgram instance, List<PatientProgramAttribute> attrs) {
         for (PatientProgramAttribute attr : attrs) {
             instance.addAttribute(attr);
         }
     }
 
     @PropertyGetter("attributes")
-    public static Collection<PatientProgramAttribute> getAttributes(BahmniPatientProgram instance) {
+    public static Collection<PatientProgramAttribute> getAttributes(PatientProgram instance) {
         return instance.getActiveAttributes();
     }
 
     @PropertyGetter("states")
-    public static List<SimpleObject> getStates(BahmniPatientProgram instance) throws Exception {
+    public static List<SimpleObject> getStates(PatientProgram instance) throws Exception {
         List<SimpleObject> states = new ArrayList<>();
         for(PatientState state: instance.getStates()){
             if (!state.isVoided()) {
@@ -78,7 +77,7 @@ public class BahmniProgramEnrollmentResource extends ProgramEnrollmentResource1_
 
     @Override
     public PatientProgram newDelegate() {
-        return new BahmniPatientProgram();
+        return new PatientProgram();
     }
 
     @Override

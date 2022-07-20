@@ -6,7 +6,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bahmni.common.config.registration.service.RegistrationPageReaderService;
 import org.bahmni.common.config.registration.service.RegistrationPageService;
+import org.bahmni.common.config.registration.service.impl.RegistrationPageReaderServiceImpl;
+import org.bahmni.common.config.registration.service.impl.RegistrationPageServiceImpl;
 import org.bahmni.common.db.JDBCConnectionProvider;
 import org.bahmni.csv.CSVFile;
 import org.bahmni.csv.EntityPersister;
@@ -119,12 +122,9 @@ public class AdminImportController extends BaseRestController {
     @Qualifier("adminService")
     private AdministrationService administrationService;
 
-    private RegistrationPageService registrationPageService;
+    private RegistrationPageReaderService registrationPageReaderService = new RegistrationPageReaderServiceImpl();
 
-    @Autowired
-    public AdminImportController(RegistrationPageService registrationPageService){
-        this.registrationPageService = registrationPageService;
-    }
+    private RegistrationPageService registrationPageService = new RegistrationPageServiceImpl(registrationPageReaderService);
 
     @RequestMapping(value = baseUrl + "/patient", method = RequestMethod.POST)
     @ResponseBody

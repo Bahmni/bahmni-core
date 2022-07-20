@@ -1,6 +1,5 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller.display.controls;
 
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.BahmniPatientProgram;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.bahmni.module.bahmnicore.web.v1_0.mapper.BahmniPatientContextMapper;
 import org.junit.Before;
@@ -10,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifierType;
+import org.openmrs.PatientProgram;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
@@ -62,7 +62,7 @@ public class BahmniPatientContextControllerTest {
         List<String> configuredPersonAttributes = Collections.singletonList("Caste");
         List<String> configuredProgramAttributes = Collections.singletonList("IRDB Number");
         List<String> configuredPatientIdentifiers = Collections.singletonList("National Identifier");
-        BahmniPatientProgram bahmniPatientProgram = new BahmniPatientProgram();
+        PatientProgram bahmniPatientProgram = new PatientProgram();
         PatientIdentifierType primaryIdentifierType = new PatientIdentifierType();
 
         when(patientService.getPatientByUuid(patientUuid)).thenReturn(patient);

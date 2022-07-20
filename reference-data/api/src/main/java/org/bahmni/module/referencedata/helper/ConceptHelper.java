@@ -120,12 +120,12 @@ public class ConceptHelper {
         }
         return conceptDetails;
     }
-    
+
     private String getConceptName(Concept concept, ConceptNameType conceptNameType){
         String conceptNameInLocale = getConceptNameInLocale(concept, conceptNameType, false);
         return (conceptNameInLocale != null) ? conceptNameInLocale : getConceptNameInLocale(concept, conceptNameType, true);
     }
-    
+
     private String getConceptNameInLocale(Concept concept, ConceptNameType conceptNameType, boolean isDefaultLocale) {
         Locale locale;
         locale = isDefaultLocale ? LocaleUtility.getDefaultLocale() :

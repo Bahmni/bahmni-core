@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -210,7 +211,7 @@ public class OpenElisAccessionEventWorkerTest {
         visit.setEncounters(new HashSet<>(Collections.singletonList(encounter)));
         stubAccession(openElisAccession);
         when(accessionMapper.shouldIgnoreAccession(openElisAccession)).thenReturn(false);
-        when(encounterService.getEncounterByUuid(openElisAccession.getAccessionUuid())).thenReturn(null).thenReturn(encounter);
+        when(encounterService.getEncounterByUuid(openElisAccession.getAccessionUuid())).thenReturn(encounter);
         when(encounterService.saveEncounter(any(Encounter.class))).thenReturn(encounter);
 
         accessionEventWorker.process(event);

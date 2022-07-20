@@ -13,6 +13,7 @@ public class BahmniOrder {
     private String orderNumber;
     private String orderTypeUuid;
     private String provider;
+    private String providerUuid;
     private Date orderDate;
     private EncounterTransaction.Concept concept;
     private Boolean hasObservations;
@@ -65,6 +66,13 @@ public class BahmniOrder {
 
     public void setProvider(String provider) {
         this.provider = provider;
+    }
+
+    public String getProviderUuid() {
+        return providerUuid;
+    }
+    public void setProviderUuid(String providerUuid) {
+        this.providerUuid = providerUuid;
     }
 
     public Date getOrderDate() {

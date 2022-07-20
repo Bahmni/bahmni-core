@@ -22,7 +22,7 @@ import org.openmrs.module.webservices.rest.web.response.ResponseException;
 
 import java.util.List;
 
-@Resource(name = RestConstants.VERSION_1 + "/bahmniorderset", supportedClass = OrderSet.class, supportedOpenmrsVersions = { "1.12.*" , "2.0.*", "2.1.*"})
+@Resource(name = RestConstants.VERSION_1 + "/bahmniorderset", supportedClass = OrderSet.class, supportedOpenmrsVersions = { "1.12.* - 2.*"})
 public class BahmniOrderSetResource extends MetadataDelegatingCrudResource<OrderSet> {
 
     @Override

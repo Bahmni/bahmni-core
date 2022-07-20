@@ -83,7 +83,6 @@ public class EntityMappingSearchHandlerTest {
         Concept concept = new Concept();
 
         when(entityDao.getByUuid(ENTITY1_UUID, Program.class)).thenReturn(program);
-        when(entityDao.getByUuid(ENTITY2_UUID, Concept.class)).thenReturn(concept);
 
         AlreadyPaged pageableResult = (AlreadyPaged) entityMappingSearchHandler.search(requestContext);
         Entity entityWithMappings = (Entity) pageableResult.getPageOfResults().get(0);
@@ -129,7 +128,6 @@ public class EntityMappingSearchHandlerTest {
     public void shouldGetWithZeroMappingsWhenThereIsNoEntityMappingType() throws Exception {
 
         when(entityMappingDao.getEntityMappingTypeByName(PROGRAM_OBS_TEMPLATE)).thenReturn(null);
-        when(entityMappingDao.getMappingsOfEntity(ENTITY1_UUID, PROGRAM_OBS_TEMPLATE)).thenReturn(new ArrayList<EntityMapping>());
 
         PageableResult pageableResult = entityMappingSearchHandler.search(requestContext);
 

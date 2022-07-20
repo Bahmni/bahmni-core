@@ -81,7 +81,7 @@
     <person_attribute person_attribute_id="1" person_id="1024" value="1100" person_attribute_type_id="1" creator="1" date_created="2008-08-15 15:46:47.0" voided="false" uuid="0768f3da-b692-44b7-a33f-abf2c450474a"/>
     <person_attribute person_attribute_id="2" person_id="1025" value="1100" person_attribute_type_id="1" creator="1" date_created="2008-08-15 15:46:47.0" voided="false" uuid="56beb8bd-287c-47f2-9786-a7b98c933c0b"/>
     <person_attribute person_attribute_id="3" person_id="1026" value="1101" person_attribute_type_id="1" creator="1" date_created="2008-08-15 15:57:09.0" voided="false" uuid="898f6ecd-78f1-42a5-8768-e0c219a3fa7c"/>
-    <person_attribute person_attribute_id="2" person_id="1025" value="maximus" person_attribute_type_id="201" creator="1" date_created="2008-08-15 15:46:47.0" voided="false" uuid="ccd4cf91-9552-4c53-90a6-623558e3dd33"/>
+    <person_attribute person_attribute_id="101" person_id="1025" value="maximus" person_attribute_type_id="201" creator="1" date_created="2008-08-15 15:46:47.0" voided="false" uuid="ccd4cf91-9552-4c53-90a6-623558e3dd33"/>
 
 
     <person_attribute person_attribute_id="4" person_id="1026" value="testCaste1" person_attribute_type_id="501" creator="1" date_created="2008-08-15 15:57:09.0" voided="false" uuid="898f6ecd-78f1-42a5-8768-e0c219a3f030"/>
@@ -306,7 +306,7 @@
     <patient_program patient_program_id="2" patient_id="1025" program_id="5" date_enrolled="2006-10-14 00:00:00.0" creator="1" date_created="2007-09-20 00:00:00.0" voided="false" uuid="9119b9f8-af3d-4ad8-9e2e-2317c3deeee"/>
     <patient_program patient_program_id="3" patient_id="103" program_id="5" date_enrolled="2006-10-14 00:00:00.0" creator="1" date_created="2007-09-20 00:00:00.0" voided="false" uuid="911789f8-af3d-4ad8-9e2e-2317c3deeee"/>
     <patient_program_attribute patient_program_attribute_id="1" patient_program_id="1" attribute_type_id="1" value_reference="Stage1" uuid="3a2bdb18-6faa-11e0-8414-001e378eb67e" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" />
-    <patient_program_attribute patient_program_attribute_id="3" patient_program_id="2" attribute_type_id="2" value_reference="Stage1" uuid="3a2bdb18-6faa-11e0-8414-001e378ebe76" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" />
+    <patient_program_attribute patient_program_attribute_id="3" patient_program_id="2" attribute_type_id="1" value_reference="Stage1" uuid="3a2bdb18-6faa-11e0-8414-001e378ebe76" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" />
     <patient_program_attribute patient_program_attribute_id="2" patient_program_id="1" attribute_type_id="2" value_reference="1853" uuid="3b1c22ec-c298-45d3-9b86-8154db493aab" creator="1" date_created="2005-02-09 00:00:00.0" voided="false" />
     <patient_program_attribute patient_program_attribute_id="5" patient_program_id="3" attribute_type_id="1" value_reference="Stage'12" uuid="3b1c22ec-0098-45d3-9b86-8154db493aab" creator="1" date_created="2005-02-09 00:00:00.0" voided="false" />
 

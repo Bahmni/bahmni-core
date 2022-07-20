@@ -48,7 +48,7 @@ public class BahmniProviderSearchHandler implements SearchHandler {
                                           .build();
         return new SearchConfig(SEARCH_BY_ATTRIBUTE,
                                        RestConstants.VERSION_1 + "/provider",
-                                       Arrays.asList("2.0.*", "2.1.*"),
+                                       Arrays.asList("2.0.* - 2.*"),
                                        searchQuery);
     }
 

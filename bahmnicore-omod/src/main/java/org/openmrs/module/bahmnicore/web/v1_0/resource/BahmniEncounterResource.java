@@ -10,7 +10,7 @@ import org.openmrs.module.webservices.rest.web.v1_0.resource.openmrs1_9.Encounte
 
 import java.util.Set;
 
-@Resource(name = RestConstants.VERSION_1 + "/encounter", supportedClass = Encounter.class, supportedOpenmrsVersions = {"1.9.*", "1.10.*", "1.11.*", "1.12.*", "2.0.*", "2.1.*"},order=2)
+@Resource(name = RestConstants.VERSION_1 + "/encounter", supportedClass = Encounter.class, supportedOpenmrsVersions = {"1.9.* - 2.*"},order=2)
 
 public class BahmniEncounterResource extends EncounterResource1_9 {
 

@@ -33,7 +33,7 @@ public class BahmniConceptAnswerSearchHandler implements SearchHandler {
     @Override
     public SearchConfig getSearchConfig() {
         SearchQuery searchQuery = new SearchQuery.Builder("Allows you to search for concepts based on a question").withRequiredParameters(QUESTION_KEY).build();
-        return new SearchConfig("byQuestion", RestConstants.VERSION_1 + "/bahmniconceptanswer", Arrays.asList("1.9.*", "1.10.*", "1.11.*", "1.12.*","2.0.*", "2.1.*"), searchQuery);
+        return new SearchConfig("byQuestion", RestConstants.VERSION_1 + "/bahmniconceptanswer", Arrays.asList("1.9.* - 2.*"), searchQuery);
     }
 
     @Override

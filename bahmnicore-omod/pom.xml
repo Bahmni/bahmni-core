@@ -19,7 +19,7 @@
         <gem.home>${basedir}/.rubygems</gem.home>
         <gem.path>${basedir}/.rubygems</gem.path>
         <uiframeworkVersion>3.3.1</uiframeworkVersion>
-        <bedManagementVersion>5.10.0</bedManagementVersion>
+        <bedManagementVersion>5.13.0</bedManagementVersion>
     </properties>
 
     <dependencies>
@@ -41,8 +41,13 @@
         </dependency>
         <dependency>
             <groupId>org.openmrs.module</groupId>
+            <artifactId>emrapi-api-2.2</artifactId>
+            <version>${emrapi-omod.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openmrs.module</groupId>
             <artifactId>idgen-webservices-omod</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>${idgenWebServicesVersion}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -151,7 +156,7 @@
         <dependency>
             <groupId>org.openmrs.module</groupId>
             <artifactId>providermanagement-api</artifactId>
-            <version>1.1.3</version>
+            <version>${providermanagementVersion}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -298,7 +303,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
+            <groupId>org.bahmni.module</groupId>
             <artifactId>auditlog-api</artifactId>
             <scope>provided</scope>
         </dependency>

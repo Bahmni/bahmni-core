@@ -23,8 +23,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.HandlerExecutionChain;
-import org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter;
-import org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.xml.sax.InputSource;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,18 +46,18 @@ import java.util.List;
  * Facilitates testing controllers.
  */
 public abstract class BahmniMainResourceControllerTest extends BaseIntegrationTest {
-	
+
 	@Autowired
-	private AnnotationMethodHandlerAdapter handlerAdapter;
-	
+	private RequestMappingHandlerAdapter handlerAdapter;
+
 	@Autowired
-	private List<DefaultAnnotationHandlerMapping> handlerMappings;
-	
+	private List<RequestMappingHandlerMapping> handlerMappings;
+
 	/**
 	 * Creates a request from the given parameters.
 	 * <p>
 	 * The requestURI is automatically preceded with "/rest/" + RestConstants.VERSION_1.
-	 * 
+	 *
 	 * @param method
 	 * @param requestURI
 	 * @return
@@ -68,28 +68,28 @@ public abstract class BahmniMainResourceControllerTest extends BaseIntegrationTe
 		request.addHeader("content-type", "application/json");
 		return request;
 	}
-	
+
 	/**
 	 * Override this method to test a different namespace than v1.
-	 * 
+	 *
 	 * @return the namespace
 	 */
 	public String getNamespace() {
 		return RestConstants.VERSION_1;
 	}
-	
+
 	public static class Parameter {
-		
+
 		public String name;
-		
+
 		public String value;
-		
+
 		public Parameter(String name, String value) {
 			this.name = name;
 			this.value = value;
 		}
 	}
-	
+
 	public MockHttpServletRequest newRequest(RequestMethod method, String requestURI, Parameter... parameters) {
 		MockHttpServletRequest request = request(method, requestURI);
 		for (Parameter parameter : parameters) {
@@ -97,15 +97,15 @@ public abstract class BahmniMainResourceControllerTest extends BaseIntegrationTe
 		}
 		return request;
 	}
-	
+
 	public MockHttpServletRequest newDeleteRequest(String requestURI, Parameter... parameters) {
 		return newRequest(RequestMethod.DELETE, requestURI, parameters);
 	}
-	
+
 	public MockHttpServletRequest newGetRequest(String requestURI, Parameter... parameters) {
 		return newRequest(RequestMethod.GET, requestURI, parameters);
 	}
-	
+
 	public MockHttpServletRequest newPostRequest(String requestURI, Object content) {
 		MockHttpServletRequest request = request(RequestMethod.POST, requestURI);
 		try {
@@ -117,7 +117,7 @@ public abstract class BahmniMainResourceControllerTest extends BaseIntegrationTe
 		}
 		return request;
 	}
-	
+
 	public MockHttpServletRequest newPostRequest(String requestURI, String content) {
 		MockHttpServletRequest request = request(RequestMethod.POST, requestURI);
 		try {
@@ -128,34 +128,34 @@ public abstract class BahmniMainResourceControllerTest extends BaseIntegrationTe
 		}
 		return request;
 	}
-	
+
 	/**
 	 * Passes the given request to a proper controller.
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 * @throws Exception
 	 */
 	public MockHttpServletResponse handle(HttpServletRequest request) throws Exception {
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		
+
 		HandlerExecutionChain handlerExecutionChain = null;
-		for (DefaultAnnotationHandlerMapping handlerMapping : handlerMappings) {
+		for (RequestMappingHandlerMapping handlerMapping : handlerMappings) {
 			handlerExecutionChain = handlerMapping.getHandler(request);
 			if (handlerExecutionChain != null) {
 				break;
 			}
 		}
 		Assert.assertNotNull("The request URI does not exist", handlerExecutionChain);
-		
+
 		handlerAdapter.handle(request, response, handlerExecutionChain.getHandler());
-		
+
 		return response;
 	}
-	
+
 	/**
 	 * Deserializes the JSON response.
-	 * 
+	 *
 	 * @param response
 	 * @return
 	 * @throws Exception
@@ -163,26 +163,26 @@ public abstract class BahmniMainResourceControllerTest extends BaseIntegrationTe
 	public SimpleObject deserialize(MockHttpServletResponse response) throws Exception {
 		return new ObjectMapper().readValue(response.getContentAsString(), SimpleObject.class);
 	}
-	
-	
+
+
 	/**
 	 * @return the URI of the resource
 	 */
 	public abstract String getURI();
-	
+
 	/**
 	 * @return the uuid of an existing object
 	 */
 	public abstract String getUuid();
-	
+
 	/**
 	 * @return the count of all not retired/voided objects
 	 */
 	public abstract long getAllCount();
-	
+
 	/**
 	 * Evaluates an XPath expression on a XML string
-	 * 
+	 *
 	 * @param xml
 	 * @param xPath
 	 * @return
@@ -193,23 +193,23 @@ public abstract class BahmniMainResourceControllerTest extends BaseIntegrationTe
 		XPath xpath = XPathFactory.newInstance().newXPath();
 		return xpath.evaluate(xPath, source);
 	}
-	
+
 	/**
 	 * Prints an XML string indented
-	 * 
+	 *
 	 * @param xml
 	 * @throws TransformerException
 	 */
 	protected void printXML(String xml) throws TransformerException {
-		
+
 		Source xmlInput = new StreamSource(new StringReader(xml));
 		StringWriter stringWriter = new StringWriter();
-		
+
 		Transformer transformer = TransformerFactory.newInstance().newTransformer();
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		transformer.transform(xmlInput, new StreamResult(stringWriter));
-		
+
 		System.out.println(stringWriter.toString());
 	}
-	
+
 }

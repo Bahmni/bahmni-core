@@ -43,11 +43,9 @@ public class BahmniConceptAnswerSearchHandlerTest {
     }
 
     @Test
-    public void shouldSupportVersions1_10To1_12() {
+    public void shouldSupportVersions1_9To2() {
         SearchConfig searchConfig = bahmniConceptAnswerSearchHandler.getSearchConfig();
-        assertTrue(searchConfig.getSupportedOpenmrsVersions().contains("1.10.*"));
-        assertTrue(searchConfig.getSupportedOpenmrsVersions().contains("1.11.*"));
-        assertTrue(searchConfig.getSupportedOpenmrsVersions().contains("1.12.*"));
+        assertTrue(searchConfig.getSupportedOpenmrsVersions().contains("1.9.* - 2.*"));
     }
 
     @Test

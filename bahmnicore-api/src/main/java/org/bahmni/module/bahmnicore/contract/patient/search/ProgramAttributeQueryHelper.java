@@ -2,7 +2,7 @@ package org.bahmni.module.bahmnicore.contract.patient.search;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bahmni.module.bahmnicore.customdatatype.datatype.CodedConceptDatatype;
-import org.bahmni.module.bahmnicore.model.bahmniPatientProgram.ProgramAttributeType;
+import org.openmrs.ProgramAttributeType;
 import org.hibernate.type.StandardBasicTypes;
 import org.hibernate.type.Type;
 

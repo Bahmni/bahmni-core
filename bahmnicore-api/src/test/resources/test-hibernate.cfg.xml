@@ -9,9 +9,7 @@
         <!--<property name="format_sql">true</property>-->
         <!--<property name="use_sql_comments">true</property>-->
 
-        <mapping resource="ProgramAttributeType.hbm.xml"/>
-        <mapping resource="PatientProgramAttribute.hbm.xml"/>
-        <mapping resource="PatientProgram.hbm.xml"/>
+
         <mapping resource="org/bahmni/module/db/hibernate/ObsRelationship.hbm.xml"/>
         <mapping resource="org/bahmni/module/db/hibernate/ObsRelationshipType.hbm.xml"/>
         <mapping resource="EntityMappingType.hbm.xml"></mapping>

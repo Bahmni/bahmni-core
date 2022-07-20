@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -54,7 +55,7 @@ public class PatientResponseMapperTest {
         visits.add(visit);
         PowerMockito.when(visitService.getActiveVisitsByPatient(patient)).thenReturn(visits);
         PowerMockito.when(Context.getVisitService()).thenReturn(visitService);
-        PowerMockito.when(bahmniVisitLocationService.getVisitLocation(any(String.class))).thenReturn(location);
+        PowerMockito.when(bahmniVisitLocationService.getVisitLocation(eq(null))).thenReturn(location);
 
         patientResponseMapper = new PatientResponseMapper(Context.getVisitService(), bahmniVisitLocationService);
         patient.setPatientId(12);

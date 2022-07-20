@@ -3,11 +3,11 @@ package org.bahmni.module.admin.config.dao.impl;
 import org.bahmni.module.admin.BaseIntegrationTest;
 import org.bahmni.module.admin.config.dao.BahmniConfigDao;
 import org.bahmni.module.admin.config.model.BahmniConfig;
-import org.databene.commons.StringUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.api.context.Context;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class BahmniConfigDaoImplIT extends BaseIntegrationTest {
-    
+
     @Autowired
     private BahmniConfigDao bahmniConfigDao;
 
@@ -34,7 +34,7 @@ public class BahmniConfigDaoImplIT extends BaseIntegrationTest {
         assertEquals("clinical", clinical.getAppName());
         assertEquals("app.json", clinical.getConfigName());
         assertEquals("0aa1efd4-6eeb-4cea-bd4b-94af86f24d97", clinical.getUuid());
-        assertFalse(StringUtil.isEmpty(clinical.getConfig()));
+        assertFalse(StringUtils.isEmpty(clinical.getConfig()));
     }
 
     @Test
@@ -44,7 +44,7 @@ public class BahmniConfigDaoImplIT extends BaseIntegrationTest {
         assertEquals("clinical", clinical.getAppName());
         assertEquals("app.json", clinical.getConfigName());
         assertEquals("0aa1efd4-6eeb-4cea-bd4b-94af86f24d97", clinical.getUuid());
-        assertFalse(StringUtil.isEmpty(clinical.getConfig()));
+        assertFalse(StringUtils.isEmpty(clinical.getConfig()));
     }
 
     @Test

@@ -8,6 +8,7 @@ import org.openmrs.DrugOrder;
 import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
 import org.openmrs.api.context.Context;
+import org.openmrs.api.context.TestUsernameAuthenticationScheme;
 import org.openmrs.api.context.UserContext;
 import org.openmrs.module.bahmniemrapi.builder.ConceptBuilder;
 import org.openmrs.module.bahmniemrapi.drugogram.contract.RegimenRow;
@@ -50,7 +51,7 @@ public class DrugOrderToRegimenMapperTest {
         initMocks(this);
         mockStatic(LocaleUtility.class);
         PowerMockito.when(LocaleUtility.getDefaultLocale()).thenReturn(Locale.ENGLISH);
-        Context.setUserContext(new UserContext());
+        Context.setUserContext(new UserContext(new TestUsernameAuthenticationScheme()));
         bdq = new ConceptBuilder().withName("Bedaquiline").withDataType("N/A").build();
         dlm = new ConceptBuilder().withName("Delamanid").withDataType("N/A").build();
         drugOrderToRegimenMapper = new DrugOrderToRegimenMapper();
