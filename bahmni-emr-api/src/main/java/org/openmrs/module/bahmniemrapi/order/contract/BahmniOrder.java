@@ -20,6 +20,8 @@ public class BahmniOrder {
     private Collection<BahmniObservation> bahmniObservations;
     private String commentToFulfiller;
 
+    private String fulfillerStatus;
+
     public String getOrderNumber() {
         return orderNumber;
     }
@@ -89,6 +91,14 @@ public class BahmniOrder {
 
     public void setConcept(EncounterTransaction.Concept concept) {
         this.concept = concept;
+    }
+
+    public String getFulfillerStatus() {
+        return fulfillerStatus;
+    }
+
+    public void setFulfillerStatus(String fulfillerStatus) {
+        this.fulfillerStatus = fulfillerStatus;
     }
 
     public String getCommentToFulfiller() {
