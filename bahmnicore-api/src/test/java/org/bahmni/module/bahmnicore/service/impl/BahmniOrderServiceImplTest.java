@@ -134,7 +134,7 @@ public class BahmniOrderServiceImplTest {
         Assert.assertEquals("someOrderTypeUuid", bahmniOrder.getOrderTypeUuid());
         Assert.assertEquals("88887777-eeee-4326-bb05-c6e11fe31234", bahmniOrder.getProviderUuid());
         Assert.assertEquals("Superman", bahmniOrder.getProvider());
-        Assert.assertEquals("COMPLETED", bahmniOrder.getFulfillerStatus());
+        Assert.assertEquals(Order.FulfillerStatus.COMPLETED, bahmniOrder.getFulfillerStatus());
     }
 
     private Order createOrder() {

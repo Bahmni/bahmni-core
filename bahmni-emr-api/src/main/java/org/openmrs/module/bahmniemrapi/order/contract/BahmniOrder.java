@@ -1,6 +1,7 @@
 package org.openmrs.module.bahmniemrapi.order.contract;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.openmrs.Order;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObservation;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 
@@ -20,7 +21,7 @@ public class BahmniOrder {
     private Collection<BahmniObservation> bahmniObservations;
     private String commentToFulfiller;
 
-    private String fulfillerStatus;
+    private Order.FulfillerStatus fulfillerStatus;
 
     public String getOrderNumber() {
         return orderNumber;
@@ -93,11 +94,11 @@ public class BahmniOrder {
         this.concept = concept;
     }
 
-    public String getFulfillerStatus() {
+    public Order.FulfillerStatus getFulfillerStatus() {
         return fulfillerStatus;
     }
 
-    public void setFulfillerStatus(String fulfillerStatus) {
+    public void setFulfillerStatus(Order.FulfillerStatus fulfillerStatus) {
         this.fulfillerStatus = fulfillerStatus;
     }
 
