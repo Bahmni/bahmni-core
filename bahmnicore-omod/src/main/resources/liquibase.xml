@@ -4545,18 +4545,18 @@
         </sql>
     </changeSet>
 
-    <changeSet id="Create-Is-Doctor-20220711" author="Abinaya">
+    <changeSet id="Create-practitioner_type-20220722" author="BAHMNI">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
-                SELECT count(*) FROM provider_attribute_type where name="Is Doctor";
+                SELECT count(*) FROM provider_attribute_type where name="practitioner_type";
             </sqlCheck>
         </preConditions>
-        <comment>Adding provider attribute type of Is Doctor</comment>
+        <comment>Adding provider attribute type of practitioner_type</comment>
         <sql>
-            INSERT INTO provider_attribute_type (name, description, datatype, min_occurs, creator, date_created,
+            INSERT INTO provider_attribute_type (name, description, datatype, preferred_handler,handler_config, min_occurs, creator, date_created,
             retired, uuid)
-            VALUES ("Is Doctor","providers will be a doctor",
-            "org.openmrs.customdatatype.datatype.BooleanDatatype", 0, 1, NOW(), 0, UUID());
+            VALUES ("practitioner_type","list of practitioners",
+            "org.openmrs.customdatatype.datatype.SpecifiedTextOptionsDatatype","org.openmrs.web.attribute.handler.SpecifiedTextOptionsDropdownHandler",",Doctor", 0, 1, NOW(), 0, UUID());
         </sql>
     </changeSet>
 
