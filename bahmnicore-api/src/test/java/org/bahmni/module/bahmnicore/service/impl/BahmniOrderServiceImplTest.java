@@ -13,6 +13,8 @@ import org.openmrs.Concept;
 import org.openmrs.Order;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
+import org.openmrs.Person;
+import org.openmrs.PersonName;
 import org.openmrs.Provider;
 import org.openmrs.module.bahmniemrapi.order.contract.BahmniOrder;
 import org.openmrs.module.emrapi.encounter.ConceptMapper;
@@ -22,6 +24,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -120,11 +123,27 @@ public class BahmniOrderServiceImplTest {
         verify(orderService,times(1)).getChildOrder(order);
     }
 
+    @Test
+    public void shouldGetAppropriateBahmniOrdersDetails() {
+        Order order = createOrder();
+        when(orderService.getAllOrdersForVisits(personUUID, "someOrderTypeUuid", 2)).thenReturn(Collections.singletonList(order));
+        List<BahmniOrder> bahmniOrders = bahmniOrderService.ordersForOrderType(personUUID, Collections.singletonList(concept), 2, null, "someOrderTypeUuid", true, null);
+        BahmniOrder bahmniOrder = bahmniOrders.get(0);
+        verify(orderService).getAllOrdersForVisits(personUUID, "someOrderTypeUuid", 2);
+        Assert.assertEquals("otUUID", bahmniOrder.getConcept().getUuid());
+        Assert.assertEquals("someOrderTypeUuid", bahmniOrder.getOrderTypeUuid());
+        Assert.assertEquals("88887777-eeee-4326-bb05-c6e11fe31234", bahmniOrder.getProviderUuid());
+        Assert.assertEquals("Superman", bahmniOrder.getProvider());
+        Assert.assertEquals(Order.FulfillerStatus.COMPLETED, bahmniOrder.getFulfillerStatus());
+    }
+
     private Order createOrder() {
         order = new Order();
         patient = new Patient();
         patient.setId(1);
         patient.setUuid(personUUID);
+        Person person = new Person();
+        person.setNames(Collections.singleton(new PersonName("Superman","", "")));
         OrderType orderType = new OrderType();
         provider = new Provider();
         orderType.setId(1);
@@ -132,7 +151,7 @@ public class BahmniOrderServiceImplTest {
         order.setOrderType(orderType);
         provider.setId(2);
         provider.setUuid("88887777-eeee-4326-bb05-c6e11fe31234");
-        provider.setName("Superman");
+        provider.setPerson(person);
         order.setOrderer(provider);
         order.setConcept(concept);
         order.setId(1);
@@ -140,6 +159,7 @@ public class BahmniOrderServiceImplTest {
         CareSetting careSetting = new CareSetting();
         careSetting.setId(1);
         order.setCareSetting(careSetting);
+        order.setFulfillerStatus(Order.FulfillerStatus.COMPLETED);
         return order;
     }
 }
