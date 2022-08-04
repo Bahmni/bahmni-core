@@ -146,31 +146,30 @@ public class ObsToObsTabularFlowSheetControllerTest {
     }
 
     @Test
-    @Ignore // Test mechanism failure
     public void shouldReturnEmptyPivotTableWhenFormNamesAreNotGiven() throws ParseException {
 
-        PivotTable pivotTable = obsToObsPivotTableController.constructPivotTableFor(any(), any(), any(), any(), any(),
-                singletonList(""), any(), any(), any(), any(), any(), any(), null);
-
+        ObsToObsTabularFlowSheetController obsToObsTabularFlowSheetController = spy(obsToObsPivotTableController);
+        PivotTable pivotTable = obsToObsTabularFlowSheetController.constructPivotTableFor(any(), any(), any(), any(), any(),
+                eq(singletonList("")), any(), any(), any(), any(), any(), any(), eq(null));
         assertEquals(0, pivotTable.getHeaders().size());
     }
 
     @Test
-    @Ignore // Test mechanism failure
     public void shouldReturnEmptyPivotTableWhenConceptNamesAreNotGiven() throws ParseException {
 
-        PivotTable pivotTable = obsToObsPivotTableController.constructPivotTableFor(any(), any(), any(), any(), any(),
-                null, any(), any(), any(), any(), any(), any(), singletonList(""));
+        ObsToObsTabularFlowSheetController obsToObsTabularFlowSheetController = spy(obsToObsPivotTableController);
+        PivotTable pivotTable = obsToObsTabularFlowSheetController.constructPivotTableFor(any(), any(), any(), any(), any(),
+                eq(null), any(), any(), any(), any(), any(), any(), eq(singletonList("")));
 
         assertEquals(0, pivotTable.getHeaders().size());
     }
 
     @Test
-    @Ignore // Test mechanism failure
     public void shouldReturnEmptyPivotTableWhenFormNamesAreEmpty() throws ParseException {
 
-        PivotTable pivotTable = obsToObsPivotTableController.constructPivotTableFor(any(), any(), any(), any(), any(),
-                null, any(), any(), any(), any(), any(), any(), emptyList());
+        ObsToObsTabularFlowSheetController obsToObsTabularFlowSheetController = spy(obsToObsPivotTableController);
+        PivotTable pivotTable = obsToObsTabularFlowSheetController.constructPivotTableFor(any(), any(), any(), any(), any(),
+                eq(null), any(), any(), any(), any(), any(), any(), eq(emptyList()));
 
         assertEquals(0, pivotTable.getHeaders().size());
     }
