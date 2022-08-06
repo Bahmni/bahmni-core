@@ -68,12 +68,12 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
     }
 
     @Override
-    public String saveDocument(Integer patientId, String encounterTypeName, String content, String format, String fileType) {
+    public String saveDocument(Integer patientId, String encounterTypeName, String content, String format, String fileType, String fileName) {
         try {
             if (content == null || content.isEmpty()) return null;
 
             String basePath = getBasePath();
-            String relativeFilePath = createFilePath(basePath, patientId, encounterTypeName, format);
+            String relativeFilePath = createFilePath(basePath, patientId, encounterTypeName, format, fileName);
 
             File outputFile = new File(String.format("%s/%s", basePath, relativeFilePath));
             saveDocumentInFile(content, format, outputFile, fileType);
@@ -89,13 +89,16 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
         return BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory");
     }
 
-    private String createFileName(Integer patientId, String encounterTypeName, Object format) {
+    private String createFileName(Integer patientId, String encounterTypeName, Object format, String originalFileName) {
         String uuid = UUID.randomUUID().toString();
-        return String.format("%s-%s-%s.%s", patientId, encounterTypeName, uuid, format);
+        if (StringUtils.isNotBlank(originalFileName)) {
+            originalFileName = "__" + originalFileName;
+        }
+        return String.format("%s-%s-%s%s.%s", patientId, encounterTypeName, uuid, originalFileName, format);
     }
 
-    protected String createFilePath(String basePath, Integer patientId, String encounterTypeName, String format) {
-        String fileName = createFileName(patientId, encounterTypeName, format);
+    protected String createFilePath(String basePath, Integer patientId, String encounterTypeName, String format, String originalFileName) {
+        String fileName = createFileName(patientId, encounterTypeName, format, originalFileName);
         String documentDirectory = findDirectoryForDocumentsByPatientId(patientId);
         String absoluteFilePath = String.format("%s/%s", basePath, documentDirectory);
         File absoluteFileDirectory = new File(absoluteFilePath);

@@ -62,7 +62,7 @@ public class PatientDocumentServiceImplTest {
 
         patientDocumentService = new PatientDocumentServiceImpl();
 
-        String url = patientDocumentService.createFilePath(".", 280, "Radiology", "jpeg");
+        String url = patientDocumentService.createFilePath(".", 280, "Radiology", "jpeg", "file-name");
 
         assertFalse(url.isEmpty());
         assertTrue(url.startsWith("300/280-Radiology-"));
@@ -101,7 +101,7 @@ public class PatientDocumentServiceImplTest {
                 "xyz", Arrays.toString(VideoFormats.values())));
 
         patientDocumentService = new PatientDocumentServiceImpl();
-        patientDocumentService.saveDocument(1, "Consultation", "videoContent", "xyz", "video");
+        patientDocumentService.saveDocument(1, "Consultation", "videoContent", "xyz", "video", "file-name");
     }
 
     @Test
@@ -115,7 +115,7 @@ public class PatientDocumentServiceImplTest {
         patient.setUuid("patient-uuid");
 
         patientDocumentService = new PatientDocumentServiceImpl();
-        String url = patientDocumentService.saveDocument(1, "Consultation", "pdfContent", "pdf", "file");
+        String url = patientDocumentService.saveDocument(1, "Consultation", "pdfContent", "pdf", "file", "file-name");
 
         assertTrue(url.matches(".*1-Consultation-.*.pdf"));
     }
@@ -134,7 +134,7 @@ public class PatientDocumentServiceImplTest {
         patient.setUuid("patient-uuid");
 
         patientDocumentService = new PatientDocumentServiceImpl();
-        String url = patientDocumentService.saveDocument(1, "Consultation", "imageContent", "jpg", "image");
+        String url = patientDocumentService.saveDocument(1, "Consultation", "imageContent", "jpg", "image", "file-name");
 
         assertTrue(url.matches(".*1-Consultation-.*.jpg"));
     }
@@ -153,7 +153,7 @@ public class PatientDocumentServiceImplTest {
         expectedException.expectMessage("The file type is not supported. Supported types are image/video/pdf");
 
         patientDocumentService = new PatientDocumentServiceImpl();
-        patientDocumentService.saveDocument(1, "Consultation", "otherfileContent", "xyz", "csv");
+        patientDocumentService.saveDocument(1, "Consultation", "otherfileContent", "xyz", "csv", "file-name");
     }
 
     @Test
@@ -174,7 +174,7 @@ public class PatientDocumentServiceImplTest {
         expectedException.expectMessage("The image format 'bmp' is not supported. Supported formats are [png, jpeg, gif]");
 
         patientDocumentService = new PatientDocumentServiceImpl();
-        patientDocumentService.saveDocument(1, "Consultation", "otherfileContent", "bmp", "image");
+        patientDocumentService.saveDocument(1, "Consultation", "otherfileContent", "bmp", "image", "file-name");
     }
     
     @Test
@@ -195,7 +195,7 @@ public class PatientDocumentServiceImplTest {
         patientDocumentService.setThumbnailGenerators(thumbnailGenerators);
         when(thumbnailGenerator.isFormatSupported("mov")).thenReturn(true);
         when(thumbnailGenerator.generateThumbnail(any(File.class))).thenReturn(new BufferedImage(20,20, 1));
-        patientDocumentService.saveDocument(1, "Consultation", content, "mov", "video");
+        patientDocumentService.saveDocument(1, "Consultation", content, "mov", "video", "file-name");
         verify(thumbnailGenerator,times(1)).isFormatSupported("mov");
         verify(thumbnailGenerator,times(1)).generateThumbnail(any(File.class));
     }
@@ -218,7 +218,7 @@ public class PatientDocumentServiceImplTest {
         patientDocumentService.setThumbnailGenerators(thumbnailGenerators);
         when(thumbnailGenerator.isFormatSupported("mkv")).thenReturn(false);
         when(thumbnailGenerator.generateThumbnail(any(File.class))).thenReturn(new BufferedImage(20,20, 1));
-        patientDocumentService.saveDocument(1, "Consultation", content, "mkv", "video");
+        patientDocumentService.saveDocument(1, "Consultation", content, "mkv", "video", "file-name");
         verify(thumbnailGenerator,times(1)).isFormatSupported("mkv");
         verify(thumbnailGenerator,times(0)).generateThumbnail(any(File.class));
     }

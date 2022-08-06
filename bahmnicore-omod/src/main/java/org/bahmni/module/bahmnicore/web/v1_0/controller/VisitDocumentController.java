@@ -7,6 +7,7 @@ import org.bahmni.module.bahmnicore.model.Document;
 import org.bahmni.module.bahmnicore.security.PrivilegeConstants;
 import org.bahmni.module.bahmnicore.service.PatientDocumentService;
 import org.bahmni.module.bahmnicore.util.WebUtils;
+import org.bahmni.module.bahmnicore.web.v1_0.InvalidInputException;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.User;
@@ -26,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 @Controller
@@ -61,16 +63,25 @@ public class VisitDocumentController extends BaseRestController {
     @RequestMapping(method = RequestMethod.POST, value = baseVisitDocumentUrl + "/uploadDocument")
     @ResponseBody
     public HashMap<String, String> saveDocument(@RequestBody Document document) {
-        Patient patient = Context.getPatientService().getPatientByUuid(document.getPatientUuid());
-        String encounterTypeName = document.getEncounterTypeName();
-        if (StringUtils.isEmpty(encounterTypeName)) {
-            encounterTypeName = administrationService.getGlobalProperty("bahmni.encounterType.default");
+        try {
+            HashMap<String, String> savedDocument = new HashMap<>();
+            Patient patient = Context.getPatientService().getPatientByUuid(document.getPatientUuid());
+            String encounterTypeName = document.getEncounterTypeName();
+            if (StringUtils.isEmpty(encounterTypeName)) {
+                encounterTypeName = administrationService.getGlobalProperty("bahmni.encounterType.default");
+            }
+            String fileName = document.getFileName();
+            fileName = fileName==null ? "" : fileName;
+            fileName = fileName.trim().replaceAll(" ", "-");
+            Paths.get(fileName);
+            fileName = fileName.replaceAll("__", "_");
+            String url = patientDocumentService.saveDocument(patient.getId(), encounterTypeName, document.getContent(),
+                document.getFormat(), document.getFileType(), fileName);
+            savedDocument.put("url", url);
+            return savedDocument;
+        } catch (Exception e) {
+            throw new InvalidInputException("Could not save patient document", e);
         }
-        HashMap<String, String> savedDocument = new HashMap<>();
-        String url = patientDocumentService.saveDocument(patient.getId(), encounterTypeName, document.getContent(),
-                document.getFormat(), document.getFileType());
-        savedDocument.put("url", url);
-        return savedDocument;
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = baseVisitDocumentUrl)

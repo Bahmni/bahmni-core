@@ -71,11 +71,11 @@ public class VisitDocumentControllerTest {
         when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
         when(administrationService.getGlobalProperty("bahmni.encounterType.default")).thenReturn("consultation");
 
-        Document document = new Document("abcd", "jpeg", null, "patient-uuid", "image");
+        Document document = new Document("abcd", "jpeg", null, "patient-uuid", "image", "file-name");
 
         visitDocumentController.saveDocument(document);
 
-        verify(patientDocumentService).saveDocument(1, "consultation", "abcd", "jpeg", document.getFileType());
+        verify(patientDocumentService).saveDocument(1, "consultation", "abcd", "jpeg", document.getFileType(), document.getFileName());
         verify(administrationService).getGlobalProperty("bahmni.encounterType.default");
     }
 
@@ -89,11 +89,11 @@ public class VisitDocumentControllerTest {
         when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
         when(administrationService.getGlobalProperty("bahmni.encounterType.default")).thenReturn("consultation");
 
-        Document document = new Document("abcd", "jpeg", "radiology", "patient-uuid", "image");
+        Document document = new Document("abcd", "jpeg", "radiology", "patient-uuid", "image", "file-name");
 
         visitDocumentController.saveDocument(document);
 
-        verify(patientDocumentService).saveDocument(1, "radiology", "abcd", "jpeg", document.getFileType());
+        verify(patientDocumentService).saveDocument(1, "radiology", "abcd", "jpeg", document.getFileType(), document.getFileName());
         verifyZeroInteractions(administrationService);
     }
 
@@ -160,4 +160,35 @@ public class VisitDocumentControllerTest {
         ResponseEntity<Object> responseEntity = visitDocumentController.deleteDocument("");
         Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
     }
+
+    @Test
+    public void shouldFailIfFileNameWithSpecialCharsOtherThanDashAndUnderscoreIsPassedInRequest() throws Exception {
+        PowerMockito.mockStatic(Context.class);
+        PowerMockito.when(Context.getPatientService()).thenReturn(patientService);
+        Patient patient = new Patient();
+        patient.setId(1);
+        patient.setUuid("patient-uuid");
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+
+        Document document = new Document("abcd", "jpeg", "consultation", "patient-uuid", "image", "file/name");
+
+        visitDocumentController.saveDocument(document);
+    }
+
+    @Test
+    public void shouldSaveIfFileNameNotWithSpecialCharsOtherThanDashAndUnderscoreIsPassedInRequest() {
+        PowerMockito.mockStatic(Context.class);
+        PowerMockito.when(Context.getPatientService()).thenReturn(patientService);
+        Patient patient = new Patient();
+        patient.setId(1);
+        patient.setUuid("patient-uuid");
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+
+        Document document = new Document("abcd", "jpeg", "consultation", "patient-uuid", "image", "file-name");
+
+        visitDocumentController.saveDocument(document);
+
+        verify(patientDocumentService, times(1)).saveDocument(1, "consultation", "abcd", "jpeg", document.getFileType(), document.getFileName());
+    }
+
 }
