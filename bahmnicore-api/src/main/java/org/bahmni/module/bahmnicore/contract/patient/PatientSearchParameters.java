@@ -37,9 +37,13 @@ public class PatientSearchParameters {
         String identifier = context.getParameter("identifier");
         if (identifier != null) {
             this.setIdentifier(identifier);
-        } else if (query != null) {
+        } else {
+        	this.setIdentifier("");
+        }
+        if (query != null) {
             if (query.matches(".*\\d+.*")) {
                 this.setIdentifier(query);
+                this.setName(query);
             } else {
                 this.setName(query);
             }

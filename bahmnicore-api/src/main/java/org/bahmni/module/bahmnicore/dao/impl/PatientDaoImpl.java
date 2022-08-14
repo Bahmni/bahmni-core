@@ -3,8 +3,6 @@ package org.bahmni.module.bahmnicore.dao.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
 import org.bahmni.module.bahmnicore.contract.patient.PatientSearchParameters;
 import org.bahmni.module.bahmnicore.contract.patient.mapper.PatientResponseMapper;
 import org.bahmni.module.bahmnicore.contract.patient.response.PatientResponse;
@@ -27,7 +25,9 @@ import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
+import org.openmrs.Person;
 import org.openmrs.PersonAttributeType;
+import org.openmrs.PersonName;
 import org.openmrs.RelationshipType;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.bahmniemrapi.visitlocation.BahmniVisitLocationServiceImpl;
@@ -152,22 +152,82 @@ public class PatientDaoImpl implements PatientDao {
 
         List<PatientIdentifier> patientIdentifiers = getPatientIdentifiers(identifier, filterOnAllIdentifiers, offset, length);
         List<Integer> patientIds = patientIdentifiers.stream().map(patientIdentifier -> patientIdentifier.getPatient().getPatientId()).collect(toList());
+        List<PersonName> pNames = null;
+        List<PatientResponse> patientResponses = new ArrayList<>();
+
+        if ((patientIds==null || patientIds.size()==0) && StringUtils.isNotBlank(name)) {
+            pNames = getPatientsByName(name, offset, length);
+            patientIds = pNames.stream().map(pName -> pName.getPerson().getPersonId()).collect(toList());
+        }
+
         Map<Object, Object> programAttributes = Context.getService(BahmniProgramWorkflowService.class).getPatientProgramAttributeByAttributeName(patientIds, programAttributeFieldName);
         PatientResponseMapper patientResponseMapper = new PatientResponseMapper(Context.getVisitService(),new BahmniVisitLocationServiceImpl(Context.getLocationService()));
         Set<Integer> uniquePatientIds = new HashSet<>();
-        List<PatientResponse> patientResponses = patientIdentifiers.stream()
+        if (pNames!=null && pNames.size()>0) {
+            patientResponses = pNames.stream()
+                .map(pName -> {
+                    Person person = pName.getPerson();
+                    Patient patient = Context.getPatientService().getPatient(person.getPersonId());
+                    if (!uniquePatientIds.contains(patient.getPatientId())) {
+                        PatientResponse patientResponse = patientResponseMapper.map(patient, loginLocationUuid, patientSearchResultFields,
+                                addressSearchResultFields, programAttributes.get(patient.getPatientId()));
+                        uniquePatientIds.add(patient.getPatientId());
+                        return patientResponse;
+                    } else
+                        return null;
+                }).filter(Objects::nonNull)
+                .collect(toList());
+        } else {
+            patientResponses = patientIdentifiers.stream()
                 .map(patientIdentifier -> {
                     Patient patient = patientIdentifier.getPatient();
-                    if(!uniquePatientIds.contains(patient.getPatientId())) {
+                    if (!uniquePatientIds.contains(patient.getPatientId())) {
                         PatientResponse patientResponse = patientResponseMapper.map(patient, loginLocationUuid, patientSearchResultFields, addressSearchResultFields,
                                 programAttributes.get(patient.getPatientId()));
                         uniquePatientIds.add(patient.getPatientId());
                         return patientResponse;
-                    }else
+                    } else
                         return null;
                 }).filter(Objects::nonNull)
                 .collect(toList());
+        }
         return patientResponses;
+    }
+
+    private List<PersonName> getPatientsByName(String name, Integer offset, Integer length) {
+        FullTextSession fullTextSession = Search.getFullTextSession(sessionFactory.getCurrentSession());
+        QueryBuilder queryBuilder = fullTextSession.getSearchFactory().buildQueryBuilder().forEntity(PersonName.class).get();
+        name = name.replace('%','*');
+
+        org.apache.lucene.search.Query nonVoidedNames = queryBuilder.keyword().onField("voided").matching(false).createQuery();
+        org.apache.lucene.search.Query nonVoidedPersons = queryBuilder.keyword().onField("person.voided").matching(false).createQuery();
+
+        List<String> patientNames = getPatientNames();
+
+        BooleanJunction nameShouldJunction = queryBuilder.bool();
+        for (String patientName: patientNames) {
+            org.apache.lucene.search.Query nameQuery = queryBuilder.keyword().wildcard()
+            	.onField(patientName).matching("*" + name.toLowerCase() + "*").createQuery();
+            nameShouldJunction.should(nameQuery);
+        }
+
+        org.apache.lucene.search.Query booleanQuery = queryBuilder.bool()
+                .must(nonVoidedNames)
+                .must(nonVoidedPersons)
+                .must(nameShouldJunction.createQuery())
+                .createQuery();
+        FullTextQuery fullTextQuery = fullTextSession.createFullTextQuery(booleanQuery, PersonName.class);
+        fullTextQuery.setFirstResult(offset);
+        fullTextQuery.setMaxResults(length);
+        return (List<PersonName>) fullTextQuery.list();
+    }
+
+    private List<String> getPatientNames() {
+        List<String> patientNames = new ArrayList<>();
+        patientNames.add("givenNameAnywhere");
+        patientNames.add("middleNameAnywhere");
+        patientNames.add("familyNameAnywhere");
+        return patientNames;
     }
 
     private List<PatientIdentifier> getPatientIdentifiers(String identifier, Boolean filterOnAllIdentifiers, Integer offset, Integer length) {
@@ -188,8 +248,7 @@ public class PatientDaoImpl implements PatientDao {
         List<String> identifierTypeNames = getIdentifierTypeNames(filterOnAllIdentifiers);
 
         BooleanJunction identifierTypeShouldJunction = queryBuilder.bool();
-        for (String identifierTypeName:
-                identifierTypeNames) {
+        for (String identifierTypeName: identifierTypeNames) {
             org.apache.lucene.search.Query identifierTypeQuery = queryBuilder.phrase().onField("identifierType.name").sentence(identifierTypeName).createQuery();
             identifierTypeShouldJunction.should(identifierTypeQuery);
         }
