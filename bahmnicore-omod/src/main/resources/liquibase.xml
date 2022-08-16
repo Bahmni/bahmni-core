@@ -4565,10 +4565,5 @@
         </sql>
     </changeSet>
 
-    <changeSet id="bahmni-ActivePatientSearch-Update-202208141203" author="shilpa-iplit">
-        <comment>update the active patients search query to return abha identifier</comment>
-        <sqlFile path="V1_99_PatientSearchSql.sql"/>
-    </changeSet>
-
     <include file="addAtomfeedMigrations.xml"/>
 </databaseChangeLog>
