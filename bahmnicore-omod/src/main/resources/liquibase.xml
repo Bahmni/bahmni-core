@@ -4578,7 +4578,7 @@
                 and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
             </sqlCheck>
         </preConditions>
-        <comment>Update version for the diagnosis concept</comment>
+        <comment>Update version for the Visit Diagnoses concept because Bahmni concept can be uniquely recognised and doens’t clash with CIEL, or other concepts</comment>
         <sql>
             SELECT rmap.concept_id into @conceptId from concept_reference_map rmap, concept_name cn where cn.concept_id = rmap.concept_id and cn.name='Visit Diagnoses'
             and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
@@ -4598,7 +4598,7 @@
                 and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
             </sqlCheck>
         </preConditions>
-        <comment>Update version for the diagnosis concept</comment>
+        <comment>Update version for the Coded Diagnosis concept because Bahmni concept can be uniquely recognised and doens’t clash with CIEL, or other concepts</comment>
         <sql>
             SELECT rmap.concept_id into @conceptId from concept_reference_map rmap, concept_name cn where cn.concept_id = rmap.concept_id and cn.name='Coded Diagnosis'
             and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
@@ -4618,7 +4618,7 @@
                 and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
             </sqlCheck>
         </preConditions>
-        <comment>Update version for the diagnosis concept</comment>
+        <comment>Update version for the Non-coded Diagnosis concept because Bahmni concept can be uniquely recognised and doens’t clash with CIEL, or other concepts</comment>
         <sql>
             SELECT rmap.concept_id into @conceptId from concept_reference_map rmap, concept_name cn where cn.concept_id = rmap.concept_id and cn.name='Non-coded Diagnosis'
             and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
@@ -4638,7 +4638,7 @@
                 and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
             </sqlCheck>
         </preConditions>
-        <comment>Update version for the diagnosis concept</comment>
+        <comment>Update version for the Diagnosis Certainty concept because Bahmni concept can be uniquely recognised and doens’t clash with CIEL, or other concepts</comment>
         <sql>
             SELECT rmap.concept_id into @conceptId from concept_reference_map rmap, concept_name cn where cn.concept_id = rmap.concept_id and cn.name='Diagnosis Certainty'
             and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
@@ -4658,7 +4658,7 @@
                 and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
             </sqlCheck>
         </preConditions>
-        <comment>Update version for the diagnosis concept</comment>
+        <comment>Update version for the Diagnosis order concept because Bahmni concept can be uniquely recognised and doens’t clash with CIEL, or other concepts</comment>
         <sql>
             SELECT rmap.concept_id into @conceptId from concept_reference_map rmap, concept_name cn where cn.concept_id = rmap.concept_id and cn.name='Diagnosis order'
             and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
