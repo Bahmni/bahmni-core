@@ -4564,6 +4564,19 @@
             "org.openmrs.customdatatype.datatype.SpecifiedTextOptionsDatatype","org.openmrs.web.attribute.handler.SpecifiedTextOptionsDropdownHandler",",Doctor", 0, 1, NOW(), 0, UUID());
         </sql>
     </changeSet>
+    <changeSet id="Update-metadatamapping_metadata_term_mapping-20220819" author="Clinic-config">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                SELECT COUNT(*) from patient_identifier_type where name='Patient Identifier';
+            </sqlCheck>
+        </preConditions>
+        <comment>Updating metadatamapping_metadata_term_mapping with metadata_uuid</comment>
+        <sql>
+			set @metadata_uuid = null;
+			SELECT uuid INTO @metadata_uuid FROM patient_identifier_type WHERE name = "Patient Identifier";
+			UPDATE metadatamapping_metadata_term_mapping SET metadata_uuid=@metadata_uuid WHERE code="emr.primaryIdentifierType";
+        </sql>
+    </changeSet>
 
     <include file="addAtomfeedMigrations.xml"/>
 </databaseChangeLog>
