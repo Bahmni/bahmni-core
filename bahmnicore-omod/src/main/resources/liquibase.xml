@@ -4666,5 +4666,251 @@
         </sql>
     </changeSet>
 
+    <changeSet id="bahmni-emrapi-202208101239" author="BAHMNI" >
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                select count(*) from concept c
+                INNER join concept_name cn
+                on cn.concept_id=c.concept_id and cn.name='Visit Diagnoses' and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 and c.version is null;
+            </sqlCheck>
+            <sqlCheck expectedResult="1">
+                select count(*) from concept_reference_map rmap, concept_name cn where cn.concept_id = rmap.concept_id and cn.name='Visit Diagnoses'
+                and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
+            </sqlCheck>
+        </preConditions>
+        <comment>Update version for the diagnosis concept for 'Visit Diagnoses' concept </comment>
+        <sql>
+            SET @concept_id = 0;
+
+            SELECT rmap.concept_id into @concept_id from concept_reference_map rmap, concept_name cn where cn.concept_id = rmap.concept_id and cn.name='Visit Diagnoses'
+            and cn.concept_name_type = 'FULLY_SPECIFIED' and cn.voided = 0 group by rmap.concept_id having count(*) = 1;
+
+            UPDATE concept set version = 'BAHMNI-CORE-1.0' where concept_id = @concept_id;
+        </sql>
+    </changeSet>
+
+    <changeSet id="bahmni-emrapi-202208101240" author="BAHMNI" >
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                select count(*) from concept c
+                INNER join
+                concept_name cn
+                on cn.concept_id=c.concept_id and cn.name='Coded Diagnosis' and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 and c.version is null;
+            </sqlCheck>
+            <sqlCheck expectedResult="1">
+                select count(*) from concept_reference_map rmap, concept_name cn where cn.concept_id = rmap.concept_id and cn.name='Coded Diagnosis'
+                and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
+            </sqlCheck>
+        </preConditions>
+        <comment>Update version for the diagnosis concept for 'Coded Diagnosis' concept</comment>
+        <sql>
+            SET @concept_id = 0;
+
+            SELECT rmap.concept_id into @concept_id from concept_reference_map rmap, concept_name cn where cn.concept_id = rmap.concept_id and cn.name='Coded Diagnosis'
+            and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
+
+            UPDATE concept set version='BAHMNI-CORE-1.0' where concept_id=@concept_id;
+        </sql>
+    </changeSet>
+
+    <changeSet id="bahmni-emrapi-202208101241" author="BAHMNI">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                select count(*) from concept c
+                INNER join
+                concept_name cn
+                on cn.concept_id=c.concept_id and cn.name='Non-coded Diagnosis' and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 and c.version is null;
+            </sqlCheck>
+            <sqlCheck expectedResult="1">
+                select count(*) from concept_reference_map rmap, concept_name cn where cn.concept_id = rmap.concept_id and cn.name='Non-coded Diagnosis'
+                and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
+            </sqlCheck>
+        </preConditions>
+        <comment>Update version for the diagnosis concept for 'Non-coded Diagnosis' concept</comment>
+        <sql>
+            SET @concept_id = 0;
+
+            SELECT rmap.concept_id into @concept_id from concept_reference_map rmap, concept_name cn where cn.concept_id = rmap.concept_id and cn.name='Non-coded Diagnosis'
+            and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
+
+            UPDATE concept set version='BAHMNI-CORE-1.0' where concept_id=@concept_id;
+        </sql>
+    </changeSet>
+
+    <changeSet id="bahmni-emrapi-202208101242" author="BAHMNI">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                select count(*) from concept c
+                INNER join
+                concept_name cn
+                on cn.concept_id=c.concept_id and cn.name='Diagnosis Certainty' and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 and c.version is null;
+            </sqlCheck>
+            <sqlCheck expectedResult="1">
+                select count(*) from concept_reference_map rmap, concept_name cn where cn.concept_id = rmap.concept_id and cn.name='Diagnosis Certainty'
+                and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
+            </sqlCheck>
+        </preConditions>
+        <comment>Update version for the diagnosis concept for 'Diagnosis Certainty' concept</comment>
+        <sql>
+            SET @concept_id = 0;
+
+            SELECT rmap.concept_id into @concept_id from concept_reference_map rmap, concept_name cn where cn.concept_id = rmap.concept_id and cn.name='Diagnosis Certainty'
+            and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
+
+            UPDATE concept set version='BAHMNI-CORE-1.0' where concept_id=@concept_id;
+        </sql>
+    </changeSet>
+
+    <changeSet id="bahmni-emrapi-202208101243" author="BAHMNI">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                select count(*) from concept c
+                INNER join
+                concept_name cn
+                on cn.concept_id=c.concept_id and cn.name='Diagnosis order' and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 and c.version is null;
+            </sqlCheck>
+            <sqlCheck expectedResult="1">
+                select count(*) from concept_reference_map rmap, concept_name cn where cn.concept_id = rmap.concept_id and cn.name='Diagnosis order'
+                and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
+            </sqlCheck>
+        </preConditions>
+        <comment>Update version for the diagnosis concept for 'Diagnosis order' concept</comment>
+        <sql>
+            SET @concept_id = 0;
+
+            SELECT rmap.concept_id into @concept_id from concept_reference_map rmap, concept_name cn where cn.concept_id = rmap.concept_id and cn.name='Diagnosis order'
+            and cn.concept_name_type='FULLY_SPECIFIED' and cn.voided=0 group by rmap.concept_id having count(*) = 1;
+
+            UPDATE concept set version='BAHMNI-CORE-1.0' where concept_id=@concept_id;
+        </sql>
+    </changeSet>
+
+    <changeSet id="bahmni-emrapi-202208181243" author="BAHMNI" runAlways="true">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                select count(*) from concept_reference_map rmap
+                join concept_reference_term rterm on rmap.concept_reference_term_id = rterm.concept_reference_term_id
+                and rterm.code='Diagnosis Concept Set'
+                join concept_reference_source rsource on rsource.concept_source_id = rterm.concept_source_id and rsource.name
+                = 'org.openmrs.module.emrapi'
+                join concept c on c.concept_id = rmap.concept_id and c.version is null ;
+            </sqlCheck>
+        </preConditions>
+        <comment> Retire non Bahmni Diagnosis concept with reference mapping code 'Diagnosis Concept Set' </comment>
+        <sql>
+            SET @concept_source_id = 0;
+            SET @concept_reference_term_id = 0;
+            SET @concept_id = 0;
+
+            SELECT concept_source_id into @concept_source_id from concept_reference_source where name = 'org.openmrs.module.emrapi';
+            SELECT concept_reference_term_id into @concept_reference_term_id from concept_reference_term where concept_source_id = @concept_source_id and code = 'Diagnosis Concept Set';
+            SELECT concept_id into @concept_id from concept_reference_map where concept_reference_term_id = @concept_reference_term_id order by date_created desc limit 1;
+
+            UPDATE concept set retired = TRUE where version is null and concept_id = @concept_id;
+        </sql>
+    </changeSet>
+
+    <changeSet id="bahmni-emrapi-202208181245" author="BAHMNI" runAlways="true">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                select count(*) from concept_reference_map rmap
+                join concept_reference_term rterm on rmap.concept_reference_term_id = rterm.concept_reference_term_id
+                and rterm.code='Coded Diagnosis'
+                join concept_reference_source rsource on rsource.concept_source_id = rterm.concept_source_id and rsource.name
+                = 'org.openmrs.module.emrapi'
+                join concept c on c.concept_id = rmap.concept_id and c.version is null ;
+            </sqlCheck>
+        </preConditions>
+        <comment>Retire non Bahmni Diagnosis concept with reference mapping code 'Coded Diagnosis'</comment>
+        <sql>
+            SET @concept_source_id = 0;
+            SET @concept_reference_term_id = 0;
+            SET @concept_id = 0;
+
+            SELECT concept_source_id into @concept_source_id from concept_reference_source where name =
+            'org.openmrs.module.emrapi';
+            SELECT concept_reference_term_id into @concept_reference_term_id from concept_reference_term where
+            concept_source_id = @concept_source_id and code = 'Coded Diagnosis';
+            SELECT concept_id into @concept_id from concept_reference_map where concept_reference_term_id =
+            @concept_reference_term_id order by date_created desc limit 1;
+
+            UPDATE concept set retired = TRUE where version is null and concept_id = @concept_id;
+        </sql>
+    </changeSet>
+
+    <changeSet id="bahmni-emrapi-202208181247" author="BAHMNI" runAlways="true">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                select count(*) from concept_reference_map rmap
+                join concept_reference_term rterm on rmap.concept_reference_term_id = rterm.concept_reference_term_id
+                and rterm.code='Non-Coded Diagnosis'
+                join concept_reference_source rsource on rsource.concept_source_id = rterm.concept_source_id and rsource.name
+                = 'org.openmrs.module.emrapi'
+                join concept c on c.concept_id = rmap.concept_id and c.version is null ;
+            </sqlCheck>
+        </preConditions>
+        <comment>Retire non Bahmni Diagnosis concept with reference mapping code 'Non-Coded Diagnosis'</comment>
+        <sql>
+            SET @concept_source_id = 0;
+            SET @concept_reference_term_id = 0;
+            SET @concept_id = 0;
+
+            SELECT concept_source_id into @concept_source_id from concept_reference_source where name = 'org.openmrs.module.emrapi';
+            SELECT concept_reference_term_id into @concept_reference_term_id from concept_reference_term where concept_source_id = @concept_source_id and code = 'Non-Coded Diagnosis';
+            SELECT concept_id into @concept_id from concept_reference_map where concept_reference_term_id = @concept_reference_term_id order by date_created desc limit 1;
+
+            UPDATE concept set retired = TRUE where version is null and concept_id = @concept_id;
+        </sql>
+    </changeSet>
+
+    <changeSet id="bahmni-emrapi-202208181249" author="BAHMNI" runAlways="true">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                select count(*) from concept_reference_map rmap
+                join concept_reference_term rterm on rmap.concept_reference_term_id = rterm.concept_reference_term_id
+                and rterm.code='Diagnosis Certainty'
+                join concept_reference_source rsource on rsource.concept_source_id = rterm.concept_source_id and rsource.name
+                = 'org.openmrs.module.emrapi'
+                join concept c on c.concept_id = rmap.concept_id and c.version is null ;
+            </sqlCheck>
+        </preConditions>
+        <comment>Retire non Bahmni Diagnosis concept with reference mapping code 'Diagnosis Certainty'</comment>
+        <sql>
+            SET @concept_source_id = 0;
+            SET @concept_reference_term_id = 0;
+            SET @concept_id = 0;
+
+            SELECT concept_source_id into @concept_source_id from concept_reference_source where name = 'org.openmrs.module.emrapi';
+            SELECT concept_reference_term_id into @concept_reference_term_id from concept_reference_term where concept_source_id = @concept_source_id and code = 'Diagnosis Certainty';
+            SELECT concept_id into @concept_id from concept_reference_map where concept_reference_term_id = @concept_reference_term_id order by date_created desc limit 1;
+
+            UPDATE concept set retired = TRUE where version is null and concept_id = @concept_id;
+        </sql>
+    </changeSet>
+
+    <changeSet id="bahmni-emrapi-202208181251" author="BAHMNI" runAlways="true">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                select count(*) from concept_reference_map rmap
+                join concept_reference_term rterm on rmap.concept_reference_term_id = rterm.concept_reference_term_id
+                and rterm.code='Diagnosis Order'
+                join concept_reference_source rsource on rsource.concept_source_id = rterm.concept_source_id and rsource.name
+                = 'org.openmrs.module.emrapi'
+                join concept c on c.concept_id = rmap.concept_id and c.version is null;
+            </sqlCheck>
+        </preConditions>
+        <comment>Retire non Bahmni Diagnosis concept with reference mapping code 'Diagnosis Order'</comment>
+        <sql>
+            SET @concept_source_id = 0;
+            SET @concept_reference_term_id = 0;
+            SET @concept_id = 0;
+
+            SELECT concept_source_id into @concept_source_id from concept_reference_source where name = 'org.openmrs.module.emrapi';
+            SELECT concept_reference_term_id into @concept_reference_term_id from concept_reference_term where concept_source_id = @concept_source_id and code = 'Diagnosis Order';
+            SELECT concept_id into @concept_id from concept_reference_map where concept_reference_term_id = @concept_reference_term_id order by date_created desc limit 1;
+
+            UPDATE concept set retired = TRUE where version is null and concept_id = @concept_id;
+        </sql>
+    </changeSet>
     <include file="addAtomfeedMigrations.xml"/>
 </databaseChangeLog>
