@@ -70,11 +70,8 @@ public class VisitDocumentController extends BaseRestController {
             if (StringUtils.isEmpty(encounterTypeName)) {
                 encounterTypeName = administrationService.getGlobalProperty("bahmni.encounterType.default");
             }
-            String fileName = document.getFileName();
-            fileName = fileName==null ? "" : fileName;
-            fileName = fileName.trim().replaceAll(" ", "-");
+            String fileName = sanitizeFileName(document.getFileName());
             Paths.get(fileName);
-            fileName = fileName.replaceAll("__", "_");
             String url = patientDocumentService.saveDocument(patient.getId(), encounterTypeName, document.getContent(),
                 document.getFormat(), document.getFileType(), fileName);
             savedDocument.put("url", url);
@@ -106,4 +103,10 @@ public class VisitDocumentController extends BaseRestController {
         }
         return Integer.valueOf(authenticatedUser.getUserId());
     }
+
+    private String sanitizeFileName(String fileName) {
+        if (fileName == null) return "";
+        return fileName.trim().replaceAll(" ", "-").replaceAll("__", "_");
+    }
+
 }
