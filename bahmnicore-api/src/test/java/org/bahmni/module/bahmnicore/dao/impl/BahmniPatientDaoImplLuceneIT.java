@@ -223,30 +223,26 @@ public class BahmniPatientDaoImplLuceneIT extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldSearchByPatientPrimaryIdentifierThenByName1() {
+    public void shouldSearchByPatientPrimaryIdentifierIfSpecifiedAndNotByName() {
         String[] addressResultFields = {"city_village"};
-        List<PatientResponse> patients = patientDao.getPatientsUsingLuceneSearch("GAN200001", "GAN200001", null, "city_village", "",
+        List<PatientResponse> patients = patientDao.getPatientsUsingLuceneSearch("GAN200000", "GAN200000", null, "city_village", "",
             100, 0, null, "", null, addressResultFields, null, "c36006e5-9fbb-4f20-866b-0ece245615a1", false, false);
         assertEquals(1, patients.size());
         PatientResponse patient = patients.get(0);
-        assertEquals("341b4e41-790c-484f-b6ed-71dc8da222db", patient.getUuid());
+        assertEquals("86526ed5-3c11-11de-a0ba-001e378eb67a", patient.getUuid());
         assertEquals("GAN200001", patient.getIdentifier());
         assertEquals("Horatio", patient.getGivenName());
-        assertEquals("Sinha", patient.getFamilyName());
+        assertEquals("Test", patient.getMiddleName());
+        assertEquals("Banka", patient.getFamilyName());
         assertEquals("M", patient.getGender());
-        assertEquals("1983-01-30 00:00:00.0", patient.getBirthDate().toString());
-        assertEquals("{\"city_village\" : \"Ramgarh\"}", patient.getAddressFieldValue());
-        assertEquals("2006-01-18 00:00:00.0", patient.getDateCreated().toString());
-        assertEquals(null, patient.getDeathDate());
-        assertEquals("{\"National ID\" : \"NAT100010\"}", patient.getExtraIdentifiers());
     }
 
     @Test
-    public void shouldSearchByPatientPrimaryIdentifierThenByName2() {
+    public void shouldSearchByPatientNameWhenIDsDoNotMatch() {
         String[] addressResultFields = {"city_village"};
         List<PatientResponse> patients = patientDao.getPatientsUsingLuceneSearch("Peeter", "Peeter", null, "city_village", "",
             100, 0, null, "", null, addressResultFields, null, "c36006e5-9fbb-4f20-866b-0ece245615a1", false, false);
-        assertEquals(1, patients.size());
+        assertEquals(27, patients.size());
         PatientResponse patient = patients.get(0);
         assertEquals("341b4e41-790c-484f-b6ed-71dc8da222db", patient.getUuid());
         assertEquals("GAN200001", patient.getIdentifier());
@@ -254,9 +250,7 @@ public class BahmniPatientDaoImplLuceneIT extends BaseIntegrationTest {
         assertEquals("Peeter", patient.getMiddleName());
         assertEquals("Sinha", patient.getFamilyName());
         assertEquals("M", patient.getGender());
-        assertEquals("1983-01-30 00:00:00.0", patient.getBirthDate().toString());
         assertEquals("{\"city_village\" : \"Ramgarh\"}", patient.getAddressFieldValue());
-        assertEquals("2006-01-18 00:00:00.0", patient.getDateCreated().toString());
         assertEquals(null, patient.getDeathDate());
         assertEquals("{\"National ID\" : \"NAT100010\"}", patient.getExtraIdentifiers());
     }
@@ -274,9 +268,7 @@ public class BahmniPatientDaoImplLuceneIT extends BaseIntegrationTest {
         assertEquals("Peeter", patient.getMiddleName());
         assertEquals("Sinha", patient.getFamilyName());
         assertEquals("M", patient.getGender());
-        assertEquals("1983-01-30 00:00:00.0", patient.getBirthDate().toString());
         assertEquals("{\"city_village\" : \"Ramgarh\"}", patient.getAddressFieldValue());
-        assertEquals("2006-01-18 00:00:00.0", patient.getDateCreated().toString());
         assertEquals(null, patient.getDeathDate());
         assertEquals("{\"National ID\" : \"NAT100010\"}", patient.getExtraIdentifiers());
     }
