@@ -28,12 +28,15 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+
+import java.util.HashMap;
 
 @PrepareForTest(Context.class)
 @RunWith(PowerMockRunner.class)
@@ -186,7 +189,15 @@ public class VisitDocumentControllerTest {
 
         Document document = new Document("abcd", "jpeg", "consultation", "patient-uuid", "image", "file-name");
 
-        visitDocumentController.saveDocument(document);
+        HashMap<String, String> mapWithUrl = visitDocumentController.saveDocument(document);
+        if (mapWithUrl!=null) {
+	        String documentSavedPath = mapWithUrl.get("url");
+	        if (documentSavedPath!=null) {
+	        	assertTrue(documentSavedPath.endsWith("__file-name.jpeg"));
+	        }
+        }
+        // Old files will follow: patientid-encounterName-uuid.ext (eg. 6-Patient-Document-706a448b-3f10-11e4-adec-0800271c1b75.jpeg)
+        // New ones will follow: patientid_encounterName_uuid__filename.ext (eg. 6-Patient-Document-706a448b-3f10-11e4-adec-0800271c1b75__file-name.jpeg)
 
         verify(patientDocumentService, times(1)).saveDocument(1, "consultation", "abcd", "jpeg", document.getFileType(), document.getFileName());
     }

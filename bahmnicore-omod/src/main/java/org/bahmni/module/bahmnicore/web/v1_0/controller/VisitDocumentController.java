@@ -72,6 +72,9 @@ public class VisitDocumentController extends BaseRestController {
             }
             String fileName = sanitizeFileName(document.getFileName());
             Paths.get(fileName);
+
+            // Old files will follow: patientid-encounterName-uuid.ext (eg. 6-Patient-Document-706a448b-3f10-11e4-adec-0800271c1b75.png)
+            // New ones will follow: patientid_encounterName_uuid__filename.ext (eg. 6-Patient-Document-706a448b-3f10-11e4-adec-0800271c1b75__doc1.png)
             String url = patientDocumentService.saveDocument(patient.getId(), encounterTypeName, document.getContent(),
                 document.getFormat(), document.getFileType(), fileName);
             savedDocument.put("url", url);
