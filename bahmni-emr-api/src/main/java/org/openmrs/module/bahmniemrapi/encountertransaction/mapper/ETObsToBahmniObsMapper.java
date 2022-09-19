@@ -56,7 +56,7 @@ public class ETObsToBahmniObsMapper {
 
         BahmniObservation bahmniObservation= createBahmniObservation(observation,additionalBahmniObservationFields,rootConcepts);
 
-        if (CONCEPT_DETAILS_CONCEPT_CLASS.equals(observation.getConcept().getConceptClass()) && flatten) {
+        if (validateFormNameSpace(observation) && flatten) {
             handleFlattenedConceptDetails(observation,bahmniObservation);
         } else if (observation.getGroupMembers().size() > 0) {
             for (EncounterTransaction.Observation groupMember : observation.getGroupMembers()) {
@@ -82,6 +82,11 @@ public class ETObsToBahmniObsMapper {
             bahmniObservation.setCreatorName(observation.getCreator().getPersonName());
         }
         return bahmniObservation;
+    }
+
+    boolean validateFormNameSpace(EncounterTransaction.Observation observation) {
+        return observation.getFormNamespace() == null ? CONCEPT_DETAILS_CONCEPT_CLASS.equals(observation.getConcept().getConceptClass())
+                                                      : observation.getGroupMembers().stream().allMatch(member -> member.getGroupMembers().size() > 0);
     }
 
     private Serializable getComplexObsValue(BahmniObservation bahmniObservation) {
