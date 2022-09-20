@@ -86,7 +86,7 @@ public class ETObsToBahmniObsMapper {
 
     boolean validateFormNameSpace(EncounterTransaction.Observation observation) {
         return observation.getFormNamespace() == null ? CONCEPT_DETAILS_CONCEPT_CLASS.equals(observation.getConcept().getConceptClass())
-                                                      : observation.getGroupMembers().stream().allMatch(member -> member.getGroupMembers().size() > 0);
+                                                      : observation.getGroupMembers().stream().anyMatch(member -> member.getGroupMembers().size() > 0);
     }
 
     private Serializable getComplexObsValue(BahmniObservation bahmniObservation) {
