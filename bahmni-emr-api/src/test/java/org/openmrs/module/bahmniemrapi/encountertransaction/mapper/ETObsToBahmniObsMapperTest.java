@@ -86,10 +86,11 @@ public class ETObsToBahmniObsMapperTest {
         return etConcept;
     }
 
-    private EncounterTransaction.Observation createETObservation(String UUID, EncounterTransaction.User user, Object value, EncounterTransaction.Concept concept) {
+    private EncounterTransaction.Observation createETObservation(String UUID, EncounterTransaction.User user, Object value, EncounterTransaction.Concept concept, String formNameSpace) {
         EncounterTransaction.Observation observation = new EncounterTransaction.Observation();
         observation.setUuid(UUID);
         observation.setCreator(user);
+        observation.setFormNamespace(formNameSpace);
         if (concept.getConceptClass().equals("Unknown")) {
             observation.setValue(Boolean.parseBoolean((String)value));
         } else if (value != null) {
@@ -130,8 +131,8 @@ public class ETObsToBahmniObsMapperTest {
         Mockito.when(conceptService.getConceptByUuid("uuid1")).thenReturn(concept1);
         Mockito.when(conceptService.getConceptByUuid("uuid2")).thenReturn(concept2);
 
-        EncounterTransaction.Observation observation1 = createETObservation("obs1-uuid", user1, "notes", etValueConcept);
-        EncounterTransaction.Observation observation2 = createETObservation("obs2-uuid", user2, null, etParentConcept);
+        EncounterTransaction.Observation observation1 = createETObservation("obs1-uuid", user1, "notes", etValueConcept, null);
+        EncounterTransaction.Observation observation2 = createETObservation("obs2-uuid", user2, null, etParentConcept, null);
 
         AdditionalBahmniObservationFields additionalBahmniObservationFields = new AdditionalBahmniObservationFields(encounterUuid, new Date(), new Date(), obsGroupUuid);
         List<BahmniObservation> actualObs = etObsToBahmniObsMapper.create(asList(observation1, observation2), additionalBahmniObservationFields);
@@ -157,8 +158,8 @@ public class ETObsToBahmniObsMapperTest {
         Concept parentConcept = createConcept("parentConcept", "N/A", null, null, null);
         parentConcept.addSetMember(valueConcept);
 
-        EncounterTransaction.Observation observation1 = createETObservation("obs1-uuid", user1, "notes", etValueConcept);
-        EncounterTransaction.Observation observation2 = createETObservation("obs2-uuid", user2, null, etParentConcept);
+        EncounterTransaction.Observation observation1 = createETObservation("obs1-uuid", user1, "notes", etValueConcept, null);
+        EncounterTransaction.Observation observation2 = createETObservation("obs2-uuid", user2, null, etParentConcept, null);
         observation2.setGroupMembers(asList(observation1));
 
         AdditionalBahmniObservationFields additionalBahmniObservationFields = new AdditionalBahmniObservationFields(encounterUuid, new Date(), new Date(), obsGroupUuid);
@@ -192,9 +193,9 @@ public class ETObsToBahmniObsMapperTest {
         parentConcept.addSetMember(unknownConcept);
 
 
-        EncounterTransaction.Observation observation1 = createETObservation("obs1-uuid", user1, "notes", etValueConcept);
-        EncounterTransaction.Observation observation2 = createETObservation("obs2-uuid", user2, null, etParentConcept);
-        EncounterTransaction.Observation observation3 = createETObservation("obs3-uuid", user1, "true", etUnknownConcept);
+        EncounterTransaction.Observation observation1 = createETObservation("obs1-uuid", user1, "notes", etValueConcept, null);
+        EncounterTransaction.Observation observation2 = createETObservation("obs2-uuid", user2, null, etParentConcept, null);
+        EncounterTransaction.Observation observation3 = createETObservation("obs3-uuid", user1, "true", etUnknownConcept, null);
         observation2.setGroupMembers(asList(observation1, observation3));
 
         AdditionalBahmniObservationFields additionalBahmniObservationFields = new AdditionalBahmniObservationFields(encounterUuid, new Date(), new Date(), obsGroupUuid);
@@ -221,9 +222,9 @@ public class ETObsToBahmniObsMapperTest {
         Concept unknownConcept = createConcept("unknownConcept", "Boolean", "cuuid3", "Unknown", null);
         parentConcept.addSetMember(unknownConcept);
 
-        EncounterTransaction.Observation observation1 = createETObservation("obs1-uuid", user1, "notes", etValueConcept);
-        EncounterTransaction.Observation observation2 = createETObservation("obs2-uuid", user2, null, etParentConcept);
-        EncounterTransaction.Observation observation3 = createETObservation("obs3-uuid", user1, "true", etUnknownConcept);
+        EncounterTransaction.Observation observation1 = createETObservation("obs1-uuid", user1, "notes", etValueConcept, null);
+        EncounterTransaction.Observation observation2 = createETObservation("obs2-uuid", user2, null, etParentConcept, null);
+        EncounterTransaction.Observation observation3 = createETObservation("obs3-uuid", user1, "true", etUnknownConcept, null);
         observation2.setGroupMembers(asList(observation1, observation3));
 
         AdditionalBahmniObservationFields additionalBahmniObservationFields = new AdditionalBahmniObservationFields(encounterUuid, new Date(), new Date(), obsGroupUuid);
@@ -231,6 +232,35 @@ public class ETObsToBahmniObsMapperTest {
 
         assertEquals("unknownConcept", actualObs.getValueAsString());
         assertEquals(true, actualObs.isUnknown());
+    }
+
+    @Test
+    public void testObsMapToBahmniObsWithNotNullNameSpace() {
+
+        EncounterTransaction.User user1 = createETUser(person1name);
+
+        Mockito.when(authenticatedUser.getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCALE)).thenReturn("fr");
+
+        EncounterTransaction.Concept etParentConcept = createETConcept(etDataType, "Concept Details", "valueName", "valueShortName", null);
+        EncounterTransaction.Concept etChildConcept1 = createETConcept("text", etValueConceptClass, "parentName", "parentShortName", null);
+        EncounterTransaction.Concept etChildConcept2 = createETConcept("Boolean", "Unknown", "Unknown", "unknownConcept", null);
+
+        Concept parentConcept = createConcept("parentConcept", "N/A", null, null, null);
+        Concept unknownConcept = createConcept("unknownConcept", "Boolean", "cuuid3", "Unknown", null);
+        parentConcept.addSetMember(unknownConcept);
+
+        // due to not null namespace it will map Obs to BahmniObs as it is
+        EncounterTransaction.Observation observation1 = createETObservation("obs1-uuid", user1, "notes", etChildConcept1, "test");
+        EncounterTransaction.Observation observation2 = createETObservation("obs3-uuid", user1, "true", etChildConcept1, "test");
+        EncounterTransaction.Observation observation3 = createETObservation("obs2-uuid", user1, null, etParentConcept, "test");
+        observation3.setGroupMembers(asList(observation1, observation2));
+
+        AdditionalBahmniObservationFields additionalBahmniObservationFields = new AdditionalBahmniObservationFields(encounterUuid, new Date(), new Date(), obsGroupUuid);
+
+        BahmniObservation actualObs = etObsToBahmniObsMapper.map(observation3, additionalBahmniObservationFields, asList(parentConcept), true);
+
+        assertEquals(2, actualObs.getGroupMembers().size());
+        assertEquals(etParentConcept.getName(), actualObs.getConcept().getName());
     }
 
     @Test
@@ -251,9 +281,9 @@ public class ETObsToBahmniObsMapperTest {
         Concept unknownConcept = createConcept("unknownConcept", "Boolean", "cuuid3", "Unknown", "Unknown");
         parentConcept.addSetMember(unknownConcept);
 
-        EncounterTransaction.Observation observation1 = createETObservation("obs1-uuid", user1, "notes", etValueConcept);
-        EncounterTransaction.Observation observation2 = createETObservation("obs2-uuid", user2, null, etParentConcept);
-        EncounterTransaction.Observation observation3 = createETObservation("obs3-uuid", user1, "false", etUnknownConcept);
+        EncounterTransaction.Observation observation1 = createETObservation("obs1-uuid", user1, "notes", etValueConcept, null);
+        EncounterTransaction.Observation observation2 = createETObservation("obs2-uuid", user2, null, etParentConcept, null);
+        EncounterTransaction.Observation observation3 = createETObservation("obs3-uuid", user1, "false", etUnknownConcept, null);
         observation2.setGroupMembers(asList(observation1, observation3));
 
         AdditionalBahmniObservationFields additionalBahmniObservationFields = new AdditionalBahmniObservationFields(encounterUuid, new Date(), new Date(), obsGroupUuid);
@@ -262,7 +292,7 @@ public class ETObsToBahmniObsMapperTest {
         assertEquals("notes", actualObs.getValueAsString());
         assertEquals(false, actualObs.isUnknown());
 
-        EncounterTransaction.Observation observation4 = createETObservation("obs3-uuid", user1, "true", etUnknownConcept);
+        EncounterTransaction.Observation observation4 = createETObservation("obs3-uuid", user1, "true", etUnknownConcept, null);
         observation2.setGroupMembers(asList(observation1, observation4));
         actualObs = etObsToBahmniObsMapper.map(observation2, additionalBahmniObservationFields, asList(parentConcept), true);
 
@@ -280,8 +310,8 @@ public class ETObsToBahmniObsMapperTest {
         EncounterTransaction.Concept etParentConcept = createETConcept(etDataType, "Concept Details", "parentName", "parentShortName", "PulseDataUuid");
         EncounterTransaction.Concept etUnknownConcept = createETConcept("Boolean", "Unknown", "Unknown", "Unknown", null);
 
-        EncounterTransaction.Observation parentObservation = createETObservation("obs2-uuid", user1, null, etParentConcept);
-        EncounterTransaction.Observation unknownObservation = createETObservation("obs3-uuid", user1, "true", etUnknownConcept);
+        EncounterTransaction.Observation parentObservation = createETObservation("obs2-uuid", user1, null, etParentConcept, null);
+        EncounterTransaction.Observation unknownObservation = createETObservation("obs3-uuid", user1, "true", etUnknownConcept, null);
         parentObservation.setGroupMembers(asList(unknownObservation));
 
         ConceptNumeric valueConcept = (ConceptNumeric) createConceptNumeric(1, "Pulse", "Misc", 100.0, 50.0);
