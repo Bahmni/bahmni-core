@@ -155,33 +155,37 @@ public class PatientDaoImpl implements PatientDao {
         List<PersonName> pNames = null;
         List<PatientResponse> patientResponses = new ArrayList<>();
 
-        if ((patientIds==null || patientIds.size()==0) && StringUtils.isNotBlank(name)) {
+        if (StringUtils.isNotBlank(name)) {
             pNames = getPatientsByName(name, offset, length);
-            patientIds = pNames.stream().map(pName -> pName.getPerson().getPersonId()).collect(toList());
+            patientIds.addAll(pNames.stream().map(pName -> pName.getPerson().getPersonId()).collect(toList()));
         }
 
         Map<Object, Object> programAttributes = Context.getService(BahmniProgramWorkflowService.class).getPatientProgramAttributeByAttributeName(patientIds, programAttributeFieldName);
         PatientResponseMapper patientResponseMapper = new PatientResponseMapper(Context.getVisitService(),new BahmniVisitLocationServiceImpl(Context.getLocationService()));
         Set<Integer> uniquePatientIds = new HashSet<>();
-        if (pNames!=null && pNames.size()>0) {
-            patientResponses = pNames.stream()
-                .map(pName -> {
-                    Person person = pName.getPerson();
-                    Patient patient = Context.getPatientService().getPatient(person.getPersonId());
-                    if (!uniquePatientIds.contains(patient.getPatientId())) {
-                        PatientResponse patientResponse = patientResponseMapper.map(patient, loginLocationUuid, patientSearchResultFields,
-                                addressSearchResultFields, programAttributes.get(patient.getPatientId()));
-                        uniquePatientIds.add(patient.getPatientId());
-                        return patientResponse;
-                    } else
-                        return null;
-                }).filter(Objects::nonNull)
-                .collect(toList());
-        } else {
-            patientResponses = patientIdentifiers.stream()
+        if(pNames != null && pNames.size() > 0) {
+            patientResponses = pNames.stream().filter(pName -> pName.getPerson().getIsPatient())
+                    .map(pName -> {
+                        Person person = pName.getPerson();
+                        Patient patient = Context.getPatientService().getPatient(person.getPersonId());
+                        if ( patient !=null) {
+                            patient = Context.getPatientService().getPatient(person.getPersonId());
+                            if (!uniquePatientIds.contains(patient.getPatientId())) {
+                                PatientResponse patientResponse = patientResponseMapper.map(patient, loginLocationUuid, patientSearchResultFields,
+                                        addressSearchResultFields, programAttributes.get(patient.getPatientId()));
+                                uniquePatientIds.add(patient.getPatientId());
+                                return patientResponse;
+                            } else
+                                return null;
+                        } else
+                            return null;
+                    }).filter(Objects::nonNull)
+                    .collect(toList());
+        }
+            patientResponses .addAll(patientIdentifiers.stream()
                 .map(patientIdentifier -> {
                     Patient patient = patientIdentifier.getPatient();
-                    if (!uniquePatientIds.contains(patient.getPatientId())) {
+                    if (patient!= null && patient.getPatientId()!= null && !uniquePatientIds.contains(patient.getPatientId())) {
                         PatientResponse patientResponse = patientResponseMapper.map(patient, loginLocationUuid, patientSearchResultFields, addressSearchResultFields,
                                 programAttributes.get(patient.getPatientId()));
                         uniquePatientIds.add(patient.getPatientId());
@@ -189,8 +193,7 @@ public class PatientDaoImpl implements PatientDao {
                     } else
                         return null;
                 }).filter(Objects::nonNull)
-                .collect(toList());
-        }
+                .collect(toList()));
         return patientResponses;
     }
 

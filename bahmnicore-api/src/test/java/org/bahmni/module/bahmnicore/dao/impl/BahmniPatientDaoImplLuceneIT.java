@@ -272,5 +272,18 @@ public class BahmniPatientDaoImplLuceneIT extends BaseIntegrationTest {
         assertEquals(null, patient.getDeathDate());
         assertEquals("{\"National ID\" : \"NAT100010\"}", patient.getExtraIdentifiers());
     }
+    @Test
+    public void shouldSearchByAnyPatientIdentifierThenByNameAndHaveCombinedResult() {
+        String[] addressResultFields = {"city_village"};
+        List<PatientResponse> patients = patientDao.getPatientsUsingLuceneSearch("NAT100010", "John", null, "city_village", "",
+                100, 0, null, "", null, addressResultFields, null, "c36006e5-9fbb-4f20-866b-0ece245615a1", false, true);
+        assertEquals(4, patients.size());
+        patients = patientDao.getPatientsUsingLuceneSearch("uniqueStringSoNoResultsFromIdentifier", "John", null, "city_village", "",
+                100, 0, null, "", null, addressResultFields, null, "c36006e5-9fbb-4f20-866b-0ece245615a1", false, true);
+        assertEquals(3, patients.size());
+        patients = patientDao.getPatientsUsingLuceneSearch("NAT100010", "uniqueStringSoNoResultsFromPatientNames", null, "city_village", "",
+                100, 0, null, "", null, addressResultFields, null, "c36006e5-9fbb-4f20-866b-0ece245615a1", false, true);
+        assertEquals(1, patients.size());
+    }
 
 }
