@@ -168,8 +168,7 @@ public class PatientDaoImpl implements PatientDao {
                     .map(pName -> {
                         Person person = pName.getPerson();
                         Patient patient = Context.getPatientService().getPatient(person.getPersonId());
-                        if ( patient !=null) {
-                            patient = Context.getPatientService().getPatient(person.getPersonId());
+                        if ( patient !=null && patient.getPatientId() != null) {
                             if (!uniquePatientIds.contains(patient.getPatientId())) {
                                 PatientResponse patientResponse = patientResponseMapper.map(patient, loginLocationUuid, patientSearchResultFields,
                                         addressSearchResultFields, programAttributes.get(patient.getPatientId()));
