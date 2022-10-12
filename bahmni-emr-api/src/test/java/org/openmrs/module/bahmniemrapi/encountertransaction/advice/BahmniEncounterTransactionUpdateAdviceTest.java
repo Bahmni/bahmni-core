@@ -1,11 +1,11 @@
 package org.openmrs.module.bahmniemrapi.encountertransaction.advice;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
 import org.openmrs.util.OpenmrsUtil;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -19,7 +19,7 @@ import org.apache.commons.lang.StringUtils;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(OpenmrsUtil.class)
-@Ignore
+@PowerMockIgnore({"javax.management.*", "javax.xml.*", "org.xml.sax.*", "org.w3c.dom.*", "org.springframework.context.*", "org.apache.log4j.*", "org.apache.commons.logging.*", "org.jacoco.*", "jdk.internal.reflect.*"})
 public class BahmniEncounterTransactionUpdateAdviceTest {
     private static String DEFAULT_ENCOUNTER_UUID = "defaultEncounterUuid";
 
@@ -35,7 +35,7 @@ public class BahmniEncounterTransactionUpdateAdviceTest {
     }
 
     @Test
-    public void shouldLoadpplicationDataDirectoryPath() throws Throwable {
+    public void shouldLoadApplicationDataDirectoryPath() throws Throwable {
         PowerMockito.mockStatic(OpenmrsUtil.class);
         String path = getClass().getClassLoader().getResource("").getPath();
         // remove the trailing "/"
