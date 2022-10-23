@@ -65,6 +65,10 @@
             <artifactId>bahmni-mapping</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.bahmni.module</groupId>
+            <artifactId>bahmni-commons-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.openmrs.web</groupId>
             <artifactId>openmrs-web</artifactId>
             <scope>test</scope>

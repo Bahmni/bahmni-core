@@ -1,7 +1,7 @@
 package org.bahmni.module.bahmnicore.dao.impl;
 
 
-import org.bahmni.module.bahmnicore.contract.patient.PatientSearchParameters;
+import org.bahmni.module.bahmnicommons.contract.patient.PatientSearchParameters;
 
 public class PatientSearchParametersBuilder {
     private String identifier;

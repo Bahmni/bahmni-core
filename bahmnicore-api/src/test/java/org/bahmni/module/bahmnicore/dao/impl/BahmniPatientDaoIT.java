@@ -1,8 +1,8 @@
 package org.bahmni.module.bahmnicore.dao.impl;
 
 import org.bahmni.module.bahmnicore.BaseIntegrationTest;
-import org.bahmni.module.bahmnicore.contract.patient.PatientSearchParameters;
-import org.bahmni.module.bahmnicore.contract.patient.response.PatientResponse;
+import org.bahmni.module.bahmnicommons.contract.patient.PatientSearchParameters;
+import org.bahmni.module.bahmnicommons.contract.patient.response.PatientResponse;
 import org.bahmni.module.bahmnicore.dao.PatientDao;
 import org.junit.Before;
 import org.junit.Ignore;

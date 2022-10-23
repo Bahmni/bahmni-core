@@ -3,9 +3,9 @@ package org.bahmni.module.bahmnicore.service.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bahmni.module.bahmnicore.contract.patient.PatientSearchParameters;
+import org.bahmni.module.bahmnicommons.contract.patient.PatientSearchParameters;
 import org.bahmni.module.bahmnicore.contract.patient.response.PatientConfigResponse;
-import org.bahmni.module.bahmnicore.contract.patient.response.PatientResponse;
+import org.bahmni.module.bahmnicommons.contract.patient.response.PatientResponse;
 import org.bahmni.module.bahmnicore.dao.PatientDao;
 import org.bahmni.module.bahmnicore.service.BahmniPatientService;
 import org.openmrs.Concept;
@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 @Lazy //to toString rid of cyclic dependencies
 @Transactional
@@ -54,13 +53,6 @@ public class BahmniPatientServiceImpl implements BahmniPatientService {
         return patientConfigResponse;
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<PatientResponse> search(PatientSearchParameters searchParameters) {
-        Supplier<Location> visitLocation  = () -> getVisitLocation(searchParameters.getLoginLocationUuid());
-        Supplier<List<String>> configuredAddressFields  = () -> patientDao.getConfiguredPatientAddressFields();
-        return patientDao.getPatients(searchParameters, visitLocation, configuredAddressFields);
-    }
 
     @Override
     @Transactional

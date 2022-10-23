@@ -1,6 +1,6 @@
 package org.bahmni.module.bahmnicore.contract.patient.mapper;
 
-import org.bahmni.module.bahmnicore.contract.patient.response.PatientResponse;
+import org.bahmni.module.bahmnicommons.contract.patient.response.PatientResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

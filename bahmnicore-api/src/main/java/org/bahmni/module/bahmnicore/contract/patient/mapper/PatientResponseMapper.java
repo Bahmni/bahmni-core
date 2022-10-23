@@ -3,7 +3,7 @@ package org.bahmni.module.bahmnicore.contract.patient.mapper;
 import java.util.Objects;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bahmni.module.bahmnicore.contract.patient.response.PatientResponse;
+import org.bahmni.module.bahmnicommons.contract.patient.response.PatientResponse;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PersonAddress;

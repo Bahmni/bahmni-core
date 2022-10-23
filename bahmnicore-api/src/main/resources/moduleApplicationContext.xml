@@ -129,6 +129,8 @@
         <constructor-arg ref="patientService" />
         <constructor-arg ref="locationService" />
         <constructor-arg ref="providerService" />
+        <constructor-arg ref="encounterSessionMatcher" />
+        <constructor-arg ref="bahmniVisitLocationService" />
         <constructor-arg ref="bahmniVisitAttributeService"/>
 
     </bean>

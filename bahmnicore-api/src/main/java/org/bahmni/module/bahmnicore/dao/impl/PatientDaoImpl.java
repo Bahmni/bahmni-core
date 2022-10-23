@@ -5,10 +5,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
-import org.bahmni.module.bahmnicore.contract.patient.PatientSearchParameters;
+import org.bahmni.module.bahmnicommons.contract.patient.PatientSearchParameters;
 import org.bahmni.module.bahmnicore.contract.patient.mapper.PatientResponseMapper;
-import org.bahmni.module.bahmnicore.contract.patient.response.PatientResponse;
-import org.bahmni.module.bahmnicore.contract.patient.search.PatientSearchBuilder;
+import org.bahmni.module.bahmnicommons.contract.patient.response.PatientResponse;
 import org.bahmni.module.bahmnicore.contract.patient.search.PatientSearchQueryBuilder;
 import org.bahmni.module.bahmnicore.dao.PatientDao;
 import org.openmrs.ProgramAttributeType;
@@ -60,35 +59,6 @@ public class PatientDaoImpl implements PatientDao {
             "address4", "address5", "address6", "address7", "address8",
             "address9", "address10", "address11", "address12",
             "address13", "address14", "address15");
-
-    @Deprecated
-    @Override
-    public List<PatientResponse> getPatients(String identifier, String name, String customAttribute,
-                                             String addressFieldName, String addressFieldValue, Integer length,
-                                             Integer offset, String[] customAttributeFields, String programAttributeFieldValue,
-                                             String programAttributeFieldName, String[] addressSearchResultFields,
-                                             String[] patientSearchResultFields, String loginLocationUuid, Boolean filterPatientsByLocation, Boolean filterOnAllIdentifiers) {
-
-        validateSearchParams(customAttributeFields, programAttributeFieldName, addressFieldName);
-
-        ProgramAttributeType programAttributeType = getProgramAttributeType(programAttributeFieldName);
-
-        SQLQuery sqlQuery = new PatientSearchBuilder(sessionFactory)
-                .withPatientName(name)
-                .withPatientAddress(addressFieldName, addressFieldValue, addressSearchResultFields)
-                .withPatientIdentifier(identifier, filterOnAllIdentifiers)
-                .withPatientAttributes(customAttribute, getPersonAttributeIds(customAttributeFields), getPersonAttributeIds(patientSearchResultFields))
-                .withProgramAttributes(programAttributeFieldValue, programAttributeType)
-                .withLocation(loginLocationUuid, filterPatientsByLocation)
-                .buildSqlQuery(length, offset);
-        try {
-            return sqlQuery.list();
-        } catch (Exception e) {
-            log.error("Error occurred while trying to execute patient search query.", e);
-            throw new RuntimeException("Error occurred while to perform patient search");
-        }
-    }
-
 
     @Override
     public List<PatientResponse> getPatients(PatientSearchParameters searchParameters, Supplier<Location> visitLocation, Supplier<List<String>> configuredAddressFields) {

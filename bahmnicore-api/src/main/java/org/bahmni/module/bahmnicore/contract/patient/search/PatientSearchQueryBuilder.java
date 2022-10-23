@@ -3,7 +3,7 @@ package org.bahmni.module.bahmnicore.contract.patient.search;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bahmni.module.bahmnicore.contract.patient.response.PatientResponse;
+import org.bahmni.module.bahmnicommons.contract.patient.response.PatientResponse;
 import org.openmrs.ProgramAttributeType;
 import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;

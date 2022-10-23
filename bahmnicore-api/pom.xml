@@ -63,6 +63,10 @@
             <artifactId>webservices.rest-omod-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.bahmni.module</groupId>
+            <artifactId>bahmni-commons-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.openmrs.module</groupId>
             <artifactId>webservices.rest-omod-common</artifactId>
             <version>${openMRSWebServicesVersion}</version>

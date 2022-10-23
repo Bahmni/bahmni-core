@@ -88,6 +88,13 @@
         </dependency>
         <dependency>
             <groupId>org.bahmni.module</groupId>
+            <artifactId>bahmni-commons-api</artifactId>
+            <version>${bahmniCommons.version}</version>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bahmni.module</groupId>
             <artifactId>bahmnicore-api</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>

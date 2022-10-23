@@ -1,7 +1,7 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller.search;
 
-import org.bahmni.module.bahmnicore.contract.patient.PatientSearchParameters;
-import org.bahmni.module.bahmnicore.contract.patient.response.PatientResponse;
+import org.bahmni.module.bahmnicommons.contract.patient.PatientSearchParameters;
+import org.bahmni.module.bahmnicommons.contract.patient.response.PatientResponse;
 import org.bahmni.module.bahmnicore.service.BahmniPatientService;
 import org.openmrs.module.webservices.rest.web.RequestContext;
 import org.openmrs.module.webservices.rest.web.RestConstants;
@@ -35,21 +35,6 @@ public class BahmniPatientSearchController extends BaseRestController {
     @Autowired
     public BahmniPatientSearchController(BahmniPatientService bahmniPatientService) {
         this.bahmniPatientService = bahmniPatientService;
-    }
-
-    @RequestMapping(method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<AlreadyPaged<PatientResponse>> search(HttpServletRequest request,
-                                                  HttpServletResponse response) throws ResponseException{
-        RequestContext requestContext = RestUtil.getRequestContext(request, response);
-        PatientSearchParameters searchParameters = new PatientSearchParameters(requestContext);
-        try {
-            List<PatientResponse> patients = bahmniPatientService.search(searchParameters);
-            AlreadyPaged alreadyPaged = new AlreadyPaged(requestContext, patients, false);
-            return new ResponseEntity(alreadyPaged,HttpStatus.OK);
-        }catch (IllegalArgumentException e){
-            return new ResponseEntity(RestUtil.wrapErrorResponse(e, e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
     }
 
     @RequestMapping(value="lucene", method = RequestMethod.GET)
