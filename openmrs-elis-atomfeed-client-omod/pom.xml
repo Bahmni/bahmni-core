@@ -230,6 +230,10 @@
         </dependency>
         <dependency>
             <groupId>org.bahmni.module</groupId>
+            <artifactId>bahmni-commons-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bahmni.module</groupId>
             <artifactId>bahmnicore-api</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>

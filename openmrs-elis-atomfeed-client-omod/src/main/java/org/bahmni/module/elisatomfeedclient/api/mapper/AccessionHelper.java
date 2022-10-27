@@ -29,7 +29,7 @@ import org.openmrs.api.UserService;
 import org.openmrs.api.VisitService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.VisitIdentificationHelper;
-import org.openmrs.module.bahmniemrapi.visitlocation.BahmniVisitLocationService;
+import org.bahmni.module.bahmnicommons.visitlocation.BahmniVisitLocationService;
 
 import java.util.ArrayList;
 import java.util.Collection;

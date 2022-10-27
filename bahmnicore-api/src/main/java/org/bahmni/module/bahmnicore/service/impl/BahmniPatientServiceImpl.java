@@ -14,7 +14,7 @@ import org.openmrs.RelationshipType;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.PersonService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.bahmniemrapi.visitlocation.BahmniVisitLocationServiceImpl;
+import org.bahmni.module.bahmnicommons.visitlocation.BahmniVisitLocationServiceImpl;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 

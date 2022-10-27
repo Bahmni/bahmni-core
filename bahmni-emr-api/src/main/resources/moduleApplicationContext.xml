@@ -9,29 +9,4 @@
 
     <context:component-scan base-package="org.openmrs.module.bahmniemrapi"/>
 
-    <bean name="bahmniVisitLocationService" class="org.openmrs.module.bahmniemrapi.visitlocation.BahmniVisitLocationServiceImpl">
-        <constructor-arg ref="locationService"/>
-    </bean>
-
-    <bean parent="serviceContext">
-        <property name="moduleService">
-            <list merge="true">
-                <value>org.openmrs.module.bahmniemrapi.visitlocation.BahmniVisitLocationService</value>
-                <bean
-                        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-                    <property name="transactionManager">
-                        <ref bean="transactionManager" />
-                    </property>
-                    <property name="target" ref="bahmniVisitLocationService">
-                    </property>
-                    <property name="preInterceptors">
-                        <ref bean="serviceInterceptors" />
-                    </property>
-                    <property name="transactionAttributeSource">
-                        <ref bean="transactionAttributeSource" />
-                    </property>
-                </bean>
-            </list>
-        </property>
-    </bean>
 </beans>

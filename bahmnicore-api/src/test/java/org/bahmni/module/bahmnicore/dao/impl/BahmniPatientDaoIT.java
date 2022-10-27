@@ -13,7 +13,7 @@ import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.Person;
 import org.openmrs.api.LocationService;
-import org.openmrs.module.bahmniemrapi.visitlocation.BahmniVisitLocationServiceImpl;
+import org.bahmni.module.bahmnicommons.visitlocation.BahmniVisitLocationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;

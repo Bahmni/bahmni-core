@@ -34,7 +34,7 @@ import org.openmrs.api.ProviderService;
 import org.openmrs.api.UserService;
 import org.openmrs.api.VisitService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.bahmniemrapi.visitlocation.BahmniVisitLocationService;
+import org.bahmni.module.bahmnicommons.visitlocation.BahmniVisitLocationService;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
