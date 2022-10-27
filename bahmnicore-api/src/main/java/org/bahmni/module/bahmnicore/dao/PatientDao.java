@@ -11,12 +11,6 @@ import java.util.function.Supplier;
 
 public interface PatientDao {
 
-    List<PatientResponse> getPatientsUsingLuceneSearch(String identifier, String name, String customAttribute,
-                                                       String addressFieldName, String addressFieldValue, Integer length,
-                                                       Integer offset, String[] customAttributeFields, String programAttributeFieldValue,
-                                                       String programAttributeFieldName, String[] addressSearchResultFields,
-                                                       String[] patientSearchResultFields, String loginLocationUuid, Boolean filterPatientsByLocation, Boolean filterOnAllIdentifiers);
-
     public Patient getPatient(String identifier);
 
     public List<Patient> getPatients(String partialIdentifier, boolean shouldMatchExactPatientId);

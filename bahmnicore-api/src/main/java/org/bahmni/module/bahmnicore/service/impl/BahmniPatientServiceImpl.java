@@ -3,9 +3,7 @@ package org.bahmni.module.bahmnicore.service.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bahmni.module.bahmnicommons.contract.patient.PatientSearchParameters;
 import org.bahmni.module.bahmnicore.contract.patient.response.PatientConfigResponse;
-import org.bahmni.module.bahmnicommons.contract.patient.response.PatientResponse;
 import org.bahmni.module.bahmnicore.dao.PatientDao;
 import org.bahmni.module.bahmnicore.service.BahmniPatientService;
 import org.openmrs.Concept;
@@ -51,26 +49,6 @@ public class BahmniPatientServiceImpl implements BahmniPatientService {
             patientConfigResponse.addPersonAttribute(personAttributeType, attributeConcept);
         }
         return patientConfigResponse;
-    }
-
-
-    @Override
-    @Transactional
-    public List<PatientResponse> luceneSearch(PatientSearchParameters searchParameters) {
-        return patientDao.getPatientsUsingLuceneSearch(searchParameters.getIdentifier(),
-                searchParameters.getName(),
-                searchParameters.getCustomAttribute(),
-                searchParameters.getAddressFieldName(),
-                searchParameters.getAddressFieldValue(),
-                searchParameters.getLength(),
-                searchParameters.getStart(),
-                searchParameters.getPatientAttributes(),
-                searchParameters.getProgramAttributeFieldValue(),
-                searchParameters.getProgramAttributeFieldName(),
-                searchParameters.getAddressSearchResultFields(),
-                searchParameters.getPatientSearchResultFields(),
-                searchParameters.getLoginLocationUuid(),
-                searchParameters.getFilterPatientsByLocation(), searchParameters.getFilterOnAllIdentifiers());
     }
 
     @Override
