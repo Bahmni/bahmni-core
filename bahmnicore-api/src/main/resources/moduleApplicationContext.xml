@@ -10,8 +10,21 @@
 
     <context:component-scan base-package="org.bahmni.module"/>
 
-    <bean id="sqlSearchService" class="org.bahmni.module.bahmnicore.service.impl.SqlSearchServiceImpl">
+    <bean id="sqlSearchServiceTarget" class="org.bahmni.module.bahmnicore.service.impl.SqlSearchServiceImpl">
         <property name="administrationService" ref="adminService"/>
+    </bean>
+
+    <bean id="authorizationInterceptor" class="org.openmrs.aop.AuthorizationAdvice"/>
+
+    <util:list id="serviceInterceptors">
+        <ref bean="authorizationInterceptor"/>
+    </util:list>
+
+    <bean id="sqlSearchService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="sqlSearchServiceTarget"/>
+        <property name="preInterceptors" ref="serviceInterceptors"/>
+        <property name="transactionAttributeSource" ref="transactionAttributeSource"/>
     </bean>
 
     <util:list id="servicePostInterceptors">
