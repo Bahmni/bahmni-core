@@ -1,7 +1,7 @@
 package org.bahmni.module.bahmnicore.dao.impl;
 
 import org.bahmni.module.bahmnicore.BaseIntegrationTest;
-import org.bahmni.module.bahmnicore.dao.PatientDao;
+import org.bahmni.module.bahmnicommons.dao.PatientDao;
 import org.bahmni.module.bahmnicore.dao.VisitDao;
 import org.junit.Before;
 import org.junit.Test;
