@@ -28,7 +28,7 @@ public class DiseaseSummaryObsMapper {
                 for (BahmniObservation leafObservation : observationsFromConceptSet) {
                     String startDateTime = getGroupByDate(leafObservation, groupBy);
                     String conceptName = leafObservation.getConcept().getShortName();
-                    String observationValue = computeValueForLeafObservation(leafObservation, observationsByEncounter);
+                    String observationValue = computeValueForLeafObservation(leafObservation, observationsByEncounter, !DiseaseSummaryConstants.RESULT_TABLE_GROUP_BY_OBS_DATETIME_AND_CONCEPT.equals(groupBy));
                     diseaseSummaryMap.put(startDateTime, conceptName, observationValue, leafObservation.isAbnormal(), false);
                 }
             }
@@ -39,7 +39,9 @@ public class DiseaseSummaryObsMapper {
     private String getGroupByDate(BahmniObservation observation, String groupBy) {
         switch (StringUtils.defaultString(groupBy)) {
             case DiseaseSummaryConstants.RESULT_TABLE_GROUP_BY_ENCOUNTER: return DateFormatUtils.format(observation.getEncounterDateTime(), DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.getPattern());
-            case DiseaseSummaryConstants.RESULT_TABLE_GROUP_BY_OBS_DATETIME: return DateFormatUtils.format(observation.getObservationDateTime(), DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.getPattern());
+            case DiseaseSummaryConstants.RESULT_TABLE_GROUP_BY_OBS_DATETIME:
+            case DiseaseSummaryConstants.RESULT_TABLE_GROUP_BY_OBS_DATETIME_AND_CONCEPT:
+                return DateFormatUtils.format(observation.getObservationDateTime(), DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.getPattern());
             default: return DateFormatUtils.format(observation.getVisitStartDateTime(), DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.getPattern());
         }
     }
@@ -73,13 +75,13 @@ public class DiseaseSummaryObsMapper {
         }
     }
 
-    private String computeValueForLeafObservation(BahmniObservation observation, Map<String, List<BahmniObservation>> observationsByEncounter) {
+    private String computeValueForLeafObservation(BahmniObservation observation, Map<String, List<BahmniObservation>> observationsByEncounter, boolean allowMultiValue) {
         String observationValue = null;
         if (observationsByEncounter.containsKey(observation.getEncounterUuid())) {
             List<BahmniObservation> observationsInEncounter = observationsByEncounter.get(observation.getEncounterUuid());
             String multiSelectObsValue = "";
             for (BahmniObservation bahmniObservationInEncounter : observationsInEncounter) {
-                if (arePartOfMultiSelectObservation(observation,bahmniObservationInEncounter)) {
+                if ( allowMultiValue && arePartOfMultiSelectObservation(observation,bahmniObservationInEncounter) ) {
                     multiSelectObsValue = multiSelectObsValue + "," + bahmniObservationInEncounter.getValueAsString();
                 }
             }

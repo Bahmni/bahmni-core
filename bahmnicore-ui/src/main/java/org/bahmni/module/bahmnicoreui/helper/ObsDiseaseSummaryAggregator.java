@@ -10,6 +10,7 @@ import org.bahmni.module.bahmnicoreui.contract.DiseaseSummaryData;
 import org.bahmni.module.bahmnicoreui.mapper.DiseaseSummaryObsMapper;
 import org.bahmni.module.referencedata.helper.ConceptHelper;
 import org.openmrs.Concept;
+import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObservation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,7 @@ public class ObsDiseaseSummaryAggregator {
         DiseaseSummaryData diseaseSummaryData = new DiseaseSummaryData();
         List<Concept> concepts = bahmniConceptService.getConceptsByFullySpecifiedName(queryParams.getObsConcepts());
         Collection<BahmniObservation> bahmniObservations = fetchBahmniObservations(patient, queryParams, concepts);
+        bahmniObservations.forEach(bahmniObservation -> bahmniObservation.setAbnormal((bahmniObservation.getInterpretation() != null && bahmniObservation.getInterpretation().equals(String.valueOf(Obs.Interpretation.ABNORMAL)))));
         constructDiseaseSummaryData(bahmniObservations, concepts, queryParams.getGroupBy(), diseaseSummaryData);
         return diseaseSummaryData;
     }

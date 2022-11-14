@@ -7,5 +7,6 @@ public class DiseaseSummaryConstants {
     public static final String RESULT_TABLE_GROUP_BY_ENCOUNTER = "encounters";
     public static final String RESULT_TABLE_GROUP_BY_VISITS = "visits";
     public static final String RESULT_TABLE_GROUP_BY_OBS_DATETIME = "time";
+    public static final String RESULT_TABLE_GROUP_BY_OBS_DATETIME_AND_CONCEPT = "obstime";
 
 }
