@@ -14,12 +14,6 @@
         <property name="administrationService" ref="adminService"/>
     </bean>
 
-    <bean id="authorizationInterceptor" class="org.openmrs.aop.AuthorizationAdvice"/>
-
-    <util:list id="serviceInterceptors">
-        <ref bean="authorizationInterceptor"/>
-    </util:list>
-
     <bean id="sqlSearchService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager" ref="transactionManager"/>
         <property name="target" ref="sqlSearchServiceTarget"/>
@@ -30,7 +24,6 @@
     <util:list id="servicePostInterceptors">
         <ref bean="patientProgramAdviceInterceptor"/>
     </util:list>
-
 
     <bean id="orderDao" class="org.bahmni.module.bahmnicore.dao.impl.OrderDaoImpl" />
 
