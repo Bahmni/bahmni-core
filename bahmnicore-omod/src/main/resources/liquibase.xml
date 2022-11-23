@@ -3860,6 +3860,11 @@
         <sqlFile path="V1_98_WardsListSql.sql"/>
     </changeSet>
 
+    <changeSet id="bahmni-PatientSearch-Update-202201250315" author="Kavitha S, Soorya Kumaran C">
+        <comment>Update the property values for searching active patients based on preferred and non voided</comment>
+        <sqlFile path="V1_99_PatientSearchSql.sql"/>
+    </changeSet>
+
     <changeSet id="bahmni-201703061748" author="Shruthi P, Pushpa">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="1">
