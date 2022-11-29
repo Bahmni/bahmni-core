@@ -22,7 +22,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.api.context.UserContext;
 import org.openmrs.api.impl.EncounterServiceImpl;
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.EncounterTypeIdentifier;
-import org.bahmni.module.bahmnicommons.visitlocation.BahmniVisitLocationService;
+import org.bahmni.module.bahmnicommons.api.visitlocation.BahmniVisitLocationService;
 import org.openmrs.module.emrapi.encounter.EncounterParameters;
 import org.openmrs.module.episodes.Episode;
 import org.openmrs.module.episodes.service.EpisodeService;

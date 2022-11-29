@@ -5,7 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bahmni.module.admin.csv.models.RelationshipRow;
-import org.bahmni.module.bahmnicommons.service.BahmniPatientService;
+import org.bahmni.module.bahmnicommons.api.service.BahmniPatientService;
 import org.openmrs.Patient;
 import org.openmrs.Person;
 import org.openmrs.Provider;

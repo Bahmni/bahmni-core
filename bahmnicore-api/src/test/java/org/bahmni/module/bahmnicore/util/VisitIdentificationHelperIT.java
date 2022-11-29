@@ -9,7 +9,7 @@ import org.openmrs.api.PatientService;
 import org.openmrs.api.VisitService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.VisitIdentificationHelper;
-import org.bahmni.module.bahmnicommons.visitlocation.BahmniVisitLocationService;
+import org.bahmni.module.bahmnicommons.api.visitlocation.BahmniVisitLocationService;
 import org.openmrs.web.test.BaseModuleWebContextSensitiveTest;
 import org.springframework.beans.factory.annotation.Autowired;
 

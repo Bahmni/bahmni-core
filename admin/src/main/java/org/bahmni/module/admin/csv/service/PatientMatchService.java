@@ -8,7 +8,7 @@ import org.bahmni.csv.KeyValue;
 import org.bahmni.module.admin.csv.patientmatchingalgorithm.BahmniPatientMatchingAlgorithm;
 import org.bahmni.module.admin.csv.patientmatchingalgorithm.PatientMatchingAlgorithm;
 import org.bahmni.module.admin.csv.patientmatchingalgorithm.exception.CannotMatchPatientException;
-import org.bahmni.module.bahmnicommons.service.BahmniPatientService;
+import org.bahmni.module.bahmnicommons.api.service.BahmniPatientService;
 import org.openmrs.Patient;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.beans.factory.annotation.Autowired;

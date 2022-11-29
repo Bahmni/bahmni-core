@@ -26,7 +26,7 @@ import org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncoun
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.RetrospectiveEncounterTransactionService;
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.VisitIdentificationHelper;
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.VisitMatcher;
-import org.bahmni.module.bahmnicommons.visitlocation.BahmniVisitLocationService;
+import org.bahmni.module.bahmnicommons.api.visitlocation.BahmniVisitLocationService;
 import org.openmrs.module.emrapi.encounter.EmrEncounterService;
 import org.openmrs.module.emrapi.encounter.EncounterParameters;
 import org.openmrs.module.emrapi.encounter.EncounterSearchParametersBuilder;

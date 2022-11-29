@@ -8,7 +8,7 @@ import org.bahmni.csv.Messages;
 import org.bahmni.module.admin.csv.models.RelationshipRow;
 import org.bahmni.module.admin.csv.service.CSVRelationshipService;
 import org.bahmni.module.admin.csv.utils.CSVUtils;
-import org.bahmni.module.bahmnicommons.service.BahmniPatientService;
+import org.bahmni.module.bahmnicommons.api.service.BahmniPatientService;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.PersonService;
 import org.openmrs.api.ProviderService;

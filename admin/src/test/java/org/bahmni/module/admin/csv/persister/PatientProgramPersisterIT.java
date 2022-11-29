@@ -3,7 +3,7 @@ package org.bahmni.module.admin.csv.persister;
 import org.bahmni.csv.Messages;
 import org.bahmni.module.admin.BaseIntegrationTest;
 import org.bahmni.module.admin.csv.models.PatientProgramRow;
-import org.bahmni.module.bahmnicommons.service.BahmniPatientService;
+import org.bahmni.module.bahmnicommons.api.service.BahmniPatientService;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Patient;

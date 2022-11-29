@@ -3,7 +3,7 @@ package org.bahmni.module.admin.csv.service;
 import org.bahmni.module.admin.BaseIntegrationTest;
 import org.bahmni.module.admin.csv.models.RelationshipRow;
 import org.bahmni.module.admin.csv.utils.CSVUtils;
-import org.bahmni.module.bahmnicommons.service.BahmniPatientService;
+import org.bahmni.module.bahmnicommons.api.service.BahmniPatientService;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

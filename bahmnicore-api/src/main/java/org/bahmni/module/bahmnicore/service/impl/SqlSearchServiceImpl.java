@@ -5,7 +5,7 @@ import org.bahmni.module.bahmnicore.service.SqlSearchService;
 import org.bahmni.module.bahmnicore.util.SqlQueryHelper;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
-import org.bahmni.module.bahmnicommons.visitlocation.BahmniVisitLocationServiceImpl;
+import org.bahmni.module.bahmnicommons.api.visitlocation.BahmniVisitLocationServiceImpl;
 import org.openmrs.module.webservices.rest.SimpleObject;
 import org.openmrs.util.DatabaseUpdater;
 
