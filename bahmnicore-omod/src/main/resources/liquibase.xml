@@ -2680,6 +2680,24 @@
             insert into order_type_class_map(order_type_id, concept_class_id) values(@order_type_id,@lab_test);
         </sql>
     </changeSet>
+    <changeSet id="bahmni-core-20221206644-bah-2652" author="clinic-config">
+        <comment>Associating Test and Radiology/Imaging Procedure concept classes to Lab Order and Radiology Order order type</comment>
+        <sql>
+            set @order_type_id = '';
+            set @radiology_order_type_id = '';
+            set @test_class = '';
+            set @radiology_imaging = '';
+
+
+            select order_type_id into @order_type_id from order_type where name = 'Lab Order';
+            select order_type_id into @radiology_order_type_id from order_type where name = 'Radiology Order';
+            select concept_class_id into @test_class from concept_class where name = 'Test';
+            select concept_class_id into @radiology_imaging from concept_class where name = 'Radiology/Imaging Procedure';
+
+            insert into order_type_class_map(order_type_id, concept_class_id) values(@order_type_id,@test_class);
+            insert into order_type_class_map(order_type_id, concept_class_id) values(@radiology_order_type_id,@radiology_imaging);
+        </sql>
+    </changeSet>
     <changeSet id="bahmni-core-201505171755" author="Bharat">
         <validCheckSum>3:24754f616857125b862150154fb85150</validCheckSum>
         <preConditions onFail="MARK_RAN">
