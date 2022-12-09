@@ -3860,10 +3860,13 @@
         <sqlFile path="V1_98_WardsListSql.sql"/>
     </changeSet>
 
-    <changeSet id="bahmni-201703061748" author="Shruthi P, Pushpa">
+    <changeSet id="bahmni-202212131256" author="Shruthi P, Pushpa">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="1">
                 SELECT count(property) FROM global_property WHERE property='emr.primaryIdentifierType';
+            </sqlCheck>
+            <sqlCheck expectedResult="0">
+                SELECT count(property) FROM global_property WHERE property='bahmni.primaryIdentifierType';
             </sqlCheck>
         </preConditions>
         <comment>update global property key 'emr.primaryIdentifierType' to 'bahmni.primaryIdentifierType'</comment>
@@ -4724,6 +4727,17 @@
         <comment>set 'emrapi.useLegacyDiagnosisService' to true to use legacy diagnosis service</comment>
         <sql>
             UPDATE global_property set property_value='TRUE' where property='emrapi.useLegacyDiagnosisService';
+        </sql>
+    </changeSet>
+    <changeSet id="bahmni-202212131258" author="Bindu, Rohit, Deepthi">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                SELECT count(property) FROM global_property WHERE property='emr.primaryIdentifierType' AND property='bahmni.primaryIdentifierType';
+            </sqlCheck>
+        </preConditions>
+        <comment>Remove global property with value 'emr.primaryIdentifierType' to avoid duplications</comment>
+        <sql>
+            DELETE FROM global_property WHERE property='emr.primaryIdentifierType';
         </sql>
     </changeSet>
 
