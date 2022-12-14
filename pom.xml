@@ -655,6 +655,11 @@
             </releases>
         </repository>
         <repository>
+            <id>mks-repo-snapshots</id>
+            <name>Mekom Solutions Nexus Snapshots</name>
+            <url>https://nexus.mekomsolutions.net/repository/maven-snapshots</url>
+        </repository>
+        <repository>
             <id>JBoss</id>
             <name>The "public-jboss" repository group provides a combined view all JBoss community project artifacts
             </name>
