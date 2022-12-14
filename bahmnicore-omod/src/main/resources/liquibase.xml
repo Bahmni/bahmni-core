@@ -4740,6 +4740,18 @@
             DELETE FROM global_property WHERE property='emr.primaryIdentifierType';
         </sql>
     </changeSet>
+    <changeSet id="bahmni-202212131913" author="Bindu, Rohit">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                SELECT count(property) FROM global_property WHERE property='bahmni.primaryIdentifierType';
+            </sqlCheck>
+        </preConditions>
+        <comment>Update gobal property with Patient Identifier uuid</comment>
+        <sql>
+            SELECT uuid INTO @uuid FROM patient_identifier_type WHERE name='Patient Identifier';
+            UPDATE global_property SET property_value=@uuid WHERE property='bahmni.primaryIdentifierType';
+        </sql>
+    </changeSet>
 
     <include file="addAtomfeedMigrations.xml"/>
 </databaseChangeLog>
