@@ -10,7 +10,6 @@ import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObser
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.parameters.AdditionalBahmniObservationFields;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.obs.ComplexData;
-import org.openmrs.obs.ComplexObsHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -92,9 +91,7 @@ public class ETObsToBahmniObsMapper {
         if (complexDataMappers.isEmpty()) {
             return null;
         }
-
-        Obs obs = getObsService().getComplexObs(
-                getObsService().getObsByUuid(bahmniObservation.getUuid()).getId(), ComplexObsHandler.RAW_VIEW);
+        Obs obs = getObsService().getObs(getObsService().getObsByUuid(bahmniObservation.getUuid()).getId());
         ComplexData complexData = obs.getComplexData();
 
         BahmniComplexDataMapper dataMapper = null;
