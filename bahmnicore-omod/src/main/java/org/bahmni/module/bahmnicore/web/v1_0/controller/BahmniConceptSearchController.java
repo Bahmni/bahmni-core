@@ -2,7 +2,7 @@ package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.apache.commons.lang3.LocaleUtils;
 import org.bahmni.module.bahmnicore.service.BahmniDiagnosisService;
-import org.bahmni.module.terminologyservices.api.TerminologyLookupService;
+import org.bahmni.module.fhirterminologyservices.api.TerminologyLookupService;
 import org.openmrs.Concept;
 import org.openmrs.ConceptMap;
 import org.openmrs.ConceptName;

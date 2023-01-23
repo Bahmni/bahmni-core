@@ -1,7 +1,7 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.bahmni.module.bahmnicore.service.BahmniDiagnosisService;
-import org.bahmni.module.terminologyservices.api.TerminologyLookupService;
+import org.bahmni.module.fhirterminologyservices.api.TerminologyLookupService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
