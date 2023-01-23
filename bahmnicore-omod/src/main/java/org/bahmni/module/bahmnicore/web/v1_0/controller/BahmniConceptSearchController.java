@@ -32,7 +32,7 @@ import java.util.Set;
 import static org.springframework.web.bind.annotation.ValueConstants.DEFAULT_NONE;
 
 @Controller
-@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/bahmniapi/")
+@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/bahmni/terminologies")
 public class BahmniConceptSearchController extends BaseRestController {
 
     private BahmniDiagnosisService bahmniDiagnosisService;
@@ -48,7 +48,7 @@ public class BahmniConceptSearchController extends BaseRestController {
         this.terminologyLookupService = terminologyLookupService;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "concept")
+    @RequestMapping(method = RequestMethod.GET, value = "concepts")
     @ResponseBody
     public Object search(@RequestParam("term") String query, @RequestParam Integer limit,
                          @RequestParam(required = false, defaultValue = DEFAULT_NONE) String locale) throws Exception {

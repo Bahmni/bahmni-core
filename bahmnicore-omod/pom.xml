@@ -57,7 +57,7 @@
         </dependency>
         <dependency>
             <groupId>org.bahmni.module</groupId>
-            <artifactId>terminology-services-api</artifactId>
+            <artifactId>fhir-ts-services-api</artifactId>
             <version>${terminologyServices.version}</version>
         </dependency>
         <dependency>
