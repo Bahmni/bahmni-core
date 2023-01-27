@@ -6,7 +6,7 @@
         <artifactId>bahmni</artifactId>
         <version>0.94-SNAPSHOT</version>
     </parent>
-    <artifactId>bahmnicore-api</artifactId>
+    <artifactId>bahmnicore-ts-api</artifactId>
     <packaging>jar</packaging>
     <name>Bahmni EMR Core API</name>
 
