@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE module PUBLIC "-//OpenMRS//DTD OpenMRS Config 1.0//EN" "http://resources.openmrs.org/doctype/config-1.2.dtd">
+<!DOCTYPE module PUBLIC "-//OpenMRS//DTD OpenMRS Config 1.0//EN" "http://resources.openmrs.org/doctype/config-1.6.dtd">
 
-<module configVersion="1.2">
+<module configVersion="1.6">
 
     <!-- Base Module Properties -->
     <id>@MODULE_ID@</id>
@@ -34,6 +34,7 @@
         <require_module>org.openmrs.module.auditlog</require_module>
         <require_module>org.bahmni.module.bahmnicommons</require_module>
         <require_module>org.bahmni.module.communication</require_module>
+        <require_module>org.bahmni.module.fhirterminologyservices</require_module>
     </require_modules>
     <!-- Extensions -->
 
@@ -165,6 +166,12 @@
         <property>bahmni.extraPatientIdentifierTypes</property>
         <defaultValue></defaultValue>
         <description>A list of UUIDs indicating extra Patient Identifier Types that should be displayed</description>
+    </globalProperty>
+
+    <globalProperty>
+        <property>bahmni.lookupExternalTerminologyServer</property>
+        <defaultValue>false</defaultValue>
+        <description>Property used to determine whether external terminology server being used or not</description>
     </globalProperty>
 
     <globalProperty>
