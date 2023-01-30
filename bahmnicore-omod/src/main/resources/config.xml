@@ -173,4 +173,10 @@
         <description>Property used to determine whether external terminology server being used or not</description>
     </globalProperty>
 
+    <globalProperty>
+        <property>bahmni.diagnosisSetForNewDiagnosisConcepts</property>
+        <defaultValue></defaultValue>
+        <description>UUID of set member of diagnosis set of sets. New Diagnosis concepts from terminology server will be added to this set</description>
+    </globalProperty>
+
 </module>
