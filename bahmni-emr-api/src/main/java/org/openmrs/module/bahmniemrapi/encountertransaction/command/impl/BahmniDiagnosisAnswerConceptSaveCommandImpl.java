@@ -112,8 +112,7 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl implements EncounterDat
 
     private Concept createNewDiagnosisConcept(String conceptReferenceTermCode, ConceptSource conceptSource) {
         Concept concept = getConcept(conceptReferenceTermCode);
-        ConceptMap conceptMap = getConceptMap(concept.getName().getName(), conceptReferenceTermCode, conceptSource);
-        updateConceptMap(concept, conceptMap);
+        addConceptMap(concept, conceptSource, conceptReferenceTermCode);
         conceptService.saveConcept(concept);
         return concept;
     }
@@ -135,17 +134,18 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl implements EncounterDat
         return concept;
     }
 
+    private void addConceptMap(Concept concept, ConceptSource conceptSource, String conceptReferenceTermCode) {
+        ConceptMap conceptMap = getConceptMap(concept.getName().getName(), conceptReferenceTermCode, conceptSource);
+        Collection<ConceptMap> conceptMappings = concept.getConceptMappings();
+        conceptMappings.add(conceptMap);
+        concept.setConceptMappings(conceptMappings);
+    }
+
     private ConceptMap getConceptMap(String name, String conceptReferenceTermCode, ConceptSource conceptSource) {
         ConceptReferenceTerm conceptReferenceTerm = new ConceptReferenceTerm(conceptSource, conceptReferenceTermCode, name);
         ConceptMapType sameAsConceptMapType = conceptService.getConceptMapTypeByUuid(ConceptMapType.SAME_AS_MAP_TYPE_UUID);
         ConceptMap conceptMap = new ConceptMap(conceptReferenceTerm, sameAsConceptMapType);
         return conceptMap;
-    }
-
-    private void updateConceptMap(Concept concept, ConceptMap conceptMap) {
-        Collection<ConceptMap> conceptMappings = concept.getConceptMappings();
-        conceptMappings.add(conceptMap);
-        concept.setConceptMappings(conceptMappings);
     }
 
     private void addNewDiagnosisConceptToDiagnosisSet(Concept diagnosisConcept) {

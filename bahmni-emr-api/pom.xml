@@ -74,6 +74,12 @@
             <version>${terminologyServices.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.openmrs.module</groupId>
+            <artifactId>webservices.rest-omod-common</artifactId>
+            <version>${openMRSWebServicesVersion}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.openmrs.web</groupId>
             <artifactId>openmrs-web</artifactId>
             <scope>test</scope>
