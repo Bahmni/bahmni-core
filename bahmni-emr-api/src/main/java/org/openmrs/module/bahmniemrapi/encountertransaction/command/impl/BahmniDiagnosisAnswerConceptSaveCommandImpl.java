@@ -127,13 +127,7 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl implements EncounterDat
 
 
     private Concept getConcept(String referenceCode) {
-        Concept concept = null;
-        try {
-            concept = terminologyLookupService.getConcept(referenceCode, Context.getLocale().getLanguage());
-        } catch (Exception e) {
-            throw new APIException("Exception while getting concept details for concept reference code " + referenceCode, e);
-        }
-
+        Concept concept = terminologyLookupService.getConcept(referenceCode, Context.getLocale().getLanguage());
         ConceptClass diagnosisConceptClass = conceptService.getConceptClassByName(CONCEPT_CLASS_DIAGNOSIS);
         concept.setConceptClass(diagnosisConceptClass);
 

@@ -70,7 +70,7 @@
         </dependency>
         <dependency>
             <groupId>org.bahmni.module</groupId>
-            <artifactId>fhir-ts-services-api</artifactId>
+            <artifactId>fhir-ts-services-int-api</artifactId>
             <version>${terminologyServices.version}</version>
         </dependency>
         <dependency>
