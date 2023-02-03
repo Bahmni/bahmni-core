@@ -6,6 +6,7 @@ import org.openmrs.ConceptClass;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptMap;
 import org.openmrs.ConceptMapType;
+import org.openmrs.ConceptName;
 import org.openmrs.ConceptReferenceTerm;
 import org.openmrs.ConceptSource;
 import org.openmrs.api.APIException;
@@ -15,6 +16,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.bahmniemrapi.diagnosis.contract.BahmniDiagnosisRequest;
 import org.openmrs.module.bahmniemrapi.encountertransaction.command.EncounterDataPreSaveCommand;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
+import org.openmrs.module.fhir2.api.FhirConceptSourceService;
 import org.bahmni.module.fhirterminologyservices.api.TerminologyLookupService;
 import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
@@ -38,6 +40,8 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl implements EncounterDat
 
     private TerminologyLookupService terminologyLookupService;
 
+    private FhirConceptSourceService conceptSourceService;
+
     public static final String CONCEPT_CLASS_DIAGNOSIS = "Diagnosis";
 
     public static final String CONCEPT_DATATYPE_NA = "N/A";
@@ -46,14 +50,17 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl implements EncounterDat
 
     public static final String GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID = "bahmni.diagnosisSetForNewDiagnosisConcepts";
 
-    private static final String TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER = "/";     // eg: SCT/12345, ICD 10 - WHO/W54.0XXA
+    private static final String TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER = "/";
 
     @Autowired
-    public BahmniDiagnosisAnswerConceptSaveCommandImpl(@Qualifier("adminService") AdministrationService administrationService, ConceptService conceptService, EmrApiProperties emrApiProperties, TerminologyLookupService terminologyLookupService) {
+    public BahmniDiagnosisAnswerConceptSaveCommandImpl(@Qualifier("adminService") AdministrationService administrationService, ConceptService conceptService,
+                                                       EmrApiProperties emrApiProperties, TerminologyLookupService terminologyLookupService,
+                                                       FhirConceptSourceService conceptSourceService) {
         this.adminService = administrationService;
         this.conceptService = conceptService;
         this.emrApiProperties = emrApiProperties;
         this.terminologyLookupService = terminologyLookupService;
+        this.conceptSourceService = conceptSourceService;
     }
 
     @Override
@@ -76,38 +83,33 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl implements EncounterDat
     private void updateDiagnosisAnswerConceptUuid(BahmniDiagnosisRequest bahmniDiagnosis) {
         EncounterTransaction.Concept codedAnswer = bahmniDiagnosis.getCodedAnswer();
         if(codedAnswer != null) {
-            String codedAnswerUuid = codedAnswer.getUuid();
-            boolean createNewCodedAnswerConcept = codedAnswerUuid.contains(TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER);
-            if(createNewCodedAnswerConcept) {
-                String diagnosisConceptSourceCode = codedAnswerUuid.split(TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER)[0];
-                String diagnosisConceptReferenceTermCode = codedAnswerUuid.split(TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER)[1];
-                updateDiagnosisAnswerConceptUuid(codedAnswer, diagnosisConceptReferenceTermCode, diagnosisConceptSourceCode);
+            String codedAnswerUuidWithSystem = codedAnswer.getUuid();
+            int conceptCodeIndex = codedAnswerUuidWithSystem.lastIndexOf(TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER);
+            boolean isConceptFromTerminologyServer = conceptCodeIndex > -1 ? true : false;
+            if(isConceptFromTerminologyServer) {
+                String diagnosisConceptSystem = codedAnswerUuidWithSystem.substring(0, conceptCodeIndex);
+                String diagnosisConceptReferenceTermCode = codedAnswerUuidWithSystem.substring(conceptCodeIndex + 1);
+                updateDiagnosisAnswerConceptUuid(codedAnswer, diagnosisConceptReferenceTermCode, diagnosisConceptSystem);
             }
         }
     }
 
-    private void updateDiagnosisAnswerConceptUuid(EncounterTransaction.Concept codedAnswer, String diagnosisConceptReferenceTermCode, String diagnosisConceptSourceCode) {
-        ConceptSource conceptSource = getConceptSource(diagnosisConceptSourceCode);
+    private void updateDiagnosisAnswerConceptUuid(EncounterTransaction.Concept codedAnswer, String diagnosisConceptReferenceTermCode, String diagnosisConceptSystem) {
+        Optional<ConceptSource> conceptSourceByUrl = conceptSourceService.getConceptSourceByUrl(diagnosisConceptSystem);
+        ConceptSource conceptSource = conceptSourceByUrl.isPresent() ? conceptSourceByUrl.get() : null;
         if(conceptSource == null)
-            throw new APIException("Concept Source " + diagnosisConceptSourceCode + " not found");
+            throw new APIException("Concept Source " + diagnosisConceptSystem + " not found");
         Concept existingDiagnosisAnswerConcept = conceptService.getConceptByMapping(diagnosisConceptReferenceTermCode, conceptSource.getName());
         if(existingDiagnosisAnswerConcept == null) {
             Concept newDiagnosisAnswerConcept = createNewDiagnosisConcept(diagnosisConceptReferenceTermCode, conceptSource);
             codedAnswer.setUuid(newDiagnosisAnswerConcept.getUuid());
             addNewDiagnosisConceptToDiagnosisSet(newDiagnosisAnswerConcept);
         } else {
+            ConceptName answerConceptNameInUserLocale = existingDiagnosisAnswerConcept.getFullySpecifiedName(Context.getLocale());
+            if(answerConceptNameInUserLocale == null)
+                updateExistingConcept(existingDiagnosisAnswerConcept, diagnosisConceptReferenceTermCode);
             codedAnswer.setUuid(existingDiagnosisAnswerConcept.getUuid());
         }
-    }
-
-    private ConceptSource getConceptSource(String conceptSourceCodeOrName) {
-        if(StringUtils.isBlank(conceptSourceCodeOrName))
-            return null;
-        List<ConceptSource> allConceptSources = conceptService.getAllConceptSources(false);
-        Optional<ConceptSource> conceptSource = allConceptSources.stream().filter(cs ->
-                                conceptSourceCodeOrName.equalsIgnoreCase(cs.getName()) ||
-                                conceptSourceCodeOrName.equalsIgnoreCase(cs.getHl7Code())).findFirst();
-        return conceptSource.isPresent() ? conceptSource.get() : null;
     }
 
     private Concept createNewDiagnosisConcept(String conceptReferenceTermCode, ConceptSource conceptSource) {
@@ -116,6 +118,13 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl implements EncounterDat
         conceptService.saveConcept(concept);
         return concept;
     }
+
+    private void updateExistingConcept(Concept existingDiagnosisAnswerConcept, String conceptReferenceTermCode) {
+        Concept conceptInUserLocale = getConcept(conceptReferenceTermCode);
+        conceptInUserLocale.getNames(Context.getLocale()).stream().forEach(conceptName -> existingDiagnosisAnswerConcept.addName(conceptName));
+        conceptService.saveConcept(existingDiagnosisAnswerConcept);
+    }
+
 
     private Concept getConcept(String referenceCode) {
         Concept concept = null;

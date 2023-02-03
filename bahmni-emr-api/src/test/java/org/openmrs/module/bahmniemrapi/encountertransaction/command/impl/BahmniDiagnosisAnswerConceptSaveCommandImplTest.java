@@ -20,6 +20,7 @@ import org.openmrs.module.bahmniemrapi.diagnosis.contract.BahmniDiagnosisRequest
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
 import org.openmrs.module.emrapi.diagnosis.Diagnosis;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
+import org.openmrs.module.fhir2.api.FhirConceptSourceService;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -27,9 +28,9 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -54,6 +55,9 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
     TerminologyLookupService terminologyLookupService;
 
     @Mock
+    private FhirConceptSourceService conceptSourceService;
+
+    @Mock
     private UserContext userContext;
 
     @InjectMocks
@@ -68,9 +72,11 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
 
     final String MALARIA_CONCEPT_UUID = "malaria-uuid";
 
-    final String MOCK_CONCEPT_SOURCE_NAME = "CS dummy name";
+    final String MOCK_CONCEPT_SYSTEM = "http://dummyhost.com/systemcode";
 
     final String MOCK_CONCEPT_SOURCE_CODE = "CS dummy code";
+
+    private final String TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER = "/";
 
     @Before
     public void setUp() {
@@ -84,9 +90,9 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
     public void shouldSaveNewDiagnosisAnswerConceptAndAddToUnclassifiedSetWhenConceptSourceAndReferenceCodeProvided() throws Exception {
         Concept newDiagnosisConcept = getDiagnosisConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
-        BahmniEncounterTransaction bahmniEncounterTransaction = getBahmniEncounterTransaction(MOCK_CONCEPT_SOURCE_CODE, true);
+        BahmniEncounterTransaction bahmniEncounterTransaction = getBahmniEncounterTransaction(MOCK_CONCEPT_SYSTEM, true);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
-        when(conceptService.getAllConceptSources(false)).thenReturn(getMockedConceptSources(MOCK_CONCEPT_SOURCE_NAME, MOCK_CONCEPT_SOURCE_CODE));
+        when(conceptSourceService.getConceptSourceByUrl(anyString())).thenReturn(Optional.of(getMockedConceptSources(MOCK_CONCEPT_SYSTEM, MOCK_CONCEPT_SOURCE_CODE)));
         when(conceptService.getConceptByUuid(UNCLASSIFIED_CONCEPT_SET_UUID)).thenReturn(unclassifiedConceptSet);
         when(terminologyLookupService.getConcept(anyString(), anyString())).thenReturn(newDiagnosisConcept);
 
@@ -102,9 +108,9 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
     public void shouldNotCreateDiagnosisAnswerConceptWhenExistingConceptProvided() throws Exception {
         Concept newDiagnosisConcept = getDiagnosisConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
-        BahmniEncounterTransaction bahmniEncounterTransaction = getBahmniEncounterTransaction(MOCK_CONCEPT_SOURCE_CODE, false);
+        BahmniEncounterTransaction bahmniEncounterTransaction = getBahmniEncounterTransaction(MOCK_CONCEPT_SYSTEM, false);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
-        when(conceptService.getAllConceptSources(false)).thenReturn(getMockedConceptSources(MOCK_CONCEPT_SOURCE_NAME, MOCK_CONCEPT_SOURCE_CODE));
+        when(conceptSourceService.getConceptSourceByUrl(anyString())).thenReturn(Optional.of(getMockedConceptSources(MOCK_CONCEPT_SYSTEM, MOCK_CONCEPT_SOURCE_CODE)));
         when(conceptService.getConceptByUuid(UNCLASSIFIED_CONCEPT_SET_UUID)).thenReturn(unclassifiedConceptSet);
         when(terminologyLookupService.getConcept(anyString(), anyString())).thenReturn(newDiagnosisConcept);
 
@@ -120,10 +126,10 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
     public void shouldNotCreateDiagnosisAnswerConceptWhenExistingConceptSourceAndCodeProvided() throws Exception {
         Concept existingDiagnosisConcept = getDiagnosisConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
-        BahmniEncounterTransaction bahmniEncounterTransaction = getBahmniEncounterTransaction(MOCK_CONCEPT_SOURCE_CODE, true);
+        BahmniEncounterTransaction bahmniEncounterTransaction = getBahmniEncounterTransaction(MOCK_CONCEPT_SYSTEM, true);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
         when(conceptService.getConceptByMapping(anyString(), anyString())).thenReturn(existingDiagnosisConcept);
-        when(conceptService.getAllConceptSources(false)).thenReturn(getMockedConceptSources(MOCK_CONCEPT_SOURCE_NAME, MOCK_CONCEPT_SOURCE_CODE));
+        when(conceptSourceService.getConceptSourceByUrl(anyString())).thenReturn(Optional.of(getMockedConceptSources(MOCK_CONCEPT_SYSTEM, MOCK_CONCEPT_SOURCE_CODE)));
         when(conceptService.getConceptByUuid(UNCLASSIFIED_CONCEPT_SET_UUID)).thenReturn(unclassifiedConceptSet);
         when(terminologyLookupService.getConcept(anyString(), anyString())).thenReturn(existingDiagnosisConcept);
 
@@ -140,14 +146,14 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
     public void shouldThrowExceptionWhenConceptSourceNotFound() throws Exception {
         Concept newDiagnosisConcept = getDiagnosisConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
-        BahmniEncounterTransaction bahmniEncounterTransaction = getBahmniEncounterTransaction("Some CS Code", true);
+        BahmniEncounterTransaction bahmniEncounterTransaction = getBahmniEncounterTransaction("Some Invalid System", true);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
-        when(conceptService.getAllConceptSources(false)).thenReturn(getMockedConceptSources(MOCK_CONCEPT_SOURCE_NAME, MOCK_CONCEPT_SOURCE_CODE));
+        when(conceptSourceService.getConceptSourceByUrl(anyString())).thenReturn(Optional.empty());
         when(conceptService.getConceptByUuid(UNCLASSIFIED_CONCEPT_SET_UUID)).thenReturn(unclassifiedConceptSet);
         when(terminologyLookupService.getConcept(anyString(), anyString())).thenReturn(newDiagnosisConcept);
 
         expectedException.expect(APIException.class);
-        expectedException.expectMessage("Concept Source Some CS Code not found");
+        expectedException.expectMessage("Concept Source Some Invalid System not found");
 
         int initialDiagnosisSetMembersCount = unclassifiedConceptSet.getSetMembers().size();
 
@@ -159,9 +165,9 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
     @Test
     public void shouldThrowExceptionWhenTerminologyServerUnavailable() throws Exception {
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
-        BahmniEncounterTransaction bahmniEncounterTransaction = getBahmniEncounterTransaction(MOCK_CONCEPT_SOURCE_CODE, true);
+        BahmniEncounterTransaction bahmniEncounterTransaction = getBahmniEncounterTransaction(MOCK_CONCEPT_SYSTEM, true);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
-        when(conceptService.getAllConceptSources(false)).thenReturn(getMockedConceptSources(MOCK_CONCEPT_SOURCE_NAME, MOCK_CONCEPT_SOURCE_CODE));
+        when(conceptSourceService.getConceptSourceByUrl(anyString())).thenReturn(Optional.of(getMockedConceptSources(MOCK_CONCEPT_SYSTEM, MOCK_CONCEPT_SOURCE_CODE)));
         when(conceptService.getConceptByUuid(UNCLASSIFIED_CONCEPT_SET_UUID)).thenReturn(unclassifiedConceptSet);
         when(terminologyLookupService.getConcept(anyString(), anyString())).thenAnswer( invocation -> { throw new Exception("Error fetching concept details from terminology server"); });
 
@@ -176,16 +182,16 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
         verify(conceptService, times(0)).saveConcept(any(Concept.class));
     }
 
-    private BahmniEncounterTransaction getBahmniEncounterTransaction(String conceptSourceCode, boolean isCodedAnswerFromTermimologyServer) {
+    private BahmniEncounterTransaction getBahmniEncounterTransaction(String conceptSystem, boolean isCodedAnswerFromTermimologyServer) {
         BahmniEncounterTransaction bahmniEncounterTransaction = new BahmniEncounterTransaction();
-        bahmniEncounterTransaction.setBahmniDiagnoses(createBahmniDiagnoses(conceptSourceCode, isCodedAnswerFromTermimologyServer));
+        bahmniEncounterTransaction.setBahmniDiagnoses(createBahmniDiagnoses(conceptSystem, isCodedAnswerFromTermimologyServer));
         return bahmniEncounterTransaction;
     }
 
-    private List<BahmniDiagnosisRequest> createBahmniDiagnoses(String conceptSourceCode, boolean isCodedAnswerFromTermimologyServer) {
+    private List<BahmniDiagnosisRequest> createBahmniDiagnoses(String conceptSystem, boolean isCodedAnswerFromTermimologyServer) {
         String codedAnswerUuid = null;
         if( isCodedAnswerFromTermimologyServer)
-            codedAnswerUuid = conceptSourceCode + "/61462000";
+            codedAnswerUuid = conceptSystem + TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER + "61462000";
         else
             codedAnswerUuid = "coded-answer-uuid";
         BahmniDiagnosisRequest bahmniDiagnosisRequest = new BahmniDiagnosisRequest();
@@ -199,11 +205,11 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
         return Arrays.asList(bahmniDiagnosisRequest);
     }
 
-    private List<ConceptSource> getMockedConceptSources(String name, String code) {
+    private ConceptSource getMockedConceptSources(String name, String code) {
         ConceptSource conceptSource = new ConceptSource();
         conceptSource.setName(name);
         conceptSource.setHl7Code(code);
-        return Collections.singletonList(conceptSource);
+        return conceptSource;
     }
 
     private Concept getDiagnosisConcept() {
