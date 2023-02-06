@@ -87,7 +87,7 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
     }
 
     @Test
-    public void shouldSaveNewDiagnosisAnswerConceptAndAddToUnclassifiedSetWhenConceptSourceAndReferenceCodeProvided() throws Exception {
+    public void shouldSaveNewDiagnosisAnswerConceptAndAddToUnclassifiedSetWhenConceptSourceAndReferenceCodeProvided() {
         Concept newDiagnosisConcept = getDiagnosisConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
         BahmniEncounterTransaction bahmniEncounterTransaction = getBahmniEncounterTransaction(MOCK_CONCEPT_SYSTEM, true);
@@ -105,7 +105,7 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
     }
 
     @Test
-    public void shouldNotCreateDiagnosisAnswerConceptWhenExistingConceptProvided() throws Exception {
+    public void shouldNotCreateDiagnosisAnswerConceptWhenExistingConceptProvided() {
         Concept newDiagnosisConcept = getDiagnosisConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
         BahmniEncounterTransaction bahmniEncounterTransaction = getBahmniEncounterTransaction(MOCK_CONCEPT_SYSTEM, false);
@@ -123,7 +123,7 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
     }
 
     @Test
-    public void shouldNotCreateDiagnosisAnswerConceptWhenExistingConceptSourceAndCodeProvided() throws Exception {
+    public void shouldNotCreateDiagnosisAnswerConceptWhenExistingConceptSourceAndCodeProvided() {
         Concept existingDiagnosisConcept = getDiagnosisConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
         BahmniEncounterTransaction bahmniEncounterTransaction = getBahmniEncounterTransaction(MOCK_CONCEPT_SYSTEM, true);
@@ -143,7 +143,7 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenConceptSourceNotFound() throws Exception {
+    public void shouldThrowExceptionWhenConceptSourceNotFound() {
         Concept newDiagnosisConcept = getDiagnosisConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
         BahmniEncounterTransaction bahmniEncounterTransaction = getBahmniEncounterTransaction("Some Invalid System", true);
@@ -163,18 +163,18 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenTerminologyServerUnavailable() throws Exception {
+    public void shouldThrowExceptionWhenTerminologyServerUnavailable() {
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
         BahmniEncounterTransaction bahmniEncounterTransaction = getBahmniEncounterTransaction(MOCK_CONCEPT_SYSTEM, true);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
         when(conceptSourceService.getConceptSourceByUrl(anyString())).thenReturn(Optional.of(getMockedConceptSources(MOCK_CONCEPT_SYSTEM, MOCK_CONCEPT_SOURCE_CODE)));
         when(conceptService.getConceptByUuid(UNCLASSIFIED_CONCEPT_SET_UUID)).thenReturn(unclassifiedConceptSet);
-        when(terminologyLookupService.getConcept(anyString(), anyString())).thenAnswer( invocation -> { throw new Exception("Error fetching concept details from terminology server"); });
+        when(terminologyLookupService.getConcept(anyString(), anyString())).thenAnswer( invocation -> { throw new RuntimeException("Error fetching concept details from terminology server"); });
 
         int initialDiagnosisSetMembersCount = unclassifiedConceptSet.getSetMembers().size();
 
-        expectedException.expect(APIException.class);
-        expectedException.expectMessage("Exception while getting concept details for concept reference code 61462000");
+        expectedException.expect(RuntimeException.class);
+        expectedException.expectMessage("Error fetching concept details from terminology server");
 
         bahmniDiagnosisAnswerConceptSaveCommand.update(bahmniEncounterTransaction);
 

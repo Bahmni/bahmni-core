@@ -1,6 +1,8 @@
 package org.openmrs.module.bahmniemrapi.encountertransaction.command.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptDatatype;
@@ -40,7 +42,9 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl implements EncounterDat
 
     private TerminologyLookupService terminologyLookupService;
 
-    private FhirConceptSourceService conceptSourceService;
+    private FhirConceptSourceService fhirConceptSourceService;
+
+    private static Logger logger = LogManager.getLogger(BahmniDiagnosisAnswerConceptSaveCommandImpl.class);
 
     public static final String CONCEPT_CLASS_DIAGNOSIS = "Diagnosis";
 
@@ -55,12 +59,12 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl implements EncounterDat
     @Autowired
     public BahmniDiagnosisAnswerConceptSaveCommandImpl(@Qualifier("adminService") AdministrationService administrationService, ConceptService conceptService,
                                                        EmrApiProperties emrApiProperties, TerminologyLookupService terminologyLookupService,
-                                                       FhirConceptSourceService conceptSourceService) {
+                                                       FhirConceptSourceService fhirConceptSourceService) {
         this.adminService = administrationService;
         this.conceptService = conceptService;
         this.emrApiProperties = emrApiProperties;
         this.terminologyLookupService = terminologyLookupService;
-        this.conceptSourceService = conceptSourceService;
+        this.fhirConceptSourceService = fhirConceptSourceService;
     }
 
     @Override
@@ -82,7 +86,7 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl implements EncounterDat
 
     private void updateDiagnosisAnswerConceptUuid(BahmniDiagnosisRequest bahmniDiagnosis) {
         EncounterTransaction.Concept codedAnswer = bahmniDiagnosis.getCodedAnswer();
-        if(codedAnswer != null) {
+        if(codedAnswer != null && codedAnswer.getUuid() != null) {
             String codedAnswerUuidWithSystem = codedAnswer.getUuid();
             int conceptCodeIndex = codedAnswerUuidWithSystem.lastIndexOf(TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER);
             boolean isConceptFromTerminologyServer = conceptCodeIndex > -1 ? true : false;
@@ -95,10 +99,12 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl implements EncounterDat
     }
 
     private void updateDiagnosisAnswerConceptUuid(EncounterTransaction.Concept codedAnswer, String diagnosisConceptReferenceTermCode, String diagnosisConceptSystem) {
-        Optional<ConceptSource> conceptSourceByUrl = conceptSourceService.getConceptSourceByUrl(diagnosisConceptSystem);
+        Optional<ConceptSource> conceptSourceByUrl = fhirConceptSourceService.getConceptSourceByUrl(diagnosisConceptSystem);
         ConceptSource conceptSource = conceptSourceByUrl.isPresent() ? conceptSourceByUrl.get() : null;
-        if(conceptSource == null)
+        if(conceptSource == null) {
+            logger.error("Concept Source " + diagnosisConceptSystem + " not found");
             throw new APIException("Concept Source " + diagnosisConceptSystem + " not found");
+        }
         Concept existingDiagnosisAnswerConcept = conceptService.getConceptByMapping(diagnosisConceptReferenceTermCode, conceptSource.getName());
         if(existingDiagnosisAnswerConcept == null) {
             Concept newDiagnosisAnswerConcept = createNewDiagnosisConcept(diagnosisConceptReferenceTermCode, conceptSource);
@@ -163,8 +169,10 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl implements EncounterDat
                 diagnosisConceptSet = optionalConcept.get();
             }
         }
-        if(diagnosisConceptSet == null)
+        if(diagnosisConceptSet == null) {
+            logger.error("Concept Set " + DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT + " not found");
             throw new APIException("Concept Set " + DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT + " not found");
+        }
 
         diagnosisConceptSet.addSetMember(diagnosisConcept);
         conceptService.saveConcept(diagnosisConceptSet);
