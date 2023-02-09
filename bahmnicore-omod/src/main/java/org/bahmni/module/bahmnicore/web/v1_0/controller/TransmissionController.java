@@ -2,6 +2,12 @@ package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseFactory;
+import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
+import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.message.BasicStatusLine;
 import org.bahmni.module.communication.api.CommunicationService;
 import org.bahmni.module.communication.model.MailContent;
 import org.openmrs.api.context.Context;
@@ -21,11 +27,16 @@ public class TransmissionController {
 
     @PostMapping(value = "email")
     @ResponseBody
-    public void sendEmail(@RequestBody MailContent mailContent) {
+    public Object sendEmail(@RequestBody MailContent mailContent) {
+        HttpResponseFactory factory = new DefaultHttpResponseFactory();
+        HttpResponse response = null;
         try {
             Context.getService(CommunicationService.class).sendEmail(mailContent);
+            response = factory.newHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null), null);
         } catch (MessagingException exception) {
             log.error("Unable to send email", exception);
+            response = factory.newHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Unable to send email"), null);
         }
+        return response;
     }
 }
