@@ -33,7 +33,7 @@ public class TransmissionController {
         try {
             Context.getService(CommunicationService.class).sendEmail(mailContent);
             response = factory.newHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null), null);
-        } catch (MessagingException exception) {
+        } catch (Exception exception) {
             log.error("Unable to send email", exception);
             response = factory.newHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Unable to send email"), null);
         }
