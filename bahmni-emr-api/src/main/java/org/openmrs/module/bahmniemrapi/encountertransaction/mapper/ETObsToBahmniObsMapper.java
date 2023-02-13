@@ -195,6 +195,7 @@ public class ETObsToBahmniObsMapper {
         bahmniObservation.setEncounterUuid(additionalBahmniObservationFields.getEncounterUuid());
         bahmniObservation.setObsGroupUuid(additionalBahmniObservationFields.getObsGroupUuid());
         bahmniObservation.setUnknown(false);
+        bahmniObservation.setEncounterTypeName(additionalBahmniObservationFields.getEncounterTypeName());
         return bahmniObservation;
     }
 

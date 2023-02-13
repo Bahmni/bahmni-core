@@ -12,12 +12,21 @@ public class AdditionalBahmniObservationFields implements Cloneable {
     private Date visitDateTime;
     private Set<EncounterTransaction.Provider> providers = new HashSet<>();
     private String obsGroupUuid;
+    private String encounterTypeName;
 
     public AdditionalBahmniObservationFields(String encounterUuid, Date encounterDateTime, Date visitDateTime,String obsGroupUuid) {
         this.encounterUuid = encounterUuid;
         this.encounterDateTime = encounterDateTime;
         this.visitDateTime = visitDateTime;
         this.obsGroupUuid = obsGroupUuid;
+    }
+
+    public String getEncounterTypeName() {
+        return encounterTypeName;
+    }
+
+    public void setEncounterTypeName(String encounterTypeName) {
+        this.encounterTypeName = encounterTypeName;
     }
 
     public String getEncounterUuid() {

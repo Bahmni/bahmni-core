@@ -42,6 +42,7 @@ public class BahmniObservation implements Comparable<BahmniObservation>{
     private String formFieldPath;
     private String interpretation;
     private String status;
+    private String encounterTypeName;
 
     @JsonIgnore
     private Serializable complexData;
@@ -423,4 +424,11 @@ public class BahmniObservation implements Comparable<BahmniObservation>{
         this.complexData = complexData;
     }
 
+    public String getEncounterTypeName() {
+        return encounterTypeName;
+    }
+
+    public void setEncounterTypeName(String encounterTypeName) {
+        this.encounterTypeName = encounterTypeName;
+    }
 }
