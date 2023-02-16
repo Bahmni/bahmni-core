@@ -55,6 +55,7 @@ public class BahmniDrugOrderMapper {
             if(openMRSDrugOrder.getDrug() != null){
                 bahmniDrugOrder.setRetired(openMRSDrugOrder.getDrug().getRetired());
             }
+            bahmniDrugOrder.setEncounterUuid(openMRSDrugOrder.getEncounter().getUuid());
 
             bahmniDrugOrder.setCreatorName(openMRSDrugOrder.getCreator().getPersonName().toString());
             if(discontinuedOrderMap.containsKey(openMRSDrugOrder.getOrderNumber())){
