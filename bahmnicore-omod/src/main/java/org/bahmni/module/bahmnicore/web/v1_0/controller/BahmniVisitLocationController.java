@@ -1,6 +1,8 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.bahmni.module.bahmnicommons.api.visitlocation.BahmniVisitLocationService;
+import org.openmrs.Location;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.v1_0.controller.BaseRestController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,27 @@ public class BahmniVisitLocationController extends BaseRestController {
         HashMap<String, String> visitLocation = new HashMap<>();
         visitLocation.put("uuid",bahmniVisitLocationService.getVisitLocationUuid(locationUuid));
         return visitLocation;
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/facility/{locationUuid}")
+    @ResponseBody
+    public HashMap<String, String> getFacilityVisitLocationInfo(@PathVariable("locationUuid") String locationUuid ) {
+        Location location = Context.getLocationService().getLocationByUuid(locationUuid);
+        HashMap<String, String> facilityVisitLocation = new HashMap<>();
+        facilityVisitLocation.put("uuid", getParentVisitLocationUuid(location));
+        return facilityVisitLocation;
+    }
+
+    private String getParentVisitLocationUuid(Location location) {
+        if (location.getParentLocation() != null && isVisitLocation(location.getParentLocation())) {
+            return getParentVisitLocationUuid(location.getParentLocation());
+        } else {
+            return location.getUuid();
+        }
+    }
+
+    private Boolean isVisitLocation(Location location) {
+        return (location.getTags().size() > 0 && location.getTags().stream().filter(tag -> tag.getName().equalsIgnoreCase("Visit Location")) != null);
     }
 
 }
