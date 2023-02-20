@@ -7,7 +7,7 @@ on:
 jobs:
   build-publish-package:
     name: Build and Publish package
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
@@ -17,6 +17,12 @@ jobs:
           server-id: nexus-sonatype
           server-username: NEXUS_USERNAME
           server-password: NEXUS_PASSWORD
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
       - name: Install compass
         run: |
           sudo apt-get install ruby-dev
