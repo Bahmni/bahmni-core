@@ -104,7 +104,7 @@
         </dependency>
         <dependency>
             <groupId>org.bahmni.module</groupId>
-            <artifactId>bahmnicore-api</artifactId>
+            <artifactId>bahmnicore-ts-api</artifactId>
             <version>${project.parent.version}</version>
             <type>jar</type>
         </dependency>
