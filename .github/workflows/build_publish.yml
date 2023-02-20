@@ -1,7 +1,7 @@
 name: Build and Publish package
 on:
   push:
-    branches: [ master ]
+    branches: [ snomed-master ]
   workflow_dispatch:
 
 jobs:
@@ -37,3 +37,23 @@ jobs:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
+  trigger:
+    name: Trigger Deployment Workflow in Distro Bahmni
+    needs:
+      - build-publish-package
+    runs-on: ubuntu-latest
+    env:
+      ORG_NAME: Bahmni
+      REPOSITORY_NAME: openmrs-distro-bahmni
+      ENVIRONMENT: dev
+    steps:
+      - name: Create workflow_dispatch
+        run: |
+          trigger_result=$(curl -s -o trigger_response.txt -w "%{http_code}" -X POST -H "Accept: application/vnd.github.v3+json" -H 'authorization: Bearer ${{ secrets.BAHMNI_PAT }}' https://api.github.com/repos/${ORG_NAME}/${REPOSITORY_NAME}/actions/workflows/build_publish_openmrs.yml/dispatches -d '{"ref":"snomed-master","inputs":{}')
+          if [ $trigger_result == 204 ];then
+            echo "Trigger to $ORG_NAME/$REPOSITORY_NAME Success"
+          else
+            echo "Trigger to $ORG_NAME/$REPOSITORY_NAME Failed"
+            cat trigger_response.txt
+            exit 1
+          fi
