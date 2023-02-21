@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.HashMap;
 
 @Controller
-@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/bahmnicore/visitLocation")
+@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/bahmnicore")
 public class BahmniVisitLocationController extends BaseRestController {
 
     private BahmniVisitLocationService bahmniVisitLocationService;
@@ -26,7 +26,7 @@ public class BahmniVisitLocationController extends BaseRestController {
     }
 
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{loginLocationUuid}")
+    @RequestMapping(method = RequestMethod.GET, value = "/visitLocation/{loginLocationUuid}")
     @ResponseBody
     public HashMap<String, String> getVisitLocationInfo(@PathVariable("loginLocationUuid") String locationUuid ) {
         HashMap<String, String> visitLocation = new HashMap<>();
@@ -34,7 +34,7 @@ public class BahmniVisitLocationController extends BaseRestController {
         return visitLocation;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/facility/{locationUuid}")
+    @RequestMapping(method = RequestMethod.GET, value = "/facilityLocation/{locationUuid}")
     @ResponseBody
     public HashMap<String, String> getFacilityVisitLocationInfo(@PathVariable("locationUuid") String locationUuid ) {
         Location location = Context.getLocationService().getLocationByUuid(locationUuid);
