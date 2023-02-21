@@ -8,8 +8,10 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.message.BasicStatusLine;
+import org.bahmni.module.bahmnicore.web.v1_0.contract.BahmniMailContent;
 import org.bahmni.module.communication.api.CommunicationService;
 import org.bahmni.module.communication.model.MailContent;
+import org.bahmni.module.communication.model.Recipient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.springframework.stereotype.Controller;
@@ -27,10 +29,11 @@ public class TransmissionController {
 
     @PostMapping(value = "email")
     @ResponseBody
-    public Object sendEmail(@RequestBody MailContent mailContent) {
+    public Object sendEmail(@RequestBody BahmniMailContent bahmniMailContent) {
         HttpResponseFactory factory = new DefaultHttpResponseFactory();
         HttpResponse response = null;
         try {
+            MailContent mailContent = transformBahmniMailContent(bahmniMailContent);
             Context.getService(CommunicationService.class).sendEmail(mailContent);
             response = factory.newHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null), null);
         } catch (Exception exception) {
@@ -38,5 +41,10 @@ public class TransmissionController {
             response = factory.newHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Unable to send email"), null);
         }
         return response;
+    }
+
+    private MailContent transformBahmniMailContent(BahmniMailContent bahmniMailContent) {
+        Recipient recipient = new Recipient(bahmniMailContent.getRecipient().getName(),bahmniMailContent.getRecipient().getEmail());
+        return new MailContent(bahmniMailContent.getPdf(), bahmniMailContent.getSubject(),bahmniMailContent.getBody(), recipient, bahmniMailContent.getCc(), bahmniMailContent.getBcc());
     }
 }
