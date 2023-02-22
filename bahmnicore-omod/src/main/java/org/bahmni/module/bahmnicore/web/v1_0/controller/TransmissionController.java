@@ -13,6 +13,7 @@ import org.bahmni.module.communication.api.CommunicationService;
 import org.bahmni.module.communication.model.MailContent;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.webservices.rest.web.RestConstants;
+import org.openmrs.module.webservices.rest.web.v1_0.controller.BaseRestController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,8 +23,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import javax.mail.MessagingException;
 
 @Controller
-@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "patient/{patientUuid}/send/")
-public class TransmissionController {
+@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/patient/{patientUuid}/send/")
+public class TransmissionController extends BaseRestController {
 
     private final Log log = LogFactory.getLog(this.getClass());
 
