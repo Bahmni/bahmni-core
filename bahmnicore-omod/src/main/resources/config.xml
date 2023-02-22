@@ -33,6 +33,7 @@
         <require_module>org.openmrs.module.episodes</require_module>
         <require_module>org.openmrs.module.auditlog</require_module>
         <require_module>org.bahmni.module.bahmnicommons</require_module>
+        <require_module>org.bahmni.module.communication</require_module>
     </require_modules>
     <!-- Extensions -->
 
