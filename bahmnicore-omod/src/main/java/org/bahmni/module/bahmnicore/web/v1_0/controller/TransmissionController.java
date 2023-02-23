@@ -40,8 +40,12 @@ public class TransmissionController extends BaseRestController {
         HttpResponseFactory factory = new DefaultHttpResponseFactory();
         HttpResponse response = null;
         try {
-            MailContent mailContent = transformBahmniMailContent(bahmniMailContent, patientUuid);
-            Context.getService(CommunicationService.class).sendEmail(mailContent);
+            Patient patient = patientService.getPatientByUuid(patientUuid);
+            String recipientName = patient.getGivenName() + (patient.getMiddleName()!=null ? " " + patient.getMiddleName() : "") + (patient.getFamilyName()!=null ? " " + patient.getFamilyName() : "");
+            String recipientEmail = patient.getAttribute("email").getValue();
+            Recipient recipient = new Recipient(recipientName, recipientEmail);
+            bahmniMailContent.setRecipient(recipient);
+            Context.getService(CommunicationService.class).sendEmail(bahmniMailContent);
             response = factory.newHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null), null);
         } catch (Exception exception) {
             log.error("Unable to send email", exception);
@@ -50,11 +54,4 @@ public class TransmissionController extends BaseRestController {
         return response;
     }
 
-    private MailContent transformBahmniMailContent(BahmniMailContent bahmniMailContent, String patientUuid) {
-        Patient patient = patientService.getPatientByUuid(patientUuid);
-        String recipientName = patient.getGivenName() + (patient.getMiddleName()!=null ? " " + patient.getMiddleName() : "") + (patient.getFamilyName()!=null ? " " + patient.getFamilyName() : "");
-        String recipientEmail = patient.getAttribute("email").getValue();
-        Recipient recipient = new Recipient(recipientName, recipientEmail);
-        return new MailContent(bahmniMailContent.getPdf(), bahmniMailContent.getFileName(), bahmniMailContent.getSubject(),bahmniMailContent.getBody(), recipient, bahmniMailContent.getCc(), bahmniMailContent.getBcc());
-    }
 }
