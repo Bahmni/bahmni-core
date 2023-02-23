@@ -1,7 +1,6 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.bahmni.module.bahmnicommons.api.visitlocation.BahmniVisitLocationService;
-import org.bahmni.module.bahmnicore.model.LocationSummary;
 import org.openmrs.Location;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.webservices.rest.web.RestConstants;
@@ -37,18 +36,12 @@ public class BahmniVisitLocationController extends BaseRestController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/facilityLocation/{locationUuid}")
     @ResponseBody
-    public HashMap<String, LocationSummary> getFacilityVisitLocationInfo(@PathVariable("locationUuid") String locationUuid ) {
+    public HashMap<String, String> getFacilityVisitLocationInfo(@PathVariable("locationUuid") String locationUuid ) {
         Location location = Context.getLocationService().getLocationByUuid(locationUuid);
-        HashMap<String, LocationSummary> facilityVisitLocation = new HashMap<>();
+        HashMap<String, String> facilityVisitLocation = new HashMap<>();
         Location facilityLocation = getParentVisitLocationUuid(location);
-        if(facilityLocation!=null) {
-            LocationSummary locationSummary = new LocationSummary();
-            locationSummary.setUuid(facilityLocation.getUuid());
-            locationSummary.setName(facilityLocation.getName());
-            facilityVisitLocation.put("locationSummary", locationSummary);
-        } else {
-            facilityVisitLocation.put("locationSummary", null);
-        }
+        facilityVisitLocation.put("uuid", facilityLocation!=null ? facilityLocation.getUuid() : null);
+        facilityVisitLocation.put("name", facilityLocation!=null ? facilityLocation.getName() : null);
         return facilityVisitLocation;
     }
 

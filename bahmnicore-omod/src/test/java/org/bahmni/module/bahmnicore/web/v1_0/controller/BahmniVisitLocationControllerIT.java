@@ -1,7 +1,6 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 
-import org.bahmni.module.bahmnicore.model.LocationSummary;
 import org.bahmni.module.bahmnicore.web.v1_0.BaseIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,19 +39,19 @@ public class BahmniVisitLocationControllerIT extends BaseIntegrationTest {
 
     @Test
     public void shouldGetRootParentLocationIdWithVisitLocationTag() throws Exception {
-        LocationSummary locationSummary = bahmniVisitLocationController.getFacilityVisitLocationInfo("g36006e5-9fbb-4f20-866b-0ece24561530").get("locationSummary");
-        assertEquals("g36006e5-9fbb-4f20-866b-0ece24561528", locationSummary.getUuid());
+        String locationUuid = bahmniVisitLocationController.getFacilityVisitLocationInfo("g36006e5-9fbb-4f20-866b-0ece24561530").get("uuid");
+        assertEquals("g36006e5-9fbb-4f20-866b-0ece24561528", locationUuid);
     }
 
     @Test
     public void shouldReturnPassedLocationIfParentLocationHasNotVisitLocationTag() throws Exception {
-        LocationSummary locationSummary = bahmniVisitLocationController.getFacilityVisitLocationInfo("g36006e5-9fbb-4f20-866b-0ece24561527").get("locationSummary");
-        assertEquals("g36006e5-9fbb-4f20-866b-0ece24561527", locationSummary.getUuid());
+        String locationUuid = bahmniVisitLocationController.getFacilityVisitLocationInfo("g36006e5-9fbb-4f20-866b-0ece24561527").get("uuid");
+        assertEquals("g36006e5-9fbb-4f20-866b-0ece24561527", locationUuid);
     }
 
     @Test
     public void shouldReturnNullIfLocationHasNotVisitLocationTagTillRoot() throws Exception {
-        LocationSummary locationSummary = bahmniVisitLocationController.getFacilityVisitLocationInfo("g36006e5-9fbb-4f20-866b-0ece24561531").get("locationSummary");
-        assertNull(locationSummary);
+        String locationUuid = bahmniVisitLocationController.getFacilityVisitLocationInfo("g36006e5-9fbb-4f20-866b-0ece24561531").get("uuid");
+        assertNull(locationUuid);
     }
 }
