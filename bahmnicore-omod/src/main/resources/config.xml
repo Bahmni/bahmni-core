@@ -98,10 +98,10 @@
         <description>Will give access to Lab Lite app</description>
     </privilege>
 
-    <advice>
-        <point>org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService</point>
-        <class>org.openmrs.module.bahmniemrapi.encountertransaction.advisor.BahmniEncounterServiceAdvisor</class>
-    </advice>
+<!--    <advice>-->
+<!--        <point>org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService</point>-->
+<!--        <class>org.openmrs.module.bahmniemrapi.encountertransaction.advisor.BahmniEncounterServiceAdvisor</class>-->
+<!--    </advice>-->
 
     <!-- Required Global Properties -->
     <!-- DWR -->

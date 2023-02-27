@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 import static org.bahmni.module.bahmnicore.util.MiscUtils.setUuidsForObservations;
@@ -90,8 +91,12 @@ public class BahmniEncounterController extends BaseRestController {
     @ResponseBody
     @Transactional
     public BahmniEncounterTransaction update(@RequestBody BahmniEncounterTransaction bahmniEncounterTransaction) {
+        System.out.println("1. Sout from controller start : " + new Timestamp(new java.util.Date().getTime()));
         setUuidsForObservations(bahmniEncounterTransaction.getObservations());
-        return bahmniEncounterTransactionService.save(bahmniEncounterTransaction);
+        System.out.println("1. setUUIDForObservations completed : " + new Timestamp(new java.util.Date().getTime()));
+        BahmniEncounterTransaction save = bahmniEncounterTransactionService.save(bahmniEncounterTransaction);
+        System.out.println("1. POST encounter save completed : " + new Timestamp(new java.util.Date().getTime()));
+        return save;
     }
 
     public BahmniEncounterTransaction get(String encounterUuid) {
