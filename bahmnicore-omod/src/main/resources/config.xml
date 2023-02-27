@@ -167,4 +167,10 @@
         <description>A list of UUIDs indicating extra Patient Identifier Types that should be displayed</description>
     </globalProperty>
 
+    <globalProperty>
+        <property>bahmni.enableEmailPrescriptionOption</property>
+        <defaultValue>false</defaultValue>
+        <description>Boolean to enable sending email with prescription details</description>
+    </globalProperty>
+
 </module>
