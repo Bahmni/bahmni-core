@@ -4793,10 +4793,13 @@
         </sql>
     </changeSet>
 
-    <changeSet id="adding-create-teleconsultation-privilege-to-teleconsultation-createLink-role-202212012000" author="BAHMNI">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="bahmni-202302231447" author="BAHMNI">
+        <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="1">
                 SELECT count(*) FROM privilege WHERE privilege = "Create Teleconsultation";
+            </sqlCheck>
+            <sqlCheck expectedResult="0">
+                SELECT count(*) FROM role_privilege WHERE role = "Appointments:ManageAppointments" and privilege = "Create Teleconsultation";
             </sqlCheck>
         </preConditions>
         <comment>Adding Create Teleconsultation privilege to Appointments:ManageAppointments role</comment>

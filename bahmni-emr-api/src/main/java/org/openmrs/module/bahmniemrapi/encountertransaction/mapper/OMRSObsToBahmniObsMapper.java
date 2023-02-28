@@ -55,6 +55,9 @@ public class OMRSObsToBahmniObsMapper {
                         obs.getEncounter().getEncounterDatetime(),
                         obs.getEncounter().getVisit().getStartDatetime(),
                         obsGroupUuid);
+        if(obs.getEncounter().getEncounterType()!=null) {
+            additionalBahmniObservationFields.setEncounterTypeName(obs.getEncounter().getEncounterType().getName());
+        }
         for (EncounterProvider encounterProvider : obs.getEncounter().getEncounterProviders()) {
             additionalBahmniObservationFields.addProvider(bahmniProviderMapper.map(encounterProvider.getProvider()));
         }

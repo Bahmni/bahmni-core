@@ -14,4 +14,17 @@
 
     <location_tag location_tag_id="1" name="Visit Location" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="c36006e5-9fbb-4f20-876b-0ece245615a1"/>
     <location_tag_map location_id="4" location_tag_id="1" />
+
+    <location location_id="10" name="ABC Chain" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="g36006e5-9fbb-4f20-866b-0ece24561526"/>
+    <location location_id="11" name="Hospital 1" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" parent_location="10" uuid="g36006e5-9fbb-4f20-866b-0ece24561527"/>
+    <location location_id="12" name="Hospital 2" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" parent_location="10" uuid="g36006e5-9fbb-4f20-866b-0ece24561528"/>
+    <location location_id="13" name="Lab Center" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" parent_location="12" uuid="g36006e5-9fbb-4f20-866b-0ece24561529"/>
+    <location location_id="14" name="Registration desk" creator="1" date_created="2005-01-01 00:00:00.0" retired="false"  parent_location="13" uuid="g36006e5-9fbb-4f20-866b-0ece24561530"/>
+    <location location_id="15" name="Hospital 3" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" parent_location="10" uuid="g36006e5-9fbb-4f20-866b-0ece24561531"/>
+
+    <location_tag_map location_id="11" location_tag_id="1" />
+    <location_tag_map location_id="12" location_tag_id="1" />
+    <location_tag_map location_id="13" location_tag_id="1" />
+    <location_tag_map location_id="14" location_tag_id="1" />
+
 </dataset>
