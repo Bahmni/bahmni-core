@@ -35,7 +35,6 @@ import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.module.emrapi.encounter.matcher.BaseEncounterMatcher;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -102,73 +101,40 @@ public class BahmniEncounterTransactionServiceImpl extends BaseOpenmrsService im
     public BahmniEncounterTransaction save(BahmniEncounterTransaction bahmniEncounterTransaction, Patient patient,
                                            Date visitStartDate, Date visitEndDate) {
 
-        System.out.println("3. Start of save function : " + new Timestamp(new java.util.Date().getTime()));
         if (bahmniEncounterTransaction.getEncounterDateTime() == null) {
             bahmniEncounterTransaction.setEncounterDateTime(new Date());
         }
-        System.out.println("3. Get Encounter Date and Time completed : " + new Timestamp(new java.util.Date().getTime()));
 
         handleDrugOrders(bahmniEncounterTransaction, patient);
-        System.out.println("3. HandleDrugOrders completed : " + new Timestamp(new java.util.Date().getTime()));
 
         setEncounterTypeUuid(bahmniEncounterTransaction);
-        System.out.println("3. SetEncounterTypeUUID completed : " + new Timestamp(new java.util.Date().getTime()));
-
         setVisitType(bahmniEncounterTransaction);
-        System.out.println("3. SetVisitType completed : " + new Timestamp(new java.util.Date().getTime()));
-
         setEncounterType(bahmniEncounterTransaction);
-        System.out.println("3. SetEncounterType completed : " + new Timestamp(new java.util.Date().getTime()));
 
         List<EncounterDataPreSaveCommand> encounterDataPreSaveCommands = Context.getRegisteredComponents(EncounterDataPreSaveCommand.class);
-        System.out.println("3. getRegisteredComponents completed : " + new Timestamp(new java.util.Date().getTime()));
-
-        System.out.println("3. For loop started : " + new Timestamp(new java.util.Date().getTime()));
         for (EncounterDataPreSaveCommand saveCommand : encounterDataPreSaveCommands) {
             saveCommand.update(bahmniEncounterTransaction);
-            System.out.println("3. Save command executed : " + new Timestamp(new java.util.Date().getTime()));
         }
-        System.out.println("3. For loop completed : " + new Timestamp(new java.util.Date().getTime()));
-
         VisitMatcher visitMatcher = getVisitMatcher();
-        System.out.println("3. GetVisitMatcher completed : " + new Timestamp(new java.util.Date().getTime()));
-
         if (BahmniEncounterTransaction.isRetrospectiveEntry(bahmniEncounterTransaction.getEncounterDateTime())) {
             bahmniEncounterTransaction = new RetrospectiveEncounterTransactionService(visitMatcher)
                     .updatePastEncounters(bahmniEncounterTransaction, patient, visitStartDate, visitEndDate);
         }
-        System.out.println("3. if condition completed completed : " + new Timestamp(new java.util.Date().getTime()));
 
         setVisitTypeUuid(visitMatcher, bahmniEncounterTransaction);
-        System.out.println("3. SetVisitTypeUUID completed : " + new Timestamp(new java.util.Date().getTime()));
-
         setVisitLocationToEncounterTransaction(bahmniEncounterTransaction);
-        System.out.println("3. SetVisitLocationToEncounterTransaction completed : " + new Timestamp(new java.util.Date().getTime()));
 
         EncounterTransaction encounterTransaction = emrEncounterService.save(bahmniEncounterTransaction.toEncounterTransaction());
-        System.out.println("3. encounterTransaction save completed : " + new Timestamp(new java.util.Date().getTime()));
-
         //Get the saved encounter transaction from emr-api
         String encounterUuid = encounterTransaction.getEncounterUuid();
-        System.out.println("3. GetEncounterUUID completed : " + new Timestamp(new java.util.Date().getTime()));
-
         Encounter currentEncounter = encounterService.getEncounterByUuid(encounterUuid);
-        System.out.println("3. GetEncounterByUUID completed : " + new Timestamp(new java.util.Date().getTime()));
 
         boolean includeAll = false;
         EncounterTransaction updatedEncounterTransaction = encounterTransactionMapper.map(currentEncounter, includeAll);
-        System.out.println("3. UpdateEncounterTransaction completed : " + new Timestamp(new java.util.Date().getTime()));
-
-        System.out.println("3. For loop started : " + new Timestamp(new java.util.Date().getTime()));
         for (EncounterDataPostSaveCommand saveCommand : encounterDataPostSaveCommands) {
             updatedEncounterTransaction = saveCommand.save(bahmniEncounterTransaction, currentEncounter, updatedEncounterTransaction);
-            System.out.println("3. Save executed : " + new Timestamp(new java.util.Date().getTime()));
         }
-        System.out.println("3. For loop completed : " + new Timestamp(new java.util.Date().getTime()));
-
         bahmniVisitAttributeService.save(currentEncounter);
-        System.out.println("3. BahmniVisitAttributeService save completed : " + new Timestamp(new java.util.Date().getTime()));
-        System.out.println("3. save Execution completed : " + new Timestamp(new java.util.Date().getTime()));
         return bahmniEncounterTransactionMapper.map(updatedEncounterTransaction, includeAll);
     }
 
@@ -230,9 +196,7 @@ public class BahmniEncounterTransactionServiceImpl extends BaseOpenmrsService im
 
     @Override
     public BahmniEncounterTransaction save(BahmniEncounterTransaction bahmniEncounterTransaction) {
-        System.out.println("2. Save function reached : " + new Timestamp(new java.util.Date().getTime()));
         Patient patientByUuid = patientService.getPatientByUuid(bahmniEncounterTransaction.getPatientUuid());
-        System.out.println("2. getPatientByUUid completed : " + new Timestamp(new java.util.Date().getTime()));
         return save(bahmniEncounterTransaction, patientByUuid, null, null);
     }
 

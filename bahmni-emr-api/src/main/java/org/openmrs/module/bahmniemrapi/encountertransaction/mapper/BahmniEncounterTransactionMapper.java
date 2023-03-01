@@ -15,7 +15,6 @@ import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 @Component
@@ -43,25 +42,16 @@ public class BahmniEncounterTransactionMapper {
     }
 
     public BahmniEncounterTransaction map(EncounterTransaction encounterTransaction, boolean includeAll) {
-        System.out.println("4. Map function reached : " + new Timestamp(new java.util.Date().getTime()));
         BahmniEncounterTransaction bahmniEncounterTransaction = new BahmniEncounterTransaction(encounterTransaction);
         List<BahmniDiagnosisRequest> bahmniDiagnoses = bahmniDiagnosisMetadata.map(encounterTransaction.getDiagnoses(), includeAll);
-        System.out.println("4. BahmniDiagnosisMetadata map completed : " + new Timestamp(new java.util.Date().getTime()));
         bahmniEncounterTransaction.setBahmniDiagnoses(bahmniDiagnoses);
-        System.out.println("4. setBahmniDiagnosis completed : " + new Timestamp(new java.util.Date().getTime()));
         bahmniEncounterTransaction.setAccessionNotes(accessionNotesMapper.map(encounterTransaction));
-        System.out.println("4. setAccessionNotes completed : " + new Timestamp(new java.util.Date().getTime()));
         AdditionalBahmniObservationFields additionalBahmniObservationFields = new AdditionalBahmniObservationFields(encounterTransaction.getEncounterUuid(), encounterTransaction.getEncounterDateTime(), null,null);
-        System.out.println("4. Additional Observation fields completed : " + new Timestamp(new java.util.Date().getTime()));
         additionalBahmniObservationFields.setProviders(encounterTransaction.getProviders());
-        System.out.println("4. setProviders completed : " + new Timestamp(new java.util.Date().getTime()));
         List<BahmniObservation> bahmniObservations = fromETObsToBahmniObs.create(encounterTransaction.getObservations(), additionalBahmniObservationFields);
-        System.out.println("4. fromETObsToBahmniObs.create completed : " + new Timestamp(new java.util.Date().getTime()));
         bahmniEncounterTransaction.setObservations(obsRelationshipMapper.map(bahmniObservations, encounterTransaction.getEncounterUuid()));
-        System.out.println("4. setObservations completed : " + new Timestamp(new java.util.Date().getTime()));
         addPatientIdentifier(bahmniEncounterTransaction, encounterTransaction);
         addEncounterType(encounterTransaction, bahmniEncounterTransaction);
-        System.out.println("4. Map function completed : " + new Timestamp(new java.util.Date().getTime()));
         return bahmniEncounterTransaction;
     }
 
