@@ -86,11 +86,11 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl implements EncounterDat
 
     private void updateDiagnosisAnswerConceptUuid(BahmniDiagnosisRequest bahmniDiagnosis) {
         EncounterTransaction.Concept codedAnswer = bahmniDiagnosis.getCodedAnswer();
-        if(codedAnswer != null && codedAnswer.getUuid() != null) {
+        if (codedAnswer != null && codedAnswer.getUuid() != null) {
             String codedAnswerUuidWithSystem = codedAnswer.getUuid();
             int conceptCodeIndex = codedAnswerUuidWithSystem.lastIndexOf(TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER);
             boolean isConceptFromTerminologyServer = conceptCodeIndex > -1 ? true : false;
-            if(isConceptFromTerminologyServer) {
+            if (isConceptFromTerminologyServer) {
                 String diagnosisConceptSystem = codedAnswerUuidWithSystem.substring(0, conceptCodeIndex);
                 String diagnosisConceptReferenceTermCode = codedAnswerUuidWithSystem.substring(conceptCodeIndex + 1);
                 updateDiagnosisAnswerConceptUuid(codedAnswer, diagnosisConceptReferenceTermCode, diagnosisConceptSystem);
@@ -101,19 +101,20 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl implements EncounterDat
     private void updateDiagnosisAnswerConceptUuid(EncounterTransaction.Concept codedAnswer, String diagnosisConceptReferenceTermCode, String diagnosisConceptSystem) {
         Optional<ConceptSource> conceptSourceByUrl = fhirConceptSourceService.getConceptSourceByUrl(diagnosisConceptSystem);
         ConceptSource conceptSource = conceptSourceByUrl.isPresent() ? conceptSourceByUrl.get() : null;
-        if(conceptSource == null) {
+        if (conceptSource == null) {
             logger.error("Concept Source " + diagnosisConceptSystem + " not found");
             throw new APIException("Concept Source " + diagnosisConceptSystem + " not found");
         }
         Concept existingDiagnosisAnswerConcept = conceptService.getConceptByMapping(diagnosisConceptReferenceTermCode, conceptSource.getName());
-        if(existingDiagnosisAnswerConcept == null) {
+        if (existingDiagnosisAnswerConcept == null) {
             Concept newDiagnosisAnswerConcept = createNewDiagnosisConcept(diagnosisConceptReferenceTermCode, conceptSource);
             codedAnswer.setUuid(newDiagnosisAnswerConcept.getUuid());
             addNewDiagnosisConceptToDiagnosisSet(newDiagnosisAnswerConcept);
         } else {
             ConceptName answerConceptNameInUserLocale = existingDiagnosisAnswerConcept.getFullySpecifiedName(Context.getLocale());
-            if(answerConceptNameInUserLocale == null)
+            if (answerConceptNameInUserLocale == null) {
                 updateExistingConcept(existingDiagnosisAnswerConcept, diagnosisConceptReferenceTermCode);
+            }
             codedAnswer.setUuid(existingDiagnosisAnswerConcept.getUuid());
         }
     }
@@ -160,16 +161,16 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl implements EncounterDat
     private void addNewDiagnosisConceptToDiagnosisSet(Concept diagnosisConcept) {
         String diagnosisSetForNewConcepts = adminService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID);
         Concept diagnosisConceptSet = null;
-        if(StringUtils.isNotBlank(diagnosisSetForNewConcepts)) {
+        if (StringUtils.isNotBlank(diagnosisSetForNewConcepts)) {
             diagnosisConceptSet = conceptService.getConceptByUuid(diagnosisSetForNewConcepts);
         } else {
             Collection<Concept> diagnosisSets = emrApiProperties.getDiagnosisSets();
             Optional<Concept> optionalConcept = diagnosisSets.stream().filter(c -> c.getName().getName().equals(DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT) && !c.getRetired()).findFirst();
-            if(optionalConcept.isPresent()) {
+            if (optionalConcept.isPresent()) {
                 diagnosisConceptSet = optionalConcept.get();
             }
         }
-        if(diagnosisConceptSet == null) {
+        if (diagnosisConceptSet == null) {
             logger.error("Concept Set " + DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT + " not found");
             throw new APIException("Concept Set " + DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT + " not found");
         }

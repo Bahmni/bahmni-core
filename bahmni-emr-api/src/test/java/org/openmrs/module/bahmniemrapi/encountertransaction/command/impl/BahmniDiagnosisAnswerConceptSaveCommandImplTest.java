@@ -190,10 +190,11 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
 
     private List<BahmniDiagnosisRequest> createBahmniDiagnoses(String conceptSystem, boolean isCodedAnswerFromTermimologyServer) {
         String codedAnswerUuid = null;
-        if( isCodedAnswerFromTermimologyServer)
+        if (isCodedAnswerFromTermimologyServer) {
             codedAnswerUuid = conceptSystem + TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER + "61462000";
-        else
+        } else {
             codedAnswerUuid = "coded-answer-uuid";
+        }
         BahmniDiagnosisRequest bahmniDiagnosisRequest = new BahmniDiagnosisRequest();
         bahmniDiagnosisRequest.setCertainty(Diagnosis.Certainty.CONFIRMED.name());
         bahmniDiagnosisRequest.setOrder(Diagnosis.Order.PRIMARY.name());
