@@ -4807,6 +4807,65 @@
             INSERT INTO role_privilege(role, privilege) VALUES ("Appointments:ManageAppointments", "Create Teleconsultation");
         </sql>
     </changeSet>
+    <changeSet id="bahmni-core-202303031445" author="Parvathy, Rahul">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="2">
+                SELECT count(*) FROM concept_set WHERE concept_id = 63 and concept_set = 62;
+            </sqlCheck>
+            <sqlCheck expectedResult="2">
+                SELECT count(*) FROM concept_set WHERE concept_id = 64 and concept_set = 62;
+            </sqlCheck>
+        </preConditions>
+        <comment>Remove dosing unit duplicates from concept set</comment>
+        <sql>
+            set @tablet_concept_set_id = 49;
+            set @capsule_concept_set_id = 50;
 
+            delete from concept_set where concept_set_id=@tablet_concept_set_id;
+            delete from concept_set where concept_set_id=@capsule_concept_set_id;
+        </sql>
+    </changeSet>
+    <changeSet id="bahmni-core-202303031500" author="Parvathy, Rahul">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                SELECT count(*) FROM concept_name where name='Tablet(s)' and concept_name_type='FULLY_SPECIFIED';
+            </sqlCheck>
+            <sqlCheck expectedResult="1">
+                SELECT count(*) FROM concept_name where name='Capsule(s)' and concept_name_type='FULLY_SPECIFIED';
+            </sqlCheck>
+            <sqlCheck expectedResult="1">
+                SELECT count(*) FROM concept_name where name='Unit(s)' and concept_name_type='FULLY_SPECIFIED';
+            </sqlCheck>
+        </preConditions>
+        <comment>Renaming Concept Names of Dosing Units Type FULLY SPECIFIED</comment>
+        <sql>
+            UPDATE concept_name SET name='Tablet' where name='Tablet(s)' and concept_name_type='FULLY_SPECIFIED';
+
+            UPDATE concept_name SET name='Capsule' where name='Capsule(s)' and concept_name_type='FULLY_SPECIFIED';
+
+            UPDATE concept_name SET name='Unit' where name='Unit(s)' and concept_name_type='FULLY_SPECIFIED';
+        </sql>
+    </changeSet>
+    <changeSet id="bahmni-core-202303061500" author="Parvathy, Rahul">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                SELECT count(*) FROM concept_name where name='tablet(s)' and concept_name_type='SHORT';
+            </sqlCheck>
+            <sqlCheck expectedResult="1">
+                SELECT count(*) FROM concept_name where name='capsule(s)' and concept_name_type='SHORT';
+            </sqlCheck>
+            <sqlCheck expectedResult="1">
+                SELECT count(*) FROM concept_name where name='unit(s)' and concept_name_type='SHORT';
+            </sqlCheck>
+        </preConditions>
+        <comment>Renaming Concept Names of Dosing Units Type SHORT</comment>
+        <sql>
+            UPDATE concept_name SET name='tablet' where name='tablet(s)' and concept_name_type='SHORT';
+
+            UPDATE concept_name SET name='capsule' where name='capsule(s)' and concept_name_type='SHORT';
+
+            UPDATE concept_name SET name='unit' where name='unit(s)' and concept_name_type='SHORT';
+        </sql>
+    </changeSet>
     <include file="addAtomfeedMigrations.xml"/>
 </databaseChangeLog>
