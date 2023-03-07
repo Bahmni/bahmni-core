@@ -202,7 +202,7 @@
             </dependency>
             <dependency>
                 <groupId>org.bahmni.module</groupId>
-                <artifactId>fhir-ts-services-api</artifactId>
+                <artifactId>fhir-ts-services-int-api</artifactId>
                 <type>jar</type>
                 <version>${terminologyServices.version}</version>
                 <scope>provided</scope>
