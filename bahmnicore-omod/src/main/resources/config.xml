@@ -186,4 +186,10 @@
         <description>Enable or disable Groovy script execution for obs value calculation on encounter save</description>
     </globalProperty>
 
+    <globalProperty>
+        <property>bahmni.diagnosisSetForNewDiagnosisConcepts</property>
+        <defaultValue></defaultValue>
+        <description>UUID of set member of diagnosis set of sets. New Diagnosis concepts from terminology server will be added to this set</description>
+    </globalProperty>
+
 </module>
