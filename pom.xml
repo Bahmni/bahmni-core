@@ -343,6 +343,18 @@
             </dependency>
             <dependency>
                 <groupId>org.openmrs.module</groupId>
+                <artifactId>emrapi-condition-list</artifactId>
+                <version>${emrapi-omod.version}</version>
+                <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.hamcrest</groupId>
+                        <artifactId>hamcrest-library</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.openmrs.module</groupId>
                 <artifactId>emrapi-api-2.2</artifactId>
                 <version>${emrapi-omod.version}</version>
                 <scope>provided</scope>
