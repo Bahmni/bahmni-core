@@ -72,6 +72,7 @@ public class TSConceptUuidResolverTest {
     final String MOCK_CONCEPT_SOURCE_CODE = "CS dummy code";
 
     private final String TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER = "/";
+    public static final String CONCEPT_CLASS_DIAGNOSIS = "Diagnosis";
 
     @Before
     public void setUp() {
@@ -93,7 +94,7 @@ public class TSConceptUuidResolverTest {
 
         int initialDiagnosisSetMembersCount = unclassifiedConceptSet.getSetMembers().size();
 
-        TSConceptUuidResolver.resolveConceptUuid(concept, null, null);
+        TSConceptUuidResolver.resolveConceptUuid(concept, CONCEPT_CLASS_DIAGNOSIS, null);
 
         assertEquals(initialDiagnosisSetMembersCount + 1, unclassifiedConceptSet.getSetMembers().size());
         assertEquals(MALARIA_CONCEPT_UUID,concept.getUuid());
@@ -112,7 +113,7 @@ public class TSConceptUuidResolverTest {
 
         int initialDiagnosisSetMembersCount = unclassifiedConceptSet.getSetMembers().size();
 
-        TSConceptUuidResolver.resolveConceptUuid(concept, null, null);
+        TSConceptUuidResolver.resolveConceptUuid(concept, CONCEPT_CLASS_DIAGNOSIS, null);
 
         assertEquals(initialDiagnosisSetMembersCount, unclassifiedConceptSet.getSetMembers().size());
         verify(conceptService, times(0)).saveConcept(any(Concept.class));
@@ -131,7 +132,7 @@ public class TSConceptUuidResolverTest {
 
         int initialDiagnosisSetMembersCount = unclassifiedConceptSet.getSetMembers().size();
 
-        TSConceptUuidResolver.resolveConceptUuid(concept, null, null);
+        TSConceptUuidResolver.resolveConceptUuid(concept, CONCEPT_CLASS_DIAGNOSIS, null);
 
         assertEquals(initialDiagnosisSetMembersCount, unclassifiedConceptSet.getSetMembers().size());
         verify(conceptService, times(0)).saveConcept(any(Concept.class));
@@ -150,7 +151,7 @@ public class TSConceptUuidResolverTest {
 
         int initialDiagnosisSetMembersCount = unclassifiedConceptSet.getSetMembers().size();
 
-        TSConceptUuidResolver.resolveConceptUuid(concept, null, null);
+        TSConceptUuidResolver.resolveConceptUuid(concept, CONCEPT_CLASS_DIAGNOSIS, null);
 
         assertEquals(initialDiagnosisSetMembersCount + 1, unclassifiedConceptSet.getSetMembers().size());
         assertEquals(MALARIA_CONCEPT_UUID,concept.getUuid());
@@ -169,7 +170,7 @@ public class TSConceptUuidResolverTest {
 
         int initialDiagnosisSetMembersCount = unclassifiedConceptSet.getSetMembers().size();
 
-        TSConceptUuidResolver.resolveConceptUuid(concept, null, null);
+        TSConceptUuidResolver.resolveConceptUuid(concept, CONCEPT_CLASS_DIAGNOSIS, null);
 
         assertEquals(initialDiagnosisSetMembersCount, unclassifiedConceptSet.getSetMembers().size());
         verify(conceptService, times(0)).saveConcept(any(Concept.class));
@@ -188,7 +189,7 @@ public class TSConceptUuidResolverTest {
 
         int initialDiagnosisSetMembersCount = unclassifiedConceptSet.getSetMembers().size();
 
-        TSConceptUuidResolver.resolveConceptUuid(concept, null, null);
+        TSConceptUuidResolver.resolveConceptUuid(concept, CONCEPT_CLASS_DIAGNOSIS, null);
 
         assertEquals(initialDiagnosisSetMembersCount, unclassifiedConceptSet.getSetMembers().size());
         verify(conceptService, times(0)).saveConcept(any(Concept.class));
