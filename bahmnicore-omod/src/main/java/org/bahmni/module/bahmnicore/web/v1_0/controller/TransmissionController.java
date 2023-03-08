@@ -55,7 +55,6 @@ public class TransmissionController extends BaseRestController {
         } else {
             response = factory.newHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_METHOD_NOT_ALLOWED, "Sending email is not enabled"), null);
         }
-
         return response;
     }
 
