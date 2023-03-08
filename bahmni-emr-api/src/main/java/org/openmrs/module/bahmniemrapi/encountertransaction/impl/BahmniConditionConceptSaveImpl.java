@@ -1,6 +1,8 @@
 package org.openmrs.module.bahmniemrapi.encountertransaction.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.bahmni.module.fhirterminologyservices.api.TerminologyLookupService;
+import org.openmrs.Concept;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.ConceptService;
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniConditionConceptSaveService;
@@ -17,6 +19,8 @@ import org.springframework.stereotype.Component;
 public class BahmniConditionConceptSaveImpl extends TSConceptUuidResolver implements BahmniConditionConceptSaveService {
 
     public static final String CONCEPT_CLASS_DIAGNOSIS = "Diagnosis";
+    public static final String CONCEPT_DATATYPE_NA = "N/A";
+
 
     @Autowired
     public BahmniConditionConceptSaveImpl(@Qualifier("adminService") AdministrationService administrationService, ConceptService conceptService, EmrApiProperties emrApiProperties, @Qualifier("fhirTsServices") TerminologyLookupService terminologyLookupService, FhirConceptSourceService conceptSourceService) {
@@ -33,7 +37,13 @@ public class BahmniConditionConceptSaveImpl extends TSConceptUuidResolver implem
         String codedConceptUuid = adminService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID);
         org.openmrs.module.emrapi.conditionslist.contract.Concept codedAnswer = condition.getConcept();
         if (codedAnswer != null && codedAnswer.getUuid() != null) {
-            resolveConceptUuid(codedAnswer, CONCEPT_CLASS_DIAGNOSIS, codedConceptUuid);
+            Concept conceptSet = null;
+            if (StringUtils.isNotBlank(codedConceptUuid)) {
+                conceptSet = getConceptSetByUuid(codedConceptUuid);
+            } else {
+                conceptSet = getDefaultDiagnosisConceptSet();
+            }
+            resolveConceptUuid(codedAnswer, CONCEPT_CLASS_DIAGNOSIS, conceptSet, CONCEPT_DATATYPE_NA);
         }
     }
 }
