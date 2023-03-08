@@ -47,7 +47,7 @@ public class TransmissionController extends BaseRestController {
                 Recipient recipient = new Recipient(recipientName, recipientEmail);
                 bahmniMailContent.setRecipient(recipient);
                 Context.getService(CommunicationService.class).sendEmail(bahmniMailContent);
-                response = factory.newHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null), null);
+                response = factory.newHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "Mail sent successfully"), null);
             } catch (Exception exception) {
                 log.error("Unable to send email", exception);
                 response = factory.newHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Unable to send email"), null);
