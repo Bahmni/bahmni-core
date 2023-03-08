@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 
-
 @Component
 public class BahmniConditionConceptSaveImpl extends TSConceptUuidResolver implements BahmniConditionConceptSaveService {
 
@@ -28,7 +27,7 @@ public class BahmniConditionConceptSaveImpl extends TSConceptUuidResolver implem
     }
 
     @Override
-    public org.openmrs.module.emrapi.conditionslist.contract.Condition update(org.openmrs.module.emrapi.conditionslist.contract.Condition condition ) {
+    public org.openmrs.module.emrapi.conditionslist.contract.Condition update(org.openmrs.module.emrapi.conditionslist.contract.Condition condition) {
         updateConditionAnswerConceptUuid(condition);
         return condition;
     }

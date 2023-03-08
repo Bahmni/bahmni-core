@@ -44,39 +44,27 @@ import static org.mockito.Mockito.when;
 @PowerMockIgnore("javax.management.*")
 public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
 
+    final String GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID = "bahmni.diagnosisSetForNewDiagnosisConcepts";
+    final String UNCLASSIFIED_CONCEPT_SET_UUID = "unclassified-concept-set-uuid";
+    final String MALARIA_CONCEPT_UUID = "malaria-uuid";
+    final String MOCK_CONCEPT_SYSTEM = "http://dummyhost.com/systemcode";
+    final String MOCK_CONCEPT_SOURCE_CODE = "CS dummy code";
+    private final String TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER = "/";
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     @Mock
     @Qualifier("adminService")
     AdministrationService administrationService;
-
     @Mock
     ConceptService conceptService;
-
     @Mock
     TerminologyLookupService terminologyLookupService;
-
-    @Mock
-    private FhirConceptSourceService conceptSourceService;
-
-    @Mock
-    private UserContext userContext;
-
     @InjectMocks
     BahmniDiagnosisAnswerConceptSaveCommandImpl bahmniDiagnosisAnswerConceptSaveCommand;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    final String GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID = "bahmni.diagnosisSetForNewDiagnosisConcepts";
-
-    final String UNCLASSIFIED_CONCEPT_SET_UUID = "unclassified-concept-set-uuid";
-
-    final String MALARIA_CONCEPT_UUID = "malaria-uuid";
-
-    final String MOCK_CONCEPT_SYSTEM = "http://dummyhost.com/systemcode";
-
-    final String MOCK_CONCEPT_SOURCE_CODE = "CS dummy code";
-
-    private final String TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER = "/";
+    @Mock
+    private FhirConceptSourceService conceptSourceService;
+    @Mock
+    private UserContext userContext;
 
     @Before
     public void setUp() {
@@ -101,7 +89,7 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
         bahmniDiagnosisAnswerConceptSaveCommand.update(bahmniEncounterTransaction);
 
         assertEquals(initialDiagnosisSetMembersCount + 1, unclassifiedConceptSet.getSetMembers().size());
-        assertEquals(MALARIA_CONCEPT_UUID,bahmniEncounterTransaction.getBahmniDiagnoses().get(0).getCodedAnswer().getUuid());
+        assertEquals(MALARIA_CONCEPT_UUID, bahmniEncounterTransaction.getBahmniDiagnoses().get(0).getCodedAnswer().getUuid());
     }
 
     @Test
@@ -139,7 +127,7 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
 
         assertEquals(initialDiagnosisSetMembersCount, unclassifiedConceptSet.getSetMembers().size());
         verify(conceptService, times(0)).saveConcept(any(Concept.class));
-        assertEquals(MALARIA_CONCEPT_UUID,bahmniEncounterTransaction.getBahmniDiagnoses().get(0).getCodedAnswer().getUuid());
+        assertEquals(MALARIA_CONCEPT_UUID, bahmniEncounterTransaction.getBahmniDiagnoses().get(0).getCodedAnswer().getUuid());
     }
 
     @Test
@@ -169,7 +157,9 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImplTest {
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
         when(conceptSourceService.getConceptSourceByUrl(anyString())).thenReturn(Optional.of(getMockedConceptSources(MOCK_CONCEPT_SYSTEM, MOCK_CONCEPT_SOURCE_CODE)));
         when(conceptService.getConceptByUuid(UNCLASSIFIED_CONCEPT_SET_UUID)).thenReturn(unclassifiedConceptSet);
-        when(terminologyLookupService.getConcept(anyString(), anyString())).thenAnswer( invocation -> { throw new RuntimeException("Error fetching concept details from terminology server"); });
+        when(terminologyLookupService.getConcept(anyString(), anyString())).thenAnswer(invocation -> {
+            throw new RuntimeException("Error fetching concept details from terminology server");
+        });
 
         int initialDiagnosisSetMembersCount = unclassifiedConceptSet.getSetMembers().size();
 

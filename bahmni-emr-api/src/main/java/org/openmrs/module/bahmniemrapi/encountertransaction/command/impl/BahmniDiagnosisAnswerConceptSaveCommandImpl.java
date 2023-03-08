@@ -34,7 +34,7 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl extends TSConceptUuidRe
     @Override
     public BahmniEncounterTransaction update(BahmniEncounterTransaction bahmniEncounterTransaction) {
         List<BahmniDiagnosisRequest> bahmniDiagnoses = bahmniEncounterTransaction.getBahmniDiagnoses();
-        bahmniDiagnoses.stream().forEach(this ::updateDiagnosisAnswerConceptUuid);
+        bahmniDiagnoses.stream().forEach(this::updateDiagnosisAnswerConceptUuid);
         return bahmniEncounterTransaction;
     }
 
@@ -47,6 +47,7 @@ public class BahmniDiagnosisAnswerConceptSaveCommandImpl extends TSConceptUuidRe
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         return bean;
     }
+
     private void updateDiagnosisAnswerConceptUuid(BahmniDiagnosisRequest bahmniDiagnosis) {
         String codedConceptUuid = adminService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID);
         EncounterTransaction.Concept codedAnswer = bahmniDiagnosis.getCodedAnswer();

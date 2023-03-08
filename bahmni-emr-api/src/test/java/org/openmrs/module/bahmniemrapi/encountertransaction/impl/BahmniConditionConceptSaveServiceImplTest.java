@@ -39,39 +39,27 @@ import static org.mockito.Mockito.when;
 @PrepareForTest(Context.class)
 @PowerMockIgnore("javax.management.*")
 public class BahmniConditionConceptSaveServiceImplTest {
+    final String GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID = "bahmni.diagnosisSetForNewDiagnosisConcepts";
+    final String UNCLASSIFIED_CONCEPT_SET_UUID = "unclassified-concept-set-uuid";
+    final String MALARIA_CONCEPT_UUID = "malaria-uuid";
+    final String MOCK_CONCEPT_SYSTEM = "http://dummyhost.com/systemcode";
+    final String MOCK_CONCEPT_SOURCE_CODE = "CS dummy code";
+    private final String TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER = "/";
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     @Mock
     @Qualifier("adminService")
     AdministrationService administrationService;
-
     @Mock
     ConceptService conceptService;
-
     @Mock
     TerminologyLookupService terminologyLookupService;
-
-    @Mock
-    private FhirConceptSourceService conceptSourceService;
-
-    @Mock
-    private UserContext userContext;
-
     @InjectMocks
     BahmniConditionConceptSaveImpl bahmniConditionConceptSaveService;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    final String GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID = "bahmni.diagnosisSetForNewDiagnosisConcepts";
-
-    final String UNCLASSIFIED_CONCEPT_SET_UUID = "unclassified-concept-set-uuid";
-
-    final String MALARIA_CONCEPT_UUID = "malaria-uuid";
-
-    final String MOCK_CONCEPT_SYSTEM = "http://dummyhost.com/systemcode";
-
-    final String MOCK_CONCEPT_SOURCE_CODE = "CS dummy code";
-
-    private final String TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER = "/";
+    @Mock
+    private FhirConceptSourceService conceptSourceService;
+    @Mock
+    private UserContext userContext;
 
     @Before
     public void setUp() {
@@ -96,7 +84,7 @@ public class BahmniConditionConceptSaveServiceImplTest {
         bahmniConditionConceptSaveService.update(condition);
 
         assertEquals(initialDiagnosisSetMembersCount + 1, unclassifiedConceptSet.getSetMembers().size());
-        assertEquals(MALARIA_CONCEPT_UUID,condition.getConcept().getUuid());
+        assertEquals(MALARIA_CONCEPT_UUID, condition.getConcept().getUuid());
     }
 
     @Test
@@ -134,7 +122,7 @@ public class BahmniConditionConceptSaveServiceImplTest {
 
         assertEquals(initialDiagnosisSetMembersCount, unclassifiedConceptSet.getSetMembers().size());
         verify(conceptService, times(0)).saveConcept(any(Concept.class));
-        assertEquals(MALARIA_CONCEPT_UUID,condition.getConcept().getUuid());
+        assertEquals(MALARIA_CONCEPT_UUID, condition.getConcept().getUuid());
     }
 
     @Test
@@ -164,7 +152,9 @@ public class BahmniConditionConceptSaveServiceImplTest {
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
         when(conceptSourceService.getConceptSourceByUrl(anyString())).thenReturn(Optional.of(getMockedConceptSources(MOCK_CONCEPT_SYSTEM, MOCK_CONCEPT_SOURCE_CODE)));
         when(conceptService.getConceptByUuid(UNCLASSIFIED_CONCEPT_SET_UUID)).thenReturn(unclassifiedConceptSet);
-        when(terminologyLookupService.getConcept(anyString(), anyString())).thenAnswer( invocation -> { throw new RuntimeException("Error fetching concept details from terminology server"); });
+        when(terminologyLookupService.getConcept(anyString(), anyString())).thenAnswer(invocation -> {
+            throw new RuntimeException("Error fetching concept details from terminology server");
+        });
 
         int initialDiagnosisSetMembersCount = unclassifiedConceptSet.getSetMembers().size();
 
@@ -178,14 +168,14 @@ public class BahmniConditionConceptSaveServiceImplTest {
     }
 
 
-    private  org.openmrs.module.emrapi.conditionslist.contract.Condition getBahmniCondition(String conceptSystem, boolean isCodedAnswerFromTermimologyServer) {
+    private org.openmrs.module.emrapi.conditionslist.contract.Condition getBahmniCondition(String conceptSystem, boolean isCodedAnswerFromTermimologyServer) {
         return createBahmniCondition(conceptSystem, isCodedAnswerFromTermimologyServer);
     }
 
     private org.openmrs.module.emrapi.conditionslist.contract.Condition createBahmniCondition(String conceptSystem, boolean isCodedAnswerFromTermimologyServer) {
         String codedAnswerUuid = null;
         String conceptName = "dummy-concept";
-        if( isCodedAnswerFromTermimologyServer)
+        if (isCodedAnswerFromTermimologyServer)
             codedAnswerUuid = conceptSystem + TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER + "61462000";
         else
             codedAnswerUuid = "coded-answer-uuid";

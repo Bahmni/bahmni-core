@@ -39,43 +39,29 @@ import static org.mockito.Mockito.when;
 @PrepareForTest(Context.class)
 @PowerMockIgnore("javax.management.*")
 public class TSConceptUuidResolverTest {
+    public static final String CONCEPT_CLASS_DIAGNOSIS = "Diagnosis";
+    public static final String CONCEPT_DATATYPE_NA = "N/A";
+    final String GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID = "bahmni.diagnosisSetForNewDiagnosisConcepts";
+    final String UNCLASSIFIED_CONCEPT_SET_UUID = "unclassified-concept-set-uuid";
+    final String MALARIA_CONCEPT_UUID = "malaria-uuid";
+    final String MOCK_CONCEPT_SYSTEM = "http://dummyhost.com/systemcode";
+    final String MOCK_CONCEPT_SOURCE_CODE = "CS dummy code";
+    private final String TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER = "/";
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     @Mock
     @Qualifier("adminService")
     AdministrationService administrationService;
-
     @Mock
     ConceptService conceptService;
-
     @Mock
     TerminologyLookupService terminologyLookupService;
-
-    @Mock
-    private FhirConceptSourceService conceptSourceService;
-
-    @Mock
-    private UserContext userContext;
-
     @InjectMocks
     TSConceptUuidResolver TSConceptUuidResolver;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    final String GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID = "bahmni.diagnosisSetForNewDiagnosisConcepts";
-
-    final String UNCLASSIFIED_CONCEPT_SET_UUID = "unclassified-concept-set-uuid";
-
-    final String MALARIA_CONCEPT_UUID = "malaria-uuid";
-
-    final String MOCK_CONCEPT_SYSTEM = "http://dummyhost.com/systemcode";
-
-    final String MOCK_CONCEPT_SOURCE_CODE = "CS dummy code";
-
-    private final String TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER = "/";
-    public static final String CONCEPT_CLASS_DIAGNOSIS = "Diagnosis";
-
-    public static final String CONCEPT_DATATYPE_NA = "N/A";
-
+    @Mock
+    private FhirConceptSourceService conceptSourceService;
+    @Mock
+    private UserContext userContext;
 
     @Before
     public void setUp() {
@@ -84,6 +70,7 @@ public class TSConceptUuidResolverTest {
         when(Context.getLocale()).thenReturn(defaultLocale);
         when(Context.getAdministrationService()).thenReturn(administrationService);
     }
+
     // test for condition
     @Test
     public void shouldUpdateConceptUuidAndSaveNewDiagnosisAnswerConceptAndAddToUnclassifiedSetWhenConceptSourceAndReferenceCodeProvidedForCondition() {
@@ -100,7 +87,7 @@ public class TSConceptUuidResolverTest {
         TSConceptUuidResolver.resolveConceptUuid(concept, CONCEPT_CLASS_DIAGNOSIS, unclassifiedConceptSet, CONCEPT_DATATYPE_NA);
 
         assertEquals(initialDiagnosisSetMembersCount + 1, unclassifiedConceptSet.getSetMembers().size());
-        assertEquals(MALARIA_CONCEPT_UUID,concept.getUuid());
+        assertEquals(MALARIA_CONCEPT_UUID, concept.getUuid());
     }
 
     @Test
@@ -120,8 +107,9 @@ public class TSConceptUuidResolverTest {
 
         assertEquals(initialDiagnosisSetMembersCount, unclassifiedConceptSet.getSetMembers().size());
         verify(conceptService, times(0)).saveConcept(any(Concept.class));
-        assertEquals(MALARIA_CONCEPT_UUID,concept.getUuid());
+        assertEquals(MALARIA_CONCEPT_UUID, concept.getUuid());
     }
+
     @Test
     public void shouldNotUpdateConceptUuidAndNotCreateDiagnosisAnswerConceptWhenReferenceCodeNotProvidedForCondition() {
         Concept existingDiagnosisConcept = getDiagnosisConcept();
@@ -139,7 +127,7 @@ public class TSConceptUuidResolverTest {
 
         assertEquals(initialDiagnosisSetMembersCount, unclassifiedConceptSet.getSetMembers().size());
         verify(conceptService, times(0)).saveConcept(any(Concept.class));
-        assertEquals("coded-answer-uuid",concept.getUuid());
+        assertEquals("coded-answer-uuid", concept.getUuid());
     }
 
     @Test
@@ -157,7 +145,7 @@ public class TSConceptUuidResolverTest {
         TSConceptUuidResolver.resolveConceptUuid(concept, CONCEPT_CLASS_DIAGNOSIS, unclassifiedConceptSet, CONCEPT_DATATYPE_NA);
 
         assertEquals(initialDiagnosisSetMembersCount + 1, unclassifiedConceptSet.getSetMembers().size());
-        assertEquals(MALARIA_CONCEPT_UUID,concept.getUuid());
+        assertEquals(MALARIA_CONCEPT_UUID, concept.getUuid());
     }
 
     @Test
@@ -177,8 +165,9 @@ public class TSConceptUuidResolverTest {
 
         assertEquals(initialDiagnosisSetMembersCount, unclassifiedConceptSet.getSetMembers().size());
         verify(conceptService, times(0)).saveConcept(any(Concept.class));
-        assertEquals(MALARIA_CONCEPT_UUID,concept.getUuid());
+        assertEquals(MALARIA_CONCEPT_UUID, concept.getUuid());
     }
+
     @Test
     public void shouldNotUpdateConceptUuidAndNotCreateDiagnosisAnswerConceptWhenReferenceCodeNotProvidedForDiagnosis() {
         Concept existingDiagnosisConcept = getDiagnosisConcept();
@@ -196,7 +185,7 @@ public class TSConceptUuidResolverTest {
 
         assertEquals(initialDiagnosisSetMembersCount, unclassifiedConceptSet.getSetMembers().size());
         verify(conceptService, times(0)).saveConcept(any(Concept.class));
-        assertEquals("coded-answer-uuid",concept.getUuid());
+        assertEquals("coded-answer-uuid", concept.getUuid());
     }
 
     // private methods for BahmniEncounterTransaction
@@ -206,32 +195,31 @@ public class TSConceptUuidResolverTest {
 
     private EncounterTransaction.Concept createBahmniEncounterTransactionCocnept(String conceptSystem, boolean isCodedAnswerFromTermimologyServer) {
         String codedAnswerUuid = null;
-        if( isCodedAnswerFromTermimologyServer)
+        if (isCodedAnswerFromTermimologyServer)
             codedAnswerUuid = conceptSystem + TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER + "61462000";
         else
             codedAnswerUuid = "coded-answer-uuid";
-       return new EncounterTransaction.Concept(codedAnswerUuid);
+        return new EncounterTransaction.Concept(codedAnswerUuid);
     }
-
 
 
     // private methods for conidition
 
-    private  org.openmrs.module.emrapi.conditionslist.contract.Concept getBahmniConditionConcept(String conceptSystem, boolean isCodedAnswerFromTermimologyServer) {
+    private org.openmrs.module.emrapi.conditionslist.contract.Concept getBahmniConditionConcept(String conceptSystem, boolean isCodedAnswerFromTermimologyServer) {
         return createBahmniConditionConcept(conceptSystem, isCodedAnswerFromTermimologyServer);
     }
 
     private org.openmrs.module.emrapi.conditionslist.contract.Concept createBahmniConditionConcept(String conceptSystem, boolean isCodedAnswerFromTermimologyServer) {
         String codedAnswerUuid = null;
         String conceptName = "dummy-concept";
-        if( isCodedAnswerFromTermimologyServer)
+        if (isCodedAnswerFromTermimologyServer)
             codedAnswerUuid = conceptSystem + TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER + "61462000";
         else
             codedAnswerUuid = "coded-answer-uuid";
-      return new org.openmrs.module.emrapi.conditionslist.contract.Concept(codedAnswerUuid, conceptName);
+        return new org.openmrs.module.emrapi.conditionslist.contract.Concept(codedAnswerUuid, conceptName);
     }
 
-   // common private methods for diagnosis and condition
+    // common private methods for diagnosis and condition
     private ConceptSource getMockedConceptSources(String name, String code) {
         ConceptSource conceptSource = new ConceptSource();
         conceptSource.setName(name);
