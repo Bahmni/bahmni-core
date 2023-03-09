@@ -25,7 +25,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <openMRSVersion>2.5.10</openMRSVersion>
-        <openMRSWebServicesVersion>2.29.0</openMRSWebServicesVersion>
+        <openMRSWebServicesVersion>2.39.0</openMRSWebServicesVersion>
         <springVersion>5.2.14.RELEASE</springVersion>
         <atomfeed.version>1.10.1</atomfeed.version>
         <addressHierarchyVersion>2.14.2</addressHierarchyVersion>
@@ -33,16 +33,16 @@
         <calculationModuleVersion>1.3.0</calculationModuleVersion>
         <serializationXstreamModuleVersion>0.2.15</serializationXstreamModuleVersion>
         <emrapi-omod.version>1.32.0</emrapi-omod.version>
-        <metadatamapping.version>1.4.0</metadatamapping.version>
-        <openmrsAtomfeedVersion>2.6.2-SNAPSHOT</openmrsAtomfeedVersion>
+        <metadatamapping.version>1.5.0</metadatamapping.version>
+        <openmrsAtomfeedVersion>2.6.2</openmrsAtomfeedVersion>
         <lombokVersion>1.16.0</lombokVersion>
         <idgenVersion>4.7.0</idgenVersion>
-        <legacyuiVersion>1.8.4</legacyuiVersion>
-        <episodes.version>1.0.0</episodes.version>
+        <legacyuiVersion>1.13.0</legacyuiVersion>
+        <episodes.version>1.1.0</episodes.version>
         <auditLogVersion>1.3.0</auditLogVersion>
         <bacteriology.version>1.3.0</bacteriology.version>
         <rulesEngineVersion>1.0.0</rulesEngineVersion>
-        <bahmniJavaUtilsVersion>0.94.3-SNAPSHOT</bahmniJavaUtilsVersion>
+        <bahmniJavaUtilsVersion>0.94.3</bahmniJavaUtilsVersion>
         <javaxServletVersion>4.0.1</javaxServletVersion>
         <log4jVersion>2.17.1</log4jVersion>
         <idgenWebServicesVersion>1.4.0</idgenWebServicesVersion>
