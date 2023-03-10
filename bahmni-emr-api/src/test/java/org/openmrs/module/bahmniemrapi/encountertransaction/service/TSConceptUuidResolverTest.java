@@ -73,8 +73,8 @@ public class TSConceptUuidResolverTest {
 
     // test for condition
     @Test
-    public void shouldUpdateConceptUuidAndSaveNewDiagnosisAnswerConceptAndAddToUnclassifiedSetWhenConceptSourceAndReferenceCodeProvidedForCondition() {
-        Concept newDiagnosisConcept = getDiagnosisConcept();
+    public void shouldUpdateConceptUuidAndSaveNewAnswerConceptAndAddToUnclassifiedSetWhenConceptSourceAndReferenceCodeProvidedForCondition() {
+        Concept newDiagnosisConcept = getMockConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
         org.openmrs.module.emrapi.conditionslist.contract.Concept concept = getBahmniConditionConcept(MOCK_CONCEPT_SYSTEM, true);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
@@ -91,8 +91,8 @@ public class TSConceptUuidResolverTest {
     }
 
     @Test
-    public void shouldUpdateConceptUuidAndNotCreateDiagnosisAnswerConceptWhenExistingConceptSourceAndCodeProvidedForCondition() {
-        Concept existingDiagnosisConcept = getDiagnosisConcept();
+    public void shouldUpdateConceptUuidAndNotCreateAnswerConceptWhenExistingConceptSourceAndCodeProvidedForCondition() {
+        Concept existingDiagnosisConcept = getMockConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
         org.openmrs.module.emrapi.conditionslist.contract.Concept concept = getBahmniConditionConcept(MOCK_CONCEPT_SYSTEM, true);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
@@ -111,8 +111,8 @@ public class TSConceptUuidResolverTest {
     }
 
     @Test
-    public void shouldNotUpdateConceptUuidAndNotCreateDiagnosisAnswerConceptWhenReferenceCodeNotProvidedForCondition() {
-        Concept existingDiagnosisConcept = getDiagnosisConcept();
+    public void shouldNotUpdateConceptUuidAndNotCreateAnswerConceptWhenReferenceCodeNotProvidedForCondition() {
+        Concept existingDiagnosisConcept = getMockConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
         org.openmrs.module.emrapi.conditionslist.contract.Concept concept = getBahmniConditionConcept(MOCK_CONCEPT_SYSTEM, false);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
@@ -131,10 +131,10 @@ public class TSConceptUuidResolverTest {
     }
 
     @Test
-    public void shouldUpdateConceptUuidAndSaveNewDiagnosisAnswerConceptAndAddToUnclassifiedSetWhenConceptSourceAndReferenceCodeProvidedForDiagnosis() {
-        Concept newDiagnosisConcept = getDiagnosisConcept();
+    public void shouldUpdateConceptUuidAndSaveNewAnswerConceptAndAddToUnclassifiedSetWhenConceptSourceAndReferenceCodeProvidedForDiagnosis() {
+        Concept newDiagnosisConcept = getMockConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
-        EncounterTransaction.Concept concept = getBahmniEncounterTransactionCocnept(MOCK_CONCEPT_SYSTEM, true);
+        EncounterTransaction.Concept concept = getBahmniEncounterTransactionConcept(MOCK_CONCEPT_SYSTEM, true);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
         when(conceptSourceService.getConceptSourceByUrl(anyString())).thenReturn(Optional.of(getMockedConceptSources(MOCK_CONCEPT_SYSTEM, MOCK_CONCEPT_SOURCE_CODE)));
         when(conceptService.getConceptByUuid(UNCLASSIFIED_CONCEPT_SET_UUID)).thenReturn(unclassifiedConceptSet);
@@ -149,10 +149,10 @@ public class TSConceptUuidResolverTest {
     }
 
     @Test
-    public void shouldUpdateConceptUuidAndNotCreateDiagnosisAnswerConceptWhenExistingConceptSourceAndCodeProvidedForDiagnosis() {
-        Concept existingDiagnosisConcept = getDiagnosisConcept();
+    public void shouldUpdateConceptUuidAndNotCreateAnswerConceptWhenExistingConceptSourceAndCodeProvidedForDiagnosis() {
+        Concept existingDiagnosisConcept = getMockConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
-        EncounterTransaction.Concept concept = getBahmniEncounterTransactionCocnept(MOCK_CONCEPT_SYSTEM, true);
+        EncounterTransaction.Concept concept = getBahmniEncounterTransactionConcept(MOCK_CONCEPT_SYSTEM, true);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
         when(conceptService.getConceptByMapping(anyString(), anyString())).thenReturn(existingDiagnosisConcept);
         when(conceptSourceService.getConceptSourceByUrl(anyString())).thenReturn(Optional.of(getMockedConceptSources(MOCK_CONCEPT_SYSTEM, MOCK_CONCEPT_SOURCE_CODE)));
@@ -169,10 +169,10 @@ public class TSConceptUuidResolverTest {
     }
 
     @Test
-    public void shouldNotUpdateConceptUuidAndNotCreateDiagnosisAnswerConceptWhenReferenceCodeNotProvidedForDiagnosis() {
-        Concept existingDiagnosisConcept = getDiagnosisConcept();
+    public void shouldNotUpdateConceptUuidAndNotCreateAnswerConceptWhenReferenceCodeNotProvidedForDiagnosis() {
+        Concept existingDiagnosisConcept = getMockConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
-        EncounterTransaction.Concept concept = getBahmniEncounterTransactionCocnept(MOCK_CONCEPT_SYSTEM, false);
+        EncounterTransaction.Concept concept = getBahmniEncounterTransactionConcept(MOCK_CONCEPT_SYSTEM, false);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
         when(conceptService.getConceptByMapping(anyString(), anyString())).thenReturn(existingDiagnosisConcept);
         when(conceptSourceService.getConceptSourceByUrl(anyString())).thenReturn(Optional.of(getMockedConceptSources(MOCK_CONCEPT_SYSTEM, MOCK_CONCEPT_SOURCE_CODE)));
@@ -189,11 +189,11 @@ public class TSConceptUuidResolverTest {
     }
 
     // private methods for BahmniEncounterTransaction
-    private EncounterTransaction.Concept getBahmniEncounterTransactionCocnept(String conceptSystem, boolean isCodedAnswerFromTermimologyServer) {
-        return createBahmniEncounterTransactionCocnept(conceptSystem, isCodedAnswerFromTermimologyServer);
+    private EncounterTransaction.Concept getBahmniEncounterTransactionConcept(String conceptSystem, boolean isCodedAnswerFromTermimologyServer) {
+        return createBahmniEncounterTransactionConcept(conceptSystem, isCodedAnswerFromTermimologyServer);
     }
 
-    private EncounterTransaction.Concept createBahmniEncounterTransactionCocnept(String conceptSystem, boolean isCodedAnswerFromTermimologyServer) {
+    private EncounterTransaction.Concept createBahmniEncounterTransactionConcept(String conceptSystem, boolean isCodedAnswerFromTermimologyServer) {
         String codedAnswerUuid = null;
         if (isCodedAnswerFromTermimologyServer)
             codedAnswerUuid = conceptSystem + TERMINOLOGY_SERVER_CODED_ANSWER_DELIMITER + "61462000";
@@ -203,7 +203,7 @@ public class TSConceptUuidResolverTest {
     }
 
 
-    // private methods for conidition
+    // private methods for condition
 
     private org.openmrs.module.emrapi.conditionslist.contract.Concept getBahmniConditionConcept(String conceptSystem, boolean isCodedAnswerFromTermimologyServer) {
         return createBahmniConditionConcept(conceptSystem, isCodedAnswerFromTermimologyServer);
@@ -227,7 +227,7 @@ public class TSConceptUuidResolverTest {
         return conceptSource;
     }
 
-    private Concept getDiagnosisConcept() {
+    private Concept getMockConcept() {
         Concept concept = new Concept();
         ConceptName fullySpecifiedName = new ConceptName("Malaria (disorder)", Context.getLocale());
         ConceptName shortName = new ConceptName("Malaria", Context.getLocale());

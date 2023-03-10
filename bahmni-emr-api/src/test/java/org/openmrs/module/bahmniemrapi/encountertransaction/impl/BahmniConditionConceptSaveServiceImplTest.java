@@ -71,13 +71,13 @@ public class BahmniConditionConceptSaveServiceImplTest {
 
     @Test
     public void shouldSaveNewConditionAnswerConceptAndAddToUnclassifiedSetWhenConceptSourceAndReferenceCodeProvided() {
-        Concept newDiagnosisConcept = getDiagnosisConcept();
+        Concept newConcept = getMockConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
         org.openmrs.module.emrapi.conditionslist.contract.Condition condition = getBahmniCondition(MOCK_CONCEPT_SYSTEM, true);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
         when(conceptSourceService.getConceptSourceByUrl(anyString())).thenReturn(Optional.of(getMockedConceptSources(MOCK_CONCEPT_SYSTEM, MOCK_CONCEPT_SOURCE_CODE)));
         when(conceptService.getConceptByUuid(UNCLASSIFIED_CONCEPT_SET_UUID)).thenReturn(unclassifiedConceptSet);
-        when(terminologyLookupService.getConcept(anyString(), anyString())).thenReturn(newDiagnosisConcept);
+        when(terminologyLookupService.getConcept(anyString(), anyString())).thenReturn(newConcept);
 
         int initialDiagnosisSetMembersCount = unclassifiedConceptSet.getSetMembers().size();
 
@@ -88,14 +88,14 @@ public class BahmniConditionConceptSaveServiceImplTest {
     }
 
     @Test
-    public void shouldNotCreateDiagnosisAnswerConceptWhenExistingConceptProvided() {
-        Concept newDiagnosisConcept = getDiagnosisConcept();
+    public void shouldNotCreateConditionAnswerConceptWhenExistingConceptProvided() {
+        Concept newConcept = getMockConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
         org.openmrs.module.emrapi.conditionslist.contract.Condition condition = getBahmniCondition(MOCK_CONCEPT_SYSTEM, false);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
         when(conceptSourceService.getConceptSourceByUrl(anyString())).thenReturn(Optional.of(getMockedConceptSources(MOCK_CONCEPT_SYSTEM, MOCK_CONCEPT_SOURCE_CODE)));
         when(conceptService.getConceptByUuid(UNCLASSIFIED_CONCEPT_SET_UUID)).thenReturn(unclassifiedConceptSet);
-        when(terminologyLookupService.getConcept(anyString(), anyString())).thenReturn(newDiagnosisConcept);
+        when(terminologyLookupService.getConcept(anyString(), anyString())).thenReturn(newConcept);
 
         int initialDiagnosisSetMembersCount = unclassifiedConceptSet.getSetMembers().size();
 
@@ -106,15 +106,15 @@ public class BahmniConditionConceptSaveServiceImplTest {
     }
 
     @Test
-    public void shouldNotCreateDiagnosisAnswerConceptWhenExistingConceptSourceAndCodeProvided() {
-        Concept existingDiagnosisConcept = getDiagnosisConcept();
+    public void shouldNotCreateConditionAnswerConceptWhenExistingConceptSourceAndCodeProvided() {
+        Concept existingConcept = getMockConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
         org.openmrs.module.emrapi.conditionslist.contract.Condition condition = getBahmniCondition(MOCK_CONCEPT_SYSTEM, true);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
-        when(conceptService.getConceptByMapping(anyString(), anyString())).thenReturn(existingDiagnosisConcept);
+        when(conceptService.getConceptByMapping(anyString(), anyString())).thenReturn(existingConcept);
         when(conceptSourceService.getConceptSourceByUrl(anyString())).thenReturn(Optional.of(getMockedConceptSources(MOCK_CONCEPT_SYSTEM, MOCK_CONCEPT_SOURCE_CODE)));
         when(conceptService.getConceptByUuid(UNCLASSIFIED_CONCEPT_SET_UUID)).thenReturn(unclassifiedConceptSet);
-        when(terminologyLookupService.getConcept(anyString(), anyString())).thenReturn(existingDiagnosisConcept);
+        when(terminologyLookupService.getConcept(anyString(), anyString())).thenReturn(existingConcept);
 
         int initialDiagnosisSetMembersCount = unclassifiedConceptSet.getSetMembers().size();
 
@@ -127,13 +127,13 @@ public class BahmniConditionConceptSaveServiceImplTest {
 
     @Test
     public void shouldThrowExceptionWhenConceptSourceNotFound() {
-        Concept newDiagnosisConcept = getDiagnosisConcept();
+        Concept newConcept = getMockConcept();
         Concept unclassifiedConceptSet = getUnclassifiedConceptSet();
         org.openmrs.module.emrapi.conditionslist.contract.Condition condition = getBahmniCondition("Some Invalid System", true);
         when(administrationService.getGlobalProperty(GP_DEFAULT_CONCEPT_SET_FOR_DIAGNOSIS_CONCEPT_UUID)).thenReturn(UNCLASSIFIED_CONCEPT_SET_UUID);
         when(conceptSourceService.getConceptSourceByUrl(anyString())).thenReturn(Optional.empty());
         when(conceptService.getConceptByUuid(UNCLASSIFIED_CONCEPT_SET_UUID)).thenReturn(unclassifiedConceptSet);
-        when(terminologyLookupService.getConcept(anyString(), anyString())).thenReturn(newDiagnosisConcept);
+        when(terminologyLookupService.getConcept(anyString(), anyString())).thenReturn(newConcept);
 
         expectedException.expect(APIException.class);
         expectedException.expectMessage("Concept Source Some Invalid System not found");
@@ -192,7 +192,7 @@ public class BahmniConditionConceptSaveServiceImplTest {
         return conceptSource;
     }
 
-    private Concept getDiagnosisConcept() {
+    private Concept getMockConcept() {
         Concept concept = new Concept();
         ConceptName fullySpecifiedName = new ConceptName("Malaria (disorder)", Context.getLocale());
         ConceptName shortName = new ConceptName("Malaria", Context.getLocale());
