@@ -4810,16 +4810,21 @@
     <changeSet id="bahmni-core-202303031445" author="Parvathy, Rahul">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="2">
-                SELECT count(*) FROM concept_set WHERE concept_id = 63 and concept_set = 62;
+                SELECT count(*) FROM concept_set WHERE concept_set = (SELECT concept_id FROM concept_name WHERE name = 'Dosing Units' AND concept_name_type = 'FULLY_SPECIFIED')
+                AND concept_id = (SELECT concept_id FROM concept_name WHERE name = 'Tablet(s)' AND concept_name_type = 'FULLY_SPECIFIED');
             </sqlCheck>
             <sqlCheck expectedResult="2">
-                SELECT count(*) FROM concept_set WHERE concept_id = 64 and concept_set = 62;
+                SELECT count(*) FROM concept_set WHERE concept_set = (SELECT concept_id FROM concept_name WHERE name = 'Dosing Units' AND concept_name_type = 'FULLY_SPECIFIED')
+                AND concept_id = (SELECT concept_id FROM concept_name WHERE name = 'Capsule(s)' AND concept_name_type = 'FULLY_SPECIFIED');
             </sqlCheck>
         </preConditions>
         <comment>Remove dosing unit duplicates from concept set</comment>
         <sql>
-            set @tablet_concept_set_id = 49;
-            set @capsule_concept_set_id = 50;
+            set @tablet_concept_set_id = (SELECT MAX(concept_set_id) FROM concept_set WHERE concept_set = (SELECT concept_id FROM concept_name WHERE name = 'Dosing Units' AND concept_name_type = 'FULLY_SPECIFIED')
+            AND concept_id = (SELECT concept_id FROM concept_name WHERE name = 'Tablet(s)' AND concept_name_type = 'FULLY_SPECIFIED'));
+
+            set @capsule_concept_set_id = (SELECT MAX(concept_set_id) FROM concept_set WHERE concept_set = (SELECT concept_id FROM concept_name WHERE name = 'Dosing Units' AND concept_name_type = 'FULLY_SPECIFIED')
+            AND concept_id = (SELECT concept_id FROM concept_name WHERE name = 'Capsule(s)' AND concept_name_type = 'FULLY_SPECIFIED'));
 
             delete from concept_set where concept_set_id=@tablet_concept_set_id;
             delete from concept_set where concept_set_id=@capsule_concept_set_id;
