@@ -140,7 +140,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
+            <groupId>org.bahmni.module</groupId>
             <artifactId>episodes-api</artifactId>
             <version>${episodes.version}</version>
             <scope>provided</scope>

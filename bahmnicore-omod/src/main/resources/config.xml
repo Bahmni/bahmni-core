@@ -173,4 +173,10 @@
         <description>Boolean to enable sending email with prescription details</description>
     </globalProperty>
 
+    <globalProperty>
+        <property>bahmni.executeGroovyObsValueCalculator</property>
+        <defaultValue>true</defaultValue>
+        <description>Enable or disable Groovy script execution for obs value calculation on encounter save</description>
+    </globalProperty>
+
 </module>
