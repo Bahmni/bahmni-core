@@ -17,4 +17,6 @@ public interface VisitDao {
 
     List<Integer> getVisitIdsFor(String patientUuid, Integer numberOfVisits);
 
+    List<Visit> commonVisit(String patientUuid, String locationId);
+
 }

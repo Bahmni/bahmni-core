@@ -1,12 +1,15 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
+import org.bahmni.module.bahmnicore.contract.visit.BahmniVisitResponse;
 import org.bahmni.module.bahmnicore.contract.visit.VisitSummary;
 import org.bahmni.module.bahmnicore.mapper.BahmniVisitSummaryMapper;
+import org.bahmni.module.bahmnicore.mapper.BahmniVisitResponseMapper;
 import org.bahmni.module.bahmnicore.service.BahmniVisitService;
 import org.openmrs.Encounter;
 import org.openmrs.Visit;
 import org.openmrs.VisitAttribute;
 import org.openmrs.api.VisitService;
+import org.openmrs.module.bahmniemrapi.VisitPatient.VisitPatientRequest;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService;
 import org.openmrs.module.webservices.rest.web.RestConstants;
@@ -34,6 +37,7 @@ public class BahmniVisitController extends BaseRestController {
     private VisitService visitService;
     private BahmniVisitService bahmniVisitService;
     private BahmniVisitSummaryMapper bahmniVisitSummaryMapper;
+    private BahmniVisitResponseMapper bhamniVisitResponseMapper;
     private BahmniEncounterTransactionService bahmniEncounterTransactionService;
 
     public BahmniVisitController() {
@@ -45,6 +49,23 @@ public class BahmniVisitController extends BaseRestController {
         this.bahmniVisitService = bahmniVisitService;
         this.bahmniEncounterTransactionService = bahmniEncounterTransactionService;
         this.bahmniVisitSummaryMapper = new BahmniVisitSummaryMapper();
+        this.bhamniVisitResponseMapper =new BahmniVisitResponseMapper();
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "startVisit")
+    @ResponseBody
+    @Transactional
+    public BahmniVisitResponse startVisit(@RequestBody VisitPatientRequest visitPatientRequest) {
+        Visit visit = saveVisit(visitPatientRequest);
+        return bhamniVisitResponseMapper.map(visit);
+    }
+
+    private Visit saveVisit(VisitPatientRequest visitPatientRequest) {
+        if (bahmniVisitService.alreadyExistingVisit(visitPatientRequest.getPatient(),visitPatientRequest.getLocation()))
+        {return null;}
+        else
+            return bahmniVisitService.saveVisitByPatient(visitPatientRequest.getPatient(),visitPatientRequest.getLocation(),visitPatientRequest.getVisitType());
+
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "endVisit")

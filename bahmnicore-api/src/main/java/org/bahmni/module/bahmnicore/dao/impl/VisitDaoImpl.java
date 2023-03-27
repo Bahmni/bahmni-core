@@ -82,4 +82,14 @@ public class VisitDaoImpl implements VisitDao {
         }
         return queryToGetVisitIds.list();
     }
+
+    public List<Visit> commonVisit(String patientUuid, String locationId) {
+        String queryString = "Select v FROM Visit v WHERE v.patient.uuid= :patientUuid and v.voided = false and v.location.uuid= :locationId and v.stopDatetime IS NULL";
+        Query queryToGetCommonVisit = sessionFactory.getCurrentSession().createQuery(queryString);
+        queryToGetCommonVisit.setString("patientUuid", patientUuid);
+        queryToGetCommonVisit.setString("locationId", locationId);
+        return (List<Visit>) queryToGetCommonVisit.list();
+    }
+
+
 }
