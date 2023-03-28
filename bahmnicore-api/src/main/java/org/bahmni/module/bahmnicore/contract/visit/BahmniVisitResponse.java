@@ -3,11 +3,11 @@
     public class BahmniVisitResponse {
         private String uuid;
         private String patientUuid;
-        public String visitTypeUuid;
+        public VisitTypeResponse visitType;
         private String locationUuid;
         private String startDatetime;
         private String stopDatetime;
-
+      
         public String getUuid() {
             return uuid;
         }
@@ -24,12 +24,12 @@
             this.patientUuid = patientUuid;
         }
 
-        public String getVisitTypeUuid() {
-            return visitTypeUuid;
+        public VisitTypeResponse getVisitType() {
+            return visitType;
         }
 
-        public void setVisitTypeUuid(String visitTypeUuid) {
-            this.visitTypeUuid = visitTypeUuid;
+        public void setVisitType(VisitTypeResponse visitType) {
+            this.visitType = visitType;
         }
 
         public String getLocationUuid() {
