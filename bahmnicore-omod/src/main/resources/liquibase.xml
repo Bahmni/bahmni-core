@@ -1151,8 +1151,8 @@
     </changeSet>
     <changeSet id="bahmni-core-201906101318" author="Vinay, Indraneel, Samuel34">
         <preConditions onFail="MARK_RAN">
-        	<sqlCheck expectedResult="0">
-        		select count(*) from global_property where property = 'order.durationUnitsConceptUuid';
+        	<sqlCheck expectedResult="1">
+        		select count(*) from global_property where property = 'order.durationUnitsConceptUuid' and property_value IS NULL;
         	</sqlCheck>
         </preConditions>
         <comment>Adding duration unit concepts and setting up associated global property</comment>
@@ -1939,30 +1939,6 @@
             call delete_concept('Percutaneous Endoscopic Gastrostomy');
         </sql>
     </changeSet>
-    <changeSet id="bahmni-core-201409291458" author="Chethan,Banka">
-        <comment>Adding concepts and concept set related to quantity units</comment>
-        <sql>
-            select concept_id into @set_concept_id from concept_name where name = 'Dose Quantity Units' and concept_name_type = 'FULLY_SPECIFIED';
-
-            select concept_id into @concept_id from concept_name where name = 'Tablet' and concept_name_type = 'FULLY_SPECIFIED';
-            call add_concept_set_members (@set_concept_id, @concept_id, 1);
-
-            select concept_id into @concept_id from concept_name where name = 'Capsule' and concept_name_type = 'FULLY_SPECIFIED';
-            call add_concept_set_members (@set_concept_id, @concept_id, 1);
-
-            select concept_id into @concept_id from concept_name where name = 'ml' and concept_name_type = 'FULLY_SPECIFIED';
-            call add_concept_set_members (@set_concept_id, @concept_id, 1);
-
-            select concept_id into @concept_id from concept_name where name = 'mg' and concept_name_type = 'FULLY_SPECIFIED';
-            call add_concept_set_members (@set_concept_id, @concept_id, 1);
-
-            select concept_id into @concept_id from concept_name where name = 'IU' and concept_name_type = 'FULLY_SPECIFIED';
-            call add_concept_set_members (@set_concept_id, @concept_id, 1);
-
-            select concept_id into @concept_id from concept_name where name = 'Unit(s)' and concept_name_type = 'FULLY_SPECIFIED';
-            call add_concept_set_members (@set_concept_id, @concept_id, 1);
-        </sql>
-    </changeSet>
     <changeSet id="bahmni-core-201409291704" author="Chethan,Banka">
         <comment>Changing names for Duration Units, Dose Units</comment>
         <sql>
@@ -2000,19 +1976,6 @@
             UPDATE concept_set, concept_name SET concept_set.sort_weight = 6 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'Drop' and concept_set.concept_set = @dosing_units_concept_id;
             UPDATE concept_set, concept_name SET concept_set.sort_weight = 7 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'Tablespoon' and concept_set.concept_set = @dosing_units_concept_id;
             UPDATE concept_set, concept_name SET concept_set.sort_weight = 8 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'Teaspoon' and concept_set.concept_set = @dosing_units_concept_id;
-            UPDATE concept_set, concept_name SET concept_set.sort_weight = 9 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'Unit(s)' and concept_set.concept_set = @dosing_units_concept_id;
-        </sql>
-    </changeSet>
-    <changeSet id="bahmni-core-201409301255" author="Chethan,Banka">
-        <comment>Changing sort order for dose quantity units</comment>
-        <sql>
-            select concept_id into @dosing_units_concept_id from concept_name where name = 'Dose Quantity Units' and concept_name_type = 'FULLY_SPECIFIED';
-
-            UPDATE concept_set, concept_name SET concept_set.sort_weight = 1 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'Tablet(s)' and concept_set.concept_set = @dosing_units_concept_id;
-            UPDATE concept_set, concept_name SET concept_set.sort_weight = 2 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'Capsule(s)' and concept_set.concept_set = @dosing_units_concept_id;
-            UPDATE concept_set, concept_name SET concept_set.sort_weight = 3 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'ml' and concept_set.concept_set = @dosing_units_concept_id;
-            UPDATE concept_set, concept_name SET concept_set.sort_weight = 4 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'mg' and concept_set.concept_set = @dosing_units_concept_id;
-            UPDATE concept_set, concept_name SET concept_set.sort_weight = 5 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'IU' and concept_set.concept_set = @dosing_units_concept_id;
             UPDATE concept_set, concept_name SET concept_set.sort_weight = 9 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'Unit(s)' and concept_set.concept_set = @dosing_units_concept_id;
         </sql>
     </changeSet>
