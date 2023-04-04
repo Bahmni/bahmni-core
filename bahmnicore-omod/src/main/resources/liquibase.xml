@@ -1151,8 +1151,8 @@
     </changeSet>
     <changeSet id="bahmni-core-201906101318" author="Vinay, Indraneel, Samuel34">
         <preConditions onFail="MARK_RAN">
-        	<sqlCheck expectedResult="0">
-        		select count(*) from global_property where property = 'order.durationUnitsConceptUuid';
+        	<sqlCheck expectedResult="1">
+        		select count(*) from global_property where property = 'order.durationUnitsConceptUuid' and property_value IS NULL;
         	</sqlCheck>
         </preConditions>
         <comment>Adding duration unit concepts and setting up associated global property</comment>
@@ -1939,30 +1939,6 @@
             call delete_concept('Percutaneous Endoscopic Gastrostomy');
         </sql>
     </changeSet>
-    <changeSet id="bahmni-core-201409291458" author="Chethan,Banka">
-        <comment>Adding concepts and concept set related to quantity units</comment>
-        <sql>
-            select concept_id into @set_concept_id from concept_name where name = 'Dose Quantity Units' and concept_name_type = 'FULLY_SPECIFIED';
-
-            select concept_id into @concept_id from concept_name where name = 'Tablet' and concept_name_type = 'FULLY_SPECIFIED';
-            call add_concept_set_members (@set_concept_id, @concept_id, 1);
-
-            select concept_id into @concept_id from concept_name where name = 'Capsule' and concept_name_type = 'FULLY_SPECIFIED';
-            call add_concept_set_members (@set_concept_id, @concept_id, 1);
-
-            select concept_id into @concept_id from concept_name where name = 'ml' and concept_name_type = 'FULLY_SPECIFIED';
-            call add_concept_set_members (@set_concept_id, @concept_id, 1);
-
-            select concept_id into @concept_id from concept_name where name = 'mg' and concept_name_type = 'FULLY_SPECIFIED';
-            call add_concept_set_members (@set_concept_id, @concept_id, 1);
-
-            select concept_id into @concept_id from concept_name where name = 'IU' and concept_name_type = 'FULLY_SPECIFIED';
-            call add_concept_set_members (@set_concept_id, @concept_id, 1);
-
-            select concept_id into @concept_id from concept_name where name = 'Unit(s)' and concept_name_type = 'FULLY_SPECIFIED';
-            call add_concept_set_members (@set_concept_id, @concept_id, 1);
-        </sql>
-    </changeSet>
     <changeSet id="bahmni-core-201409291704" author="Chethan,Banka">
         <comment>Changing names for Duration Units, Dose Units</comment>
         <sql>
@@ -2000,19 +1976,6 @@
             UPDATE concept_set, concept_name SET concept_set.sort_weight = 6 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'Drop' and concept_set.concept_set = @dosing_units_concept_id;
             UPDATE concept_set, concept_name SET concept_set.sort_weight = 7 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'Tablespoon' and concept_set.concept_set = @dosing_units_concept_id;
             UPDATE concept_set, concept_name SET concept_set.sort_weight = 8 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'Teaspoon' and concept_set.concept_set = @dosing_units_concept_id;
-            UPDATE concept_set, concept_name SET concept_set.sort_weight = 9 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'Unit(s)' and concept_set.concept_set = @dosing_units_concept_id;
-        </sql>
-    </changeSet>
-    <changeSet id="bahmni-core-201409301255" author="Chethan,Banka">
-        <comment>Changing sort order for dose quantity units</comment>
-        <sql>
-            select concept_id into @dosing_units_concept_id from concept_name where name = 'Dose Quantity Units' and concept_name_type = 'FULLY_SPECIFIED';
-
-            UPDATE concept_set, concept_name SET concept_set.sort_weight = 1 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'Tablet(s)' and concept_set.concept_set = @dosing_units_concept_id;
-            UPDATE concept_set, concept_name SET concept_set.sort_weight = 2 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'Capsule(s)' and concept_set.concept_set = @dosing_units_concept_id;
-            UPDATE concept_set, concept_name SET concept_set.sort_weight = 3 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'ml' and concept_set.concept_set = @dosing_units_concept_id;
-            UPDATE concept_set, concept_name SET concept_set.sort_weight = 4 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'mg' and concept_set.concept_set = @dosing_units_concept_id;
-            UPDATE concept_set, concept_name SET concept_set.sort_weight = 5 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'IU' and concept_set.concept_set = @dosing_units_concept_id;
             UPDATE concept_set, concept_name SET concept_set.sort_weight = 9 where concept_set.concept_id = concept_name.concept_id and concept_name.name = 'Unit(s)' and concept_set.concept_set = @dosing_units_concept_id;
         </sql>
     </changeSet>
@@ -2680,46 +2643,7 @@
             insert into order_type_class_map(order_type_id, concept_class_id) values(@order_type_id,@lab_test);
         </sql>
     </changeSet>
-    <changeSet id="bahmni-core-20221206644-BAH-2652" author="clinic-config">
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="1">
-                select count(*) from order_type where name='Lab Order';
-            </sqlCheck>
-            <sqlCheck expectedResult="1">
-                select count(*) from concept_class where name='Test';
-            </sqlCheck>
-        </preConditions>
-        <comment>Associating Test concept classes to Lab Order order type</comment>
-        <sql>
-            set @order_type_id = '';
-            set @test_class = '';
 
-            select order_type_id into @order_type_id from order_type where name = 'Lab Order';
-            select concept_class_id into @test_class from concept_class where name = 'Test';
-
-            insert into order_type_class_map(order_type_id, concept_class_id) values(@order_type_id,@test_class);
-        </sql>
-    </changeSet>
-    <changeSet id="bahmni-core-20221215-bah-2652" author="clinic-config">
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="1">
-                select count(*) from order_type where name='Radiology Order';
-            </sqlCheck>
-            <sqlCheck expectedResult="1">
-                select count(*) from concept_class where name='Radiology/Imaging Procedure';
-            </sqlCheck>
-        </preConditions>
-        <comment>Associating Radiology/Imaging Procedure concept class to Radiology Order order type</comment>
-        <sql>
-            set @radiology_order_type_id = '';
-            set @radiology_imaging = '';
-
-            select order_type_id into @radiology_order_type_id from order_type where name = 'Radiology Order';
-            select concept_class_id into @radiology_imaging from concept_class where name = 'Radiology/Imaging Procedure';
-
-            insert into order_type_class_map(order_type_id, concept_class_id) values(@radiology_order_type_id,@radiology_imaging);
-        </sql>
-    </changeSet>
     <changeSet id="bahmni-core-201505171755" author="Bharat">
         <validCheckSum>3:24754f616857125b862150154fb85150</validCheckSum>
         <preConditions onFail="MARK_RAN">
@@ -4805,6 +4729,64 @@
         <comment>Adding Create Teleconsultation privilege to Appointments:ManageAppointments role</comment>
         <sql>
             INSERT INTO role_privilege(role, privilege) VALUES ("Appointments:ManageAppointments", "Create Teleconsultation");
+        </sql>
+    </changeSet>
+    <changeSet id="bahmni-core-202303029-BAH-2652" author="clinic-config">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                select count(*) from order_type where name='Lab Order';
+            </sqlCheck>
+            <sqlCheck expectedResult="1">
+                select count(*) from concept_class where name='Test';
+            </sqlCheck>
+            <sqlCheck expectedResult="0">
+                select count(*) from order_type_class_map where order_type_id=(select order_type_id from order_type where name = 'Lab Order') and concept_class_id=(select concept_class_id from concept_class where name = 'Test');
+            </sqlCheck>
+        </preConditions>
+        <comment>Associating Test concept classes to Lab Order order type</comment>
+        <sql>
+            set @order_type_id = '';
+            set @test_class = '';
+
+            select order_type_id into @order_type_id from order_type where name = 'Lab Order';
+            select concept_class_id into @test_class from concept_class where name = 'Test';
+
+            insert into order_type_class_map(order_type_id, concept_class_id) values(@order_type_id,@test_class);
+        </sql>
+    </changeSet>
+    <changeSet id="clinic-config-BAH2652-2932023" author="clinic-config">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM concept_class where name = 'Radiology/Imaging Procedure';
+            </sqlCheck>
+        </preConditions>
+        <comment>Add concept class for Radiology/Imaging Procedure</comment>
+        <sql>
+            insert into concept_class (name, description, creator, date_created, retired, uuid)
+            values ('Radiology/Imaging Procedure', 'Radiology Orders', 1, NOW(), 0, 'c6664c16-16b4-4bf4-91da-93f2ac88a0eb');
+        </sql>
+    </changeSet>
+    <changeSet id="bahmni-core-20230329-bah-265229032023" author="clinic-config">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                select count(*) from order_type where name='Radiology Order';
+            </sqlCheck>
+            <sqlCheck expectedResult="1">
+                select count(*) from concept_class where name='Radiology/Imaging Procedure';
+            </sqlCheck>
+            <sqlCheck expectedResult="0">
+                select count(*) from order_type_class_map where order_type_id=(select order_type_id from order_type where name = 'Radiology Order') and concept_class_id=(select concept_class_id from concept_class where name = 'Radiology/Imaging Procedure');
+            </sqlCheck>
+        </preConditions>
+        <comment>Associating Radiology/Imaging Procedure concept class to Radiology Order order type</comment>
+        <sql>
+            set @radiology_order_type_id = '';
+            set @radiology_imaging = '';
+
+            select order_type_id into @radiology_order_type_id from order_type where name = 'Radiology Order';
+            select concept_class_id into @radiology_imaging from concept_class where name = 'Radiology/Imaging Procedure';
+
+            insert into order_type_class_map(order_type_id, concept_class_id) values(@radiology_order_type_id,@radiology_imaging);
         </sql>
     </changeSet>
     <changeSet id="bahmni-core-202304030930" author="Parvathy, Rahul">

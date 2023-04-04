@@ -7,7 +7,7 @@ on:
 jobs:
   build-publish-package:
     name: Build and Publish package
-    runs-on: ubuntu-latest
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
@@ -23,9 +23,13 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7'
+          bundler-cache: true
       - name: Install compass
         run: |
-          sudo apt-get install ruby-dev
           sudo gem install compass -v 1.0.3
       - name: Build and deploy with Maven
         run: ./mvnw --no-transfer-progress clean -U deploy
