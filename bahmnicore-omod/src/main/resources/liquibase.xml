@@ -4807,8 +4807,7 @@
             INSERT INTO role_privilege(role, privilege) VALUES ("Appointments:ManageAppointments", "Create Teleconsultation");
         </sql>
     </changeSet>
-
-    <changeSet id="bahmni-core-202303201210" author="Parvathy, Rahul">
+    <changeSet id="bahmni-core-202304030930" author="Parvathy, Rahul">
         <preConditions onFail="MARK_RAN">
             <not>
                 <sqlCheck expectedResult="0">
@@ -4829,8 +4828,7 @@
             AND concept_set.concept_id=(SELECT concept_id FROM concept_name WHERE name = 'Capsule(s)' AND concept_name_type = 'FULLY_SPECIFIED' AND locale_preferred=true);
         </sql>
     </changeSet>
-
-    <changeSet id="bahmni-core-202303201220" author="Parvathy, Rahul">
+    <changeSet id="bahmni-core-202304030935" author="Parvathy, Rahul">
         <preConditions onFail="MARK_RAN">
             <not>
                 <sqlCheck expectedResult="0">
@@ -4851,42 +4849,35 @@
             AND concept_set.concept_id=(SELECT concept_id FROM concept_name WHERE name = 'Tablet(s)' AND concept_name_type = 'FULLY_SPECIFIED' AND locale_preferred=true);
         </sql>
     </changeSet>
-
-    <changeSet id="bahmni-core-202303200330" author="Parvathy, Rahul">
+    <changeSet id="bahmni-core-202304030940" author="Parvathy, Rahul">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
                 SELECT count(concept_set_id) FROM concept_set WHERE concept_set = (SELECT concept_id FROM concept_name WHERE name = 'Dosing Units' AND concept_name_type = 'FULLY_SPECIFIED')
-                AND concept_id = (SELECT concept_id FROM concept_name WHERE name = 'Tablet' AND concept_name_type = 'FULLY_SPECIFIED');
+                AND concept_id = (SELECT concept_id FROM concept_name WHERE name = 'Tablet(s)' AND concept_name_type = 'FULLY_SPECIFIED');
             </sqlCheck>
         </preConditions>
         <comment>Add Tablet to Dosing Unit concept set</comment>
         <sql>
             SET @set_concept_id = (SELECT concept_id FROM concept_name WHERE name = 'Dosing Units' AND concept_name_type = 'FULLY_SPECIFIED');
-
-            SET @tablet_concept_id = (SELECT concept_id FROM concept_name where name = 'Tablet' AND concept_name_type = 'FULLY_SPECIFIED');
-
+            SET @tablet_concept_id = (SELECT concept_id FROM concept_name where name = 'Tablet(s)' AND concept_name_type = 'FULLY_SPECIFIED');
             INSERT INTO concept_set (concept_id, concept_set,sort_weight,creator,date_created,uuid) values (@tablet_concept_id, @set_concept_id, 1, 1, now(),uuid());
         </sql>
     </changeSet>
-
-    <changeSet id="bahmni-core-202303200340" author="Parvathy, Rahul">
+    <changeSet id="bahmni-core-202304030945" author="Parvathy, Rahul">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
                 SELECT count(concept_set_id) FROM concept_set WHERE concept_set = (SELECT concept_id FROM concept_name WHERE name = 'Dosing Units' AND concept_name_type = 'FULLY_SPECIFIED')
-                AND concept_id = (SELECT concept_id FROM concept_name WHERE name = 'Capsule' AND concept_name_type = 'FULLY_SPECIFIED');
+                AND concept_id = (SELECT concept_id FROM concept_name WHERE name = 'Capsule(s)' AND concept_name_type = 'FULLY_SPECIFIED');
             </sqlCheck>
         </preConditions>
         <comment>Add Capsule to Dosing Unit concept set</comment>
         <sql>
             SET @set_concept_id = (SELECT concept_id FROM concept_name WHERE name = 'Dosing Units' AND concept_name_type = 'FULLY_SPECIFIED');
-
-            SET @capsule_concept_id = (SELECT concept_id FROM concept_name where name = 'Capsule' AND concept_name_type = 'FULLY_SPECIFIED');
-
+            SET @capsule_concept_id = (SELECT concept_id FROM concept_name where name = 'Capsule(s)' AND concept_name_type = 'FULLY_SPECIFIED');
             INSERT INTO concept_set (concept_id, concept_set,sort_weight,creator,date_created,uuid) values (@capsule_concept_id, @set_concept_id, 1, 1, now(),uuid());
         </sql>
     </changeSet>
-    
-    <changeSet id="bahmni-core-202303291000" author="Parvathy, Rahul">
+    <changeSet id="bahmni-core-202304040930" author="Parvathy, Rahul">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="1">
                 SELECT count(*) FROM concept_name where name='tablet(s)' and concept_name_type='SHORT';
@@ -4896,6 +4887,12 @@
             </sqlCheck>
             <sqlCheck expectedResult="1">
                 SELECT count(*) FROM concept_name where name='unit(s)' and concept_name_type='SHORT';
+            </sqlCheck>
+            <sqlCheck expectedResult="1">
+                SELECT count(*) FROM concept_name where name='Tablet(s)' and concept_name_type='FULLY_SPECIFIED';
+            </sqlCheck>
+            <sqlCheck expectedResult="1">
+                SELECT count(*) FROM concept_name where name='Capsule(s)' and concept_name_type='FULLY_SPECIFIED';
             </sqlCheck>
             <sqlCheck expectedResult="1">
                 SELECT count(*) FROM concept_name where name='Unit(s)' and concept_name_type='FULLY_SPECIFIED';
@@ -4908,6 +4905,10 @@
             UPDATE concept_name SET name='capsule' where name='capsule(s)' and concept_name_type='SHORT';
 
             UPDATE concept_name SET name='unit' where name='unit(s)' and concept_name_type='SHORT';
+
+            UPDATE concept_name SET name='Tablet' where name='Tablet(s)' and concept_name_type='FULLY_SPECIFIED';
+
+            UPDATE concept_name SET name='Capsule' where name='Capsule(s)' and concept_name_type='FULLY_SPECIFIED';
 
             UPDATE concept_name SET name='Unit' where name='Unit(s)' and concept_name_type='FULLY_SPECIFIED';
         </sql>
