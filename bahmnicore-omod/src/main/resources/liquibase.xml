@@ -4859,27 +4859,7 @@
             INSERT INTO concept_set (concept_id, concept_set,sort_weight,creator,date_created,uuid) values (@capsule_concept_id, @set_concept_id, 1, 1, now(),uuid());
         </sql>
     </changeSet>
-    <changeSet id="bahmni-core-202304040930" author="Parvathy, Rahul">
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="1">
-                SELECT count(*) FROM concept_name where name='tablet(s)' and concept_name_type='SHORT';
-            </sqlCheck>
-            <sqlCheck expectedResult="1">
-                SELECT count(*) FROM concept_name where name='capsule(s)' and concept_name_type='SHORT';
-            </sqlCheck>
-            <sqlCheck expectedResult="1">
-                SELECT count(*) FROM concept_name where name='unit(s)' and concept_name_type='SHORT';
-            </sqlCheck>
-            <sqlCheck expectedResult="1">
-                SELECT count(*) FROM concept_name where name='Tablet(s)' and concept_name_type='FULLY_SPECIFIED';
-            </sqlCheck>
-            <sqlCheck expectedResult="1">
-                SELECT count(*) FROM concept_name where name='Capsule(s)' and concept_name_type='FULLY_SPECIFIED';
-            </sqlCheck>
-            <sqlCheck expectedResult="1">
-                SELECT count(*) FROM concept_name where name='Unit(s)' and concept_name_type='FULLY_SPECIFIED';
-            </sqlCheck>
-        </preConditions>
+    <changeSet id="bahmni-core-202304060320" author="Parvathy, Rahul">
         <comment>Renaming Concept Names of Dosing Units</comment>
         <sql>
             UPDATE concept_name SET name='tablet' where name='tablet(s)' and concept_name_type='SHORT';
