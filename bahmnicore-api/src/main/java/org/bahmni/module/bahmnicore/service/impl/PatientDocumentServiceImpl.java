@@ -45,7 +45,7 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
     private final Integer NO_OF_PATIENT_FILE_IN_A_DIRECTORY = 100;
     private final String VIDEO_FILE_TYPE = "video";
     private final String IMAGE_FILE_TYPE = "image";
-    public static final String LAB_RESULT_ENCOUNTER_TYPE = "LAB_RESULT";
+    private static final String LAB_RESULT_ENCOUNTER_TYPE = "LAB_RESULT";
 
     protected void setThumbnailGenerators(List<ThumbnailGenerator> thumbnailGenerators) {
         this.thumbnailGenerators = thumbnailGenerators;
