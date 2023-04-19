@@ -1149,37 +1149,34 @@
             `property_value`=@concept_set_uuid;
         </sql>
     </changeSet>
-    <changeSet id="bahmni-core-201906101318" author="Vinay, Indraneel, Samuel34">
+    <changeSet id="bahmni-core-202304192116" author="Angshu">
         <preConditions onFail="MARK_RAN">
-        	<sqlCheck expectedResult="1">
-        		select count(*) from global_property where property = 'order.durationUnitsConceptUuid' and property_value IS NULL;
-        	</sqlCheck>
+            <sqlCheck expectedResult="1">
+                select count(*) from global_property where property = 'order.durationUnitsConceptUuid' and property_value IS NULL;
+            </sqlCheck>
         </preConditions>
-        <comment>Adding duration unit concepts and setting up associated global property</comment>
+        <comment>Adding duration unit concepts and setting up associated global property. CIEL dataset should create the actual members. this is replacement of changeset bahmni-core-201906101318</comment>
         <sql>
             set @concept_id = 0;
             set @concept_name_short_id = 0;
             set @concept_name_full_id = 0;
             call add_concept(@concept_id, @concept_name_short_id, @concept_name_full_id, 'Duration Units', 'duration units', 'N/A', 'ConvSet', true);
-            set @set_concept_id = @concept_id;
-            call add_concept(@concept_id, @concept_name_short_id, @concept_name_full_id, 'Days', 'days', 'N/A', 'Misc', false);
-            call add_concept_set_members (@set_concept_id,@concept_id,1);
 
             select c.uuid from concept_name cn inner join concept c on cn.concept_id = c.concept_id where cn.name = 'Duration Units' and cn.concept_name_type = 'FULLY_SPECIFIED' into @concept_set_uuid;
             select uuid() into @uuid;
 
             insert into global_property
             (`property`,
-            `property_value`,
-            `description`,
-            `uuid`)
+             `property_value`,
+             `description`,
+             `uuid`)
             values
-            ('order.durationUnitsConceptUuid',
-            @concept_set_uuid,
-            'Global property pointing to duration units concept set',
-            @uuid)
-            ON DUPLICATE KEY UPDATE
-            `property_value`=@concept_set_uuid;
+                ('order.durationUnitsConceptUuid',
+                 @concept_set_uuid,
+                 'Global property pointing to duration units concept set',
+                 @uuid)
+                ON DUPLICATE KEY UPDATE
+                                     `property_value`=@concept_set_uuid;
         </sql>
     </changeSet>
     <changeSet id="bahmni-core-201407171715" author="Vinay, Indraneel">
@@ -1404,193 +1401,6 @@
             select @labresults_concept_id := concept_id, min(concept_id) from concept_name where name = 'LABRESULTS_CONCEPT' GROUP BY concept_id;
             set @set_concept_id = @concept_id;
             call add_concept_set_members (@labresults_concept_id,@set_concept_id,1);
-        </sql>
-    </changeSet>
-
-    <changeSet id="bahmni-core-201409241028" author="Hemanth">
-        <validCheckSum>3:48db15b4c8ef5eb006f8bb9a82854735</validCheckSum>
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">select count(*) from concept_reference_source where name='ISO 8601 Duration'</sqlCheck>
-        </preConditions>
-        <comment>Insert concept reference source for Duration units</comment>
-        <sql>
-            set @uuid = 0;
-            select uuid() into @uuid;
-
-            insert into concept_reference_source (name, description, hl7_code, creator, date_created, uuid)
-            values('ISO 8601 Duration', 'ISO 8601 Duration Source', 'SCT', 1, now(), @uuid);
-        </sql>
-    </changeSet>
-    <changeSet id="bahmni-core-201409241048" author="Hemanth">
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">select count(*) from concept_reference_term where name='Second(s)'</sqlCheck>
-        </preConditions>
-        <comment>Insert concept reference term for Second(s)</comment>
-        <sql>
-            set @uuid = 0;
-            set @source_id = 0;
-
-            select uuid() into @uuid;
-            select concept_source_id from concept_reference_source where name='ISO 8601 Duration' into @source_id;
-
-            insert into concept_reference_term(concept_source_id, name, code, description, creator, date_created, uuid)
-            values(@source_id, 'Second(s)', '257997001', 'Duration in Second(s)', 1, now(), @uuid);
-        </sql>
-    </changeSet>
-    <changeSet id="bahmni-core-201409241115" author="Hemanth">
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">select count(*) from concept_reference_term where name='Minute(s)'</sqlCheck>
-        </preConditions>
-        <comment>Insert concept reference term for Minute(s)</comment>
-        <sql>
-            set @uuid = 0;
-            set @source_id = 0;
-
-            select uuid() into @uuid;
-            select concept_source_id from concept_reference_source where name='ISO 8601 Duration' into @source_id;
-
-            insert into concept_reference_term(concept_source_id, name, code, description, creator, date_created, uuid)
-            values(@source_id, 'Minute(s)', '258701004', 'Duration in Minute(s)', 1, now(), @uuid);
-        </sql>
-    </changeSet>
-    <changeSet id="bahmni-core-201409241116" author="Hemanth">
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">select count(*) from concept_reference_term where name='Hour(s)'</sqlCheck>
-        </preConditions>
-        <comment>Insert concept reference term for Hour(s)</comment>
-        <sql>
-            set @uuid = 0;
-            set @source_id = 0;
-
-            select uuid() into @uuid;
-            select concept_source_id from concept_reference_source where name='ISO 8601 Duration' into @source_id;
-
-            insert into concept_reference_term(concept_source_id, name, code, description, creator, date_created, uuid)
-            values(@source_id, 'Hour(s)', '258702006', 'Duration in Hour(s)', 1, now(), @uuid);
-        </sql>
-    </changeSet>
-    <changeSet id="bahmni-core-201409241117" author="Hemanth">
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">select count(*) from concept_reference_term where name='Day(s)'</sqlCheck>
-        </preConditions>
-        <comment>Insert concept reference term for Day(s)</comment>
-        <sql>
-            set @uuid = 0;
-            set @source_id = 0;
-
-            select uuid() into @uuid;
-            select concept_source_id from concept_reference_source where name='ISO 8601 Duration' into @source_id;
-
-            insert into concept_reference_term(concept_source_id, name, code, description, creator, date_created, uuid)
-            values(@source_id, 'Day(s)', '258703001', 'Duration in Day(s)', 1, now(), @uuid);
-        </sql>
-    </changeSet>
-    <changeSet id="bahmni-core-201409241119" author="Hemanth">
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">select count(*) from concept_reference_term where name='Week(s)'</sqlCheck>
-        </preConditions>
-        <comment>Insert concept reference term for Week(s)</comment>
-        <sql>
-            set @uuid = 0;
-            set @source_id = 0;
-
-            select uuid() into @uuid;
-            select concept_source_id from concept_reference_source where name='ISO 8601 Duration' into @source_id;
-
-            insert into concept_reference_term(concept_source_id, name, code, description, creator, date_created, uuid)
-            values(@source_id, 'Week(s)', '258705008', 'Duration in Week(s)', 1, now(), @uuid);
-        </sql>
-    </changeSet>
-    <changeSet id="bahmni-core-201409241120" author="Hemanth">
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">select count(*) from concept_reference_term where name='Month(s)'</sqlCheck>
-        </preConditions>
-        <comment>Insert concept reference term for Month(s)</comment>
-        <sql>
-            set @uuid = 0;
-            set @source_id = 0;
-
-            select uuid() into @uuid;
-            select concept_source_id from concept_reference_source where name='ISO 8601 Duration' into @source_id;
-
-            insert into concept_reference_term(concept_source_id, name, code, description, creator, date_created, uuid)
-            values(@source_id, 'Month(s)', '258706009', 'Duration in Week(s)', 1, now(), @uuid);
-        </sql>
-    </changeSet>
-    <changeSet id="bahmni-core-201409241122" author="Hemanth">
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">select count(*) from concept_reference_term where name='Year(s)'</sqlCheck>
-        </preConditions>
-        <comment>Insert concept reference term for Year(s)</comment>
-        <sql>
-            set @uuid = 0;
-            set @source_id = 0;
-
-            select uuid() into @uuid;
-            select concept_source_id from concept_reference_source where name='ISO 8601 Duration' into @source_id;
-
-            insert into concept_reference_term(concept_source_id, name, code, description, creator, date_created, uuid)
-            values(@source_id, 'Year(s)', '258707000', 'Duration in Year(s)', 1, now(), @uuid);
-        </sql>
-    </changeSet>
-    <changeSet id="bahmni-core-201409241123" author="Hemanth">
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">select count(*) from concept_reference_term where name='Time(s)'</sqlCheck>
-        </preConditions>
-        <comment>Insert concept reference term for Time(s)</comment>
-        <sql>
-            set @uuid = 0;
-            set @source_id = 0;
-
-            select uuid() into @uuid;
-            select concept_source_id from concept_reference_source where name='ISO 8601 Duration' into @source_id;
-
-            insert into concept_reference_term(concept_source_id, name, code, description, creator, date_created, uuid)
-            values(@source_id, 'Time(s)', '252109000', 'Duration in Time(s)', 1, now(), @uuid);
-        </sql>
-    </changeSet>
-    <changeSet id="bahmni-core-201409041530" author="Rohan, Sravanthi">
-        <validCheckSum>3:f2057b5f013e4faea7a403e2ef20e13d</validCheckSum>
-        <validCheckSum>3:30a534a584da0e66d93a6dc1093fd2a1</validCheckSum>
-        <comment>Adding hours, weeks and months concepts for drug order duration units</comment>
-        <sql>
-            set @concept_id = 0;
-            set @concept_name_short_id = 0;
-            set @concept_name_full_id = 0;
-            set @quantityUnits_concept_id = 0;
-            set @concept_map_type_id = 0;
-            set @concept_reference_term_id = 0;
-
-            select concept_id from concept_name where name = 'Duration Units' and concept_name_type = 'FULLY_SPECIFIED' into @set_concept_id;
-            select concept_map_type_id from concept_map_type where name='SAME-AS' into @concept_map_type_id;
-
-            call add_concept(@concept_id, @concept_name_short_id, @concept_name_full_id,'Hours','hours', 'N/A', 'Misc', false);
-            call add_concept_set_members (@set_concept_id,@concept_id,1);
-            select concept_reference_term_id from concept_reference_term where name='Hour(s)' into @concept_reference_term_id;
-            select uuid() into @uuid;
-            insert into concept_reference_map (concept_reference_term_id, concept_map_type_id, concept_id, date_created, creator, uuid) values (
-            @concept_reference_term_id , @concept_map_type_id, @concept_id, now(),1, @uuid);
-
-            select concept_reference_term_id from concept_reference_term where name='Day(s)' into @concept_reference_term_id;
-            select concept_map_type_id from concept_map_type where name='SAME-AS' into @concept_map_type_id;
-            select concept_id from concept_name where name = 'Days' and concept_name_type = 'FULLY_SPECIFIED' into @concept_id;
-            select uuid() into @uuid;
-            insert into concept_reference_map (concept_reference_term_id, concept_map_type_id, concept_id, date_created, creator, uuid) values (
-            @concept_reference_term_id , @concept_map_type_id, @concept_id, now(),1, @uuid);
-
-            call add_concept(@concept_id, @concept_name_short_id, @concept_name_full_id,'Weeks','weeks', 'N/A', 'Misc', false);
-            call add_concept_set_members (@set_concept_id,@concept_id,1);
-            select concept_reference_term_id from concept_reference_term where name='Week(s)' into @concept_reference_term_id;
-            select uuid() into @uuid;
-            insert into concept_reference_map (concept_reference_term_id, concept_map_type_id, concept_id, date_created, creator, uuid) values (
-            @concept_reference_term_id , @concept_map_type_id, @concept_id, now(),1, @uuid);
-
-            call add_concept(@concept_id, @concept_name_short_id, @concept_name_full_id,'Months','months', 'N/A', 'Misc', false);
-            call add_concept_set_members (@set_concept_id,@concept_id,1);
-            select concept_reference_term_id from concept_reference_term where name='Month(s)' into @concept_reference_term_id;
-            select uuid() into @uuid;
-            insert into concept_reference_map (concept_reference_term_id, concept_map_type_id, concept_id, date_created, creator, uuid) values (
-            @concept_reference_term_id , @concept_map_type_id, @concept_id, now(),1, @uuid);
         </sql>
     </changeSet>
     <changeSet id="bahmni-core-201409091224" author="Mihir, Shruthi">
@@ -1939,27 +1749,9 @@
             call delete_concept('Percutaneous Endoscopic Gastrostomy');
         </sql>
     </changeSet>
-    <changeSet id="bahmni-core-201409291704" author="Chethan,Banka">
-        <comment>Changing names for Duration Units, Dose Units</comment>
+    <changeSet id="bahmni-core-202304192144" author="Angshu">
+        <comment>Removing update of Duration Units concept member name. Replacement of changeset bahmni-core-201409291704. Also only checking for dosing unit Oral</comment>
         <sql>
-            UPDATE concept_name SET name='Day(s)' where name='Days' and concept_name_type='FULLY_SPECIFIED';
-            UPDATE concept_name SET name='day(s)' where name='days' and concept_name_type='SHORT';
-
-            UPDATE concept_name SET name='Week(s)' where name='Weeks' and concept_name_type='FULLY_SPECIFIED';
-            UPDATE concept_name SET name='week(s)' where name='weeks' and concept_name_type='SHORT';
-
-            UPDATE concept_name SET name='Hour(s)' where name='Hours' and concept_name_type='FULLY_SPECIFIED';
-            UPDATE concept_name SET name='hour(s)' where name='hours' and concept_name_type='SHORT';
-
-            UPDATE concept_name SET name='Month(s)' where name='Months' and concept_name_type='FULLY_SPECIFIED';
-            UPDATE concept_name SET name='month(s)' where name='months' and concept_name_type='SHORT';
-
-            UPDATE concept_name SET name='Tablet(s)' where name='Tablet' and concept_name_type='FULLY_SPECIFIED';
-            UPDATE concept_name SET name='tablet(s)' where name='tablet' and concept_name_type='SHORT';
-
-            UPDATE concept_name SET name='Capsule(s)' where name='Capsule' and concept_name_type='FULLY_SPECIFIED';
-            UPDATE concept_name SET name='capsule(s)' where name='capsule' and concept_name_type='SHORT';
-
             UPDATE concept_name SET name='Oral' where name='Per Os' and concept_name_type='FULLY_SPECIFIED';
         </sql>
     </changeSet>
@@ -2348,29 +2140,6 @@
             select @uuid;
             insert into concept_class (name, description, creator, date_created, retired, uuid)
             values ('Computed/Editable', 'Computed/Editable', 1, @date, 0, @uuid);
-        </sql>
-    </changeSet>
-    <changeSet id="bahmni-core-201412160932" author="Rohan, Shruthi">
-        <validCheckSum>3:f77d13ad07ec98f9e3beda3047a09da8</validCheckSum>
-        <validCheckSum>3:e106e85dee90f3b8f62789aa3a3306ed</validCheckSum>
-        <comment>Adding minutes concept for drug order duration units</comment>
-        <sql>
-            set @concept_id = 0;
-            set @concept_name_short_id = 0;
-            set @concept_name_full_id = 0;
-            set @quantityUnits_concept_id = 0;
-            set @concept_map_type_id = 0;
-            set @concept_reference_term_id = 0;
-
-            select concept_id from concept_name where name = 'Duration Units' and concept_name_type = 'FULLY_SPECIFIED' into @set_concept_id;
-            select concept_map_type_id from concept_map_type where name='SAME-AS' into @concept_map_type_id;
-
-            call add_concept(@concept_id, @concept_name_short_id, @concept_name_full_id,'Minute(s)','minute(s)', 'N/A', 'Misc', false);
-            call add_concept_set_members (@set_concept_id,@concept_id,1);
-            select concept_reference_term_id from concept_reference_term where name='Minute(s)' into @concept_reference_term_id;
-            select uuid() into @uuid;
-            insert into concept_reference_map (concept_reference_term_id, concept_map_type_id, concept_id, date_created, creator, uuid) values (
-            @concept_reference_term_id , @concept_map_type_id, @concept_id, now(),1, @uuid);
         </sql>
     </changeSet>
     <changeSet id="bahmni-core-201412171832" author="Mujir, Mihir">
