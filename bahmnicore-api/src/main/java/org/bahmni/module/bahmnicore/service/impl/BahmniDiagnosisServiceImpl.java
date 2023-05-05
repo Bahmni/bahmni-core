@@ -36,7 +36,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-@Component
 public class BahmniDiagnosisServiceImpl implements BahmniDiagnosisService {
 
     private static final String BAHMNI_EXTERNAL_TERMINOLOGY_SERVER_LOOKUP_NEEDED = "bahmni.lookupExternalTerminologyServer";

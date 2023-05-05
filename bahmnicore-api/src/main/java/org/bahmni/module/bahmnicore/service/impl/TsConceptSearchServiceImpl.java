@@ -23,17 +23,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-@Component
 public class TsConceptSearchServiceImpl implements TsConceptSearchService {
     private BahmniDiagnosisService bahmniDiagnosisService;
 
-    private EmrConceptService emrService;
+    private EmrConceptService emrConceptService;
 
 
     @Autowired
-    public TsConceptSearchServiceImpl(BahmniDiagnosisService bahmniDiagnosisService, EmrConceptService emrService) {
+    public TsConceptSearchServiceImpl(BahmniDiagnosisService bahmniDiagnosisService, EmrConceptService emrConceptService) {
         this.bahmniDiagnosisService = bahmniDiagnosisService;
-        this.emrService = emrService;
+        this.emrConceptService = emrConceptService;
     }
 
     @Override
@@ -51,7 +50,7 @@ public class TsConceptSearchServiceImpl implements TsConceptSearchService {
         List<ConceptSource> conceptSources = bahmniDiagnosisService.getConceptSourcesForDiagnosisSearch();
         Locale searchLocale = getSearchLocale(locale);
         List<ConceptSearchResult> conceptSearchResults =
-                emrService.conceptSearch(query, LocaleUtility.getDefaultLocale(), null, diagnosisSets, conceptSources, limit);
+                emrConceptService.conceptSearch(query, LocaleUtility.getDefaultLocale(), null, diagnosisSets, conceptSources, limit);
         ConceptSource conceptSource = conceptSources.isEmpty() ? null : conceptSources.get(0);
         return createListResponse(conceptSearchResults, conceptSource, searchLocale);
     }
