@@ -45,6 +45,7 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
     private final Integer NO_OF_PATIENT_FILE_IN_A_DIRECTORY = 100;
     private final String VIDEO_FILE_TYPE = "video";
     private final String IMAGE_FILE_TYPE = "image";
+    private static final String LAB_RESULT_ENCOUNTER_TYPE = "LAB_RESULT";
 
     protected void setThumbnailGenerators(List<ThumbnailGenerator> thumbnailGenerators) {
         this.thumbnailGenerators = thumbnailGenerators;
@@ -69,10 +70,11 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
 
     @Override
     public String saveDocument(Integer patientId, String encounterTypeName, String content, String format, String fileType, String fileName) {
+        String basePath;
         try {
             if (content == null || content.isEmpty()) return null;
+            basePath = getBasePathByEncounterType(encounterTypeName);
 
-            String basePath = getBasePath();
             String relativeFilePath = createFilePath(basePath, patientId, encounterTypeName, format, fileName);
 
             File outputFile = new File(String.format("%s/%s", basePath, relativeFilePath));
@@ -83,6 +85,16 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
         } catch (IOException e) {
             throw new BahmniCoreException("[%s] : Could not save patient Document ", e);
         }
+    }
+
+    private String getBasePathByEncounterType(String encounterTypeName) {
+        String basePath;
+        if(encounterTypeName.equalsIgnoreCase(LAB_RESULT_ENCOUNTER_TYPE)){
+            basePath = BahmniCoreProperties.getProperty("bahmnicore.documents.lablitebaseDirectory");
+        } else{
+            basePath = getBasePath();
+        }
+        return basePath;
     }
 
     private String getBasePath() {
