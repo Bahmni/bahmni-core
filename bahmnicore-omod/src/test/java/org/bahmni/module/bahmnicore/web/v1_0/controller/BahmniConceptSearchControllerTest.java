@@ -1,7 +1,7 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.bahmni.module.bahmnicore.service.BahmniDiagnosisService;
-import org.bahmni.module.fhirterminologyservices.api.TerminologyLookupService;
+import org.bahmni.module.bahmnicore.service.TsConceptSearchService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +20,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -41,7 +42,7 @@ public class BahmniConceptSearchControllerTest {
     private EmrConceptService emrService;
 
     @Mock
-    private TerminologyLookupService terminologyLookupService;
+    private TsConceptSearchService tsConceptSearchService;
 
     @Mock
     private AdministrationService administrationService;
@@ -64,15 +65,13 @@ public class BahmniConceptSearchControllerTest {
 
     @Test
     public void shouldSearchDiagnosisByNameFromDiagnosisSetOfSetsWhenNoExternalTerminologyServerUsed() throws Exception {
-        Concept malariaConcept = new Concept();
-        ConceptName malariaConceptName = new ConceptName(searchTerm, LocaleUtility.getDefaultLocale());
         String malariaConceptUuid = "uuid1";
-        malariaConcept.setUuid(malariaConceptUuid);
-        malariaConcept.setFullySpecifiedName(malariaConceptName);
-        malariaConcept.setPreferredName(malariaConceptName);
-        ConceptSearchResult conceptSearchResult = new ConceptSearchResult(searchTerm, malariaConcept, malariaConceptName);
+        SimpleObject MalariaObject = new SimpleObject();
+        MalariaObject.add("conceptName", searchTerm);
+        MalariaObject.add("conceptUuid", malariaConceptUuid);
+        MalariaObject.add("matchedName", searchTerm);
 
-        when(emrService.conceptSearch(searchTerm, LocaleUtility.getDefaultLocale(), null, Collections.EMPTY_LIST, Collections.EMPTY_LIST, searchLimit)).thenReturn(Collections.singletonList(conceptSearchResult));
+        when(tsConceptSearchService.getConcepts(searchTerm, searchLimit, locale)).thenReturn(Collections.singletonList(MalariaObject));
 
         List<SimpleObject> searchResults = (List< SimpleObject >) bahmniConceptSearchController.search(searchTerm, searchLimit, locale);
 
@@ -83,20 +82,11 @@ public class BahmniConceptSearchControllerTest {
     }
 
     @Test
-    public void shouldSearchDiagnosisByNameFromExternalTerminologyServer() throws Exception {
-        String malariaConceptUuid = "uuid1";
-        SimpleObject MalariaObject = new SimpleObject();
-        MalariaObject.add("conceptName", searchTerm);
-        MalariaObject.add("conceptUuid", malariaConceptUuid);
-        MalariaObject.add("matchedName", searchTerm);
-
-        when(bahmniDiagnosisService.isExternalTerminologyServerLookupNeeded()).thenReturn(true);
-        when(terminologyLookupService.getResponseList(searchTerm, searchLimit, locale)).thenReturn(Collections.singletonList(MalariaObject));
+    public void shouldSearchDiagnosisByNameFromExternalTerminologyServerAndShouldReturnEmptyList() throws Exception {
+        when(tsConceptSearchService.getConcepts(searchTerm, searchLimit, locale)).thenReturn(new ArrayList<>());
 
         List<SimpleObject> searchResults = (List< SimpleObject >) bahmniConceptSearchController.search(searchTerm, searchLimit, locale);
         assertNotNull(searchResults);
-        assertEquals(searchResults.size(), 1);
-        assertEquals(searchResults.get(0).get("conceptName"), searchTerm);
-        assertEquals(searchResults.get(0).get("conceptUuid"), malariaConceptUuid);
+        assertEquals(searchResults.size(), 0);
     }
 }
