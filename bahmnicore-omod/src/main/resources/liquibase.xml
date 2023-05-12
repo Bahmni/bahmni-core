@@ -1149,7 +1149,7 @@
             `property_value`=@concept_set_uuid;
         </sql>
     </changeSet>
-    <changeSet id="bahmni-core-202304192116" author="Angshu">
+    <changeSet id="bahmni-core-202305121314" author="Angshu">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="1">
                 select count(*) from global_property where property = 'order.durationUnitsConceptUuid' and property_value IS NULL;
@@ -1160,10 +1160,9 @@
             set @concept_id = 0;
             set @concept_name_short_id = 0;
             set @concept_name_full_id = 0;
-            call add_concept(@concept_id, @concept_name_short_id, @concept_name_full_id, 'Duration Units', 'duration units', 'N/A', 'ConvSet', true);
+            call add_concept(@concept_id, @concept_name_short_id, @concept_name_full_id, 'Duration Units', 'duration units', 'Coded', 'ConvSet', true);
 
-            select c.uuid from concept_name cn inner join concept c on cn.concept_id = c.concept_id where cn.name = 'Duration Units' and cn.concept_name_type = 'FULLY_SPECIFIED' into @concept_set_uuid;
-            select uuid() into @uuid;
+            update concept set uuid = '1732AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' where concept_id=@concept_id;
 
             insert into global_property
             (`property`,
@@ -1172,11 +1171,10 @@
              `uuid`)
             values
                 ('order.durationUnitsConceptUuid',
-                 @concept_set_uuid,
+                 '1732AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
                  'Global property pointing to duration units concept set',
                  @uuid)
-                ON DUPLICATE KEY UPDATE
-                                     `property_value`=@concept_set_uuid;
+            ON DUPLICATE KEY UPDATE `property_value`='1732AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
         </sql>
     </changeSet>
     <changeSet id="bahmni-core-201407171715" author="Vinay, Indraneel">
