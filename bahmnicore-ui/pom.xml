@@ -69,7 +69,7 @@
         </dependency>
         <dependency>
             <groupId>org.bahmni.module</groupId>
-            <artifactId>bahmnicore-ts-api</artifactId>
+            <artifactId>bahmnicore-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
