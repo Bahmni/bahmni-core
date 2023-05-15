@@ -70,7 +70,6 @@
         <providermanagementVersion>2.13.0</providermanagementVersion>
         <velocityVersion>1.6.2</velocityVersion>
         <bahmniCommons.version>1.0.0</bahmniCommons.version>
-        <openmrs.fhir2.version>1.8.0</openmrs.fhir2.version>
 
         <!--test dependencies-->
         <junitVersion>4.13</junitVersion>
@@ -278,12 +277,6 @@
                 <artifactId>bahmni-commons-api</artifactId>
                 <type>jar</type>
                 <version>${bahmniCommons.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.openmrs.module</groupId>
-                <artifactId>fhir2-api</artifactId>
-                <version>${openmrs.fhir2.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
