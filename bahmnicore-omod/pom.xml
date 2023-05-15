@@ -60,11 +60,6 @@
             <artifactId>communication-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
-            <artifactId>fhir2-api</artifactId>
-            <version>${openmrs.fhir2.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.bahmni.module</groupId>
             <artifactId>bahmnicore-ts-api</artifactId>
             <version>${project.parent.version}</version>
