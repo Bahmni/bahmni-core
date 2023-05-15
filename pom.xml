@@ -56,7 +56,7 @@
         <emrapi-omod.version>1.32.0</emrapi-omod.version>
         <metadatamapping.version>1.5.0</metadatamapping.version>
         <openmrsAtomfeedVersion>2.6.2</openmrsAtomfeedVersion>
-        <lombokVersion>1.16.0</lombokVersion>
+        <lombokVersion>1.18.20</lombokVersion>
         <idgenVersion>4.7.0</idgenVersion>
         <legacyuiVersion>1.13.0</legacyuiVersion>
         <episodes.version>1.1.0</episodes.version>
@@ -586,7 +586,8 @@
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>1.18.20</version>
+                <version>${lombokVersion}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
