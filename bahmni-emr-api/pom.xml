@@ -69,16 +69,6 @@
             <artifactId>bahmni-commons-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.bahmni.module</groupId>
-            <artifactId>fhir-ts-services-int-api</artifactId>
-            <version>${terminologyServices.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openmrs.module</groupId>
-            <artifactId>fhir2-api</artifactId>
-            <version>${openmrs.fhir2.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.openmrs.module</groupId>
             <artifactId>webservices.rest-omod-common</artifactId>
             <version>${openMRSWebServicesVersion}</version>
