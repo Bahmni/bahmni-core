@@ -33,6 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.times;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class BahmniDrugOrderServiceImplTest {
@@ -85,7 +86,7 @@ public class BahmniDrugOrderServiceImplTest {
        bahmniDrugOrderService.getDrugOrders(PATIENT_UUID, true, conceptsToFilter, null, PATIENT_PROGRAM_UUID);
 
         final Date value = dateArgumentCaptor.getValue();
-        verify(orderDao).getActiveOrders(mockPatient, mockOrderType, mockCareSetting, value, conceptsToFilter, null, null, null, encounters);
+        verify(orderDao, times(2)).getActiveOrders(mockPatient, mockOrderType, mockCareSetting, value, conceptsToFilter, null, null, null, encounters);
     }
 
     @Test
