@@ -97,11 +97,17 @@ public class BahmniDrugOrderServiceImpl implements BahmniDrugOrderService {
     public List<DrugOrder> getInactiveDrugOrders(String patientUuid, Set<Concept> concepts, Set<Concept> drugConceptsToBeExcluded,
                                                  Collection<Encounter> encounters) {
         Patient patient = openmrsPatientService.getPatientByUuid(patientUuid);
-        CareSetting careSettingByName = orderService.getCareSettingByName(CareSetting.CareSettingType.OUTPATIENT.toString());
+        CareSetting outPatientCareSetting = orderService.getCareSettingByName(CareSetting.CareSettingType.OUTPATIENT.toString());
+        CareSetting inPatientCareSetting = orderService.getCareSettingByName(CareSetting.CareSettingType.INPATIENT.toString());
         Date asOfDate = new Date();
-        List<Order> orders = orderDao.getInactiveOrders(patient, orderService.getOrderTypeByName("Drug order"),
-                careSettingByName, asOfDate, concepts, drugConceptsToBeExcluded, encounters);
-        return mapOrderToDrugOrder(orders);
+        List<Order> outPatientOrders = orderDao.getInactiveOrders(patient, orderService.getOrderTypeByName("Drug order"),
+                outPatientCareSetting, asOfDate, concepts, drugConceptsToBeExcluded, encounters);
+        List<Order> inPatientOrders = orderDao.getInactiveOrders(patient, orderService.getOrderTypeByName("Drug order"),
+                inPatientCareSetting, asOfDate, concepts, drugConceptsToBeExcluded, encounters);
+        List<Order> allActiveDrugOrders = new ArrayList<>();
+        allActiveDrugOrders.addAll(outPatientOrders);
+        allActiveDrugOrders.addAll(inPatientOrders);
+        return mapOrderToDrugOrder(allActiveDrugOrders);
     }
 
     @Override
@@ -204,10 +210,16 @@ public class BahmniDrugOrderServiceImpl implements BahmniDrugOrderService {
     private List<DrugOrder> getActiveDrugOrders(String patientUuid, Date asOfDate, Set<Concept> conceptsToFilter,
                                                 Set<Concept> conceptsToExclude, Date startDate, Date endDate, Collection<Encounter> encounters) {
         Patient patient = openmrsPatientService.getPatientByUuid(patientUuid);
-        CareSetting careSettingByName = orderService.getCareSettingByName(CareSetting.CareSettingType.OUTPATIENT.toString());
-        List<Order> orders = orderDao.getActiveOrders(patient, orderService.getOrderTypeByName("Drug order"),
-                careSettingByName, asOfDate, conceptsToFilter, conceptsToExclude, startDate, endDate, encounters);
-        return mapOrderToDrugOrder(orders);
+        CareSetting outPatientCareSetting = orderService.getCareSettingByName(CareSetting.CareSettingType.OUTPATIENT.toString());
+        CareSetting inPatientCareSetting = orderService.getCareSettingByName(CareSetting.CareSettingType.INPATIENT.toString());
+        List<Order> outPatientOrders = orderDao.getActiveOrders(patient, orderService.getOrderTypeByName("Drug order"),
+                outPatientCareSetting, asOfDate, conceptsToFilter, conceptsToExclude, startDate, endDate, encounters);
+        List<Order> inPatientOrders = orderDao.getActiveOrders(patient, orderService.getOrderTypeByName("Drug order"),
+                inPatientCareSetting, asOfDate, conceptsToFilter, conceptsToExclude, startDate, endDate, encounters);
+        List<Order> allActiveDrugOrders = new ArrayList<>();
+        allActiveDrugOrders.addAll(outPatientOrders);
+        allActiveDrugOrders.addAll(inPatientOrders);
+        return mapOrderToDrugOrder(allActiveDrugOrders);
     }
 
     private List<DrugOrder> mapOrderToDrugOrder(List<Order> orders){
