@@ -165,4 +165,21 @@
             </list>
         </property>
     </bean>
+    <bean name="noteService" class="org.bahmni.module.bahmnicore.service.impl.NoteServiceImpl">
+        <property name="noteDAO">
+            <bean class="org.bahmni.module.bahmnicore.dao.impl.NoteDaoImpl">
+                <property name="sessionFactory">
+                    <ref bean="sessionFactory" />
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <bean parent="serviceContext">
+        <property name="moduleService">
+            <list merge="true">
+                <value>org.bahmni.module.bahmnicore.service.NoteService</value>
+                <ref bean="noteService"/>
+            </list>
+        </property>
+    </bean>
 </beans>
