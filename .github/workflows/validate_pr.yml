@@ -1,7 +1,7 @@
 name: Validate PR
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ Bahmni-IPD-master ]
 
 jobs:
   build:

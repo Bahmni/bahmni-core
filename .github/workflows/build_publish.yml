@@ -1,13 +1,24 @@
 name: Build and Publish package
 on:
   push:
-    branches: [ master ]
+    branches: [ Bahmni-IPD-master ]
   workflow_dispatch:
 
 jobs:
+  Trivy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Trivy Scan
+        run: |
+          wget -q https://raw.githubusercontent.com/Bahmni/bahmni-infra-utils/main/trivy_scan.sh && chmod +x trivy_scan.sh
+          ./trivy_scan.sh
+          rm trivy_scan.sh
   build-publish-package:
     name: Build and Publish package
     runs-on: macos-11
+    needs: Trivy
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
@@ -36,4 +47,3 @@ jobs:
         env:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-
