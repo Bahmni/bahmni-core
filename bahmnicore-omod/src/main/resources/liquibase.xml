@@ -4556,22 +4556,14 @@
             insert into order_type_class_map(order_type_id, concept_class_id) values(@radiology_order_type_id,@radiology_imaging);
         </sql>
     </changeSet>
-    <changeSet author="Bindu" id="notes-202307091852">
+    <changeSet author="Bindu" id="notes-202307091606">
 <!--        !&#45;&#45; precondition &#45;&#45;!-->
         <createTable tableName="notes">
-            <column defaultValueNumeric="0" name="note_id" type="INT">
+            <column autoIncrement="true" name="note_id" type="INT">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="note_type" type="VARCHAR(50)"/>
-            <column name="patient_id" type="INT"/>
-            <column name="obs_id" type="INT"/>
-            <column name="encounter_id" type="INT"/>
-            <column name="text" type="TEXT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="priority" type="INT"/>
-            <column name="parent" type="INT"/>
-            <column defaultValueNumeric="0" name="creator" type="INT">
+            <column name="note_type_id" type="INT"/>
+            <column name="note_text" type="TEXT">
                 <constraints nullable="false"/>
             </column>
             <column name="date_created" type="datetime">
@@ -4580,10 +4572,19 @@
             <column name="note_date" type="datetime">
                 <constraints nullable="false"/>
             </column>
+            <column defaultValueNumeric="0" name="creator" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="voided_by" type="INT"/>
             <column name="location_id" type="INT">
             </column>
             <column name="changed_by" type="INT"/>
             <column name="date_changed" type="datetime"/>
+            <column name="date_voided" type="datetime"/>
+            <column name="void_reason" type="TEXT"/>
+            <column defaultValueBoolean="false" name="is_voided" type="BOOLEAN">
+                <constraints nullable="false" />
+            </column>
             <column name="uuid" type="CHAR(38)">
                 <constraints nullable="false" unique="true"/>
             </column>
@@ -4599,22 +4600,6 @@
                                  baseTableName="notes" constraintName="user_who_changed_notes"
                                  referencedColumnNames="user_id" referencedTableName="users" />
 
-        <addForeignKeyConstraint baseColumnNames="patient_id"
-                                 baseTableName="notes" constraintName="patient_notes"
-                                 referencedColumnNames="patient_id" referencedTableName="patient" />
-
-        <addForeignKeyConstraint baseColumnNames="obs_id"
-                                 baseTableName="notes" constraintName="obs_notes"
-                                 referencedColumnNames="obs_id" referencedTableName="obs" />
-
-        <addForeignKeyConstraint baseColumnNames="parent"
-                                 baseTableName="notes" constraintName="notes_hierarchy"
-                                 referencedColumnNames="note_id" referencedTableName="notes" />
-
-        <addForeignKeyConstraint baseColumnNames="encounter_id"
-                                 baseTableName="notes" constraintName="encounter_notes"
-                                 referencedColumnNames="encounter_id" referencedTableName="encounter" />
-
         <addForeignKeyConstraint baseColumnNames="location_id"
                                  baseTableName="notes" constraintName="location_notes"
                                  referencedColumnNames="location_id" referencedTableName="location" />
@@ -4624,7 +4609,7 @@
         </createIndex>
 
     </changeSet>
-    <changeSet author="Bindu" id="note-type-202307101852">
+    <changeSet author="Bindu" id="note-type-202307101600">
         <!--        !&#45;&#45; precondition &#45;&#45;!-->
         <createTable tableName="note_type">
             <column defaultValueNumeric="0" name="note_type_id" type="INT">
@@ -4635,9 +4620,6 @@
             </column>
             <column name="description" type="TEXT">
                 <constraints nullable="true"/>
-            </column>
-            <column defaultValueNumeric="0" name="creator" type="INT">
-                <constraints nullable="false"/>
             </column>
             <column name="uuid" type="CHAR(38)">
                 <constraints nullable="false" unique="true"/>

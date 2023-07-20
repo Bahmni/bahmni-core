@@ -1,61 +1,43 @@
 package org.bahmni.module.bahmnicore.model;
 
-public class NoteType {
+import org.openmrs.BaseOpenmrsData;
 
-    private Integer id;
+import java.io.Serializable;
+
+public class NoteType extends BaseOpenmrsData implements Serializable {
+
+    private Integer noteTypeId;
 
     private String name;
 
     private String description;
-
-    /**
-     * Default constructor
-     */
     public NoteType() {
     }
-
-    /**
-     * @return Returns the id.
-     */
-    public Integer getId() {
-        return id;
-    }
-
-    /**
-     * @param id The id to set.
-     */
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    /**
-     * @return Returns the description.
-     */
     public String getDescription() {
         return description;
     }
-
-    /**
-     * @param description The description to set.
-     */
     public void setDescription(String description) {
         this.description = description;
     }
-
-    /**
-     * @return Returns the name.
-     */
     public String getName() {
         return name;
     }
-
-    /**
-     * @param name The name to set.
-     */
     public void setName(String name) {
         this.name = name;
     }
+    public Integer getNoteTypeId() {
+        return noteTypeId;
+    }
+    public void setNoteTypeId(Integer noteTypeId) {
+        this.noteTypeId = noteTypeId;
+    }
+    public Integer getId() {
+        return getNoteTypeId();
+    }
 
+    public void setId(Integer id) {
+        setNoteTypeId(id);
+    }
 }
 
 

@@ -5,37 +5,21 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.openmrs.Auditable;
 import org.openmrs.BaseOpenmrsData;
 import org.openmrs.Patient;
+import org.openmrs.User;
 
-/**
- * Not currently used.
- */
-public class Note extends BaseOpenmrsData implements Serializable {
+public class Note extends BaseOpenmrsData implements Auditable, Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -5392076713513109152L;
-
-    // Data
-
-    /**
-     * noteId, an identifier for a patient note.
-     */
     private Integer noteId;
 
-    private String text;
+    private String noteText;
 
     private Date dateChanged;
 
     private Date dateCreated;
-
-    private Integer priority;
-
-    private Integer weight;
-
-    private Patient patient;
 
     private NoteType noteType;
 
@@ -43,20 +27,20 @@ public class Note extends BaseOpenmrsData implements Serializable {
 
     private Integer locationId;
 
+    private User creator;
+
+    private User changedBy;
+
 
     public Note() {
     }
 
-    /**
-     * @see org.openmrs.OpenmrsObject#setId(java.lang.Integer)
-     */
+    @Override
     public void setId(Integer id) {
-        setNoteId(noteId);
+        setNoteId(id);
     }
 
-    /**
-     * @see org.openmrs.OpenmrsObject#getId()
-     */
+    @Override
     public Integer getId() {
         return getNoteId();
     }
@@ -69,61 +53,23 @@ public class Note extends BaseOpenmrsData implements Serializable {
         this.dateChanged = dateChanged;
     }
 
+    @Override
     public Date getDateCreated() {
         return dateCreated;
     }
 
+    @Override
     public void setDateCreated(Date dateCreated) {
         this.dateCreated = dateCreated;
     }
 
-    public Patient getPatient() {
-        return patient;
-    }
-
-    public void setPatient(Patient patient) {
-        this.patient = patient;
-    }
-
-    public Integer getPriority() {
-        return priority;
-    }
-
-    public void setPriority(Integer priority) {
-        this.priority = priority;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Integer getWeight() {
-        return weight;
-    }
-
-    public void setWeight(Integer weight) {
-        this.weight = weight;
-    }
-
-    /**
-     * @return Returns the noteId.
-     */
     public Integer getNoteId() {
         return noteId;
     }
 
-    /**
-     * @param noteId the noteId to set.
-     */
     public void setNoteId(Integer noteId) {
         this.noteId = noteId;
     }
-
-
 
     public Integer getLocationId() {
         return locationId;
@@ -147,5 +93,35 @@ public class Note extends BaseOpenmrsData implements Serializable {
 
     public void setNoteType(NoteType noteType) {
         this.noteType = noteType;
+    }
+
+    public String getNoteText() {
+        return noteText;
+    }
+
+    public void setNoteText(String noteText) {
+        this.noteText = noteText;
+    }
+
+    @Override
+    @JsonIgnore
+    public User getCreator() {
+        return creator;
+    }
+
+    @Override
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
+    @Override
+    @JsonIgnore
+    public User getChangedBy() {
+        return changedBy;
+    }
+
+    @Override
+    public void setChangedBy(User changedBy) {
+        this.changedBy = changedBy;
     }
 }

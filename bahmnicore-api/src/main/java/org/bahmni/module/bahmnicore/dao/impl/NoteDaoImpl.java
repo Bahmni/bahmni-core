@@ -11,9 +11,11 @@ import org.apache.commons.logging.LogFactory;
 import org.bahmni.module.bahmnicore.dao.NoteDao;
 import org.bahmni.module.bahmnicore.model.Note;
 import org.bahmni.module.bahmnicore.model.NoteType;
-import org.hibernate.Query;
+import org.hibernate.Criteria;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.openmrs.api.APIException;
 import org.openmrs.api.db.DAOException;
 
@@ -30,25 +32,18 @@ public class NoteDaoImpl implements NoteDao {
         this.sessionFactory = sessionFactory;
     }
 
-//    @SuppressWarnings("unchecked")
-    public List<Note> getNotes() {
-        log.info("Getting all notes from the database");
-        return sessionFactory.getCurrentSession().createQuery("from Note").list();
-    }
-
     public Note getNoteById(Integer id) {
         log.info("Get note " + id);
         return (Note) sessionFactory.getCurrentSession().get(Note.class, id);
     }
 
-    public void createNote(Note note) {
+    public Note createNote(Note note) {
         log.debug("Creating new note");
-        NoteType noteType = getNoteType(note.getNoteType().getName());
-        note.setNoteType(noteType);
         sessionFactory.getCurrentSession().save(note);
+        return note;
     }
 
-    private NoteType getNoteType(String name){
+    public NoteType getNoteType(String name){
         List<NoteType> noteType = new ArrayList<>();
         Session currentSession = sessionFactory.getCurrentSession();
         Query query = currentSession.createQuery("select noteType from NoteType noteType " +
@@ -65,45 +60,48 @@ public class NoteDaoImpl implements NoteDao {
         return note;
     }
 
-    public void deleteNote(Note note) throws DAOException {
+    public void deleteNote(Note note) {
         log.debug("Deleting existing note");
         sessionFactory.getCurrentSession().delete(note);
     }
 
-    public Note voidNote(Note note, String reason) throws APIException {
-        log.debug("voiding note because " + reason);
+    public Note voidNote(Note note) throws APIException {
         sessionFactory.getCurrentSession().save(note);
         return note;
     }
 
     @Override
-    public Note getNote(Date noteDate, String noteType, Integer locationId) throws DAOException {
+    public Note getNote(Date noteDate, String noteType) {
         List<Note> notes = new ArrayList<>();
-        Session currentSession = sessionFactory.getCurrentSession();
-        Query query = currentSession.createQuery(
-                "select note from Note note" +
-                        "where note.noteDate = :noteDate and note.locationId = :locationId " +
-                        "and note.noteType.description = :noteType");
-        query.setParameter("noteDate", noteDate);
-        query.setParameter("locationId", locationId);
-        query.setParameter("noteType", noteType);
-        notes.addAll(query.list());
+        StringBuilder query = new StringBuilder("select note from Note note " +
+                "where note.noteDate = :noteDate " +
+                "and note.noteType.name = :noteType ");
+
+        Query queryToGetNotes = sessionFactory.getCurrentSession().createQuery(query.toString());
+        queryToGetNotes.setParameter("noteDate", noteDate);
+        queryToGetNotes.setParameter("noteType", noteType);
+
+        notes.addAll(queryToGetNotes.list());
         return CollectionUtils.isEmpty(notes) ? null : notes.get(0);
     }
 
     @Override
-    public List<Note> getNotes(Date startDate, Date endDate, String noteType) throws DAOException {
+    public List<Note> getNotes(Date startDate, Date endDate, String noteType) {
         List<Note> notes = new ArrayList<>();
         Session currentSession = sessionFactory.getCurrentSession();
         Query query = currentSession.createQuery(
-               "select note from Note note" +
+               "select note from Note note " +
                "where note.noteDate between :startDate and :endDate " +
-                       "and note.noteType.description = :noteType");
+                       "and note.noteType.name = :noteType");
         query.setParameter("startDate", startDate);
         query.setParameter("endDate", endDate);
         query.setParameter("noteType", noteType);
         notes.addAll(query.list());
         return notes;
 
+    }
+    @Override
+    public Note getNoteByUuid(String uuid) {
+        return (Note)this.sessionFactory.getCurrentSession().createQuery("from Note note where note.uuid = :uuid").setParameter("uuid", uuid).uniqueResult();
     }
 }

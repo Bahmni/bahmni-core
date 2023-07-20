@@ -1,57 +1,90 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.bahmni.module.bahmnicore.contract.NoteRequest;
+import org.bahmni.module.bahmnicore.contract.NoteResponse;
+import org.bahmni.module.bahmnicore.mapper.NoteMapper;
 import org.bahmni.module.bahmnicore.model.Note;
 import org.bahmni.module.bahmnicore.service.NoteService;
+import org.bahmni.module.bahmnicore.validator.NoteValidator;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.auditlog.util.DateUtil;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.v1_0.controller.BaseRestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Controller
 @RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/note")
 public class BahmniNotesController extends BaseRestController {
 
+    private Log log = LogFactory.getLog(this.getClass());
 
     @Autowired
-    private NoteService noteService;
+    private NoteMapper noteMapper;
+
+    @Autowired
+    private NoteValidator noteValidator;
 
     @RequestMapping(method = RequestMethod.GET)
-    public Note getNote(@RequestParam(value = "noteDate", required = true) Date noteDate, @RequestParam(value = "noteType", required = true) String noteType, @RequestParam("locationId") Integer locationId) throws Exception {
-        return noteService.getNote(noteDate, noteType, locationId);
-    }
+    @ResponseBody
+    public List<NoteResponse> getNotes(@RequestParam(value = "noteStartDate") String noteStartDateString, @RequestParam(value = "noteEndDate", required = false) String noteEndDateString,
+                                       @RequestParam(value = "noteType") String noteType) throws Exception {
+        Date noteStartDate = DateUtil.convertToLocalDateFromUTC(noteStartDateString);
+        if (noteEndDateString != null) {
+            Date noteEndDate = DateUtil.convertToLocalDateFromUTC(noteEndDateString);
+            List<Note> notes = Context.getService(NoteService.class).getNotes(noteStartDate, noteEndDate, noteType);
+            return notes.stream().map(note -> noteMapper.map(note)).collect(Collectors.toList());
+        }
 
-    @RequestMapping(method = RequestMethod.GET, value = "notes")
-    public List<Note> getNotes(@RequestParam(value = "startDate", required = true) Date startDate,@RequestParam(value = "endDate", required = true) Date endDate, @RequestParam(value = "noteType", required = true) String noteType) throws Exception {
-        return noteService.getNotes(startDate, endDate, noteType);
+        Note note = Context.getService(NoteService.class).getNote(noteStartDate, noteType);
+        List<NoteResponse> noteResponses = new ArrayList<>();
+        if (note != null) {
+            noteResponses.add(noteMapper.map(note));
+        }
+        return noteResponses;
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public Note save(@RequestBody Note note) throws Exception {
-        return noteService.createNote(note);
+    @ResponseBody
+    public List<NoteResponse> save(@Valid @RequestBody List<NoteRequest> noteRequests) throws Exception {
+        List<Note> notes = new ArrayList<>();
+        notes = noteRequests.stream().map(noteRequest -> {
+            Errors noteRequestErrors = new BeanPropertyBindingResult(noteRequest, "noteRequest");
+            noteValidator.validate(noteRequest, noteRequestErrors);
+            if (!noteRequestErrors.getAllErrors().isEmpty()) {
+                throw new RuntimeException(noteRequestErrors.getAllErrors().get(0).toString());
+            }
+            return noteMapper.mapRequest(noteRequest);
+        }).collect(Collectors.toList());
+        List<Note> listOfNotes = Context.getService(NoteService.class).createNotes(notes);
+        return listOfNotes.stream().map(note -> noteMapper.map(note)).collect(Collectors.toList());
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "notes")
-    public List<Note> save(@RequestBody List<Note> notes) {
-        return noteService.createNotes(notes);
+    @RequestMapping(method = RequestMethod.POST, value = "/{id}")
+    @ResponseBody
+    public NoteResponse update(@Valid @PathVariable("id") String id, @RequestBody String noteText) {
+        Integer noteId = Integer.valueOf(id);
+        return noteMapper.map(Context.getService(NoteService.class).updateNote(noteId, noteText));
     }
 
-    /* how to identify update and create */
-//    @RequestMapping(method = RequestMethod.POST)
-//    @ResponseBody
-//    public Note update(@RequestBody Note note) {
-//        return noteService.updateNote(note);
-//    }
+    @RequestMapping(method = RequestMethod.DELETE,  value = "/{id}")
+    @ResponseBody
+    public NoteResponse delete(@PathVariable("id") String id, @RequestParam(value = "reason") String reason ) {
+        Integer noteId = Integer.valueOf(id);
+        return noteMapper.map(Context.getService(NoteService.class).voidNote(noteId, reason));
+    }
 
-//    /* void for multiple entries */
-//    @RequestMapping(method = RequestMethod.POST)
-//    @ResponseBody
-//    public Note delete(@RequestBody Note note, @RequestParam(value = "reason") String reason ) {
-//        return noteService.voidNote(note, reason);
-//    }
 
 }

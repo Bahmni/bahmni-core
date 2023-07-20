@@ -5,32 +5,42 @@ import java.util.Date;
 import java.util.List;
 
 import org.bahmni.module.bahmnicore.model.Note;
+import org.bahmni.module.bahmnicore.model.NoteType;
 import org.openmrs.annotation.Authorized;
 import org.openmrs.api.APIException;
 import org.openmrs.util.PrivilegeConstants;
+import org.springframework.transaction.annotation.Transactional;
 
 
 public interface NoteService {
 
-
+    @Transactional
     @Authorized(PrivilegeConstants.GET_NOTE)
-    public List<Note> getNotes(Date startDate, Date endDate, String noteType) throws Exception;
+    List<Note> getNotes(Date noteStartDate, Date noteEndDate, String noteType) throws Exception;
 
+    @Transactional
+    Note createNote(Note note);
 
-    public Note createNote(Note note) throws APIException;
+    @Transactional
+    Note updateNote(Integer id, String noteText);
 
-
-    public Note getNote(Integer noteId) throws Exception;
-
-
-    public Note updateNote(Note note) throws APIException;
-
-
+    @Transactional
     @Authorized(PrivilegeConstants.DELETE_NOTE)
-    public Note voidNote(Note note, String reason) throws APIException;
+    Note voidNote(Integer id, String reason);
 
-    public List<Note> createNotes(List<Note> notes) throws APIException;
+    @Transactional
+    List<Note> createNotes(List<Note> notes);
 
+    @Transactional
+    NoteType getNoteType(String name);
+
+    @Transactional
     @Authorized(PrivilegeConstants.GET_NOTE)
-    public Note getNote(Date noteDate, String noteType, Integer locationId) throws Exception;
+    Note getNote(Date noteDate, String noteType);
+
+    @Transactional
+    Note getNoteById(Integer id);
+
+    @Transactional
+    Note getNoteByUuid(String uuid);
 }

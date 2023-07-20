@@ -4,23 +4,26 @@ import java.util.Date;
 import java.util.List;
 
 import org.bahmni.module.bahmnicore.model.Note;
+import org.bahmni.module.bahmnicore.model.NoteType;
 import org.openmrs.api.db.DAOException;
 
 public interface NoteDao {
 
-    public List<Note> getNotes() throws DAOException;
+    Note createNote(Note note);
 
-    public void createNote(Note note) throws DAOException;
+    Note getNoteById(Integer noteId);
 
-    public Note getNoteById(Integer noteId) throws DAOException;
+    Note updateNote(Note note);
 
-    public Note updateNote(Note note) throws DAOException;
+    void deleteNote(Note note);
 
-    public void deleteNote(Note note) throws DAOException;
+    Note voidNote(Note note);
 
-    public Note voidNote(Note note, String reason) throws DAOException;
+    Note getNote(Date noteDate, String noteType);
 
-    public Note getNote(Date noteDate, String noteType, Integer locationId) throws DAOException;
+    NoteType getNoteType(String name);
 
-    public List<Note> getNotes(Date startDate, Date endDate, String noteType) throws DAOException;
+    List<Note> getNotes(Date startDate, Date endDate, String noteType);
+
+    Note getNoteByUuid(String uuid);
 }

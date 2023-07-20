@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-    This Source Code Form is subject to the terms of the Mozilla Public License,
-    v. 2.0. If a copy of the MPL was not distributed with this file, You can
-    obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
-    the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
-
-    Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
-    graphic logo is a trademark of OpenMRS Inc.
-
--->
 <!DOCTYPE hibernate-mapping PUBLIC
         "-//Hibernate/Hibernate Mapping DTD 3.1//EN"
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
@@ -23,9 +12,7 @@
                 <param name="sequence">note_id_seq</param>
             </generator>
         </id>
-
-
-        <property name="text" type="java.lang.String" column="text"
+        <property name="noteText" type="java.lang.String" column="note_text"
                   not-null="true" length="512" />
         <many-to-one name="creator" class="org.openmrs.User"
                      column="creator" not-null="true" />
@@ -43,19 +30,13 @@
                      column="voided_by" not-null="false" />
         <property name="voidReason" type="java.lang.String" column="void_reason"
                   length="255" />
-        <property name="priority" type="java.lang.Integer" length="11"
-                  column="priority" not-null="false" />
-        <property name="weight" type="java.lang.Integer" length="11"
-                  column="weight" not-null="false" />
         <property name="uuid" type="java.lang.String" column="uuid"
                   length="38" unique="true" not-null="true" />
-        <many-to-one name="patient" class="org.openmrs.Patient"
-                     column="patient" not-null="false" />
         <many-to-one name="noteType" class="org.bahmni.module.bahmnicore.model.NoteType"
                      column="note_type_id" not-null="true" />
         <property name="noteDate" type="java.util.Date" column="note_date"
                   not-null="true" length="19" />
-        <property name="locationId" type="java.lang.String" column="location_id"
+        <property name="locationId" type="int" column="location_id"
                   not-null="false" length="255" />
 
     </class>
