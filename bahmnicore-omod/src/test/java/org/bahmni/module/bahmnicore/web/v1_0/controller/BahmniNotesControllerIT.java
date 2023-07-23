@@ -1,5 +1,6 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
+import org.bahmni.module.bahmnicore.contract.NoteRequest;
 import org.bahmni.module.bahmnicore.model.Note;
 import org.bahmni.module.bahmnicore.model.NoteType;
 import org.bahmni.module.bahmnicore.web.v1_0.BaseIntegrationTest;
@@ -10,6 +11,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Date;
+import java.util.List;
 
 import static org.jcodec.common.Assert.assertNotNull;
 
@@ -25,17 +27,15 @@ public class BahmniNotesControllerIT  extends BaseIntegrationTest {
 
     @Test
     public void createNewNote() throws Exception {
-      String content = "{\"noteType\": {\"name\": \"OT module\"},\n" +
+      String content = "{\"noteTypeText\": \"OT module\"},\n" +
               "\"noteDate\": \"2023-07-08\",\n" +
-              "\"text\": \"sample text\"}";
+              "\"noteText\": \"sample text\"}";
 
         NoteType noteType = new NoteType();
         noteType.setName("hello");
         Note note = new Note();
         note.setNoteType(noteType);
-        note.setText("Hello World");
-        bahmniNotesController.save(note);
+        note.setNoteText("Hello World");
+        bahmniNotesController.save((List<NoteRequest>) note);
     }
-
-
 }

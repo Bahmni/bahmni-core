@@ -5,10 +5,15 @@ import org.bahmni.module.bahmnicore.contract.drugorder.DrugOrderConfigResponse;
 import org.bahmni.module.bahmnicore.model.Note;
 import org.bahmni.module.bahmnicore.model.NoteType;
 import org.bahmni.module.bahmnicore.service.NoteService;
+import org.hibernate.HibernateException;
+import org.hibernate.PropertyValueException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.openmrs.DrugOrder;
+import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +32,9 @@ public class NoteServiceImplIT extends BaseIntegrationTest {
         executeDataSet("notesData.xml");
     }
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     @Test
     public void shouldCreateNewNoteOfSpecificNoteType() {
         NoteService noteService = Context.getService(NoteService.class);
@@ -36,6 +44,11 @@ public class NoteServiceImplIT extends BaseIntegrationTest {
         note.setNoteText("note one");
         note.setNoteDate(new Date());
         noteService.createNote(note);
+        assertNotNull(note.getId());
+        assertNotNull(note.getUuid());
+        assertEquals(note.getNoteText(), "note one");
+        assertEquals(note.getNoteType().getName(), "OT module");
+        assertNotNull(note.getNoteDate());
     }
 
     @Test
@@ -74,30 +87,36 @@ public class NoteServiceImplIT extends BaseIntegrationTest {
         noteType.setName("OT module");
         Note note = new Note();
         note.setNoteType(noteType);
-        note.setLocationId(1);
-        note.setNoteDate(new Date());
-        DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-        Date date = format.parse("08/08/2023");
-        List<Note> notes = noteService.getNotes(date,date,"OT module" );
-//        System.out.println("note1"+note1.getNoteText());
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        Date date = format.parse("2023-08-16 00:00:00.0");
+        note.setNoteDate(date);
+        Note noteResponse = noteService.getNote(date,"OT module" );
+        assertNotNull(noteResponse);
+        assertEquals(noteResponse.getNoteText(), "note one");
+        assertEquals(noteResponse.getNoteType().getName(), "OT module");
+        assertNotNull(noteResponse.getNoteDate());
     }
 
+
     @Test
-    public void shouldThrowValidationErrorWhenNoteTypeIsEmpty() {
+    public void shouldThrowExceptionWhenNoteTypeIsEmpty() throws Exception {
         NoteService noteService = Context.getService(NoteService.class);
         Note note = new Note();
         note.setNoteText("Hello World");
         note.setNoteDate(new Date());
+        expectedException.expect(HibernateException.class);
         noteService.createNote(note);
     }
 
     @Test
-    public void shouldThrowValidationErrorWhenNoteDateIsEmpty() {
+    public void shouldExceptionWhenNoteDateIsEmpty() throws Exception {
         NoteService noteService = Context.getService(NoteService.class);
         Note note = new Note();
         note.setNoteText("Hello World");
         note.setNoteDate(new Date());
+        expectedException.expect(HibernateException.class);
         noteService.createNote(note);
+
     }
 
 
