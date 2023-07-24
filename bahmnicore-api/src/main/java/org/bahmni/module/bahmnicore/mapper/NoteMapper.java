@@ -1,14 +1,8 @@
 package org.bahmni.module.bahmnicore.mapper;
 
-import org.bahmni.module.bahmnicore.contract.NoteRequest;
-import org.bahmni.module.bahmnicore.contract.NoteResponse;
-import org.bahmni.module.bahmnicore.dao.NoteDao;
-import org.bahmni.module.bahmnicore.dao.impl.NoteDaoImpl;
+import org.bahmni.module.bahmnicore.contract.NoteRequestResponse;
 import org.bahmni.module.bahmnicore.model.Note;
 import org.bahmni.module.bahmnicore.service.NoteService;
-import org.bahmni.module.bahmnicore.service.impl.NoteServiceImpl;
-import org.openmrs.Location;
-import org.openmrs.api.context.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +12,8 @@ public class NoteMapper {
     @Autowired
     private NoteService noteService;
 
-    public NoteResponse map(Note note){
-        NoteResponse noteResponse = new NoteResponse();
+    public NoteRequestResponse mapResponse(Note note){
+        NoteRequestResponse noteResponse = new NoteRequestResponse();
         noteResponse.setNoteId(note.getNoteId());
         noteResponse.setNoteDate(note.getNoteDate());
         noteResponse.setNoteText(note.getNoteText());
@@ -28,7 +22,7 @@ public class NoteMapper {
         return noteResponse;
     }
 
-    public Note mapRequest(NoteRequest noteRequest){
+    public Note mapRequest(NoteRequestResponse noteRequest){
         Note note = new Note();
         note.setNoteId(noteRequest.getNoteId());
         note.setNoteDate(noteRequest.getNoteDate());

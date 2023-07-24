@@ -1,9 +1,8 @@
 package org.bahmni.module.bahmnicore.contract;
 
-
 import java.util.Date;
 
-public class NoteResponse {
+public class NoteRequestResponse {
 
     private String uuid;
 
@@ -66,3 +65,5 @@ public class NoteResponse {
         LocationName = locationName;
     }
 }
+
+

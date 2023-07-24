@@ -1,7 +1,7 @@
 package org.bahmni.module.bahmnicore.validator;
 
 
-import org.bahmni.module.bahmnicore.contract.NoteRequest;
+import org.bahmni.module.bahmnicore.contract.NoteRequestResponse;
 import org.bahmni.module.bahmnicore.dao.NoteDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,12 +19,12 @@ public class NoteValidator implements Validator {
 
     @Override
     public boolean supports(Class c) {
-        return NoteRequest.class.isAssignableFrom(c);
+        return NoteRequestResponse.class.isAssignableFrom(c);
     }
 
     @Override
     public void validate(Object obj, Errors errors) {
-        NoteRequest noteRequest = (NoteRequest) obj;
+        NoteRequestResponse noteRequest = (NoteRequestResponse) obj;
         if (noteRequest == null) {
             errors.reject("error.general");
         } else {

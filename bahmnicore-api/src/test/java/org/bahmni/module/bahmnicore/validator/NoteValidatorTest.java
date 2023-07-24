@@ -1,6 +1,6 @@
 package org.bahmni.module.bahmnicore.validator;
 
-import org.bahmni.module.bahmnicore.contract.NoteRequest;
+import org.bahmni.module.bahmnicore.contract.NoteRequestResponse;
 import org.bahmni.module.bahmnicore.dao.NoteDao;
 import org.bahmni.module.bahmnicore.model.Note;
 import org.bahmni.module.bahmnicore.model.NoteType;
@@ -37,7 +37,7 @@ public class NoteValidatorTest {
     @Test
     public void ensureNoteTypeIsNotNull() {
         initMocks(this);
-        NoteRequest noteRequest = new NoteRequest();
+        NoteRequestResponse noteRequest = new NoteRequestResponse();
         Errors noteRequestErrors = new BeanPropertyBindingResult(noteRequest, "noteRequest");
         noteRequest.setNoteTypeName(null);
         noteRequest.setNoteText("Note Text");
@@ -51,7 +51,7 @@ public class NoteValidatorTest {
 
     @Test
     public void ensureNoteDateIsNotNull() {
-        NoteRequest noteRequest = new NoteRequest();
+        NoteRequestResponse noteRequest = new NoteRequestResponse();
         Errors noteRequestErrors = new BeanPropertyBindingResult(noteRequest, "noteRequest");
         noteRequest.setNoteTypeName("OT module");
         noteRequest.setNoteText("Note Text");
@@ -65,7 +65,7 @@ public class NoteValidatorTest {
 
     @Test
     public void ensureNoteTextIsNotNull() {
-        NoteRequest noteRequest = new NoteRequest();
+        NoteRequestResponse noteRequest = new NoteRequestResponse();
         Errors noteRequestErrors = new BeanPropertyBindingResult(noteRequest, "noteRequest");
         noteRequest.setNoteTypeName("OT module");
         noteRequest.setNoteDate(new Date());
@@ -79,7 +79,7 @@ public class NoteValidatorTest {
 
     @Test
     public void ensureNoteDoesntExistForSameNoteDateAndNoteType() throws ParseException {
-        NoteRequest noteRequest = new NoteRequest();
+        NoteRequestResponse noteRequest = new NoteRequestResponse();
         Errors noteRequestErrors = new BeanPropertyBindingResult(noteRequest, "noteRequest");
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         Date noteDate1 = format.parse("2023-08-16 00:00:00.0");

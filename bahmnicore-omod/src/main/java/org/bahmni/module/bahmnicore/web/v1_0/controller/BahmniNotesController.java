@@ -2,8 +2,7 @@ package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.bahmni.module.bahmnicore.contract.NoteRequest;
-import org.bahmni.module.bahmnicore.contract.NoteResponse;
+import org.bahmni.module.bahmnicore.contract.NoteRequestResponse;
 import org.bahmni.module.bahmnicore.mapper.NoteMapper;
 import org.bahmni.module.bahmnicore.model.Note;
 import org.bahmni.module.bahmnicore.service.NoteService;
@@ -39,26 +38,26 @@ public class BahmniNotesController extends BaseRestController {
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public List<NoteResponse> getNotes(@RequestParam(value = "noteStartDate") String noteStartDateString, @RequestParam(value = "noteEndDate", required = false) String noteEndDateString,
+    public List<NoteRequestResponse> getNotes(@RequestParam(value = "noteStartDate") String noteStartDateString, @RequestParam(value = "noteEndDate", required = false) String noteEndDateString,
                                        @RequestParam(value = "noteType") String noteType) throws Exception {
         Date noteStartDate = DateUtil.convertToLocalDateFromUTC(noteStartDateString);
         if (noteEndDateString != null) {
             Date noteEndDate = DateUtil.convertToLocalDateFromUTC(noteEndDateString);
             List<Note> notes = Context.getService(NoteService.class).getNotes(noteStartDate, noteEndDate, noteType);
-            return notes.stream().map(note -> noteMapper.map(note)).collect(Collectors.toList());
+            return notes.stream().map(note -> noteMapper.mapResponse(note)).collect(Collectors.toList());
         }
 
         Note note = Context.getService(NoteService.class).getNote(noteStartDate, noteType);
-        List<NoteResponse> noteResponses = new ArrayList<>();
+        List<NoteRequestResponse> noteResponses = new ArrayList<>();
         if (note != null) {
-            noteResponses.add(noteMapper.map(note));
+            noteResponses.add(noteMapper.mapResponse(note));
         }
         return noteResponses;
     }
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
-    public List<NoteResponse> save(@Valid @RequestBody List<NoteRequest> noteRequests) throws Exception {
+    public List<NoteRequestResponse> save(@Valid @RequestBody List<NoteRequestResponse> noteRequests) throws Exception {
         List<Note> notes = new ArrayList<>();
         notes = noteRequests.stream().map(noteRequest -> {
             Errors noteRequestErrors = new BeanPropertyBindingResult(noteRequest, "noteRequest");
@@ -69,21 +68,21 @@ public class BahmniNotesController extends BaseRestController {
             return noteMapper.mapRequest(noteRequest);
         }).collect(Collectors.toList());
         List<Note> listOfNotes = Context.getService(NoteService.class).createNotes(notes);
-        return listOfNotes.stream().map(note -> noteMapper.map(note)).collect(Collectors.toList());
+        return listOfNotes.stream().map(note -> noteMapper.mapResponse(note)).collect(Collectors.toList());
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/{id}")
     @ResponseBody
-    public NoteResponse update(@Valid @PathVariable("id") String id, @RequestBody String noteText) {
+    public NoteRequestResponse update(@Valid @PathVariable("id") String id, @RequestBody String noteText) {
         Integer noteId = Integer.valueOf(id);
-        return noteMapper.map(Context.getService(NoteService.class).updateNote(noteId, noteText));
+        return noteMapper.mapResponse(Context.getService(NoteService.class).updateNote(noteId, noteText));
     }
 
     @RequestMapping(method = RequestMethod.DELETE,  value = "/{id}")
     @ResponseBody
-    public NoteResponse delete(@PathVariable("id") String id, @RequestParam(value = "reason", required = false) String reason ) {
+    public NoteRequestResponse delete(@PathVariable("id") String id, @RequestParam(value = "reason", required = false) String reason ) {
         Integer noteId = Integer.valueOf(id);
-        return noteMapper.map(Context.getService(NoteService.class).voidNote(noteId, reason));
+        return noteMapper.mapResponse(Context.getService(NoteService.class).voidNote(noteId, reason));
     }
 
 
