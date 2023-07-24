@@ -11,13 +11,10 @@ import org.apache.commons.logging.LogFactory;
 import org.bahmni.module.bahmnicore.dao.NoteDao;
 import org.bahmni.module.bahmnicore.model.Note;
 import org.bahmni.module.bahmnicore.model.NoteType;
-import org.hibernate.Criteria;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Restrictions;
 import org.openmrs.api.APIException;
-import org.openmrs.api.db.DAOException;
 
 public class NoteDaoImpl implements NoteDao {
 
@@ -75,7 +72,8 @@ public class NoteDaoImpl implements NoteDao {
         List<Note> notes = new ArrayList<>();
         StringBuilder query = new StringBuilder("select note from Note note " +
                 "where note.noteDate = :noteDate " +
-                "and note.noteType.name = :noteType ");
+                "and note.noteType.name = :noteType " +
+                "and note.voided = false");
 
         Query queryToGetNotes = sessionFactory.getCurrentSession().createQuery(query.toString());
         queryToGetNotes.setParameter("noteDate", noteDate);
@@ -92,7 +90,8 @@ public class NoteDaoImpl implements NoteDao {
         Query query = currentSession.createQuery(
                "select note from Note note " +
                "where note.noteDate between :startDate and :endDate " +
-                       "and note.noteType.name = :noteType");
+                       "and note.noteType.name = :noteType" +
+                       " and note.voided = false");
         query.setParameter("startDate", startDate);
         query.setParameter("endDate", endDate);
         query.setParameter("noteType", noteType);

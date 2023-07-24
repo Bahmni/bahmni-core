@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 
 @Controller
-@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/note")
+@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/notes")
 public class BahmniNotesController extends BaseRestController {
 
     private Log log = LogFactory.getLog(this.getClass());
@@ -81,7 +81,7 @@ public class BahmniNotesController extends BaseRestController {
 
     @RequestMapping(method = RequestMethod.DELETE,  value = "/{id}")
     @ResponseBody
-    public NoteResponse delete(@PathVariable("id") String id, @RequestParam(value = "reason") String reason ) {
+    public NoteResponse delete(@PathVariable("id") String id, @RequestParam(value = "reason", required = false) String reason ) {
         Integer noteId = Integer.valueOf(id);
         return noteMapper.map(Context.getService(NoteService.class).voidNote(noteId, reason));
     }
