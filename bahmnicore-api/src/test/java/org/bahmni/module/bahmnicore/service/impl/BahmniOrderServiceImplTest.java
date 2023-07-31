@@ -32,6 +32,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.openmrs.Order.Urgency.STAT;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -137,6 +138,15 @@ public class BahmniOrderServiceImplTest {
         Assert.assertEquals(Order.FulfillerStatus.COMPLETED, bahmniOrder.getFulfillerStatus());
     }
 
+    @Test
+    public void shouldGetUrgencyForOrder() {
+        Order order = createOrder();
+        when(orderService.getOrderByUuid("someOrderUuid")).thenReturn(order);
+        List<BahmniOrder> bahmniOrders = bahmniOrderService.ordersForOrderUuid(personUUID, Arrays.asList(concept), null, "someOrderUuid");
+        verify(bahmniObsService).observationsFor(personUUID, Arrays.asList(concept), null, null, false, order, null, null);
+        Assert.assertEquals(STAT, bahmniOrders.get(0).getUrgency());
+    }
+
     private Order createOrder() {
         order = new Order();
         patient = new Patient();
@@ -154,6 +164,7 @@ public class BahmniOrderServiceImplTest {
         provider.setPerson(person);
         order.setOrderer(provider);
         order.setConcept(concept);
+        order.setUrgency(STAT);
         order.setId(1);
         order.setPatient(patient);
         CareSetting careSetting = new CareSetting();

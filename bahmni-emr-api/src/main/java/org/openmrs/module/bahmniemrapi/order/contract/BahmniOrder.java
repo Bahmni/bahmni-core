@@ -20,6 +20,15 @@ public class BahmniOrder {
     private Boolean hasObservations;
     private Collection<BahmniObservation> bahmniObservations;
     private String commentToFulfiller;
+    private Order.Urgency urgency;
+
+    public Order.Urgency getUrgency() {
+        return urgency;
+    }
+
+    public void setUrgency(Order.Urgency urgency) {
+        this.urgency = urgency;
+    }
 
     private Order.FulfillerStatus fulfillerStatus;
 
