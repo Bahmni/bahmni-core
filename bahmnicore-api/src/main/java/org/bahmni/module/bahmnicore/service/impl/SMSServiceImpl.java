@@ -13,14 +13,14 @@ import org.bahmni.module.bahmnicore.contract.SMS.SMSRequest;
 import org.bahmni.module.bahmnicore.properties.BahmniCoreProperties;
 import org.bahmni.module.bahmnicore.service.BahmniDrugOrderService;
 import org.bahmni.module.bahmnicore.service.SMSService;
-import org.bahmni.webclients.ClientCookies;
 import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.HashMap;
 import java.util.Locale;
@@ -39,13 +39,22 @@ public class SMSServiceImpl implements SMSService {
             SMSRequest smsRequest = new SMSRequest();
             smsRequest.setPhoneNumber(phoneNumber);
             smsRequest.setMessage(message);
-            ObjectMapper Obj = new ObjectMapper();
-            String jsonObject = Obj.writeValueAsString(smsRequest);
+            ObjectMapper objMapper = new ObjectMapper();
+            String jsonObject = objMapper.writeValueAsString(smsRequest);
             StringEntity params = new StringEntity(jsonObject);
+
+
             String smsUrl = StringUtils.isBlank(BahmniCoreProperties.getProperty("sms.uri")) ? SMS_URI : BahmniCoreProperties.getProperty("sms.uri");
-            HttpPost request = new HttpPost(smsUrl);
+            HttpPost request = new HttpPost(Context.getMessageSourceService().getMessage(smsUrl, null, new Locale("en")));
             request.addHeader("content-type", "application/json");
-            request.addHeader("Authorization", "Bearer " +BahmniCoreProperties.getProperty("sms-service.token"));
+            String smsPropertiesPath = BahmniCoreProperties.getProperty("sms.token.path");
+            BufferedReader bufferedReader;
+            try (FileReader reader = new FileReader(smsPropertiesPath)) {
+                bufferedReader = new BufferedReader(reader);
+                request.addHeader("Authorization", "Bearer " + bufferedReader.readLine());
+            } catch (IOException e) {
+                throw new RuntimeException("Error loading SMS properties file.", e);
+            }
             request.setEntity(params);
             CloseableHttpClient httpClient = HttpClients.createDefault();
             HttpResponse response = httpClient.execute(request);
