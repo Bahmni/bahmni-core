@@ -225,6 +225,11 @@
             </dependency>
             <dependency>
                 <groupId>org.bahmni.module</groupId>
+                <artifactId>bahmni-events-api</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bahmni.module</groupId>
                 <artifactId>bahmnicore-omod</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -278,6 +283,11 @@
                 <type>jar</type>
                 <version>${bahmniCommons.version}</version>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.bahmni.module</groupId>
+                <artifactId>bahmni-events-api</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.openmrs.api</groupId>

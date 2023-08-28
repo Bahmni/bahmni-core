@@ -6,7 +6,6 @@ import com.google.gson.JsonParser;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bahmni.module.bahmnicore.service.RegistrationSmsService;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.NonUniqueObjectException;
 import org.hibernate.exception.DataException;
@@ -55,20 +54,16 @@ public class BahmniPatientProfileResource extends DelegatingCrudResource<Patient
 
     private EmrPatientProfileService emrPatientProfileService;
     private IdentifierSourceServiceWrapper identifierSourceServiceWrapper;
-    private RegistrationSmsService registrationSmsService;
 
     @Autowired
-    public BahmniPatientProfileResource(EmrPatientProfileService emrPatientProfileService, IdentifierSourceServiceWrapper identifierSourceServiceWrapper, RegistrationSmsService registrationSmsService) {
+    public BahmniPatientProfileResource(EmrPatientProfileService emrPatientProfileService, IdentifierSourceServiceWrapper identifierSourceServiceWrapper) {
         this.emrPatientProfileService = emrPatientProfileService;
         this.identifierSourceServiceWrapper = identifierSourceServiceWrapper;
-        this.registrationSmsService =registrationSmsService;
     }
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Object> create(@CookieValue(value="bahmni.user.location", required=true) String loginCookie,
-                                         @RequestHeader(value = "Jump-Accepted", required = false) boolean jumpAccepted,
-                                         @RequestBody SimpleObject propertiesToCreate) throws Exception {
+    public ResponseEntity<Object> create(@RequestHeader(value = "Jump-Accepted", required = false) boolean jumpAccepted,@RequestBody SimpleObject propertiesToCreate) throws Exception {
         List identifiers = ((ArrayList) ((LinkedHashMap) propertiesToCreate.get("patient")).get("identifiers"));
         List<Object> jumpSizes = new ArrayList<>();
 
@@ -119,12 +114,6 @@ public class BahmniPatientProfileResource extends DelegatingCrudResource<Patient
         setConvertedProperties(delegate, propertiesToCreate, getCreatableProperties(), true);
         try {
             delegate = emrPatientProfileService.save(delegate);
-            Boolean isregistrationSmsEnabled=Boolean.valueOf(Context.getAdministrationService().getGlobalProperty("sms.enableRegistrationSMSAlert"));
-            if (isregistrationSmsEnabled){
-            JsonParser jsonParser = new JsonParser();
-            JsonObject jsonObject = (JsonObject) jsonParser.parse(loginCookie);
-            String loginlocation =  jsonObject.get("uuid").getAsString();
-            registrationSmsService.sendRegistrationSMS(delegate,loginlocation,Context.getUserContext());}
             setRelationships(delegate);
             return new ResponseEntity<>(ConversionUtil.convertToRepresentation(delegate, Representation.FULL), HttpStatus.OK);
         } catch (ContextAuthenticationException e) {
