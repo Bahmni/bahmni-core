@@ -8,15 +8,19 @@ import org.mockito.MockitoAnnotations;
 import org.openmrs.Encounter;
 import org.openmrs.Visit;
 import org.openmrs.api.EncounterService;
+import org.openmrs.api.OrderEntryException;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterSearchParameters;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.BahmniEncounterTransactionMapper;
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService;
 import org.openmrs.module.emrapi.encounter.EmrEncounterService;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -90,6 +94,21 @@ public class BahmniEncounterControllerTest {
         when(encounterService.getEncounterByUuid("410491d2-b617-42ad-bf0f-de2fc9b42998")).thenReturn(encounter);
 
         bahmniEncounterController.delete("410491d2-b617-42ad-bf0f-de2fc9b42998","Undo Discharge");
+    }
+    @Test
+    public void shouldThrowBadRequestStatusCodeForOrderEntryException() throws Exception{
+        bahmniEncounterController = new BahmniEncounterController(encounterService, emrEncounterService, null, bahmniEncounterTransactionService, bahmniEncounterTransactionMapper);
+
+        OrderEntryException mockException = new OrderEntryException("Order.cannot.have.more.than.one");
+
+        ResponseEntity<Object> response = bahmniEncounterController.handleOrderEntryException(mockException);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        Map<String, String> errorBody = (Map<String, String>) responseBody.get("error");
+
+        assertEquals("[Order.cannot.have.more.than.one]", errorBody.get("message"));
     }
 
 }

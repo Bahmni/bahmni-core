@@ -1,9 +1,12 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.bahmni.module.bahmnicore.web.v1_0.VisitClosedException;
 import org.openmrs.Encounter;
 import org.openmrs.Visit;
 import org.openmrs.api.EncounterService;
+import org.openmrs.api.OrderEntryException;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterSearchParameters;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.BahmniEncounterTransactionMapper;
@@ -14,16 +17,15 @@ import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.v1_0.controller.BaseRestController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.bahmni.module.bahmnicore.util.MiscUtils.setUuidsForObservations;
 
@@ -35,6 +37,7 @@ public class BahmniEncounterController extends BaseRestController {
     private EncounterTransactionMapper encounterTransactionMapper;
     private BahmniEncounterTransactionService bahmniEncounterTransactionService;
     private BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper;
+    private static Logger logger = LogManager.getLogger(BahmniEncounterController.class);
 
     public BahmniEncounterController() {
     }
@@ -99,6 +102,16 @@ public class BahmniEncounterController extends BaseRestController {
         boolean includeAll = false;
         EncounterTransaction encounterTransaction = encounterTransactionMapper.map(encounter, includeAll);
         return bahmniEncounterTransactionMapper.map(encounterTransaction, includeAll);
+    }
+    @ExceptionHandler(OrderEntryException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleOrderEntryException(OrderEntryException ex) {
+        Map<String, String> errorBody = new HashMap<>();
+        errorBody.put("message", "[" + ex.getMessage() + "]");
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("error", errorBody);
+        logger.warn("OrderEntryException: " + ex.getMessage());
+        return new ResponseEntity<Object>(responseBody, HttpStatus.BAD_REQUEST);
     }
 
 }
