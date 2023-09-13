@@ -42,7 +42,6 @@ public class BahmniPatientProfileResourceIT extends BaseIntegrationTest {
     private EmrPatientProfileService emrPatientProfileService;
 
     private BahmniPatientProfileResource bahmniPatientProfileResource;
-
     private SimpleObject propertiesToCreate;
     private ClassLoader classLoader;
 

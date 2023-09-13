@@ -1,15 +1,17 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.NonUniqueObjectException;
 import org.hibernate.exception.DataException;
-import org.openmrs.*;
+import org.openmrs.Patient;
+import org.openmrs.PatientIdentifier;
+import org.openmrs.Person;
+import org.openmrs.Relationship;
+import org.openmrs.RelationshipType;
 import org.openmrs.api.APIAuthenticationException;
 import org.openmrs.api.ValidationException;
 import org.openmrs.api.context.Context;
@@ -38,10 +40,20 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Controller for REST web service access to
@@ -63,7 +75,7 @@ public class BahmniPatientProfileResource extends DelegatingCrudResource<Patient
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Object> create(@RequestHeader(value = "Jump-Accepted", required = false) boolean jumpAccepted,@RequestBody SimpleObject propertiesToCreate) throws Exception {
+    public ResponseEntity<Object> create(@RequestHeader(value = "Jump-Accepted", required = false) boolean jumpAccepted, @RequestBody SimpleObject propertiesToCreate) throws Exception {
         List identifiers = ((ArrayList) ((LinkedHashMap) propertiesToCreate.get("patient")).get("identifiers"));
         List<Object> jumpSizes = new ArrayList<>();
 
