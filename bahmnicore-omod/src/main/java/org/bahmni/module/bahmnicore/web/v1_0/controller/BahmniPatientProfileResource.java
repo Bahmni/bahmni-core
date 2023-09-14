@@ -1,8 +1,6 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -77,7 +75,7 @@ public class BahmniPatientProfileResource extends DelegatingCrudResource<Patient
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Object> create(@RequestHeader(value = "Jump-Accepted", required = false) boolean jumpAccepted,@RequestBody SimpleObject propertiesToCreate) throws Exception {
+    public ResponseEntity<Object> create(@RequestHeader(value = "Jump-Accepted", required = false) boolean jumpAccepted, @RequestBody SimpleObject propertiesToCreate) throws Exception {
         List identifiers = ((ArrayList) ((LinkedHashMap) propertiesToCreate.get("patient")).get("identifiers"));
         List<Object> jumpSizes = new ArrayList<>();
 
