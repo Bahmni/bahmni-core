@@ -4652,4 +4652,84 @@
         </sql>
     </changeSet>
     <include file="addAtomfeedMigrations.xml"/>
+    <changeSet id="manage-patient-program-attribute-types-202310191155" author="Bindu">
+        <preConditions>
+            <sqlCheck expectedResult="1">
+                select count(*) from privilege where privilege = 'Manage Program Attribute Types';
+            </sqlCheck>
+            <sqlCheck expectedResult="0">
+                select count(*) from privilege where privilege = 'Manage Patient Program Attribute Types';
+            </sqlCheck>
+        </preConditions>
+        <comment>Adding Manage Patient Program Attribute Types privilege</comment>
+        <sql>
+
+            delete from privilege where privilege = 'Manage Program Attribute Types';
+
+            delete from role_privilege where privilege = 'Manage Program Attribute Types';
+
+            set @uuid = '';
+            select uuid() into @uuid;
+            insert into privilege(privilege, description, uuid) values('Manage Patient Program Attribute Types', 'Access to enter,edit and view program attributes', @uuid);
+
+            insert ignore into role_privilege values('Programs-App', 'Manage Patient Program Attribute Types');
+            insert ignore into role_privilege values('Privilege Level: Full', 'Manage Patient Program Attribute Types');
+            insert ignore into role_privilege values('Privilege Level: High', 'Manage Patient Program Attribute Types');
+            insert ignore into role_privilege values('SuperAdmin', 'Manage Patient Program Attribute Types');
+        </sql>
+    </changeSet>
+    <changeSet id="get-patient-program-attribute-types-202310191511" author="Bindu">
+        <preConditions>
+            <sqlCheck expectedResult="1">
+                select count(*) from privilege where privilege = 'View Program Attribute Types';
+            </sqlCheck>
+            <sqlCheck expectedResult="0">
+                select count(*) from privilege where privilege = 'Get Patient Program Attribute Types';
+            </sqlCheck>
+        </preConditions>
+        <comment>Adding Get Patient Program Attribute Types privilege</comment>
+        <sql>
+
+            delete from privilege where privilege = 'View Program Attribute Types';
+
+            delete from role_privilege where privilege = 'View Program Attribute Types';
+
+            set @uuid = '';
+            select uuid() into @uuid;
+            insert into privilege(privilege, description, uuid) values('Get Patient Program Attribute Types', 'Access to only get program attributes', @uuid);
+
+            insert ignore into role_privilege values('Programs-App', 'Get Patient Program Attribute Types');
+            insert ignore into role_privilege values('Privilege Level: Full', 'Get Patient Program Attribute Types');
+            insert ignore into role_privilege values('Privilege Level: High', 'Get Patient Program Attribute Types');
+            insert ignore into role_privilege values('SuperAdmin', 'Get Patient Program Attribute Types');
+            insert ignore into role_privilege values('Clinical-App-Common', 'Get Patient Program Attribute Types');
+        </sql>
+    </changeSet>
+
+    <changeSet id="purge-patient-program-attribute-types-202310191514" author="Bindu">
+        <preConditions>
+            <sqlCheck expectedResult="1">
+                select count(*) from privilege where privilege = 'Purge Program Attribute Types';
+            </sqlCheck>
+            <sqlCheck expectedResult="0">
+                select count(*) from privilege where privilege = 'Purge Patient Program Attribute Types';
+            </sqlCheck>
+        </preConditions>
+        <comment>Adding Get Patient Program Attribute Types privilege</comment>
+        <sql>
+
+            delete from privilege where privilege = 'Purge Program Attribute Types';
+
+            delete from role_privilege where privilege = 'Purge Program Attribute Types';
+
+            set @uuid = '';
+            select uuid() into @uuid;
+            insert into privilege(privilege, description, uuid) values('Purge Patient Program Attribute Types', 'Access to purge program attribute types', @uuid);
+
+            insert ignore into role_privilege values('Programs-App', 'Purge Patient Program Attribute Types');
+            insert ignore into role_privilege values('Privilege Level: Full', 'Purge Patient Program Attribute Types');
+            insert ignore into role_privilege values('Privilege Level: High', 'Purge Patient Program Attribute Types');
+            insert ignore into role_privilege values('SuperAdmin', 'Purge Patient Program Attribute Types');
+        </sql>
+    </changeSet>
 </databaseChangeLog>
