@@ -3,8 +3,10 @@ package org.bahmni.module.bahmnicore.web.v1_0.search;
 import org.apache.commons.collections.CollectionUtils;
 import org.openmrs.Concept;
 import org.openmrs.ConceptName;
+import org.openmrs.ConceptSearchResult;
 import org.openmrs.api.APIException;
 import org.openmrs.api.ConceptService;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.webservices.rest.web.RequestContext;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.resource.api.PageableResult;
@@ -14,6 +16,7 @@ import org.openmrs.module.webservices.rest.web.resource.api.SearchQuery;
 import org.openmrs.module.webservices.rest.web.resource.impl.EmptySearchResult;
 import org.openmrs.module.webservices.rest.web.resource.impl.NeedsPaging;
 import org.openmrs.module.webservices.rest.web.response.ResponseException;
+import org.openmrs.util.LocaleUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -21,6 +24,8 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Component
 public class BahmniConceptSearchHandler implements SearchHandler {
@@ -38,7 +43,11 @@ public class BahmniConceptSearchHandler implements SearchHandler {
     @Override
     public PageableResult search(RequestContext context) throws ResponseException {
         String conceptName = context.getParameter("name");
-        List<Concept> conceptsByName = conceptService.getConceptsByName(conceptName);
+        List<Locale> localeList = getLocales(context);
+
+        List<ConceptSearchResult> conceptsSearchResult = conceptService.getConcepts(conceptName, localeList, false, null, null, null, null, null, 0, null);
+        List<Concept> conceptsByName = conceptsSearchResult.stream().map(conceptSearchResult -> conceptSearchResult.getConcept()).collect(Collectors.toList());
+
         if (CollectionUtils.isEmpty(conceptsByName)) {
             return new EmptySearchResult();
         } else {
@@ -57,6 +66,22 @@ public class BahmniConceptSearchHandler implements SearchHandler {
                 throw new APIException("The concept name should be either a fully specified or locale preferred name");
             return new NeedsPaging<Concept>(concepts, context);
         }
+    }
+
+    private List<Locale> getLocales(RequestContext context) {
+        String locale = context.getParameter("locale");
+
+        List<Locale> localeList = new ArrayList<>();
+        localeList.add(LocaleUtility.getDefaultLocale());
+
+        if (locale != null) {
+            localeList.add(LocaleUtility.fromSpecification(locale));
+        } else {
+            localeList.add(Context.getLocale());
+        }
+
+        localeList = localeList.stream().distinct().collect(Collectors.toList());
+        return localeList;
     }
 
 }
