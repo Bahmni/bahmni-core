@@ -40,6 +40,14 @@ public class BahmniConceptSearchHandler implements SearchHandler {
         return new SearchConfig("byFullySpecifiedName", RestConstants.VERSION_1 + "/concept", Arrays.asList("1.8.* - 2.*"), searchQuery);
     }
 
+    /**
+     * Searches for concepts by the given parameters. (Currently only supports name and locale (optional))
+     * @return a list of concepts matching the given parameters.
+     * @throws APIException
+     * <strong>Should</strong> return concepts in the specified locale if specified.
+     * <strong>Should</strong> return concepts in the default locale as well as logged in locale if locale is not specified.
+     */
+
     @Override
     public PageableResult search(RequestContext context) throws ResponseException {
         String conceptName = context.getParameter("name");
@@ -68,19 +76,26 @@ public class BahmniConceptSearchHandler implements SearchHandler {
         }
     }
 
+    /**
+     * Returns list of unique locales based on the context.getParameter("locale") parameter
+     * <strong>Should</strong> return List of results for locales: If locale is specified, then return results for that locale.
+     * If locale is not specified, then return results for logged in locale and default locale.
+     */
+
     private List<Locale> getLocales(RequestContext context) {
         String locale = context.getParameter("locale");
 
         List<Locale> localeList = new ArrayList<>();
-        localeList.add(LocaleUtility.getDefaultLocale());
 
         if (locale != null) {
             localeList.add(LocaleUtility.fromSpecification(locale));
         } else {
             localeList.add(Context.getLocale());
+            if (!LocaleUtility.getDefaultLocale().equals(Context.getLocale())) {
+                localeList.add(LocaleUtility.getDefaultLocale());
+            }
         }
 
-        localeList = localeList.stream().distinct().collect(Collectors.toList());
         return localeList;
     }
 

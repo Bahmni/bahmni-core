@@ -33,13 +33,14 @@ public class MiscUtils {
         return new ArrayList<>();
     }
     private static Concept getConceptInDefaultLocale(ConceptService conceptService, String rootConceptName) {
-        if (!LocaleUtility.getDefaultLocale().equals(Context.getLocale())) {
-            List<Concept> conceptsByName = conceptService.getConceptsByName(rootConceptName, LocaleUtility.getDefaultLocale(), false);
-            for (Concept concept : conceptsByName) {
-                for (ConceptName conceptname : concept.getNames()) {
-                    if (conceptname.getName().equalsIgnoreCase(rootConceptName) && (conceptname.isPreferred() || conceptname.isFullySpecifiedName())) {
-                        return concept;
-                    }
+        if (LocaleUtility.getDefaultLocale().equals(Context.getLocale())) {
+            return null;
+        }
+        List<Concept> conceptsByName = conceptService.getConceptsByName(rootConceptName, LocaleUtility.getDefaultLocale(), false);
+        for (Concept concept : conceptsByName) {
+            for (ConceptName conceptname : concept.getNames()) {
+                if (conceptname.getName().equalsIgnoreCase(rootConceptName) && (conceptname.isPreferred() || conceptname.isFullySpecifiedName())) {
+                    return concept;
                 }
             }
         }

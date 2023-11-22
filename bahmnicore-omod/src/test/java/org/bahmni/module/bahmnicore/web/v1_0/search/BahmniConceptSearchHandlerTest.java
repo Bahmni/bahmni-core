@@ -11,6 +11,7 @@ import org.openmrs.ConceptName;
 import org.openmrs.ConceptSearchResult;
 import org.openmrs.api.ConceptNameType;
 import org.openmrs.api.ConceptService;
+import org.openmrs.api.context.UserContext;
 import org.openmrs.module.webservices.rest.web.RequestContext;
 import org.openmrs.module.webservices.rest.web.resource.api.SearchConfig;
 import org.openmrs.module.webservices.rest.web.resource.impl.NeedsPaging;
@@ -43,6 +44,9 @@ public class BahmniConceptSearchHandlerTest {
     @Mock
     RequestContext requestContext;
 
+    @Mock
+    UserContext userContext;
+
     @InjectMocks
     private BahmniConceptSearchHandler bahmniConceptSearchHandler;
 
@@ -60,11 +64,11 @@ public class BahmniConceptSearchHandlerTest {
     }
 
     @Test
-    public void shouldSearchByGivenLocaleAndDefaultLocale_whenLocaleIsSpecified() {
+    public void shouldSearchByGivenLocale_whenLocaleIsSpecified() {
         List<ConceptSearchResult> conceptSearchResults = new ArrayList<>();
         ConceptSearchResult result =  new ConceptSearchResult();
         Concept concept = new Concept();
-        concept.setId(10);
+        concept.setId(123);
         ConceptName conceptNameFullySpecified = new ConceptName();
         conceptNameFullySpecified.setConceptNameType(ConceptNameType.FULLY_SPECIFIED);
         conceptNameFullySpecified.setName("Nutritional Values");
@@ -73,7 +77,6 @@ public class BahmniConceptSearchHandlerTest {
         conceptSearchResults.add(result);
 
         List<Locale> localeList = new ArrayList<>();
-        localeList.add(LocaleUtility.getDefaultLocale());
         localeList.add(Locale.FRENCH);
 
         when(conceptService.getConcepts(anyString(), anyList(), anyBoolean(), isNull(), isNull(), isNull(), isNull(), isNull(), any(Integer.class), isNull())).thenReturn(conceptSearchResults);
@@ -86,7 +89,8 @@ public class BahmniConceptSearchHandlerTest {
 
         verify(conceptService, times(1)).getConcepts("Nutritional Values", localeList, false, null, null, null, null, null, 0, null);
         assertEquals(1, searchResults.getPageOfResults().size());
-        assertEquals(new Integer(10) , searchResults.getPageOfResults().get(0).getId());
+        assertEquals(1, localeList.size());
+        assertEquals(new Integer(123) , searchResults.getPageOfResults().get(0).getId());
     }
 
     @Test
