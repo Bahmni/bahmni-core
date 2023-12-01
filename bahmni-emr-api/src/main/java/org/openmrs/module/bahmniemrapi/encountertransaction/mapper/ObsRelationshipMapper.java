@@ -34,7 +34,7 @@ public class ObsRelationshipMapper {
                             new org.openmrs.module.bahmniemrapi.obsrelation.contract.ObsRelationship();
                     targetObsRelation.setRelationshipType(obsRelationship.getObsRelationshipType().getName());
                     targetObsRelation.setUuid(obsRelationship.getUuid());
-                    targetObsRelation.setTargetObs(OMRSObsToBahmniObsMapper.map(obsRelationship.getTargetObs()));
+                    targetObsRelation.setTargetObs(OMRSObsToBahmniObsMapper.map(obsRelationship.getTargetObs(), null));
                     bahmniObservation.setTargetObsRelation(targetObsRelation);
 //                    bahmniObservation.setProviders(providers);
                 }
@@ -47,8 +47,8 @@ public class ObsRelationshipMapper {
         List<BahmniObservation> bahmniObservations = new ArrayList<>();
         for (ObsRelationship obsRelationship : obsRelationships) {
 
-            BahmniObservation sourceObservation = OMRSObsToBahmniObsMapper.map(obsRelationship.getSourceObs());
-            BahmniObservation targetObservation = OMRSObsToBahmniObsMapper.map(obsRelationship.getTargetObs());
+            BahmniObservation sourceObservation = OMRSObsToBahmniObsMapper.map(obsRelationship.getSourceObs(), null);
+            BahmniObservation targetObservation = OMRSObsToBahmniObsMapper.map(obsRelationship.getTargetObs(), null);
             sourceObservation.setProviders(encounterProviderMapper.convert(obsRelationship.getSourceObs().getEncounter().getEncounterProviders()));
 
             org.openmrs.module.bahmniemrapi.obsrelation.contract.ObsRelationship targetObsRelation =

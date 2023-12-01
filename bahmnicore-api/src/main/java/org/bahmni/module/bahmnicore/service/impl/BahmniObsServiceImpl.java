@@ -21,9 +21,7 @@ import org.openmrs.api.VisitService;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObservation;
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.OMRSObsToBahmniObsMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -93,7 +91,7 @@ public class BahmniObsServiceImpl implements BahmniObsService {
     private List<BahmniObservation> convertToBahmniObservation(List<Obs> observations) {
         List<BahmniObservation> bahmniObservations = new ArrayList<>();
         for (Obs observation : observations) {
-            BahmniObservation bahmniObservation = omrsObsToBahmniObsMapper.map(observation);
+            BahmniObservation bahmniObservation = omrsObsToBahmniObsMapper.map(observation, null);
             bahmniObservation.setObservationDateTime(observation.getObsDatetime());
             bahmniObservations.add(bahmniObservation);
         }
@@ -265,7 +263,7 @@ public class BahmniObsServiceImpl implements BahmniObsService {
     @Override
     public BahmniObservation getBahmniObservationByUuid(String observationUuid) {
         Obs obs = obsService.getObsByUuid(observationUuid);
-        return omrsObsToBahmniObsMapper.map(obs);
+        return omrsObsToBahmniObsMapper.map(obs, null);
     }
 
     @Override
@@ -274,7 +272,7 @@ public class BahmniObsServiceImpl implements BahmniObsService {
         if (obs.getVoided()) {
             obs = getRevisionObs(obs);
         }
-        return omrsObsToBahmniObsMapper.map(obs);
+        return omrsObsToBahmniObsMapper.map(obs, null);
     }
 
     @Override

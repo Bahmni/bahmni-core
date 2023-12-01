@@ -18,7 +18,6 @@ import org.openmrs.api.PersonService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObservation;
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.OMRSObsToBahmniObsMapper;
-import org.openmrs.module.emrapi.encounter.OrderMapper;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.module.emrapi.encounter.mapper.OrderMapper1_12;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -240,13 +239,13 @@ public class BahmniBridge {
 
     public BahmniObservation getChildObsFromParentObs(String parentObsGroupUuid, String childConceptName){
         Concept childConcept = conceptService.getConceptByName(childConceptName);
-        return omrsObsToBahmniObsMapper.map(obsDao.getChildObsFromParent(parentObsGroupUuid, childConcept));
+        return omrsObsToBahmniObsMapper.map(obsDao.getChildObsFromParent(parentObsGroupUuid, childConcept), null);
     }
 
     public BahmniObservation getLatestBahmniObservationFor(String conceptName){
         Obs obs = latestObs(conceptName);
         if(obs != null) {
-            return omrsObsToBahmniObsMapper.map(obs);
+            return omrsObsToBahmniObsMapper.map(obs, null);
         }
         return null;
     }

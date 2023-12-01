@@ -151,7 +151,7 @@ public class BahmniBridgeTest {
         bahmniObs.setUuid("observation uuid");
 
         PowerMockito.when(obsDao.getChildObsFromParent("parent obs uuid", vitalsConcept)).thenReturn(obs);
-        PowerMockito.when(omrsObsToBahmniObsMapper.map(obs)).thenReturn(bahmniObs);
+        PowerMockito.when(omrsObsToBahmniObsMapper.map(obs, null)).thenReturn(bahmniObs);
         Assert.assertEquals("observation uuid", bahmniBridge.getChildObsFromParentObs("parent obs uuid", "vital concept name").getUuid());
 
     }
