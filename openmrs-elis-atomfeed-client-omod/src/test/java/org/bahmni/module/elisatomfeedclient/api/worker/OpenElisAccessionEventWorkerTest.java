@@ -1,7 +1,5 @@
 package org.bahmni.module.elisatomfeedclient.api.worker;
 
-import java.util.*;
-
 import org.bahmni.module.elisatomfeedclient.api.Constants;
 import org.bahmni.module.elisatomfeedclient.api.ElisAtomFeedProperties;
 import org.bahmni.module.elisatomfeedclient.api.builder.OpenElisAccessionBuilder;
@@ -32,6 +30,13 @@ import org.openmrs.module.auditlog.service.AuditLogService;
 import org.openmrs.module.bahmniemrapi.encountertransaction.command.impl.BahmniVisitAttributeService;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
