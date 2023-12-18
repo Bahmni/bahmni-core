@@ -250,6 +250,15 @@ public class OpenElisAccessionEventWorker implements EventWorker {
 
     protected Set<Encounter> associateTestResultsToOrder(OpenElisAccession openElisAccession) throws ParseException {
         Encounter orderEncounter = encounterService.getEncounterByUuid(openElisAccession.getAccessionUuid());
+
+        for (OpenElisTestDetail testDetail : openElisAccession.getTestDetails()) {
+            for (Order order : orderEncounter.getOrders()) {
+                if (testDetail != null && order != null && order.getConcept() != null && testDetail.getTestUuid().equals(order.getConcept().getUuid()) && testDetail.getStatus() != null && !testDetail.getStatus().equals("Canceled")) {
+                    order.setAccessionNumber(openElisAccession.getAccessionUuid());
+                    break;
+                }
+            }
+        }
         final EncounterType labResultEncounterType = getLabResultEncounterType();
         final Set<OpenElisTestDetail> allTests = openElisAccession.getTestDetails();
 
