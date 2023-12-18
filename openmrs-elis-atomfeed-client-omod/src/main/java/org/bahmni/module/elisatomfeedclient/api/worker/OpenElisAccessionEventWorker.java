@@ -253,7 +253,7 @@ public class OpenElisAccessionEventWorker implements EventWorker {
 
         if (!orderEncounter.getOrders().isEmpty()) {
             for (OpenElisTestDetail testDetail : openElisAccession.getTestDetails()) {
-                if (testDetail == null && testDetail.getStatus() == null) {
+                if (testDetail == null || testDetail.getStatus() == null) {
                     continue;
                 }
                 for (Order order : orderEncounter.getOrders()) {
