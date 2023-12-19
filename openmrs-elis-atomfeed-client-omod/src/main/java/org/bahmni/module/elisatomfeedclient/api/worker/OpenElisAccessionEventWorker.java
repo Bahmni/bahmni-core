@@ -257,7 +257,7 @@ public class OpenElisAccessionEventWorker implements EventWorker {
                     continue;
                 }
                 for (Order order : orderEncounter.getOrders()) {
-                    if (testDetail.getTestUuid().equals(order.getConcept().getUuid())) {
+                    if (testDetail.getTestUuid().equals(order.getConcept().getUuid()) || order.getConcept().getUuid().equals(testDetail.getPanelUuid())) {
                         if ("Canceled".equals(testDetail.getStatus())) {
                             continue;
                         }
