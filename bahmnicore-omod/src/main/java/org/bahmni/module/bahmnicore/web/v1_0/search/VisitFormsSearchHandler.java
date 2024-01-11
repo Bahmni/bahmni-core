@@ -62,7 +62,9 @@ public class VisitFormsSearchHandler implements SearchHandler {
         }
         List<String> conceptNamesList = new ArrayList<>();
         if (conceptNames == null) {
-            List<Concept> concepts = Context.getConceptService().getConceptsByName(ALL_OBSERVATION_TEMPLATES, Locale.ENGLISH, null);
+
+            List<Concept> concepts = Context.getConceptService().getConceptsByName(ALL_OBSERVATION_TEMPLATES, Locale.ENGLISH, false);
+          
             if(!concepts.isEmpty()){
                 for (Concept concept : concepts) {
                     conceptNamesList = getConcepts(concept.getSetMembers(), searchLocale);

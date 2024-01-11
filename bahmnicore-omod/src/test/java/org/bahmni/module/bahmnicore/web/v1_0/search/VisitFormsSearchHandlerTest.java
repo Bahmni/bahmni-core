@@ -209,7 +209,8 @@ public class VisitFormsSearchHandlerTest {
         Concept historyConcept = createConcept("History and Examination", "en");
         parentConcept.addSetMember(historyConcept);
 
-        when(conceptService.getConceptsByName("All Observation Templates", Locale.ENGLISH,  null)).thenReturn(Arrays.asList(parentConcept));
+
+        when(conceptService.getConceptsByName("All Observation Templates", Locale.ENGLISH,  false)).thenReturn(Arrays.asList(parentConcept));
 
         Concept obsConcept = createConcept("History and Examination", "en");
         Obs obs = createObs(obsConcept);
@@ -228,7 +229,7 @@ public class VisitFormsSearchHandlerTest {
         Concept historyConcept = createConcept("History and Examination", "en");
         parentConcept.addSetMember(historyConcept);
 
-        when(conceptService.getConceptsByName("All Observation Templates", Locale.ENGLISH,  null)).thenReturn(Arrays.asList(parentConcept));
+        when(conceptService.getConceptsByName("All Observation Templates", Locale.ENGLISH,  false)).thenReturn(Arrays.asList(parentConcept));
 
         Obs obs2 = createObs(historyConcept);
 
@@ -282,7 +283,7 @@ public class VisitFormsSearchHandlerTest {
 
         visitFormsSearchHandler.search(context);
 
-        verify(conceptService, times(1)).getConceptsByName("All Observation Templates",Locale.ENGLISH, null);
+        verify(conceptService, times(1)).getConceptsByName("All Observation Templates",Locale.ENGLISH, false);
         verify(programWorkflowService, times(1)).getPatientProgramByUuid(patientProgramUuid);
         verify(episodeService, times(1)).getEpisodeForPatientProgram(patientProgram);
         verify(visitService, never()).getVisitsByPatient(patient);
@@ -306,7 +307,8 @@ public class VisitFormsSearchHandlerTest {
 
         visitFormsSearchHandler.search(context);
 
-        verify(conceptService, times(1)).getConceptsByName("All Observation Templates", Locale.ENGLISH, null);
+
+        verify(conceptService, times(1)).getConceptsByName("All Observation Templates", Locale.ENGLISH, false);
         verify(programWorkflowService, times(1)).getPatientProgramByUuid(patientProgramUuid);
         verify(episodeService, times(1)).getEpisodeForPatientProgram(patientProgram);
         verify(visitService, never()).getVisitsByPatient(patient);
@@ -331,7 +333,7 @@ public class VisitFormsSearchHandlerTest {
 
         visitFormsSearchHandler.search(context);
 
-        verify(conceptService, times(1)).getConceptsByName("All Observation Templates", Locale.ENGLISH, null);
+        verify(conceptService, times(1)).getConceptsByName("All Observation Templates", Locale.ENGLISH, false);
         verify(programWorkflowService, times(1)).getPatientProgramByUuid(patientProgramUuid);
         verify(episodeService, times(1)).getEpisodeForPatientProgram(patientProgram);
         verify(visitService, never()).getVisitsByPatient(patient);
