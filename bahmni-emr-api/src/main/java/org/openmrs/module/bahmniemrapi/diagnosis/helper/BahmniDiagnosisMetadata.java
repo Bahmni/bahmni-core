@@ -13,12 +13,7 @@ import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -37,16 +32,21 @@ public class BahmniDiagnosisMetadata {
 
     private EncounterTransactionMapper encounterTransactionMapper;
 
+    public Concept getConceptsByNameAndLocale(String name, Locale locale) {
+       List<Concept> conceptList = conceptService.getConceptsByName(name, locale, null);
+       return conceptList.isEmpty() ? null : conceptList.get(0);
+    }
+
     public Concept getBahmniInitialDiagnosisConcept() {
-        return conceptService.getConceptByName(BAHMNI_INITIAL_DIAGNOSIS);
+        return getConceptsByNameAndLocale(BAHMNI_INITIAL_DIAGNOSIS, Locale.ENGLISH);
     }
 
     public Concept getBahmniDiagnosisRevisedConcept() {
-        return conceptService.getConceptByName(BAHMNI_DIAGNOSIS_REVISED);
+        return getConceptsByNameAndLocale(BAHMNI_DIAGNOSIS_REVISED, Locale.ENGLISH);
     }
 
     public Concept getBahmniDiagnosisStatusConcept() {
-        return conceptService.getConceptByName(BAHMNI_DIAGNOSIS_STATUS);
+        return getConceptsByNameAndLocale(BAHMNI_DIAGNOSIS_STATUS, Locale.ENGLISH);
     }
 
     @Autowired
