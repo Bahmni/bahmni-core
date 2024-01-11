@@ -33,7 +33,7 @@ public class BahmniDiagnosisMetadata {
     private EncounterTransactionMapper encounterTransactionMapper;
 
     public Concept getConceptsByNameAndLocale(String name, Locale locale) {
-       List<Concept> conceptList = conceptService.getConceptsByName(name, locale, null);
+       List<Concept> conceptList = conceptService.getConceptsByName(name, locale, false);
        return conceptList.isEmpty() ? null : conceptList.get(0);
     }
 
