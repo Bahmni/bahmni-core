@@ -57,6 +57,10 @@ public class BahmniFormDetailsServiceImpl implements BahmniFormDetailsService {
     public Collection<FormDetails> getFormDetails(String patientUuid, FormType formType, int numberOfVisits) {
         Patient patient = getPatient(patientUuid);
         List<Visit> visits = visitService.getVisitsByPatient(patient);
+
+        if(visits.isEmpty())
+            return Collections.emptyList();
+
         List<Visit> limitedVisits = limitVisits(visits, numberOfVisits);
 
         List<Encounter> encounters = getEncounters(limitedVisits);
