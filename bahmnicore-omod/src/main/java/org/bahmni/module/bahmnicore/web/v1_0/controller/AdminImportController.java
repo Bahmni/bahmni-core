@@ -277,7 +277,7 @@ public class AdminImportController extends BaseRestController {
 
     @RequestMapping(value = baseUrl + "/status", method = RequestMethod.GET)
     @ResponseBody
-    public List<ImportStatus> status(@RequestParam(required = false) Integer numberOfDays) throws SQLException {
+    public List<ImportStatus> status(@RequestParam(required = false) Integer numberOfDays) throws InterruptedException, SQLException {
         numberOfDays = numberOfDays == null ? DEFAULT_NUMBER_OF_DAYS : numberOfDays;
         ImportStatusDao importStatusDao = new ImportStatusDao(new CurrentThreadConnectionProvider());
         return importStatusDao.getImportStatusFromDate(DateUtils.addDays(new Date(), (numberOfDays * -1)));
