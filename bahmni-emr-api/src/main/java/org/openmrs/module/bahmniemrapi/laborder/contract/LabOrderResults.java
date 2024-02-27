@@ -33,7 +33,7 @@ public class LabOrderResults {
                 dateMap.put(orderDate, new TabularLabOrderResults.DateLabel(dateLabelIndexCounter++, orderDate.toString("dd-MMM-yyyy")));
             }
             if(orderMap.get(result.getTestName()) == null) {
-                orderMap.put(result.getTestName(), new TabularLabOrderResults.TestOrderLabel(testOrderLabelCounter++, result.getTestName(), result.getMinNormal(), result.getMaxNormal(), result.getTestUnitOfMeasurement()));
+                orderMap.put(result.getTestName(), new TabularLabOrderResults.TestOrderLabel(testOrderLabelCounter++, result.getTestName(), result.getMinNormal(), result.getMaxNormal(), result.getTestUnitOfMeasurement(), result.getPanelName()));
             }
 
             if(result.getResult() != null || result.getReferredOut() || result.getUploadedFileName() != null) {
