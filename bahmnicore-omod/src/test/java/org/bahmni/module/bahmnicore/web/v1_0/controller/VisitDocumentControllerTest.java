@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -29,13 +30,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Base64;
 import java.util.HashMap;
 
 @PrepareForTest(Context.class)
@@ -59,9 +61,15 @@ public class VisitDocumentControllerTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    @Rule
+    public final EnvironmentVariables environmentVariables
+            = new EnvironmentVariables();
+
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        environmentVariables.set("DOCUMENT_MAX_SIZE_MB","7");
     }
 
     @Test
@@ -189,9 +197,10 @@ public class VisitDocumentControllerTest {
 
         Document document = new Document("abcd", "jpeg", "consultation", "patient-uuid", "image", "file-name");
 
-        HashMap<String, String> mapWithUrl = visitDocumentController.saveDocument(document);
+        ResponseEntity<HashMap<String, Object>> responseEntity = visitDocumentController.saveDocument(document);
+        HashMap<String, Object> mapWithUrl = responseEntity.getBody();
         if (mapWithUrl!=null) {
-	        String documentSavedPath = mapWithUrl.get("url");
+	        String documentSavedPath = (String) mapWithUrl.get("url");
 	        if (documentSavedPath!=null) {
 	        	assertTrue(documentSavedPath.endsWith("__file-name.jpeg"));
 	        }
@@ -202,4 +211,52 @@ public class VisitDocumentControllerTest {
         verify(patientDocumentService, times(1)).saveDocument(1, "consultation", "abcd", "jpeg", document.getFileType(), document.getFileName());
     }
 
+    @Test
+    public void shouldReturn413PayloadTooLargeIfDocumentSizeExceedsLimit() throws Exception {
+        PowerMockito.mockStatic(Context.class);
+        when(Context.getPatientService()).thenReturn(patientService);
+
+        Patient patient = new Patient();
+        patient.setId(1);
+        patient.setUuid("patient-uuid");
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+
+        when(administrationService.getGlobalProperty("bahmni.encounterType.default")).thenReturn("consultation");
+
+        Document document = new Document("abcd", "jpeg", null, "patient-uuid", "image", "file-name");
+
+        byte[] largeContent = new byte[8 * 1024 * 1024];
+        String base64Content = Base64.getEncoder().encodeToString(largeContent);
+        document.setContent(base64Content);
+        System.out.println(document.getContent().length());
+
+        ResponseEntity<HashMap<String, Object>> responseEntity = visitDocumentController.saveDocument(document);
+
+        Assert.assertEquals(HttpStatus.PAYLOAD_TOO_LARGE, responseEntity.getStatusCode());
+    }
+
+    @Test
+    public void shouldSaveDocumentIfDocumentSizeIsLessThanSizeLimit() throws Exception {
+        PowerMockito.mockStatic(Context.class);
+        when(Context.getPatientService()).thenReturn(patientService);
+
+        Patient patient = new Patient();
+        patient.setId(1);
+        patient.setUuid("patient-uuid");
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+
+        when(administrationService.getGlobalProperty("bahmni.encounterType.default")).thenReturn("consultation");
+
+        Document document = new Document("abcd", "jpeg", null, "patient-uuid", "image", "file-name");
+
+        byte[] largeContent = new byte[2 * 1024 * 1024];
+        String base64Content = Base64.getEncoder().encodeToString(largeContent);
+        document.setContent(base64Content);
+
+        ResponseEntity<HashMap<String, Object>> responseEntity = visitDocumentController.saveDocument(document);
+
+        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+        verify(patientDocumentService, times(1)).saveDocument(1, "consultation", base64Content, "jpeg", document.getFileType(), document.getFileName());
+    }
 }
