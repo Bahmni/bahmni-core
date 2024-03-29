@@ -10,7 +10,7 @@ public class ApplicationDataDirectoryImpl implements ApplicationDataDirectory {
     @Override
     public File getFile(String relativePath) {
         String applicationDataDirectory = OpenmrsUtil.getApplicationDataDirectory();
-        if (!applicationDataDirectory.endsWith(File.separator)) {
+        if (!applicationDataDirectory.endsWith(File.separator) && !relativePath.startsWith(File.separator)) {
             applicationDataDirectory += File.separator;
         }
         return new File(applicationDataDirectory + relativePath);
