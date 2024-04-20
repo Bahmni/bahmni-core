@@ -33,4 +33,5 @@ public class BahmniVisitServiceImpl implements BahmniVisitService {
     public List<Encounter> getAdmitAndDischargeEncounters(Integer visitId) {
         return visitDao.getAdmitAndDischargeEncounters(visitId);
     }
+
 }

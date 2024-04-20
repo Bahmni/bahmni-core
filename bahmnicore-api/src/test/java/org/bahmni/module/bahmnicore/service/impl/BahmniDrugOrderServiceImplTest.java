@@ -83,7 +83,7 @@ public class BahmniDrugOrderServiceImplTest {
         when(orderDao.getActiveOrders(any(Patient.class), any(OrderType.class), any(CareSetting.class),
                 dateArgumentCaptor.capture(), anySet(), eq(null), eq(null), eq(null), anyCollection())).thenReturn(new ArrayList<Order>());
 
-       bahmniDrugOrderService.getDrugOrders(PATIENT_UUID, true, conceptsToFilter, null, PATIENT_PROGRAM_UUID);
+        bahmniDrugOrderService.getDrugOrders(PATIENT_UUID, true, conceptsToFilter, null, PATIENT_PROGRAM_UUID);
 
         final Date value = dateArgumentCaptor.getValue();
         verify(orderDao, times(2)).getActiveOrders(mockPatient, mockOrderType, mockCareSetting, value, conceptsToFilter, null, null, null, encounters);

@@ -2,6 +2,7 @@ package org.bahmni.module.bahmnicore.util;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -46,5 +47,15 @@ public class BahmniDateUtil {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(BahmniDateUtil.DateFormatType.UTC.dateFormat);
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         return simpleDateFormat.parse(dateString);
+    }
+
+    public static String convertUTCToGivenFormat(Date dateTime, String format, String timeZone) {
+        if (dateTime == null || StringUtils.isEmpty(format) || StringUtils.isEmpty(timeZone)) {
+            return null;
+        }
+        DateFormat givenFormat = new SimpleDateFormat(format);
+        TimeZone givenTimeZone = TimeZone.getTimeZone(timeZone);
+        givenFormat.setTimeZone(givenTimeZone);
+        return givenFormat.format(dateTime);
     }
 }

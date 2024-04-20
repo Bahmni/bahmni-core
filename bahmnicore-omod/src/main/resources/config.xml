@@ -98,6 +98,10 @@
         <name>app:lab-lite</name>
         <description>Will give access to Lab Lite app</description>
     </privilege>
+    <privilege>
+        <name>Send Prescription</name>
+        <description>Will give access to send prescription via sms</description>
+    </privilege>
 
     <advice>
         <point>org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService</point>
@@ -165,6 +169,21 @@
         <property>bahmni.extraPatientIdentifierTypes</property>
         <defaultValue></defaultValue>
         <description>A list of UUIDs indicating extra Patient Identifier Types that should be displayed</description>
+    </globalProperty>
+    <globalProperty>
+        <property>bahmni.enableSMSPrescriptionOption</property>
+        <defaultValue>false</defaultValue>
+        <description>Boolean to enable sending sms with prescription details</description>
+    </globalProperty>
+    <globalProperty>
+        <property>bahmni.enableEmailPrescriptionOption</property>
+        <defaultValue>false</defaultValue>
+        <description>Boolean to enable sending email with prescription details</description>
+    </globalProperty>
+    <globalProperty>
+        <property>bahmni.prescriptionSMSTemplate</property>
+        <defaultValue>Date: {0}\nPrescription For Patient: {1}, {2}, {3} years.\nDoctor: {4} ({5})\n{6}</defaultValue>
+        <description>Template to use while sending prescription in sms for a visit. Format is define like in Java MessageFormat</description>
     </globalProperty>
 
     <globalProperty>
