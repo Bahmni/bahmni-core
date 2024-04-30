@@ -35,8 +35,17 @@ public class BahmniDrugOrderMapper {
         List<BahmniDrugOrder> bahmniDrugOrders = new ArrayList<>();
 
         for (DrugOrder openMRSDrugOrder : activeDrugOrders) {
-            BahmniDrugOrder bahmniDrugOrder = new BahmniDrugOrder();
+            BahmniDrugOrder bahmniDrugOrder = mapDrugOrderToBahmniDrugOrder(openMRSDrugOrder, drugOrderMapper, locale, discontinuedOrderMap);
+            bahmniDrugOrders.add(bahmniDrugOrder);
+        }
+        if(CollectionUtils.isNotEmpty(orderAttributeObs)){
+           bahmniDrugOrders = orderAttributesMapper.map(bahmniDrugOrders,orderAttributeObs);
+        }
+        return bahmniDrugOrders;
+    }
 
+    private BahmniDrugOrder mapDrugOrderToBahmniDrugOrder(DrugOrder openMRSDrugOrder, OrderMapper1_12 drugOrderMapper, String locale, Map<String, DrugOrder> discontinuedOrderMap) {
+        BahmniDrugOrder bahmniDrugOrder = new BahmniDrugOrder();
             bahmniDrugOrder.setDrugOrder(drugOrderMapper.mapDrugOrder(openMRSDrugOrder));
             if(locale != null) {
                 Locale tempLocale = new Locale(locale);
@@ -62,18 +71,17 @@ public class BahmniDrugOrderMapper {
                 bahmniDrugOrder.setOrderReasonText(discontinuedOrderMap.get(openMRSDrugOrder.getOrderNumber()).getOrderReasonNonCoded());
                 bahmniDrugOrder.setOrderReasonConcept(conceptMapper.map(discontinuedOrderMap.get(openMRSDrugOrder.getOrderNumber()).getOrderReason()));
             }
-
-            bahmniDrugOrders.add(bahmniDrugOrder);
-        }
-        if(CollectionUtils.isNotEmpty(orderAttributeObs)){
-           bahmniDrugOrders = orderAttributesMapper.map(bahmniDrugOrders,orderAttributeObs);
-        }
-        return bahmniDrugOrders;
+        return bahmniDrugOrder;
     }
 
     public void setMappers(BahmniProviderMapper bahmniProviderMapper, OrderAttributesMapper orderAttributesMapper, ConceptMapper conceptMapper){
         providerMapper = bahmniProviderMapper;
         this.orderAttributesMapper = orderAttributesMapper;
         this.conceptMapper = conceptMapper;
+    }
+
+    public BahmniDrugOrder mapToResponse(DrugOrder drugOrder, Map<String, DrugOrder> discontinuedDrugOrderMap) {
+        OrderMapper1_12 drugOrderMapper = new OrderMapper1_12();
+        return mapDrugOrderToBahmniDrugOrder(drugOrder, drugOrderMapper, null, discontinuedDrugOrderMap);
     }
 }

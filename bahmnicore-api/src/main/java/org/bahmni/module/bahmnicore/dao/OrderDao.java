@@ -57,4 +57,6 @@ public interface OrderDao {
     List<Order> getOrdersByPatientProgram(String patientProgramUuid, OrderType orderTypeByUuid, Set<Concept> conceptsForDrugs);
 
     List<Order> getAllOrders(Patient patientByUuid, OrderType drugOrderTypeUuid, Integer offset, Integer limit, List<String> locationUuids);
+
+    DrugOrder getDrugOrderByOrderId(String orderId);
 }

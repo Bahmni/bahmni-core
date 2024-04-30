@@ -142,6 +142,11 @@ public class BahmniDrugOrderServiceImpl implements BahmniDrugOrderService {
     }
 
     @Override
+    public DrugOrder getDrugOrderByOrderId(String orderId) {
+        return orderDao.getDrugOrderByOrderId(orderId);
+    }
+
+    @Override
     public List<DrugOrder> getPrescribedDrugOrdersForConcepts(Patient patient, Boolean includeActiveVisit, List<Visit> visits, List<Concept> concepts, Date startDate, Date endDate) {
         if( concepts == null || concepts.isEmpty()){
             return new ArrayList<>();

@@ -369,6 +369,14 @@ public class OrderDaoImpl implements OrderDao {
     }
 
     @Override
+    public DrugOrder getDrugOrderByOrderId(String orderId) {
+        Session currentSession = getCurrentSession();
+        Query query = currentSession.createQuery("select d from DrugOrder d where d.uuid = :orderId");
+        query.setParameter("orderId", orderId);
+        return (DrugOrder) query.uniqueResult();
+    }
+
+    @Override
     public Map<String, DrugOrder> getDiscontinuedDrugOrders(List<DrugOrder> drugOrders) {
 
         if (drugOrders == null || drugOrders.size() == 0)
