@@ -20,12 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -472,6 +467,14 @@ public class OrderDaoImplIT extends BaseIntegrationTest {
         List<Order> activeOrders = orderDao.getAllOrders(patient, orderType, null, null, locationUuids);
 
         assertEquals(0, activeOrders.size());
+    }
+
+    @Test
+    public void shouldGetDrugOrderByOrderId() throws Exception {
+        executeDataSet("patientWithOrders.xml");
+        String order_Id = "cba00378-0c03-11e4-bb80-f18addb6f839";
+        DrugOrder drugOrder = orderDao.getDrugOrderByOrderId(order_Id);
+        assertEquals("24", Integer.toString(drugOrder.getOrderId()));
     }
 
     private boolean visitWithUuidExists(String uuid, List<Visit> visits) {

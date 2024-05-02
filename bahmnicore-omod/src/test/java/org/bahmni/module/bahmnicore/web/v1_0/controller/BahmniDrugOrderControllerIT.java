@@ -228,6 +228,13 @@ public class BahmniDrugOrderControllerIT extends BaseIntegrationTest {
         assertEquals("6d0ae116-ewrg-4629-9850-f15205e6bgoh", inactiveDrugOrders.get(0).getUuid());
     }
 
+    @Test
+    public void shouldReturnDrugOrderByOrderId() throws Exception {
+        executeDataSet("prescribedAndActiveDrugOrdersForVisits.xml");
+        BahmniDrugOrder drugOrder = bahmniDrugOrderController.getDrugOrderByOrderId("6d0ae116-707a-4629-9850-f15205e63ab0");
+        assertEquals("6d0ae116-707a-4629-9850-f15205e63ab0", drugOrder.getUuid());
+    }
+
     private List<String> getOrderUuids(List<BahmniDrugOrder> bahmniDrugOrders) {
         ArrayList<String> orderUuids = new ArrayList<>();
         for (BahmniDrugOrder drugOrder : bahmniDrugOrders) {
