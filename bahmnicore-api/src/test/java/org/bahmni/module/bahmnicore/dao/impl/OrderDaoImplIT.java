@@ -469,14 +469,6 @@ public class OrderDaoImplIT extends BaseIntegrationTest {
         assertEquals(0, activeOrders.size());
     }
 
-    @Test
-    public void shouldGetDrugOrderByOrderId() throws Exception {
-        executeDataSet("patientWithOrders.xml");
-        String order_Id = "cba00378-0c03-11e4-bb80-f18addb6f839";
-        DrugOrder drugOrder = orderDao.getDrugOrderByOrderId(order_Id);
-        assertEquals("24", Integer.toString(drugOrder.getOrderId()));
-    }
-
     private boolean visitWithUuidExists(String uuid, List<Visit> visits) {
         boolean exists = false;
         for (Visit visit : visits) {

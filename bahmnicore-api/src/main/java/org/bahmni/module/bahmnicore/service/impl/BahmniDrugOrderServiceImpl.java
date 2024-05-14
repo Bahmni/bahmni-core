@@ -143,7 +143,9 @@ public class BahmniDrugOrderServiceImpl implements BahmniDrugOrderService {
 
     @Override
     public DrugOrder getDrugOrderByOrderId(String orderId) {
-        return orderDao.getDrugOrderByOrderId(orderId);
+        Order order = orderDao.getOrderByUuid(orderId);
+        List<DrugOrder> drugOrders = mapOrderToDrugOrder(Collections.singletonList(order));
+        return drugOrders.get(0);
     }
 
     @Override
