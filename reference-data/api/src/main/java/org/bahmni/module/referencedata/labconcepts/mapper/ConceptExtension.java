@@ -107,6 +107,10 @@ public class ConceptExtension {
         return concept.getConceptClass() != null && concept.getConceptClass().getName() != null && concept.getConceptClass().getName().equals(conceptClassName);
     }
 
+    public static boolean isOfAnyConceptClass(Concept concept, List<String> conceptClassNames) {
+        return concept.getConceptClass() != null && concept.getConceptClass().getName() != null && conceptClassNames.contains(concept.getConceptClass().getName());
+    }
+
     public static boolean isOfConceptClassByUUID(Concept concept, String conceptClassUUID) {
         return concept.getConceptClass() != null && concept.getConceptClass().getUuid().equals(conceptClassUUID);
     }
@@ -116,6 +120,17 @@ public class ConceptExtension {
         List<ResourceReference> resourceReferences = new ArrayList<>();
         for (Concept setMember : setMembers) {
             if (isOfConceptClass(setMember, conceptClass)) {
+                resourceReferences.add(resourceReferenceMapper.map(setMember));
+            }
+        }
+        return resourceReferences;
+    }
+
+    public static List<ResourceReference> getResourceReferencesOfConceptClasses(List<Concept> setMembers, List<String> conceptClasses) {
+        ResourceReferenceMapper resourceReferenceMapper = new ResourceReferenceMapper();
+        List<ResourceReference> resourceReferences = new ArrayList<>();
+        for (Concept setMember : setMembers) {
+            if (isOfAnyConceptClass(setMember, conceptClasses)) {
                 resourceReferences.add(resourceReferenceMapper.map(setMember));
             }
         }
