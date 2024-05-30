@@ -4556,7 +4556,101 @@
             insert into order_type_class_map(order_type_id, concept_class_id) values(@radiology_order_type_id,@radiology_imaging);
         </sql>
     </changeSet>
+    <changeSet author="Bindu" id="notes-202307091607">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="notes"/>
+            </not>
+        </preConditions>
+        <createTable tableName="notes">
+            <column autoIncrement="true" name="note_id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="note_type_id" type="INT"/>
+            <column name="note_text" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="note_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="creator" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="voided_by" type="INT"/>
+            <column name="location_id" type="INT">
+            </column>
+            <column name="changed_by" type="INT"/>
+            <column name="date_changed" type="datetime"/>
+            <column name="date_voided" type="datetime"/>
+            <column name="void_reason" type="TEXT"/>
+            <column defaultValueBoolean="false" name="is_voided" type="BOOLEAN">
+                <constraints nullable="false" />
+            </column>
+            <column name="uuid" type="CHAR(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
 
+        <addNotNullConstraint tableName="notes" columnName="uuid" columnDataType="char(38)" />
+
+        <addForeignKeyConstraint baseColumnNames="creator"
+                                 baseTableName="notes" constraintName="user_who_created_notes"
+                                 referencedColumnNames="user_id" referencedTableName="users" />
+
+        <addForeignKeyConstraint baseColumnNames="changed_by"
+                                 baseTableName="notes" constraintName="user_who_changed_notes"
+                                 referencedColumnNames="user_id" referencedTableName="users" />
+
+        <addForeignKeyConstraint baseColumnNames="location_id"
+                                 baseTableName="notes" constraintName="location_notes"
+                                 referencedColumnNames="location_id" referencedTableName="location" />
+
+        <createIndex tableName="notes" unique="true" indexName="notes_uuid_index" >
+            <column name="uuid" />
+        </createIndex>
+
+    </changeSet>
+    <changeSet author="Bindu" id="note-type-202307101601">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="note_type"/>
+            </not>
+        </preConditions>
+        <createTable tableName="note_type">
+            <column defaultValueNumeric="0" name="note_type_id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(50)">
+            <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="uuid" type="CHAR(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+
+        <addNotNullConstraint tableName="note_type" columnName="uuid" columnDataType="char(38)" />
+
+        <createIndex tableName="note_type" unique="true" indexName="note_type_uuid_index" >
+            <column name="uuid" />
+        </createIndex>
+    </changeSet>
+    <changeSet id="note-name-202307241600" author="Bindu">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                select count(*) from note_type where name = 'OT module';
+            </sqlCheck>
+        </preConditions>
+        <comment> Adding note type </comment>
+        <sql>
+            insert into note_type (name, description, uuid) values ('OT module', 'OT module', uuid());
+        </sql>
+    </changeSet>
     <include file="addAtomfeedMigrations.xml"/>
     <changeSet id="provider-attribute-login-locations-202307191200" author="BAHMNI">
         <preConditions onFail="MARK_RAN">

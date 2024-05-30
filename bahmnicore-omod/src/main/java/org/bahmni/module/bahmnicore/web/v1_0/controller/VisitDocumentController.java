@@ -68,8 +68,7 @@ public class VisitDocumentController extends BaseRestController {
             HashMap<String, Object> savedDocument = new HashMap<>();
             Patient patient = Context.getPatientService().getPatientByUuid(document.getPatientUuid());
             String encounterTypeName = document.getEncounterTypeName();
-            Long maxDocumentSizeMb = Long.parseLong(System.getenv("DOCUMENT_MAX_SIZE_MB"));
-            Long maxDocumentSizeBytes = maxDocumentSizeMb * 1024 * 1024;
+            String maxDocumentSize = System.getenv("DOCUMENT_MAX_SIZE_MB");
 
             if (StringUtils.isEmpty(encounterTypeName)) {
                 encounterTypeName = administrationService.getGlobalProperty("bahmni.encounterType.default");
@@ -77,10 +76,14 @@ public class VisitDocumentController extends BaseRestController {
             String fileName = sanitizeFileName(document.getFileName());
             Paths.get(fileName);
 
-            if (document.getContent().length() > maxDocumentSizeBytes) {
-                logger.warn("Uploaded document size is greater than the maximum size " + maxDocumentSizeMb + "MB");
-                savedDocument.put("maxDocumentSizeMB", maxDocumentSizeMb);
-                return new ResponseEntity<>(savedDocument, HttpStatus.PAYLOAD_TOO_LARGE);
+            if (!StringUtils.isEmpty(maxDocumentSize)) {
+                Long maxDocumentSizeMb = Long.parseLong(maxDocumentSize);
+                Long maxDocumentSizeBytes = maxDocumentSizeMb * 1024 * 1024;
+                if (document.getContent().length() > maxDocumentSizeBytes) {
+                    logger.warn("Uploaded document size is greater than the maximum size " + maxDocumentSizeMb + "MB");
+                    savedDocument.put("maxDocumentSizeMB", maxDocumentSizeMb);
+                    return new ResponseEntity<>(savedDocument, HttpStatus.PAYLOAD_TOO_LARGE);
+                }
             }
             // Old files will follow: patientid-encounterName-uuid.ext (eg. 6-Patient-Document-706a448b-3f10-11e4-adec-0800271c1b75.png)
             // New ones will follow: patientid_encounterName_uuid__filename.ext (eg. 6-Patient-Document-706a448b-3f10-11e4-adec-0800271c1b75__doc1.png)

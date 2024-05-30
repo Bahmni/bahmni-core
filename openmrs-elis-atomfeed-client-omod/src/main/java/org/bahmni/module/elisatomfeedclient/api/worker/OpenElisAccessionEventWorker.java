@@ -143,7 +143,11 @@ public class OpenElisAccessionEventWorker implements EventWorker {
 
     void runInterceptor(Class className, Object object) {
         GroovyClassLoader gcl = new GroovyClassLoader();
-        File directory = new File(OpenmrsUtil.getApplicationDataDirectory() + "elisFeedInterceptor");
+        String applicationDataDirectory = OpenmrsUtil.getApplicationDataDirectory();
+        if (!applicationDataDirectory.endsWith(File.separator)) {
+            applicationDataDirectory += File.separator;
+        }
+        File directory = new File(applicationDataDirectory + "elisFeedInterceptor");
         File[] files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
