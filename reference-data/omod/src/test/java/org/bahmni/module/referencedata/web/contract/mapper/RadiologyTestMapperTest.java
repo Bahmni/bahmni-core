@@ -46,7 +46,7 @@ public class RadiologyTestMapperTest {
         PowerMockito.mockStatic(Context.class);
         when(Context.getLocale()).thenReturn(defaultLocale);
 
-       radiologyConcept = new ConceptBuilder().withUUID("RadiologyUUID").withDateCreated(dateCreated).withClass(RadiologyTest.RADIOLOGY_TEST_CONCEPT_CLASS).
+       radiologyConcept = new ConceptBuilder().withUUID("RadiologyUUID").withDateCreated(dateCreated).withClass(RadiologyTest.RADIOLOGY_TEST_CONCEPT_CLASSES.get(0)).
                 withDateChanged(dateChanged).withShortName("clavicle - right, 2 views (x-ray)").withName("Clavicle - Right, 2 views (X-ray)").build();
 
         when(Context.getConceptService()).thenReturn(conceptService);
