@@ -102,13 +102,21 @@ public class ConceptExtension {
         return ObjectUtils.equals(conceptName.getConceptNameType(), ConceptNameType.FULLY_SPECIFIED);
     }
 
+    private static boolean containsClassName(String conceptClassName, List<String> classNames){
+        for (String className : classNames) {
+            if (className.equalsIgnoreCase(conceptClassName)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public static boolean isOfConceptClass(Concept concept, String conceptClassName) {
         return concept.getConceptClass() != null && concept.getConceptClass().getName() != null && concept.getConceptClass().getName().equals(conceptClassName);
     }
 
     public static boolean isOfAnyConceptClass(Concept concept, List<String> conceptClassNames) {
-        return concept.getConceptClass() != null && concept.getConceptClass().getName() != null && conceptClassNames.contains(concept.getConceptClass().getName());
+        return concept.getConceptClass() != null && concept.getConceptClass().getName() != null && containsClassName(concept.getConceptClass().getName(),conceptClassNames);
     }
 
     public static boolean isOfConceptClassByUUID(Concept concept, String conceptClassUUID) {
