@@ -81,6 +81,17 @@ public class LabTestEventTest {
     }
 
     @Test
+    public void shouldCreateEventForCaseInsensitiveConceptClassMatches() throws Exception {
+        Concept conceptWithClassLabTest = new ConceptBuilder().withClass("LabTest").withUUID(LAB_TEST_CONCEPT_UUID).build();
+        Concept conceptWithClasslabtest = new ConceptBuilder().withClass("labtest").withUUID("9b11d2d1-c7ea-40f7-8616-be9bec4c6b98").build();
+        Event eventForLabTestConceptClass = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{conceptWithClassLabTest}).get(0);
+        Event eventForlabtestConceptClass = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{conceptWithClasslabtest}).get(0);
+        assertNotNull(eventForLabTestConceptClass);
+        assertNotNull(eventForlabtestConceptClass);
+
+    }
+
+    @Test
     public void shouldNotCreateEventForTestEventIfThereIsDifferentConceptClass() throws Exception {
         conceptWithLabTestClass = new ConceptBuilder().withClassUUID("some").withClass("some").withUUID(TEST_CONCEPT_UUID).build();
         List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{conceptWithLabTestClass});
