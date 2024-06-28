@@ -4678,5 +4678,9 @@
             name = 'Stage' AND datatype = 'org.bahmni.module.bahmnicore.customdatatype.datatype.CodedConceptDatatype';
         </sql>
     </changeSet>
+    <changeSet id="bahmni-WardsList-Update-202406271807" author="Bahmni">
+        <comment>Update the wards list sql to optimize for MySQL 8 - Bahmni Standard 1.0</comment>
+        <sqlFile path="V1_99_WardsListSql.sql"/>
+    </changeSet>
 
 </databaseChangeLog>

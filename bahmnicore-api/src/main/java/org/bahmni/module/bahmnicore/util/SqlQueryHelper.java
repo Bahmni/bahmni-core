@@ -56,7 +56,13 @@ public class SqlQueryHelper {
         if(params != null ){
             int i=1;
             for (String paramName : paramNamesFromPlaceHolders) {
-                String paramValue = params.get(paramName)[0];
+                String[] paramValues = params.get(paramName);
+                if (paramValues == null) {
+                    String error = String.format("Required Parameter [%s] is missing for the query", paramName);
+                    log.error(error);
+                    throw new RuntimeException(error);
+                }
+                String paramValue = paramValues[0];
                 preparedStatement.setObject(i++,paramValue);
             }
         }
