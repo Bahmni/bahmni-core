@@ -3,14 +3,18 @@ package org.bahmni.module.referencedata.labconcepts.contract;
 import org.openmrs.ConceptAnswer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 public class LabTest extends Resource {
     private String description;
     private String resultType;
     private String testUnitOfMeasure;
     private Double sortOrder;
-    public static final String LAB_TEST_CONCEPT_CLASS = "LabTest";
+
+    public static final List<String> LAB_TEST_CONCEPT_CLASSES = Arrays.asList("LabTest","Test");
+
     private Collection<CodedTestAnswer> codedTestAnswer;
 
 

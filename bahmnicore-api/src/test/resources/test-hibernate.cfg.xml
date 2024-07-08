@@ -15,5 +15,7 @@
         <mapping resource="EntityMappingType.hbm.xml"></mapping>
         <mapping resource="EntityMapping.hbm.xml"></mapping>
         <mapping resource="Episode.hbm.xml"/>
+        <mapping resource="Notes.hbm.xml"/>
+        <mapping resource="NoteType.hbm.xml"/>
     </session-factory>
 </hibernate-configuration>

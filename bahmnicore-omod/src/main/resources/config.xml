@@ -136,7 +136,9 @@
         BahmniConfig.hbm.xml
         EntityMapping.hbm.xml
         EntityMappingType.hbm.xml
-    </mappingFiles>
+        Notes.hbm.xml
+        NoteType.hbm.xml
+        </mappingFiles>
     <!-- Internationalization -->
     <!-- All message codes should start with moduleId.* -->
     <messages>

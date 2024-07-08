@@ -34,8 +34,10 @@ import static org.mockito.Mockito.when;
 @RunWith(PowerMockRunner.class)
 public class LabTestEventTest {
     public static final String TEST_CONCEPT_UUID = "aebc57b7-0683-464e-ac48-48b8838abdfc";
+    public static final String LAB_TEST_CONCEPT_UUID = "9b11d2d1-c7ea-40f7-8616-be9bec4c6bb7";
 
-    private Concept concept;
+    private Concept conceptWithLabTestClass;
+    private Concept conceptWithTestClass;
 
     @Mock
     private ConceptService conceptService;
@@ -45,11 +47,13 @@ public class LabTestEventTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
 
-        concept = new ConceptBuilder().withClass(LabTest.LAB_TEST_CONCEPT_CLASS).withUUID(TEST_CONCEPT_UUID).build();
+        conceptWithLabTestClass = new ConceptBuilder().withClass("LabTest").withUUID(LAB_TEST_CONCEPT_UUID).build();
+        conceptWithTestClass = new ConceptBuilder().withClass("Test").withUUID(TEST_CONCEPT_UUID).build();
 
-        parentConcept = new ConceptBuilder().withName(AllTestsAndPanels.ALL_TESTS_AND_PANELS).withSetMember(concept).build();
+        parentConcept = new ConceptBuilder().withName(AllTestsAndPanels.ALL_TESTS_AND_PANELS).withSetMember(conceptWithLabTestClass).build();
+        parentConcept.addSetMember(conceptWithTestClass);
 
-        List<ConceptSet> conceptSets = getConceptSets(parentConcept, concept);
+        List<ConceptSet> conceptSets = getConceptSets(parentConcept, conceptWithLabTestClass);
 
         when(conceptService.getSetsContainingConcept(any(Concept.class))).thenReturn(conceptSets);
 
@@ -61,26 +65,43 @@ public class LabTestEventTest {
 
 
     @Test
-    public void createEventForTestEvent() throws Exception {
-        Event event = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept}).get(0);
-        Event anotherEvent = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept}).get(0);
-        assertNotNull(event);
-        assertFalse(event.getUuid().equals(anotherEvent.getUuid()));
-        assertEquals(event.getTitle(), ConceptServiceEventFactory.TEST);
-        assertEquals(event.getCategory(), ConceptServiceEventFactory.LAB);
+    public void createEventForTestEventIfConceptClassIsLabTestOrTest() throws Exception {
+        Event eventForLabTestConceptClass = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{conceptWithLabTestClass}).get(0);
+        Event anotherEventForLabTestConceptClass = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{conceptWithLabTestClass}).get(0);
+        Event eventForTestConceptClass =  new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{conceptWithTestClass}).get(0);
+        Event anotherEventForTestConceptClass =  new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{conceptWithTestClass}).get(0);
+        assertNotNull(eventForLabTestConceptClass);
+        assertNotNull(eventForTestConceptClass);
+        assertFalse(eventForLabTestConceptClass.getUuid().equals(anotherEventForLabTestConceptClass.getUuid()));
+        assertEquals(eventForLabTestConceptClass.getTitle(), ConceptServiceEventFactory.TEST);
+        assertEquals(eventForLabTestConceptClass.getCategory(), ConceptServiceEventFactory.LAB);
+        assertFalse(eventForTestConceptClass.getUuid().equals(anotherEventForTestConceptClass.getUuid()));
+        assertEquals(eventForTestConceptClass.getTitle(), ConceptServiceEventFactory.TEST);
+        assertEquals(eventForTestConceptClass.getCategory(), ConceptServiceEventFactory.LAB);
+    }
+
+    @Test
+    public void shouldCreateEventForCaseInsensitiveConceptClassMatches() throws Exception {
+        Concept conceptWithClassLabTest = new ConceptBuilder().withClass("LabTest").withUUID(LAB_TEST_CONCEPT_UUID).build();
+        Concept conceptWithClasslabtest = new ConceptBuilder().withClass("labtest").withUUID("9b11d2d1-c7ea-40f7-8616-be9bec4c6b98").build();
+        Event eventForLabTestConceptClass = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{conceptWithClassLabTest}).get(0);
+        Event eventForlabtestConceptClass = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{conceptWithClasslabtest}).get(0);
+        assertNotNull(eventForLabTestConceptClass);
+        assertNotNull(eventForlabtestConceptClass);
+
     }
 
     @Test
     public void shouldNotCreateEventForTestEventIfThereIsDifferentConceptClass() throws Exception {
-        concept = new ConceptBuilder().withClassUUID("some").withClass("some").withUUID(TEST_CONCEPT_UUID).build();
-        List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});
+        conceptWithLabTestClass = new ConceptBuilder().withClassUUID("some").withClass("some").withUUID(TEST_CONCEPT_UUID).build();
+        List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{conceptWithLabTestClass});
         assertTrue(events.isEmpty());
     }
 
     @Test
     public void shouldCreateEventForTestEventIfParentConceptIsMissing() throws Exception {
         when(conceptService.getSetsContainingConcept(any(Concept.class))).thenReturn(new ArrayList<ConceptSet>());
-        List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});
+        List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{conceptWithLabTestClass});
         Event event = events.get(0);
         assertNotNull(event);
         assertEquals(event.getTitle(), ConceptServiceEventFactory.TEST);
@@ -90,9 +111,9 @@ public class LabTestEventTest {
 
     @Test
     public void shouldCreateEventForTestEventIfParentConceptIsWrong() throws Exception {
-        parentConcept = new ConceptBuilder().withName("Some wrong name").withSetMember(concept).build();
-        when(conceptService.getSetsContainingConcept(any(Concept.class))).thenReturn(getConceptSets(parentConcept, concept));
-        List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});
+        parentConcept = new ConceptBuilder().withName("Some wrong name").withSetMember(conceptWithLabTestClass).build();
+        when(conceptService.getSetsContainingConcept(any(Concept.class))).thenReturn(getConceptSets(parentConcept, conceptWithLabTestClass));
+        List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{conceptWithLabTestClass});
         Event event = events.get(0);
         assertNotNull(event);
         assertEquals(event.getTitle(), ConceptServiceEventFactory.TEST);
@@ -102,7 +123,7 @@ public class LabTestEventTest {
 
     @Test
     public void createEventForTestWithParentConceptMissing() throws Exception {
-        Concept testConcept = new ConceptBuilder().withClass(LabTest.LAB_TEST_CONCEPT_CLASS).withUUID("testUUID").withClass("LabTest").build();
+        Concept testConcept = new ConceptBuilder().withUUID("testUUID").withClass("LabTest").build();
         List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{testConcept});
         Event event = events.get(0);
         assertNotNull(event);

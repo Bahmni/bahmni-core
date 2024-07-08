@@ -6,9 +6,8 @@ import org.bahmni.module.referencedata.labconcepts.contract.TestsAndPanels;
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 
-import static org.bahmni.module.referencedata.labconcepts.contract.LabTest.LAB_TEST_CONCEPT_CLASS;
-import static org.bahmni.module.referencedata.labconcepts.mapper.ConceptExtension.isOfConceptClass;
-import static org.bahmni.module.referencedata.labconcepts.mapper.ConceptExtension.isOfConceptClassByUUID;
+import static org.bahmni.module.referencedata.labconcepts.contract.LabTest.LAB_TEST_CONCEPT_CLASSES;
+import static org.bahmni.module.referencedata.labconcepts.mapper.ConceptExtension.*;
 
 public class TestAndPanelMapper extends ResourceMapper {
 
@@ -31,7 +30,7 @@ public class TestAndPanelMapper extends ResourceMapper {
     }
 
     private void addConcept(TestsAndPanels testsAndPanels, Concept concept) {
-        if (isOfConceptClass(concept, LAB_TEST_CONCEPT_CLASS)) {
+        if (isOfAnyConceptClass(concept, LAB_TEST_CONCEPT_CLASSES)) {
             LabTest test = labTestMapper.map(concept);
             testsAndPanels.addTest(test);
         } else if (isOfConceptClassByUUID(concept, ConceptClass.LABSET_UUID)) {
