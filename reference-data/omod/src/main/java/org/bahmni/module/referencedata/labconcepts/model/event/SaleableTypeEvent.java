@@ -17,7 +17,7 @@ import static org.bahmni.module.referencedata.labconcepts.contract.Department.DE
 import static org.bahmni.module.referencedata.labconcepts.contract.LabTest.LAB_TEST_CONCEPT_CLASSES;
 import static org.bahmni.module.referencedata.labconcepts.contract.Panel.LAB_SET_CONCEPT_CLASS;
 import static org.bahmni.module.referencedata.labconcepts.contract.RadiologyTest.RADIOLOGY_TEST_CONCEPT_CLASSES;
-import static org.bahmni.module.referencedata.labconcepts.contract.Sample.SAMPLE_CONCEPT_CLASS;
+import static org.bahmni.module.referencedata.labconcepts.contract.Sample.SAMPLE_CONCEPT_CLASSES;
 
 public class SaleableTypeEvent implements ConceptServiceOperationEvent {
 
@@ -29,9 +29,10 @@ public class SaleableTypeEvent implements ConceptServiceOperationEvent {
     private List<String> supportedOperations = Arrays.asList("saveConcept", "updateConcept", "retireConcept", "purgeConcept");
 
     private List<String> unhandledClasses = new ArrayList<String>(){{
-        addAll(Arrays.asList(LAB_SET_CONCEPT_CLASS, SAMPLE_CONCEPT_CLASS, DEPARTMENT_CONCEPT_CLASS));
+        addAll(Arrays.asList(LAB_SET_CONCEPT_CLASS, DEPARTMENT_CONCEPT_CLASS));
         addAll(LAB_TEST_CONCEPT_CLASSES);
         addAll(RADIOLOGY_TEST_CONCEPT_CLASSES);
+        addAll(SAMPLE_CONCEPT_CLASSES);
     }};
     private List<String> unhandledConcepsByName = Arrays.asList(ALL_SAMPLES, ALL_TESTS_AND_PANELS);
 

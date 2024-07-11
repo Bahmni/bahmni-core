@@ -34,7 +34,11 @@ import static org.mockito.Mockito.when;
 public class SampleEventTest {
     public static final String SAMPLE_CONCEPT_UUID = "aebc57b7-0683-464e-ac48-48b8838abdfc";
 
+    public static final String SPECIMEN_CONCEPT_UUID = "aebc57b7-0683-464e-ac48-48b8838abdff";
+
     private Concept concept;
+
+    private Concept specimenConcept;
 
     @Mock
     private ConceptService conceptService;
@@ -45,6 +49,8 @@ public class SampleEventTest {
         MockitoAnnotations.initMocks(this);
 
         concept = new ConceptBuilder().withClass("Sample").withUUID(SAMPLE_CONCEPT_UUID).build();
+
+        specimenConcept = new ConceptBuilder().withClass("Specimen").withUUID(SPECIMEN_CONCEPT_UUID).build();
 
         parentConcept = new ConceptBuilder().withName(AllSamples.ALL_SAMPLES).withSetMember(concept).build();
 
@@ -63,6 +69,16 @@ public class SampleEventTest {
     public void createEventForSampleEvent() throws Exception {
         Event event = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept}).get(0);
         Event anotherEvent = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept}).get(0);
+        assertNotNull(event);
+        assertFalse(event.getUuid().equals(anotherEvent.getUuid()));
+        assertEquals(event.getTitle(), "sample");
+        assertEquals(event.getCategory(), "lab");
+    }
+
+    @Test
+    public void createSampleEventForSpecimenConcept() throws Exception {
+        Event event = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{specimenConcept}).get(0);
+        Event anotherEvent = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{specimenConcept}).get(0);
         assertNotNull(event);
         assertFalse(event.getUuid().equals(anotherEvent.getUuid()));
         assertEquals(event.getTitle(), "sample");
