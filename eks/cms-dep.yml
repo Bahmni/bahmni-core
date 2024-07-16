@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: cms
+  name: myapp
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: hackergovi/hospitalcms
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_HOST
+          value: mysql
+        - name: DB_USERNAME
+          value: root
+        - name: DB_PASSWORD
+          value: Gujjar@22
+
