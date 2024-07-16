@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  openmrs-reference-application:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db
+      DB_USERNAME: root
+      DB_PASSWORD: password   # change this
+      DB_DATABASE: openmrs
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password  # change this
+      MYSQL_DATABASE: openmrs
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
