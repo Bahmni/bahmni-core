@@ -16,7 +16,7 @@ RUN apt-get update && \
 # Set working directory for the build
 
 # Copy the Maven project and build
-COPY . .
+COPY ../ .
 RUN mvn clean install -DskipTests
 
 # Stage 2: Use a minimal base image with Tomcat to deploy the application
