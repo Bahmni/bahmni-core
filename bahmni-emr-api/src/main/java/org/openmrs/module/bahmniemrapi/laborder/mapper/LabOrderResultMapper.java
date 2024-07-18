@@ -101,15 +101,16 @@ public class LabOrderResultMapper {
      * by openmrs by the {@link org.openmrs.validator.ObsValidator} during save
      */
     private void checkResultRangesForAbsolutes(Obs obs, String accessionUuid) {
-        if (obs.getConcept().isNumeric()) {
-            if (obs.getValueNumeric() != null) {
-                ConceptNumeric cn = (ConceptNumeric) obs.getConcept();
-                if (cn.getHiAbsolute() != null && cn.getHiAbsolute() < obs.getValueNumeric()) {
-                    log.error(String.format("Test results for [%s] is beyond the absolute high range, in Accession [%s]", cn.getName(), accessionUuid));
-                }
-                if (cn.getLowAbsolute() != null && cn.getLowAbsolute() > obs.getValueNumeric()) {
-                    log.error(String.format("Test results for [%s] is beyond the absolute low range, in Accession [%s]", cn.getName(), accessionUuid));
-                }
+        if (!obs.getConcept().isNumeric()) {
+            return;
+        }
+        if (obs.getValueNumeric() != null) {
+            ConceptNumeric cn = (ConceptNumeric) obs.getConcept();
+            if (cn.getHiAbsolute() != null && cn.getHiAbsolute() < obs.getValueNumeric()) {
+                log.error(String.format("Test results for [%s] is beyond the absolute high range, in Accession [%s]", cn.getName(), accessionUuid));
+            }
+            if (cn.getLowAbsolute() != null && cn.getLowAbsolute() > obs.getValueNumeric()) {
+                log.error(String.format("Test results for [%s] is beyond the absolute low range, in Accession [%s]", cn.getName(), accessionUuid));
             }
         }
     }
