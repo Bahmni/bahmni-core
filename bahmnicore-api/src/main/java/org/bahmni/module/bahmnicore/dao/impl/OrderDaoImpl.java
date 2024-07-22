@@ -8,13 +8,13 @@ import org.bahmni.module.bahmnicore.dao.ApplicationDataDirectory;
 import org.bahmni.module.bahmnicore.dao.OrderDao;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.Criteria;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
@@ -367,6 +367,31 @@ public class OrderDaoImpl implements OrderDao {
         }
         return getAllOrders(patientByUuid, Arrays.asList(drugOrderTypeUuid), offset, limit);
     }
+
+    @Override
+    public List<Order> getLabOrdersForPatient(Patient patient, Integer numberOfVisits, boolean includeActiveVisits) {
+        Query visitsToCheck = sessionFactory.getCurrentSession().createQuery(
+                "select v.visitId from Visit v " +
+                   " where v.patient.patientId = :patientId and v.voided = false" +
+                   " order by v.startDatetime desc");
+        visitsToCheck.setParameter("patientId", patient.getId());
+        visitsToCheck.setMaxResults(numberOfVisits);
+        List<Integer> visitList = visitsToCheck.list();
+
+        Query orderQuery = sessionFactory.getCurrentSession().createQuery(
+                "select testOrder from Order testOrder, Encounter enc, Visit v " +
+                        "where testOrder.encounter = enc and enc.visit = v " +
+                        " and testOrder.voided = false and testOrder.action != :discontinued " +
+                        " and testOrder.orderType.name = :orderType" +
+                        " and v.visitId in (:visitList) " +
+                        " order by testOrder.dateCreated desc");
+
+        orderQuery.setParameter("discontinued", Order.Action.DISCONTINUE);
+        orderQuery.setParameter("orderType", "Lab Order");
+        orderQuery.setParameter("visitList", visitList);
+        return orderQuery.list();
+    }
+
 
     @Override
     public Map<String, DrugOrder> getDiscontinuedDrugOrders(List<DrugOrder> drugOrders) {
