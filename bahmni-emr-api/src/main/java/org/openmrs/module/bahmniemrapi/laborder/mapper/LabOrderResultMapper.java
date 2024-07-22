@@ -105,7 +105,7 @@ public class LabOrderResultMapper {
             return;
         }
         if (obs.getValueNumeric() != null) {
-            ConceptNumeric cn = (ConceptNumeric) obs.getConcept();
+            ConceptNumeric cn = conceptService.getConceptNumeric(obs.getConcept().getId());
             if (cn.getHiAbsolute() != null && cn.getHiAbsolute() < obs.getValueNumeric()) {
                 log.error(String.format("Test results for [%s] is beyond the absolute high range, in Accession [%s]", cn.getName(), accessionUuid));
             }
