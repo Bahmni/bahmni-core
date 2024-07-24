@@ -98,6 +98,10 @@
         <name>app:lab-lite</name>
         <description>Will give access to Lab Lite app</description>
     </privilege>
+    <privilege>
+        <name>Get Patient Program Attribute Types</name>
+        <description>Ability to get program attribute types</description>
+    </privilege>
 
     <advice>
         <point>org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService</point>
