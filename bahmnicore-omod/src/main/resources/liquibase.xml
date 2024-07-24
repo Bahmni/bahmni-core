@@ -4682,5 +4682,17 @@
         <comment>Update the wards list sql to optimize for MySQL 8 - Bahmni Standard 1.0</comment>
         <sqlFile path="V1_99_WardsListSql.sql"/>
     </changeSet>
+    <changeSet id="bahmni-core-24072024" author="BAHMNI">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM global_property WHERE property = 'bahmni.contextCookieExpirationTimeInMinutes'
+            </sqlCheck>
+        </preConditions>
+        <comment>Add expiration time of cookie which maintains context of the user</comment>
+        <sql>
+            INSERT INTO global_property (property, property_value, description, uuid)
+            VALUES ('bahmni.contextCookieExpirationTimeInMinutes', '0', 'Expiration time of cookie which maintains context of the user', uuid());
+        </sql>
+    </changeSet>
 
 </databaseChangeLog>
