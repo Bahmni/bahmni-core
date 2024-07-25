@@ -4682,23 +4682,5 @@
         <comment>Update the wards list sql to optimize for MySQL 8 - Bahmni Standard 1.0</comment>
         <sqlFile path="V1_99_WardsListSql.sql"/>
     </changeSet>
-    <changeSet id="BAH-4045-add-privilege-to-clinical-app-readonly" author="Bahmni">
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="1">
-                select count(*) from privilege where privilege='Get Patient Program Attribute Types';
-            </sqlCheck>
-            <sqlCheck expectedResult="1">
-                select count(*) from role where role='Clinical-App-Read-Only';
-            </sqlCheck>
-            <sqlCheck expectedResult="0">
-                select count(*) from role_privilege where role='Clinical-App-Read-Only' and privilege='Get Patient Program Attribute Types';
-            </sqlCheck>
-        </preConditions>
-        <comment> Adds Get Patient Program Attribute Types privilege to Clinical-App Read Only role </comment>
-        <insert tableName="role_privilege">
-            <column name="role">Clinical-App-Read-Only</column>
-            <column name="privilege">Get Patient Program Attribute Types</column>
-        </insert>
-    </changeSet>
 
 </databaseChangeLog>
