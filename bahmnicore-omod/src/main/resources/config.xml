@@ -199,6 +199,11 @@
         <description>Boolean to enable sending sms when patient registers</description>
     </globalProperty>
 
+    <globalProperty>
+        <property>bahmni.contextCookieExpirationTimeInMinutes</property>
+        <defaultValue>0</defaultValue>
+        <description>Expiration time in minutes of the cookie that maintains the user's session context</description>
+    </globalProperty>
 
     <advice>
         <point>org.openmrs.api.PatientService</point>
