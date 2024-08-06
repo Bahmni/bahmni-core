@@ -98,6 +98,7 @@ public class BahmniConceptDaoImpl implements BahmniConceptDao {
                 .createQuery("select concept " +
                         "from ConceptName as conceptName " +
                         "where conceptName.conceptNameType ='FULLY_SPECIFIED' and conceptName.voided = false" +
+                        " and conceptName.concept.retired = false" +
                         " and lower(conceptName.name) in (:conceptNames)").setParameterList("conceptNames", lowerCaseConceptNames).list();
         return concepts;
     }
