@@ -7,6 +7,7 @@ import org.bahmni.module.bahmnicore.bahmniexceptions.VideoFormatNotSupportedExce
 import org.bahmni.module.bahmnicore.model.VideoFormats;
 import org.bahmni.module.bahmnicore.properties.BahmniCoreProperties;
 import org.bahmni.module.bahmnicore.service.ThumbnailGenerator;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -15,10 +16,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.openmrs.Patient;
+import org.openmrs.api.context.UserContext;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.ResponseEntity;
+import org.openmrs.api.AdministrationService;
+import org.openmrs.api.context.Context;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -39,9 +43,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.verifyStatic;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({BahmniCoreProperties.class, FileInputStream.class, FileUtils.class, ImageIO.class})
+@PrepareForTest({BahmniCoreProperties.class, FileInputStream.class, FileUtils.class, ImageIO.class, Context.class})
 public class PatientDocumentServiceImplTest {
 
     private PatientDocumentServiceImpl patientDocumentService;
@@ -54,6 +59,18 @@ public class PatientDocumentServiceImplTest {
     @Mock
     ThumbnailGenerator thumbnailGenerator;
 
+    @Mock
+    private AdministrationService administrationService;
+
+    @Mock
+    private UserContext userContext;
+
+    @Before
+    public void setUp() {
+        initMocks(this);
+        PowerMockito.mockStatic(Context.class);
+        when(Context.getAdministrationService()).thenReturn(administrationService);
+    }
 
     @Test
     public void shouldCreateRightDirectoryAccordingToPatientId() {
@@ -176,7 +193,7 @@ public class PatientDocumentServiceImplTest {
         patientDocumentService = new PatientDocumentServiceImpl();
         patientDocumentService.saveDocument(1, "Consultation", "otherfileContent", "bmp", "image", "file-name");
     }
-    
+
     @Test
     public void shouldCreateThumbnailForVideo() throws Exception {
         PowerMockito.mockStatic(BahmniCoreProperties.class);
