@@ -93,6 +93,7 @@ public class BahmniPatientProfileResourceTest {
         PowerMockito.when(Context.getService(RestService.class)).thenReturn(restService);
         PowerMockito.when(Context.getPersonService()).thenReturn(personService);
         PowerMockito.when(Context.getMessageSourceService()).thenReturn(messageSourceService);
+        PowerMockito.when(Context.getAdministrationService()).thenReturn(administrationService);
         PowerMockito.when(restService.getResourceBySupportedClass(Patient.class)).thenReturn(patientResource1_8);
         PowerMockito.when(patientResource1_8.getPatient(any(SimpleObject.class))).thenReturn(patient);
         PowerMockito.when(patientResource1_8.getPatientForUpdate(anyString(), any(SimpleObject.class))).thenReturn(patient);
@@ -106,7 +107,6 @@ public class BahmniPatientProfileResourceTest {
         when(identifierSourceServiceWrapper.generateIdentifierUsingIdentifierSourceUuid("dead-cafe", "")).thenReturn("BAH300010");
         doReturn(delegate).when(bahmniPatientProfileResourceSpy, "mapForCreatePatient", propertiesToCreate);
         when(emrPatientProfileService.save(delegate)).thenReturn(delegate);
-        when(Context.getAdministrationService()).thenReturn(administrationService);
         when(Context.getPatientService()).thenReturn(patientService);
         Patient patient = mock(Patient.class);
         when(patient.getUuid()).thenReturn("patientUuid");
