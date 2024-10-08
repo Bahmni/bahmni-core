@@ -2,8 +2,8 @@ package org.bahmni.module.referencedata.labconcepts.model.event;
 
 import org.openmrs.Concept;
 
-import static org.bahmni.module.referencedata.labconcepts.contract.RadiologyTest.RADIOLOGY_TEST_CONCEPT_CLASS;
-import static org.bahmni.module.referencedata.labconcepts.mapper.ConceptExtension.isOfConceptClass;
+import static org.bahmni.module.referencedata.labconcepts.contract.RadiologyTest.RADIOLOGY_TEST_CONCEPT_CLASSES;
+import static org.bahmni.module.referencedata.labconcepts.mapper.ConceptExtension.isOfAnyConceptClass;
 
 public class RadiologyTestEvent extends ConceptOperationEvent {
 
@@ -14,7 +14,7 @@ public class RadiologyTestEvent extends ConceptOperationEvent {
 
     @Override
     public boolean isResourceConcept(Concept concept) {
-        return isOfConceptClass(concept, RADIOLOGY_TEST_CONCEPT_CLASS);
+        return isOfAnyConceptClass(concept, RADIOLOGY_TEST_CONCEPT_CLASSES);
     }
 
 

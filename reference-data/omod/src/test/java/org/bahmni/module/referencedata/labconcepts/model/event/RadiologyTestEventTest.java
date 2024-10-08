@@ -71,6 +71,17 @@ public class RadiologyTestEventTest {
     }
 
     @Test
+    public void shouldCreateEventWhenClassIsRadiologyImagingProcedure() throws Exception{
+        concept = new ConceptBuilder().withClass("Radiology/Imaging Procedure").withUUID(RADIOLOGY_TEST_CONCEPT_UUID).build();
+        Event event = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept}).get(0);
+        Event anotherEvent = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept}).get(0);
+        assertNotNull(event);
+        assertFalse(event.getUuid().equals(anotherEvent.getUuid()));
+        assertEquals(event.getTitle(), ConceptServiceEventFactory.RADIOLOGY);
+        assertEquals(event.getCategory(), ConceptServiceEventFactory.LAB);
+    }
+
+    @Test
     public void shouldNotCreateEventForRadiologyEventIfThereIsDifferentConceptClass() throws Exception {
         concept = new ConceptBuilder().withClass("random").withClassUUID("some").withUUID(RADIOLOGY_TEST_CONCEPT_UUID).build();
         List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});

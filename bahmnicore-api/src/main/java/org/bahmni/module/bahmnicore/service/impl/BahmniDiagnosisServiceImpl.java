@@ -1,12 +1,15 @@
 package org.bahmni.module.bahmnicore.service.impl;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bahmni.module.bahmnicore.service.BahmniDiagnosisService;
 import org.openmrs.Concept;
+import org.openmrs.ConceptSource;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.Person;
 import org.openmrs.Visit;
+import org.openmrs.api.AdministrationService;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.EncounterService;
 import org.openmrs.api.ObsService;
@@ -21,6 +24,7 @@ import org.openmrs.module.emrapi.diagnosis.DiagnosisService;
 import org.openmrs.module.emrapi.encounter.DiagnosisMapper;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
@@ -32,8 +36,11 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-@Component
 public class BahmniDiagnosisServiceImpl implements BahmniDiagnosisService {
+
+    private static final String BAHMNI_EXTERNAL_TERMINOLOGY_SERVER_LOOKUP_NEEDED = "bahmni.lookupExternalTerminologyServer";
+    private static final boolean DEFAULT_EXTERNAL_TERMINOLOGY_SERVER_LOOKUP_NEEDED = false;
+
     private EncounterService encounterService;
     private ObsService obsService;
     private VisitService visitService;
@@ -42,9 +49,10 @@ public class BahmniDiagnosisServiceImpl implements BahmniDiagnosisService {
     private BahmniDiagnosisMetadata bahmniDiagnosisMetadata;
     private ConceptService conceptService;
     private EmrApiProperties emrApiProperties;
+    private AdministrationService administrationService;
 
     @Autowired
-    public BahmniDiagnosisServiceImpl(EncounterService encounterService, ObsService obsService, VisitService visitService, PatientService patientService, DiagnosisMapper diagnosisMapper, BahmniDiagnosisMetadata bahmniDiagnosisMetadata, ConceptService conceptService, EmrApiProperties emrApiProperties) {
+    public BahmniDiagnosisServiceImpl(EncounterService encounterService, ObsService obsService, VisitService visitService, PatientService patientService, DiagnosisMapper diagnosisMapper, BahmniDiagnosisMetadata bahmniDiagnosisMetadata, ConceptService conceptService, EmrApiProperties emrApiProperties, @Qualifier("adminService") AdministrationService administrationService) {
         this.encounterService = encounterService;
         this.obsService = obsService;
         this.visitService = visitService;
@@ -53,6 +61,7 @@ public class BahmniDiagnosisServiceImpl implements BahmniDiagnosisService {
         this.bahmniDiagnosisMetadata = bahmniDiagnosisMetadata;
         this.conceptService = conceptService;
         this.emrApiProperties = emrApiProperties;
+        this.administrationService = administrationService;
     }
 
     @Override
@@ -200,5 +209,21 @@ public class BahmniDiagnosisServiceImpl implements BahmniDiagnosisService {
         for (Obs childObs : obs.getGroupMembers()) {
             voidObsAndItsChildren(childObs);
         }
+    }
+
+    @Override
+    public boolean isExternalTerminologyServerLookupNeeded() {
+        String externalTSLookupNeeded = administrationService.getGlobalProperty(BAHMNI_EXTERNAL_TERMINOLOGY_SERVER_LOOKUP_NEEDED);
+        return StringUtils.isNotBlank(externalTSLookupNeeded) ? Boolean.valueOf(externalTSLookupNeeded) : DEFAULT_EXTERNAL_TERMINOLOGY_SERVER_LOOKUP_NEEDED;
+    }
+
+    @Override
+    public Collection<Concept> getDiagnosisSets() {
+        return emrApiProperties.getDiagnosisSets();
+    }
+
+    @Override
+    public List<ConceptSource> getConceptSourcesForDiagnosisSearch() {
+        return emrApiProperties.getConceptSourcesForDiagnosisSearch();
     }
 }

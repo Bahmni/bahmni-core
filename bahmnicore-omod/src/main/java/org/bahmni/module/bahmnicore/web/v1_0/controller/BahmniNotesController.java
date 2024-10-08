@@ -73,9 +73,9 @@ public class BahmniNotesController extends BaseRestController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/{id}")
     @ResponseBody
-    public NoteRequestResponse update(@Valid @PathVariable("id") String id, @RequestBody String noteText) {
+    public NoteRequestResponse update(@Valid @PathVariable("id") String id, @RequestBody NoteRequestResponse noteRequestResponse) {
         Integer noteId = Integer.valueOf(id);
-        return noteMapper.mapResponse(Context.getService(NoteService.class).updateNote(noteId, noteText));
+        return noteMapper.mapResponse(Context.getService(NoteService.class).updateNote(noteId, noteRequestResponse));
     }
 
     @RequestMapping(method = RequestMethod.DELETE,  value = "/{id}")

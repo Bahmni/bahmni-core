@@ -43,7 +43,13 @@ jobs:
         run: |
           sudo gem install compass -v 1.0.3
       - name: Build and deploy with Maven
-        run: ./mvnw --no-transfer-progress clean -U deploy
+        run: |
+          PROJECT_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
+          if [[ "$PROJECT_VERSION" == *"-SNAPSHOT" ]]; then
+            ./mvnw --no-transfer-progress clean -U deploy
+          else
+            echo "❌ The current push is for release. So skipping build."
+          fi
         env:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}

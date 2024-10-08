@@ -9,9 +9,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.message.BasicStatusLine;
 import org.bahmni.module.bahmnicore.web.v1_0.contract.BahmniMailContent;
-import org.bahmni.module.communication.api.CommunicationService;
-import org.bahmni.module.communication.model.MailContent;
 import org.bahmni.module.communication.model.Recipient;
+import org.bahmni.module.communication.service.CommunicationService;
 import org.openmrs.Patient;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
@@ -26,8 +25,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
-@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/patient/{patientUuid}/send/")
-public class TransmissionController extends BaseRestController {
+@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/patient/{patientUuid}/send/")//change to send-prescription-email
+public class EmailCommunicationController extends BaseRestController {
 
     private final Log log = LogFactory.getLog(this.getClass());
 

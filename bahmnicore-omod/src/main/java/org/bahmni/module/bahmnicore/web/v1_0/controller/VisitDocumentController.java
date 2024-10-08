@@ -35,6 +35,7 @@ public class VisitDocumentController extends BaseRestController {
     private static final String INSUFFICIENT_PRIVILEGE = "Insufficient privilege";
     private static final String INVALID_USER_PRIVILEGE = "User [%d] does not have required privilege to delete patient file [%s]";
     private final String baseVisitDocumentUrl = "/rest/" + RestConstants.VERSION_1 + "/bahmnicore/visitDocument";
+
     @Autowired
     private VisitDocumentService visitDocumentService;
 
@@ -62,23 +63,34 @@ public class VisitDocumentController extends BaseRestController {
 
     @RequestMapping(method = RequestMethod.POST, value = baseVisitDocumentUrl + "/uploadDocument")
     @ResponseBody
-    public HashMap<String, String> saveDocument(@RequestBody Document document) {
+    public ResponseEntity<HashMap<String, Object>> saveDocument(@RequestBody Document document) {
         try {
-            HashMap<String, String> savedDocument = new HashMap<>();
+            HashMap<String, Object> savedDocument = new HashMap<>();
             Patient patient = Context.getPatientService().getPatientByUuid(document.getPatientUuid());
             String encounterTypeName = document.getEncounterTypeName();
+            String maxDocumentSize = System.getenv("DOCUMENT_MAX_SIZE_MB");
+
             if (StringUtils.isEmpty(encounterTypeName)) {
                 encounterTypeName = administrationService.getGlobalProperty("bahmni.encounterType.default");
             }
             String fileName = sanitizeFileName(document.getFileName());
             Paths.get(fileName);
 
+            if (!StringUtils.isEmpty(maxDocumentSize)) {
+                Long maxDocumentSizeMb = Long.parseLong(maxDocumentSize);
+                Long maxDocumentSizeBytes = maxDocumentSizeMb * 1024 * 1024;
+                if (document.getContent().length() > maxDocumentSizeBytes) {
+                    logger.warn("Uploaded document size is greater than the maximum size " + maxDocumentSizeMb + "MB");
+                    savedDocument.put("maxDocumentSizeMB", maxDocumentSizeMb);
+                    return new ResponseEntity<>(savedDocument, HttpStatus.PAYLOAD_TOO_LARGE);
+                }
+            }
             // Old files will follow: patientid-encounterName-uuid.ext (eg. 6-Patient-Document-706a448b-3f10-11e4-adec-0800271c1b75.png)
             // New ones will follow: patientid_encounterName_uuid__filename.ext (eg. 6-Patient-Document-706a448b-3f10-11e4-adec-0800271c1b75__doc1.png)
             String url = patientDocumentService.saveDocument(patient.getId(), encounterTypeName, document.getContent(),
                 document.getFormat(), document.getFileType(), fileName);
             savedDocument.put("url", url);
-            return savedDocument;
+            return new ResponseEntity<>(savedDocument, HttpStatus.OK);
         } catch (Exception e) {
             throw new InvalidInputException("Could not save patient document", e);
         }

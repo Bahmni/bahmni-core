@@ -4652,6 +4652,7 @@
         </sql>
     </changeSet>
     <include file="addAtomfeedMigrations.xml"/>
+
     <changeSet id="manage-patient-program-attribute-types-202310191156" author="Bindu">
         <preConditions>
             <sqlCheck expectedResult="1">
@@ -4729,4 +4730,32 @@
             insert ignore into role_privilege values('SuperAdmin', 'Purge Patient Program Attribute Types');
         </sql>
     </changeSet>
+
+    <changeSet id="provider-attribute-login-locations-202307191200" author="BAHMNI">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT count(*) FROM provider_attribute_type where name="Login Locations";
+            </sqlCheck>
+        </preConditions>
+        <comment>Adding provider attribute type - Login Locations</comment>
+        <sql>
+            INSERT INTO provider_attribute_type (name, description, datatype, min_occurs, creator, date_created, retired, uuid)
+            VALUES ("Login Locations","Specific locations for providers to login", "org.openmrs.customdatatype.datatype.LocationDatatype", 0, 1, NOW(), 0, UUID());
+        </sql>
+    </changeSet>
+
+    <changeSet id="bahmni-core-20231206-bah-3336" author="BAHMNI">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                SELECT COUNT(*) FROM program_attribute_type where name = 'Stage' AND datatype =
+                'org.bahmni.module.bahmnicore.customdatatype.datatype.CodedConceptDatatype';
+            </sqlCheck>
+        </preConditions>
+        <comment>Update datatype of patient stage program attribute type</comment>
+        <sql>
+            UPDATE program_attribute_type SET datatype = 'org.openmrs.customdatatype.datatype.ConceptDatatype' WHERE
+            name = 'Stage' AND datatype = 'org.bahmni.module.bahmnicore.customdatatype.datatype.CodedConceptDatatype';
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>

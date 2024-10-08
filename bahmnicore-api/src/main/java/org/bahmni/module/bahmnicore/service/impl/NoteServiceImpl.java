@@ -3,16 +3,19 @@ package org.bahmni.module.bahmnicore.service.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bahmni.module.bahmnicore.contract.NoteRequestResponse;
 import org.bahmni.module.bahmnicore.dao.NoteDao;
-import org.bahmni.module.bahmnicore.dao.impl.NoteDaoImpl;
 import org.bahmni.module.bahmnicore.model.Note;
 import org.bahmni.module.bahmnicore.model.NoteType;
 import org.bahmni.module.bahmnicore.service.NoteService;
-import org.openmrs.api.APIException;
+import org.openmrs.Provider;
+import org.openmrs.User;
+import org.openmrs.api.ProviderService;
+import org.openmrs.api.UserService;
+import org.openmrs.api.context.Context;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,11 +49,24 @@ public class NoteServiceImpl implements NoteService, Serializable {
         return noteDao.getNoteById(noteId);
     }
 
-    public Note updateNote(Integer id, String noteText) {
+    public Note updateNote(Integer id, NoteRequestResponse noteRequestResponse) {
         Note note = noteDao.getNoteById(id);
-        note.setNoteText(noteText);
-        log.info("Update note " + note);
-        return noteDao.updateNote(note);
+        Provider provider = Context.getService(ProviderService.class).getProviderByUuid(noteRequestResponse.getProviderUuid());
+        User user = Context.getService(UserService.class).getUsersByPerson(provider.getPerson(), false).get(0);
+        if (note.getCreator().getUserId() == user.getUserId()) {
+            note.setNoteText(noteRequestResponse.getNoteText());
+            log.info("Update note " + note);
+            return noteDao.updateNote(note);
+        } else {
+            Note newNote = new Note();
+            newNote.setNoteDate(note.getNoteDate());
+            newNote.setNoteText(noteRequestResponse.getNoteText());
+            newNote.setNoteType(note.getNoteType());
+            newNote = noteDao.createNote(newNote);
+            voidNote(id, "Updated to #" + newNote.getNoteId());
+            log.info("Voided old note and created note " + newNote);
+            return newNote;
+        }
     }
 
     public List<Note> getNotes(Date noteStartDate, Date noteEndDate, String noteType) {

@@ -15,6 +15,7 @@ import org.openmrs.Order;
 import org.openmrs.Person;
 import org.openmrs.api.ConceptNameType;
 import org.openmrs.api.context.Context;
+import org.openmrs.util.LocaleUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static java.util.Objects.nonNull;
 
@@ -77,7 +79,7 @@ public class ObsDaoImpl implements ObsDao {
                 " where obs.person.uuid = :patientUuid " +
                 " and cn.concept = obs.concept.conceptId " +
                 " and cn.name in (:conceptNames) " +
-                " and cn.locale = :locale " +
+                " and cn.locale in (:locale) " +
                 " and cn.conceptNameType = :conceptNameType " +
                 " and cn.voided = false and obs.voided = false ");
 
@@ -106,13 +108,18 @@ public class ObsDaoImpl implements ObsDao {
             query.append(" order by obs.obsDatetime desc ");
         }
 
+        List<Locale> localeList = new ArrayList<>();
+        localeList.add(Context.getLocale());
+        if (!LocaleUtility.getDefaultLocale().equals(Context.getLocale())) {
+            localeList.add(LocaleUtility.getDefaultLocale());
+        }
 
         Query queryToGetObservations = sessionFactory.getCurrentSession().createQuery(query.toString());
         queryToGetObservations.setMaxResults(limit);
         queryToGetObservations.setString("patientUuid", patientUuid);
         queryToGetObservations.setParameterList("conceptNames", conceptNames);
         queryToGetObservations.setParameter("conceptNameType", ConceptNameType.FULLY_SPECIFIED);
-        queryToGetObservations.setString("locale", Context.getLocale().getLanguage());
+        queryToGetObservations.setParameterList("locale", localeList);
         if (null != obsIgnoreList && obsIgnoreList.size() > 0) {
             queryToGetObservations.setParameterList("obsIgnoreList", obsIgnoreList);
         }

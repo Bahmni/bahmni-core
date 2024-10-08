@@ -1,17 +1,22 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller.display.controls;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bahmni.module.bahmnicore.extensions.BahmniExtensions;
 import org.bahmni.module.bahmnicore.obs.ObservationsAdder;
 import org.bahmni.module.bahmnicore.service.BahmniObsService;
 import org.bahmni.module.bahmnicore.util.MiscUtils;
+import org.bahmni.module.bahmnicore.web.v1_0.LocaleResolver;
 import org.openmrs.Concept;
+import org.openmrs.ConceptSearchResult;
 import org.openmrs.Visit;
+import org.openmrs.api.APIException;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.VisitService;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObservation;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.v1_0.controller.BaseRestController;
+import org.openmrs.util.LocaleUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,8 +26,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.bahmni.module.bahmnicore.web.v1_0.LocaleResolver.identifyLocale;
 
 @Controller
 @RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/bahmnicore/observations")
@@ -47,25 +61,38 @@ public class BahmniObservationsController extends BaseRestController {
     @ResponseBody
     public Collection<BahmniObservation> get(@RequestParam(value = "patientUuid", required = true) String patientUUID,
                                              @RequestParam(value = "concept", required = true) List<String> rootConceptNames,
+                                             @RequestParam(value = "locale", required = false) String locale,
                                              @RequestParam(value = "scope", required = false) String scope,
                                              @RequestParam(value = "numberOfVisits", required = false) Integer numberOfVisits,
                                              @RequestParam(value = "obsIgnoreList", required = false) List<String> obsIgnoreList,
                                              @RequestParam(value = "filterObsWithOrders", required = false, defaultValue = "true") Boolean filterObsWithOrders ) throws ParseException {
 
-        List<Concept> rootConcepts = MiscUtils.getConceptsForNames(rootConceptNames, conceptService);
-
+        List<Concept> conceptList = searchConceptsByName(rootConceptNames, identifyLocale(locale));
         Collection<BahmniObservation> observations;
         if (ObjectUtils.equals(scope, LATEST)) {
-            observations = bahmniObsService.getLatest(patientUUID, rootConcepts, numberOfVisits, obsIgnoreList, filterObsWithOrders, null);
+            observations = bahmniObsService.getLatest(patientUUID, conceptList, numberOfVisits, obsIgnoreList, filterObsWithOrders, null);
         } else if (ObjectUtils.equals(scope, INITIAL)) {
-            observations = bahmniObsService.getInitial(patientUUID, rootConcepts, numberOfVisits, obsIgnoreList, filterObsWithOrders, null);
+            observations = bahmniObsService.getInitial(patientUUID, conceptList, numberOfVisits, obsIgnoreList, filterObsWithOrders, null);
         } else {
-            observations = bahmniObsService.observationsFor(patientUUID, rootConcepts, numberOfVisits, obsIgnoreList, filterObsWithOrders, null, null, null);
+            observations = bahmniObsService.observationsFor(patientUUID, conceptList, numberOfVisits, obsIgnoreList, filterObsWithOrders, null, null, null);
         }
 
-        sendObsToGroovyScript(getConceptNames(rootConcepts), observations);
+        sendObsToGroovyScript(getConceptNames(conceptList), observations);
 
         return observations;
+    }
+
+    private List<Concept> searchConceptsByName(List<String> conceptNames, Locale searchLocale) {
+        Set<Concept> conceptSet = new LinkedHashSet<>();
+        if (CollectionUtils.isNotEmpty(conceptNames)) {
+            List<Locale> localeList = Collections.singletonList(searchLocale);
+            for (String name : conceptNames) {
+                List<ConceptSearchResult> conceptsSearchResult = conceptService.getConcepts(name, localeList, false, null, null, null, null, null, 0, null);
+                List<Concept> conceptsByName = conceptsSearchResult.stream().map(conceptSearchResult -> conceptSearchResult.getConcept()).collect(Collectors.toList());
+                conceptSet.addAll(conceptsByName);
+            }
+        }
+        return new ArrayList<>(conceptSet);
     }
 
     @RequestMapping(method = RequestMethod.GET, params = {"visitUuid"})

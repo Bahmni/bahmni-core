@@ -36,6 +36,7 @@ public class AllSamplesMapperTest {
     private AllSamplesMapper allSamplesMapper;
     private SampleMapper sampleMapper;
     private Concept sampleConcept;
+    private Concept specimenConcept;
     private Date dateCreated;
     private Date dateChanged;
     private Concept labSampleConceptSet;
@@ -56,15 +57,20 @@ public class AllSamplesMapperTest {
         Locale defaultLocale = new Locale("en", "GB");
         PowerMockito.mockStatic(Context.class);
         when(Context.getLocale()).thenReturn(defaultLocale);
-        Concept testConcept = new ConceptBuilder().withUUID("Test UUID").withDateCreated(dateCreated).withClass(LabTest.LAB_TEST_CONCEPT_CLASS).withDescription("SomeDescription")
+        Concept testConcept = new ConceptBuilder().withUUID("Test UUID").withDateCreated(dateCreated).withClass(LabTest.LAB_TEST_CONCEPT_CLASSES.get(0)).withDescription("SomeDescription")
                 .withDateChanged(dateChanged).withShortName("ShortName").withName("Test concept").withDataType(ConceptDatatype.NUMERIC).build();
 
-        sampleConcept = new ConceptBuilder().withUUID("Sample UUID").withDateCreated(dateCreated).withClass(Sample.SAMPLE_CONCEPT_CLASS).
+        sampleConcept = new ConceptBuilder().withUUID("Sample UUID").withDateCreated(dateCreated).withClass(Sample.SAMPLE_CONCEPT_CLASSES.get(0)).
                 withDateChanged(dateChanged).withSetMember(testConcept).withShortName("ShortName").withName("SampleName").build();
+
+        specimenConcept = new ConceptBuilder().withUUID("Specimen UUID").withDateCreated(dateCreated).withClass(Sample.SAMPLE_CONCEPT_CLASSES.get(1)).
+                withDateChanged(dateChanged).withSetMember(testConcept).withShortName("SpecimenShortName").withName("SpecimenName").build();
 
         labSampleConceptSet = new ConceptBuilder().withUUID("Lab Samples UUID").withDateCreated(dateCreated).withDateChanged(dateChanged)
                 .withName(AllSamples.ALL_SAMPLES).withClassUUID(ConceptClass.LABSET_UUID).withShortName("Lab samples short name").withDescription("Lab samples Description")
-                .withSetMember(sampleConcept).build();
+                .withSetMember(sampleConcept)
+                .withSetMember(specimenConcept)
+                .build();
 
         when(Context.getConceptService()).thenReturn(conceptService);
     }
@@ -80,7 +86,7 @@ public class AllSamplesMapperTest {
         assertEquals(dateChanged, labSamplesData.getLastUpdated());
         assertEquals("Lab samples Description", labSamplesData.getDescription());
         List<Sample> samples = labSamplesData.getSamples();
-        assertEquals(1, samples.size());
+        assertEquals(2, samples.size());
         assertEquals(sampleData.getId(), samples.get(0).getId());
     }
 

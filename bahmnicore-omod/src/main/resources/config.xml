@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE module PUBLIC "-//OpenMRS//DTD OpenMRS Config 1.0//EN" "http://resources.openmrs.org/doctype/config-1.2.dtd">
+<!DOCTYPE module PUBLIC "-//OpenMRS//DTD OpenMRS Config 1.0//EN" "http://resources.openmrs.org/doctype/config-1.6.dtd">
 
-<module configVersion="1.2">
+<module configVersion="1.6">
 
     <!-- Base Module Properties -->
     <id>@MODULE_ID@</id>
@@ -98,6 +98,10 @@
         <name>app:lab-lite</name>
         <description>Will give access to Lab Lite app</description>
     </privilege>
+    <privilege>
+        <name>Get Patient Program Attribute Types</name>
+        <description>Ability to get program attribute types</description>
+    </privilege>
 
     <advice>
         <point>org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService</point>
@@ -148,7 +152,7 @@
     <globalProperty>
         <property>bahmni.relationshipTypeMap</property>
         <defaultValue></defaultValue>
-        <description>Relationship Type Map format Eg:{ "patient": ["Sibling", "Parent"],"provider": ["Doctor"]}.If no value is specified default is  patient relationship.</description>
+        <description>Relationship Type Map format Eg:{ "patient": ["Sibling", "Parent"],"provider": ["Doctor"]}.If no value is specified default is patient relationship.</description>
     </globalProperty>
 
     <globalProperty>
@@ -170,6 +174,12 @@
     </globalProperty>
 
     <globalProperty>
+        <property>bahmni.lookupExternalTerminologyServer</property>
+        <defaultValue>false</defaultValue>
+        <description>Property used to determine whether external terminology server being used or not</description>
+    </globalProperty>
+
+    <globalProperty>
         <property>bahmni.enableEmailPrescriptionOption</property>
         <defaultValue>false</defaultValue>
         <description>Boolean to enable sending email with prescription details</description>
@@ -181,4 +191,30 @@
         <description>Enable or disable Groovy script execution for obs value calculation on encounter save</description>
     </globalProperty>
 
+    <globalProperty>
+        <property>bahmni.diagnosisSetForNewDiagnosisConcepts</property>
+        <defaultValue></defaultValue>
+        <description>UUID of set member of diagnosis set of sets. New Diagnosis concepts from terminology server will be added to this set </description>
+    </globalProperty>
+
+    <globalProperty>
+        <property>sms.enableRegistrationSMSAlert</property>
+        <defaultValue>false</defaultValue>
+        <description>Boolean to enable sending sms when patient registers</description>
+    </globalProperty>
+
+    <globalProperty>
+        <property>bahmni.contextCookieExpirationTimeInMinutes</property>
+        <defaultValue>0</defaultValue>
+        <description>Expiration time in minutes of the cookie that maintains the user's session context</description>
+    </globalProperty>
+
+    <advice>
+        <point>org.openmrs.api.PatientService</point>
+        <class>org.bahmni.module.bahmnicore.events.advice.PatientAdvice</class>
+    </advice>
+    <advice>
+        <point>org.openmrs.api.EncounterService</point>
+        <class>org.bahmni.module.bahmnicore.events.advice.EncounterAdvice</class>
+    </advice>
 </module>

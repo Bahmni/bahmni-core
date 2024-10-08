@@ -4,6 +4,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
+import org.openmrs.ConceptNumeric;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.api.APIException;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -21,6 +23,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @Component
 public class LabOrderResultMapper {
     private static final Log log = LogFactory.getLog(LabOrderResultMapper.class);
+    private static final String EMPTY_STRING = "";
     public static final String LAB_RESULT = "LAB_RESULT";
     public static final String LAB_ABNORMAL = "LAB_ABNORMAL";
     public static final String LAB_MINNORMAL = "LAB_MINNORMAL";
@@ -72,13 +75,14 @@ public class LabOrderResultMapper {
         obs.setConcept(concept);
         obs.setOrder(testOrder);
         obs.setObsDatetime(obsDate);
+        String accessionUuid = Optional.ofNullable(labOrderResult.getAccessionUuid()).orElseGet(() -> Optional.ofNullable(obs.getOrder()).map(Order::getAccessionNumber).orElse(EMPTY_STRING));
         if (concept.getDatatype().getHl7Abbreviation().equals("CWE")) {
             String resultUuid = labOrderResult.getResultUuid();
             Concept conceptAnswer = isEmpty(resultUuid) ? null : conceptService.getConceptByUuid(resultUuid);
                 obs.setValueCoded(conceptAnswer);
             if (conceptAnswer == null) {
-                log.warn(String.format("Concept is not available in OpenMRS for ConceptUuid : [%s] , In Accession : [%s]"
-                        , resultUuid,labOrderResult.getAccessionUuid()));
+                log.error(String.format("Concept [%s] does not not have coded answer with ConceptUuid [%s] in OpenMRS, In Accession [%s]",
+                        obs.getConcept().getName(), resultUuid, accessionUuid));
                 return null;
             }
             return obs;
@@ -88,7 +92,27 @@ public class LabOrderResultMapper {
             return null;
         }
         obs.setValueAsString(labOrderResult.getResult());
+        checkResultRangesForAbsolutes(obs, accessionUuid);
         return obs;
+    }
+
+    /**
+     * This method just logs error if the results are out of absolute ranges. This will be errored out (ValidationException)
+     * by openmrs by the {@link org.openmrs.validator.ObsValidator} during save
+     */
+    private void checkResultRangesForAbsolutes(Obs obs, String accessionUuid) {
+        if (!obs.getConcept().isNumeric()) {
+            return;
+        }
+        if (obs.getValueNumeric() != null) {
+            ConceptNumeric cn = conceptService.getConceptNumeric(obs.getConcept().getId());
+            if (cn.getHiAbsolute() != null && cn.getHiAbsolute() < obs.getValueNumeric()) {
+                log.error(String.format("Test results for [%s] is beyond the absolute high range, in Accession [%s]", cn.getName(), accessionUuid));
+            }
+            if (cn.getLowAbsolute() != null && cn.getLowAbsolute() > obs.getValueNumeric()) {
+                log.error(String.format("Test results for [%s] is beyond the absolute low range, in Accession [%s]", cn.getName(), accessionUuid));
+            }
+        }
     }
 
     private Concept getConceptByName(String conceptName) {

@@ -2,8 +2,8 @@ package org.bahmni.module.referencedata.labconcepts.model.event;
 
 import org.openmrs.Concept;
 
-import static org.bahmni.module.referencedata.labconcepts.contract.Sample.SAMPLE_CONCEPT_CLASS;
-import static org.bahmni.module.referencedata.labconcepts.mapper.ConceptExtension.isOfConceptClass;
+import static org.bahmni.module.referencedata.labconcepts.contract.Sample.SAMPLE_CONCEPT_CLASSES;
+import static org.bahmni.module.referencedata.labconcepts.mapper.ConceptExtension.isOfAnyConceptClass;
 
 public class SampleEvent extends ConceptOperationEvent {
 
@@ -14,7 +14,7 @@ public class SampleEvent extends ConceptOperationEvent {
 
     @Override
     public boolean isResourceConcept(Concept concept) {
-        return isOfConceptClass(concept, SAMPLE_CONCEPT_CLASS);
+        return isOfAnyConceptClass(concept, SAMPLE_CONCEPT_CLASSES);
     }
 
 

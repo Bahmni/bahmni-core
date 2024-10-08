@@ -143,7 +143,11 @@ public class OpenElisAccessionEventWorker implements EventWorker {
 
     void runInterceptor(Class className, Object object) {
         GroovyClassLoader gcl = new GroovyClassLoader();
-        File directory = new File(OpenmrsUtil.getApplicationDataDirectory() + "elisFeedInterceptor");
+        String applicationDataDirectory = OpenmrsUtil.getApplicationDataDirectory();
+        if (!applicationDataDirectory.endsWith(File.separator)) {
+            applicationDataDirectory += File.separator;
+        }
+        File directory = new File(applicationDataDirectory + "elisFeedInterceptor");
         File[] files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
@@ -250,6 +254,23 @@ public class OpenElisAccessionEventWorker implements EventWorker {
 
     protected Set<Encounter> associateTestResultsToOrder(OpenElisAccession openElisAccession) throws ParseException {
         Encounter orderEncounter = encounterService.getEncounterByUuid(openElisAccession.getAccessionUuid());
+
+        if (!orderEncounter.getOrders().isEmpty()) {
+            for (OpenElisTestDetail testDetail : openElisAccession.getTestDetails()) {
+                if (testDetail == null || testDetail.getStatus() == null) {
+                    continue;
+                }
+                for (Order order : orderEncounter.getOrders()) {
+                    if (testDetail.getTestUuid().equals(order.getConcept().getUuid()) || order.getConcept().getUuid().equals(testDetail.getPanelUuid())) {
+                        if ("Canceled".equals(testDetail.getStatus())) {
+                            continue;
+                        }
+                        order.setAccessionNumber(openElisAccession.getAccessionUuid());
+                    }
+                }
+            }
+        }
+
         final EncounterType labResultEncounterType = getLabResultEncounterType();
         final Set<OpenElisTestDetail> allTests = openElisAccession.getTestDetails();
 

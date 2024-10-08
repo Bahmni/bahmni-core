@@ -336,21 +336,4 @@ public class BahmniFormDetailsServiceImplTest {
                 any(Boolean.class));
     }
 
-    private void shouldReturnEmptyCollectionsOfFormDetailsIfPatientDoesNotHaveVisitsOrEncounters() {
-
-        Collection<FormDetails> formDetailsCollection = bahmniFormDetailsService.getFormDetails(patientUuid, FormType.FORMS2, -1);
-
-        assertEquals(0, formDetailsCollection.size());
-
-        verify(patientService, times(1)).getPatientByUuid(patientUuid);
-        verify(visitService, times(1)).getVisitsByPatient(patient);
-        verify(encounterService, times(1)).getEncounters(any(EncounterSearchCriteria.class));
-
-        verify(patient, times(0)).getPerson();
-        verify(obsService, times(0)).getObservations(anyListOf(Person.class),
-                anyListOf(Encounter.class), any(), any(), any(), any(), any(), any(), any(), any(), any(),
-                any(Boolean.class));
-
-    }
-
 }

@@ -1,7 +1,5 @@
 package org.bahmni.module.elisatomfeedclient.api.worker;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.bahmni.module.elisatomfeedclient.api.Constants;
 import org.bahmni.module.elisatomfeedclient.api.ElisAtomFeedProperties;
 import org.bahmni.module.elisatomfeedclient.api.builder.OpenElisAccessionBuilder;
@@ -35,8 +33,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
-
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -144,6 +147,38 @@ public class OpenElisAccessionEventWorkerTest {
     }
 
     @Test
+    public void shouldUpdateEncounterWithAccessionNumberWhenItsGenerated() throws Exception {
+        Encounter orderEncounter = getEncounterWithTests("test1", "test2", "test3");
+        final Visit visit = new Visit();
+        visit.setId(1);
+        orderEncounter.setVisit(visit);
+        visit.setEncounters(new HashSet<>(Arrays.asList(orderEncounter)));
+        OpenElisTestDetail test1 = new OpenElisTestDetailBuilder().withTestUuid("test1").build();
+        OpenElisTestDetail test2 = new OpenElisTestDetailBuilder().withTestUuid("test2").build();
+        OpenElisTestDetail test3 = new OpenElisTestDetailBuilder().withTestUuid("test3").build();
+        test1.setStatus("Not started");
+        test2.setStatus("Canceled");
+        test3.setStatus("Not started");
+        OpenElisAccession openElisAccession = new OpenElisAccessionBuilder().withTestDetails(new HashSet<>(Arrays.asList(test1, test2, test3))).build();
+
+        stubAccession(openElisAccession);
+        when(encounterService.getEncounterByUuid(openElisAccession.getAccessionUuid())).thenReturn(orderEncounter);
+        when(accessionMapper.findOrInitializeVisit(any(Patient.class), any(Date.class), any(String.class))).thenReturn(visit);
+        when(encounterService.saveEncounter(orderEncounter)).thenReturn(orderEncounter);
+        accessionEventWorker.associateTestResultsToOrder(openElisAccession);
+
+        List<String> orderAccessionNumbers = orderEncounter.getOrders().stream()
+                .map(Order::getAccessionNumber)
+                .collect(Collectors.toList());
+
+        verify(encounterService, times(1)).getEncounterByUuid(openElisAccession.getAccessionUuid());
+
+        assertEquals("1234", orderAccessionNumbers.get(0));
+        assertNotEquals("1234", orderAccessionNumbers.get(1));
+        assertEquals("1234", orderAccessionNumbers.get(2));
+    }
+
+    @Test
     public void shouldUpdateEncounterWhenAccessionHasRemovedOrderFromPreviousEncounter() throws Exception {
         Encounter previousEncounter = getEncounterWithTests("test1", "test2", "test3");
         Encounter encounterFromAccession = getEncounterWithTests("test1", "test2", "test3");
@@ -228,8 +263,10 @@ public class OpenElisAccessionEventWorkerTest {
         for (String testUuid : testUuids) {
             Order order = new Order();
             Concept concept = new Concept();
+            concept.setId(123);
             concept.setUuid(testUuid);
             order.setConcept(concept);
+            order.setAccessionNumber(null);
             encounter.addOrder(order);
             encounter.setEncounterType(new EncounterType());
             Patient patient = new Patient();

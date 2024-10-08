@@ -43,6 +43,7 @@ public class BahmniObservation implements Comparable<BahmniObservation>{
     private String interpretation;
     private String status;
     private String encounterTypeName;
+    private String conceptFSN;
 
     @JsonIgnore
     private Serializable complexData;
@@ -430,5 +431,13 @@ public class BahmniObservation implements Comparable<BahmniObservation>{
 
     public void setEncounterTypeName(String encounterTypeName) {
         this.encounterTypeName = encounterTypeName;
+    }
+
+    public void setConceptFSN(String conceptFSN) {
+        this.conceptFSN = conceptFSN;
+    }
+
+    public String getConceptFSN() {
+        return this.conceptFSN;
     }
 }

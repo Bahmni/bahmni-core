@@ -55,18 +55,21 @@ public class TabularLabOrderResults {
         private Double minNormal;
         private Double maxNormal;
         private String testUnitOfMeasurement;
+        private String panelName;
 
         @JsonCreator
         public TestOrderLabel(@JsonProperty("index")Integer index,
                               @JsonProperty("testName")String testName,
                               @JsonProperty("minNormal")Double minNormal,
                               @JsonProperty("maxNormal")Double maxNormal,
-                              @JsonProperty("testUnitOfMeasurement")String testUnitOfMeasurement) {
+                              @JsonProperty("testUnitOfMeasurement")String testUnitOfMeasurement,
+                              @JsonProperty("panelName")String panelName) {
             this.index = index;
             this.testName = testName;
             this.minNormal = minNormal;
             this.maxNormal = maxNormal;
             this.testUnitOfMeasurement = testUnitOfMeasurement;
+            this.panelName = panelName;
         }
 
         public Integer getIndex() {
@@ -108,8 +111,15 @@ public class TabularLabOrderResults {
         public void setTestUnitOfMeasurement(String testUnitOfMeasurement) {
             this.testUnitOfMeasurement = testUnitOfMeasurement;
         }
-    }
 
+        public String getPanelName() {
+            return panelName;
+        }
+
+        public void setPanelName(String panelName) {
+            this.panelName = panelName;
+        }
+    }
 
     public static class CoordinateValue {
         private Date accessionDateTime;

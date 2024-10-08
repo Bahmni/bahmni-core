@@ -9,18 +9,15 @@ import org.openmrs.api.context.Context;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.bahmni.module.referencedata.labconcepts.contract.AllSamples.ALL_SAMPLES;
 import static org.bahmni.module.referencedata.labconcepts.contract.AllTestsAndPanels.ALL_TESTS_AND_PANELS;
 import static org.bahmni.module.referencedata.labconcepts.contract.Department.DEPARTMENT_CONCEPT_CLASS;
-import static org.bahmni.module.referencedata.labconcepts.contract.LabTest.LAB_TEST_CONCEPT_CLASS;
+import static org.bahmni.module.referencedata.labconcepts.contract.LabTest.LAB_TEST_CONCEPT_CLASSES;
 import static org.bahmni.module.referencedata.labconcepts.contract.Panel.LAB_SET_CONCEPT_CLASS;
-import static org.bahmni.module.referencedata.labconcepts.contract.RadiologyTest.RADIOLOGY_TEST_CONCEPT_CLASS;
-import static org.bahmni.module.referencedata.labconcepts.contract.Sample.SAMPLE_CONCEPT_CLASS;
+import static org.bahmni.module.referencedata.labconcepts.contract.RadiologyTest.RADIOLOGY_TEST_CONCEPT_CLASSES;
+import static org.bahmni.module.referencedata.labconcepts.contract.Sample.SAMPLE_CONCEPT_CLASSES;
 
 public class SaleableTypeEvent implements ConceptServiceOperationEvent {
 
@@ -31,7 +28,12 @@ public class SaleableTypeEvent implements ConceptServiceOperationEvent {
     private final String category;
     private List<String> supportedOperations = Arrays.asList("saveConcept", "updateConcept", "retireConcept", "purgeConcept");
 
-    private List<String> unhandledClasses = Arrays.asList(LAB_TEST_CONCEPT_CLASS, LAB_SET_CONCEPT_CLASS, SAMPLE_CONCEPT_CLASS, DEPARTMENT_CONCEPT_CLASS, RADIOLOGY_TEST_CONCEPT_CLASS);
+    private List<String> unhandledClasses = new ArrayList<String>(){{
+        addAll(Arrays.asList(LAB_SET_CONCEPT_CLASS, DEPARTMENT_CONCEPT_CLASS));
+        addAll(LAB_TEST_CONCEPT_CLASSES);
+        addAll(RADIOLOGY_TEST_CONCEPT_CLASSES);
+        addAll(SAMPLE_CONCEPT_CLASSES);
+    }};
     private List<String> unhandledConcepsByName = Arrays.asList(ALL_SAMPLES, ALL_TESTS_AND_PANELS);
 
     public SaleableTypeEvent(String url, String category) {

@@ -16,6 +16,7 @@ import org.openmrs.module.webservices.rest.web.resource.impl.NeedsPaging;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -68,12 +69,15 @@ public class BahmniConceptSearchByDataTypeHandlerTest {
         ConceptDatatype conceptDatatype = new ConceptDatatype();
         conceptDatatype.setId(1);
         conceptDatatypes.add(conceptDatatype);
+        List<Locale> localeList = new ArrayList<>();
+        localeList.add(Locale.ENGLISH);
         when(conceptService.getConceptDatatypeByName(DATA_TYPES)).thenReturn(conceptDatatype);
-        when(conceptService.getConcepts(NAME, null, false, null, null, conceptDatatypes,
+        when(conceptService.getConcepts(NAME, localeList, false, null, null, conceptDatatypes,
                  null, null, 0, 10)).thenReturn(conceptSearchResults);
 
         when(requestContext.getParameter("name")).thenReturn(NAME);
         when(requestContext.getParameter("dataTypes")).thenReturn(DATA_TYPES);
+        when(requestContext.getParameter("locale")).thenReturn(Locale.ENGLISH.toString());
         when(requestContext.getLimit()).thenReturn(10);
 
         NeedsPaging<Concept> searchResults = (NeedsPaging<Concept>) bahmniConceptSearchByDataTypeHandler.search(requestContext);

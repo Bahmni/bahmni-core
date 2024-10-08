@@ -72,7 +72,7 @@ public class ObsRelationshipMapperTest {
         BahmniObservation sourceObservation = getBahmniObservation(sourceObsUuid);
         BahmniObservation targetObservation = getBahmniObservation(targetObsUuid);
 
-        when(OMRSObsToBahmniObsMapper.map(targetObs)).thenReturn(targetObservation);
+        when(OMRSObsToBahmniObsMapper.map(targetObs, null)).thenReturn(targetObservation);
 
         ArrayList<BahmniObservation> bahmniObservations = new ArrayList<>();
         bahmniObservations.add(sourceObservation);
@@ -81,7 +81,7 @@ public class ObsRelationshipMapperTest {
         List<BahmniObservation> mappedBahmniObservations = obsRelationshipMapper.map(bahmniObservations, "encounter-uuid");
         
         verify(obsrelationService).getRelationsWhereSourceObsInEncounter("encounter-uuid");
-        verify(OMRSObsToBahmniObsMapper, times(1)).map(targetObs);
+        verify(OMRSObsToBahmniObsMapper, times(1)).map(targetObs, null);
         assertEquals(2, mappedBahmniObservations.size());
         assertEquals(sourceObsUuid, mappedBahmniObservations.get(0).getUuid());
         assertEquals(targetObsUuid, mappedBahmniObservations.get(0).getTargetObsRelation().getTargetObs().getUuid());
@@ -112,8 +112,8 @@ public class ObsRelationshipMapperTest {
         BahmniObservation targetObservation1 = getBahmniObservation(targetObs1Uuid);
         BahmniObservation targetObservation2 = getBahmniObservation(targetObs2Uuid);
 
-        when(OMRSObsToBahmniObsMapper.map(targetObs1)).thenReturn(targetObservation1);
-        when(OMRSObsToBahmniObsMapper.map(targetObs2)).thenReturn(targetObservation2);
+        when(OMRSObsToBahmniObsMapper.map(targetObs1, null)).thenReturn(targetObservation1);
+        when(OMRSObsToBahmniObsMapper.map(targetObs2, null)).thenReturn(targetObservation2);
 
         ArrayList<BahmniObservation> bahmniObservations = new ArrayList<>();
         bahmniObservations.add(sourceObservation1);
@@ -124,7 +124,7 @@ public class ObsRelationshipMapperTest {
         List<BahmniObservation> mappedBahmniObservations = obsRelationshipMapper.map(bahmniObservations, "encounter-uuid");
 
         verify(obsrelationService).getRelationsWhereSourceObsInEncounter("encounter-uuid");
-        verify(OMRSObsToBahmniObsMapper, times(2)).map(any(Obs.class));
+        verify(OMRSObsToBahmniObsMapper, times(2)).map(any(Obs.class), any());
         assertEquals(4, mappedBahmniObservations.size());
         assertEquals(sourceObs1Uuid, mappedBahmniObservations.get(0).getUuid());
         assertEquals(targetObs1Uuid, mappedBahmniObservations.get(0).getTargetObsRelation().getTargetObs().getUuid());

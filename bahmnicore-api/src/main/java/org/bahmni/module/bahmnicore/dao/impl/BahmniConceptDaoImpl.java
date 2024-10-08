@@ -1,8 +1,8 @@
 package org.bahmni.module.bahmnicore.dao.impl;
 
 import org.bahmni.module.bahmnicore.dao.BahmniConceptDao;
-import org.hibernate.Query;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.hibernate.type.StandardBasicTypes;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
@@ -42,9 +42,9 @@ public class BahmniConceptDaoImpl implements BahmniConceptDao {
         Query query = sessionFactory.getCurrentSession().createQuery(
                 queryStringBuffer.toString());
 
-        query.setEntity("questionConcept", questionConcept);
+        query.setParameter("questionConcept", questionConcept);
         for (int i = 0; i < queryArray.length; i++) {
-            query.setString("query"+ i, searchBothSidesOf(queryArray[i]));
+            query.setParameter("query"+ i, searchBothSidesOf(queryArray[i]));
         }
 
         return new HashSet<>(query.list());
@@ -57,7 +57,7 @@ public class BahmniConceptDaoImpl implements BahmniConceptDao {
                         "from ConceptName as conceptName " +
                         "where conceptName.conceptNameType ='FULLY_SPECIFIED' " +
                         " and lower(conceptName.name)= lower(:fullySpecifiedName)")
-                .setString("fullySpecifiedName", fullySpecifiedConceptName)
+                .setParameter("fullySpecifiedName", fullySpecifiedConceptName)
                 .list();
 
         return concepts.size() > 0 ? concepts.get(0) : null;
@@ -98,6 +98,7 @@ public class BahmniConceptDaoImpl implements BahmniConceptDao {
                 .createQuery("select concept " +
                         "from ConceptName as conceptName " +
                         "where conceptName.conceptNameType ='FULLY_SPECIFIED' and conceptName.voided = false" +
+                        " and conceptName.concept.retired = false" +
                         " and lower(conceptName.name) in (:conceptNames)").setParameterList("conceptNames", lowerCaseConceptNames).list();
         return concepts;
     }

@@ -16,6 +16,7 @@ public class NoteRequestResponse {
 
     private String LocationName;
 
+    private String providerUuid;
 
     public String getUuid() {
         return uuid;
@@ -63,6 +64,14 @@ public class NoteRequestResponse {
 
     public void setLocationName(String locationName) {
         LocationName = locationName;
+    }
+
+    public String getProviderUuid() {
+        return providerUuid;
+    }
+
+    public void setProviderUuid(String providerUuid) {
+        this.providerUuid = providerUuid;
     }
 }
 

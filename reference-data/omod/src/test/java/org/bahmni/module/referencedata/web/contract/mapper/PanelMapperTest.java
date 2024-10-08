@@ -63,13 +63,13 @@ public class PanelMapperTest {
         Locale defaultLocale = new Locale("en", "GB");
         PowerMockito.mockStatic(Context.class);
         when(Context.getLocale()).thenReturn(defaultLocale);
-        testConcept = new ConceptBuilder().withUUID("Test UUID").withDateCreated(dateCreated).withClass(LabTest.LAB_TEST_CONCEPT_CLASS).withDescription("SomeDescription")
+        testConcept = new ConceptBuilder().withUUID("Test UUID").withDateCreated(dateCreated).withClass(LabTest.LAB_TEST_CONCEPT_CLASSES.get(0)).withDescription("SomeDescription")
                 .withDateChanged(dateChanged).withShortName("ShortName").withName("Panel Name Here").withDataType(ConceptDatatype.NUMERIC).build();
         panelConcept = new ConceptBuilder().withUUID("Panel UUID").withDateCreated(dateCreated).withClassUUID(ConceptClass.LABSET_UUID).withDescription("SomeDescription")
                 .withSetMember(testConcept).withDateChanged(dateChanged).withShortName("ShortName").withName("Panel Name Here").withDataType(ConceptDatatype.NUMERIC).build();
         Concept testAndPanelsConcept = new ConceptBuilder().withUUID("Test and Panels UUID").withDateCreated(dateCreated).withClassUUID(ConceptClass.CONVSET_UUID)
                 .withDateChanged(dateChanged).withShortName("ShortName").withName(AllTestsAndPanels.ALL_TESTS_AND_PANELS).withSetMember(panelConcept).build();
-        Concept sampleConcept = new ConceptBuilder().withUUID("Sample UUID").withDateCreated(dateCreated).withClass(Sample.SAMPLE_CONCEPT_CLASS).
+        Concept sampleConcept = new ConceptBuilder().withUUID("Sample UUID").withDateCreated(dateCreated).withClass(Sample.SAMPLE_CONCEPT_CLASSES.get(0)).
                 withDateChanged(dateChanged).withSetMember(panelConcept).withShortName("ShortName").withName("SampleName").build();
         Concept departmentConcept = new ConceptBuilder().withUUID("Department UUID").withDateCreated(dateCreated).
                 withDateChanged(dateChanged).withClass("Department").withClassUUID(ConceptClass.CONVSET_UUID).withSetMember(panelConcept).withDescription("Some Description").withName("Department Name").build();

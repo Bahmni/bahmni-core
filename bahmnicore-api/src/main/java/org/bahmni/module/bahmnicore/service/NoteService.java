@@ -4,6 +4,7 @@ package org.bahmni.module.bahmnicore.service;
 import java.util.Date;
 import java.util.List;
 
+import org.bahmni.module.bahmnicore.contract.NoteRequestResponse;
 import org.bahmni.module.bahmnicore.model.Note;
 import org.bahmni.module.bahmnicore.model.NoteType;
 import org.openmrs.annotation.Authorized;
@@ -22,7 +23,7 @@ public interface NoteService {
     Note createNote(Note note);
 
     @Transactional
-    Note updateNote(Integer id, String noteText);
+    Note updateNote(Integer id, NoteRequestResponse noteRequestResponse);
 
     @Transactional
     @Authorized(PrivilegeConstants.DELETE_NOTE)

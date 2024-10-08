@@ -32,6 +32,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -82,7 +83,7 @@ public class BahmniDiagnosisMetadataTest {
         Obs diagnosisObs =
                 new ObsBuilder().withConcept(diagnosisSetConcept)
                         .withGroupMembers(
-                                 new ObsBuilder().withConcept(codedDiagnosisConcept)
+                                new ObsBuilder().withConcept(codedDiagnosisConcept)
                                         .withValue(feverConcept).build(),
                                 new ObsBuilder().withConcept(conceptForName("Diagnosis Order"))
                                         .withValue(conceptForName("Primary")).build(),
@@ -213,7 +214,7 @@ public class BahmniDiagnosisMetadataTest {
         when(properties.getDiagnosisMetadata().getCodedDiagnosisConcept()).thenReturn(codedDiagnosisConcept);
         when(properties.getDiagnosisMetadata().getNonCodedDiagnosisConcept()).thenReturn(nonCodedDiagnosisConcept);
         when(conceptService.getTrueConcept()).thenReturn(conceptTrue);
-        when(conceptService.getConceptByName(BAHMNI_DIAGNOSIS_REVISED)).thenReturn(revised);
+        when(conceptService.getConceptsByName(BAHMNI_DIAGNOSIS_REVISED,Locale.ENGLISH,false)).thenReturn(Arrays.asList(revised));
         Concept feverConcept = conceptForName("Fever");
         Obs aCodedDiagnosisObs =
                 new ObsBuilder().withConcept(diagnosisSetConcept)

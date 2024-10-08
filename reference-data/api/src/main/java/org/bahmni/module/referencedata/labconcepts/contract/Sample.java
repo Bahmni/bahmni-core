@@ -1,10 +1,11 @@
 package org.bahmni.module.referencedata.labconcepts.contract;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Sample extends Resource {
     private String shortName;
-    public static final String SAMPLE_CONCEPT_CLASS = "Sample";
+    public static final List<String> SAMPLE_CONCEPT_CLASSES = Arrays.asList("Sample", "Specimen");
     private Double sortOrder;
     private List<ResourceReference> tests;
     private List<ResourceReference> panels;

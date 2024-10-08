@@ -3,11 +3,14 @@ package org.openmrs.module.bahmniemrapi.disposition.mapper;
 import org.openmrs.Concept;
 import org.openmrs.User;
 import org.openmrs.api.ConceptService;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.bahmniemrapi.disposition.contract.BahmniDisposition;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
+import org.openmrs.util.LocaleUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Set;
 import java.util.Locale;
 
@@ -32,7 +35,13 @@ public class BahmniDispositionMapper {
         bahmniDisposition.setProviders(providers);
         bahmniDisposition.setCreatorName(user.getPersonName().toString());
         Concept concept = conceptService.getConcept(disposition.getConceptName());
-        if(concept.getPreferredName(locale) != null) {
+        if (concept == null && !LocaleUtility.getDefaultLocale().equals(locale)) {
+            List<Concept> conceptsByName = Context.getConceptService().getConceptsByName(disposition.getConceptName(), LocaleUtility.getDefaultLocale(), false);
+            if (!conceptsByName.isEmpty()) {
+                concept = conceptsByName.get(0);
+            }
+        }
+        if(concept != null && concept.getPreferredName(locale) != null) {
             bahmniDisposition.setPreferredName(concept.getPreferredName(locale).getName());
         }
         return bahmniDisposition;

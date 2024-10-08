@@ -4,6 +4,7 @@ import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptSearchResult;
 import org.openmrs.api.ConceptService;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.webservices.rest.web.RequestContext;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.resource.api.PageableResult;
@@ -12,6 +13,7 @@ import org.openmrs.module.webservices.rest.web.resource.api.SearchHandler;
 import org.openmrs.module.webservices.rest.web.resource.api.SearchQuery;
 import org.openmrs.module.webservices.rest.web.resource.impl.NeedsPaging;
 import org.openmrs.module.webservices.rest.web.response.ResponseException;
+import org.openmrs.util.LocaleUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 @Component
 public class BahmniConceptSearchByDataTypeHandler implements SearchHandler {
@@ -54,8 +57,10 @@ public class BahmniConceptSearchByDataTypeHandler implements SearchHandler {
 
         List<Concept> concepts = new ArrayList<>();
 
+        List<Locale> localeList = getLocales(context);
+
         List<ConceptSearchResult> conceptsByName =
-                conceptService.getConcepts(conceptName, null, false, null, null, conceptDatatypes, null, null, context.getStartIndex(), context.getLimit());
+                conceptService.getConcepts(conceptName, localeList, false, null, null, conceptDatatypes, null, null, context.getStartIndex(), context.getLimit());
 
         for (ConceptSearchResult csr : conceptsByName) {
             if (csr.getConcept() != null)
@@ -64,6 +69,23 @@ public class BahmniConceptSearchByDataTypeHandler implements SearchHandler {
 
         return new NeedsPaging<Concept>(concepts, context);
 
+    }
+
+    private List<Locale> getLocales(RequestContext context) {
+        String locale = context.getParameter("locale");
+
+        List<Locale> localeList = new ArrayList<>();
+
+        if (locale != null) {
+            localeList.add(LocaleUtility.fromSpecification(locale));
+        } else {
+            localeList.add(Context.getLocale());
+            if (!LocaleUtility.getDefaultLocale().equals(Context.getLocale())) {
+                localeList.add(LocaleUtility.getDefaultLocale());
+            }
+        }
+
+        return localeList;
     }
 
 }

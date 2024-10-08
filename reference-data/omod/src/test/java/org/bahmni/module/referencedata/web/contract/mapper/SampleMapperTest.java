@@ -55,7 +55,7 @@ public class SampleMapperTest {
         when(Context.getLocale()).thenReturn(defaultLocale);
         sampleConcept = new ConceptBuilder().forSample().withShortName("ShortName").build();
         allSamplesConcept = new ConceptBuilder().withUUID("Laboratory UUID")
-                .withName(AllSamples.ALL_SAMPLES).withClass(Sample.SAMPLE_CONCEPT_CLASS)
+                .withName(AllSamples.ALL_SAMPLES).withClass(Sample.SAMPLE_CONCEPT_CLASSES.get(0))
                 .withSetMember(sampleConcept).build();
         ConceptSet conceptSet = createConceptSet(allSamplesConcept, sampleConcept);
         sortOrder = Double.valueOf(22);

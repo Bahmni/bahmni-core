@@ -57,6 +57,12 @@ public class BahmniFormDetailsServiceImpl implements BahmniFormDetailsService {
     public Collection<FormDetails> getFormDetails(String patientUuid, FormType formType, int numberOfVisits) {
         Patient patient = getPatient(patientUuid);
         List<Visit> visits = visitService.getVisitsByPatient(patient);
+
+        //Warning: This check is needed to avoid getEncounters returning ALL non-voided encounters of all patients leading to OutOfMemoryError:Java Heap
+        //Refer: https://bahmni.atlassian.net/browse/BAH-3513
+        if(visits.isEmpty())
+            return Collections.emptyList();
+
         List<Visit> limitedVisits = limitVisits(visits, numberOfVisits);
 
         //Warning: This check is needed to avoid getEncounters returning ALL non-voided encounters of all patients leading to OutOfMemoryError:Java Heap

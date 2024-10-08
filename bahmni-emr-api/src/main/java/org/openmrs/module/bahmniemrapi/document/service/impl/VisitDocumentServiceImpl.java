@@ -29,7 +29,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-//comment
+
+import java.util.Locale;
 @Service
 public class VisitDocumentServiceImpl implements VisitDocumentService {
 
@@ -87,8 +88,13 @@ public class VisitDocumentServiceImpl implements VisitDocumentService {
         }
     }
 
+    private Concept getConceptsByNameAndLocale(String name, Locale locale) {
+        List<Concept> conceptList = conceptService.getConceptsByName(name, locale, false);
+        return conceptList.isEmpty() ? null : conceptList.get(0);
+    }
+
     private void updateEncounter(Encounter encounter, Date encounterDateTime, List<Document> documents) {
-        Concept imageConcept = conceptService.getConceptByName(DOCUMENT_OBS_GROUP_CONCEPT_NAME);
+        Concept imageConcept = getConceptsByNameAndLocale(DOCUMENT_OBS_GROUP_CONCEPT_NAME, Locale.ENGLISH);
 
         for (Document document : documents) {
             Concept testConcept = conceptService.getConceptByUuid(document.getTestUuid());

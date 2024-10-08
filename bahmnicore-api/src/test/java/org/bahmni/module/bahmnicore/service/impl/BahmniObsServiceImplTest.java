@@ -214,12 +214,12 @@ public class BahmniObsServiceImplTest {
         Obs obs = new Obs();
         BahmniObservation expectedBahmniObservation = new BahmniObservation();
         when(obsService.getObsByUuid(observationUuid)).thenReturn(obs);
-        when(omrsObsToBahmniObsMapper.map(obs)).thenReturn(expectedBahmniObservation);
+        when(omrsObsToBahmniObsMapper.map(obs, null)).thenReturn(expectedBahmniObservation);
 
         BahmniObservation actualBahmniObservation = bahmniObsService.getBahmniObservationByUuid(observationUuid);
 
         verify(obsService, times(1)).getObsByUuid(observationUuid);
-        verify(omrsObsToBahmniObsMapper, times(1)).map(obs);
+        verify(omrsObsToBahmniObsMapper, times(1)).map(obs, null);
         assertNotNull(actualBahmniObservation);
         assertEquals(expectedBahmniObservation, actualBahmniObservation);
     }
@@ -262,7 +262,7 @@ public class BahmniObsServiceImplTest {
         when(visitDao.getVisitIdsFor(patientUuid, numberOfVisits)).thenReturn(visitIds);
         when(obsDao.getObsForFormBuilderForms(patientUuid, formNames, visitIds, encounters, null, null))
                 .thenReturn(singletonList(observation));
-        when(omrsObsToBahmniObsMapper.map(observation)).thenReturn(bahmniObservation);
+        when(omrsObsToBahmniObsMapper.map(observation, null)).thenReturn(bahmniObservation);
 
         Collection<BahmniObservation> bahmniObservations = bahmniObsService.getObsForFormBuilderForms(patientUuid,
                 formNames, numberOfVisits, null, null, patientProgramUuid);
