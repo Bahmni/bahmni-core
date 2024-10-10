@@ -1,5 +1,6 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
+import org.bahmni.module.bahmnicore.service.BahmniConceptService;
 import org.bahmni.module.bahmnicore.service.BahmniOrderService;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +32,9 @@ public class BahmniOrderControllerTest {
     @Mock
     private ConceptService conceptService;
 
+    @Mock
+    private BahmniConceptService bahmniConceptService;
+
     private Patient patient;
     private Concept concept;
 
@@ -41,6 +45,7 @@ public class BahmniOrderControllerTest {
         patient = new Patient();
         patient.setUuid("patientUuid");
         when(conceptService.getConceptByName("Weight")).thenReturn(concept);
+        when(bahmniConceptService.getConceptByFullySpecifiedName("Weight")).thenReturn(concept);
     }
 
     @Test
@@ -54,7 +59,7 @@ public class BahmniOrderControllerTest {
 
         when(bahmniOrderService.ordersForOrderType("patientUuid", Arrays.asList(concept), null, null, "OrderTypeUuid", true, locationUuids)).thenReturn(Arrays.asList(bahmniOrder));
 
-        BahmniOrderController bahmniOrderController = new BahmniOrderController(conceptService, bahmniOrderService);
+        BahmniOrderController bahmniOrderController = new BahmniOrderController(conceptService, bahmniOrderService, bahmniConceptService);
         List<BahmniOrder> bahmniOrders = bahmniOrderController.get("patientUuid", Arrays.asList("Weight"),"OrderTypeUuid", null, null, null, null, true, locationUuids);
 
         verify(bahmniOrderService, never()).ordersForOrderUuid("patientUuid", Arrays.asList(concept), null, "someUuid");
@@ -71,7 +76,7 @@ public class BahmniOrderControllerTest {
         bahmniOrder.setBahmniObservations(Arrays.asList(obs));
 
         when(bahmniOrderService.ordersForOrderUuid("patientUuid", Arrays.asList(this.concept), null, "OrderUuid")).thenReturn(Arrays.asList(bahmniOrder));
-        BahmniOrderController bahmniOrderController = new BahmniOrderController(conceptService, bahmniOrderService);
+        BahmniOrderController bahmniOrderController = new BahmniOrderController(conceptService, bahmniOrderService, bahmniConceptService);
         List<BahmniOrder> bahmniOrders = bahmniOrderController.get("patientUuid", Arrays.asList("Weight"), null, null, "OrderUuid", 0, null, true, null);
 
         verify(bahmniOrderService, never()).ordersForOrderType("patientUuid", Arrays.asList(concept), null, null, "someUuid", true, null);
@@ -87,7 +92,7 @@ public class BahmniOrderControllerTest {
         bahmniOrder.setBahmniObservations(Arrays.asList(obs));
 
         when(bahmniOrderService.ordersForVisit("visitUuid", "orderTypeUuid",  Arrays.asList("Weight"), Arrays.asList(concept))).thenReturn(Arrays.asList(bahmniOrder));
-        BahmniOrderController bahmniOrderController = new BahmniOrderController(conceptService, bahmniOrderService);
+        BahmniOrderController bahmniOrderController = new BahmniOrderController(conceptService, bahmniOrderService, bahmniConceptService);
         List<BahmniOrder> bahmniOrders = bahmniOrderController.get("patientUuid", Arrays.asList("Weight"), "orderTypeUuid", "visitUuid", null, null, Arrays.asList("Weight"), false, null);
 
         verify(bahmniOrderService, never()).ordersForOrderType("patientUuid", Arrays.asList(concept), null, null, "someUuid", true, null);

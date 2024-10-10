@@ -1,5 +1,6 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
+import org.bahmni.module.bahmnicore.service.BahmniConceptService;
 import org.bahmni.module.bahmnicore.service.BahmniOrderService;
 import org.bahmni.module.bahmnicore.util.MiscUtils;
 import org.openmrs.Concept;
@@ -22,11 +23,13 @@ import java.util.List;
 public class BahmniOrderController extends BaseRestController {
     private ConceptService conceptService;
     private BahmniOrderService bahmniOrderService;
+    private BahmniConceptService bahmniConceptService;
 
     @Autowired
-    public BahmniOrderController(ConceptService conceptService, BahmniOrderService bahmniOrderService) {
+    public BahmniOrderController(ConceptService conceptService, BahmniOrderService bahmniOrderService, BahmniConceptService bahmniConceptService) {
         this.conceptService = conceptService;
         this.bahmniOrderService = bahmniOrderService;
+        this.bahmniConceptService = bahmniConceptService;
     }
 
 
@@ -44,7 +47,7 @@ public class BahmniOrderController extends BaseRestController {
 
 
         if (visitUuid != null) {
-            return bahmniOrderService.ordersForVisit(visitUuid, orderTypeUuid, rootConceptNames, MiscUtils.getConceptsForNames(obsIgnoreList, conceptService));
+            return bahmniOrderService.ordersForVisit(visitUuid, orderTypeUuid, rootConceptNames, MiscUtils.getConceptsForNames(obsIgnoreList, bahmniConceptService, conceptService));
         }
 
         List<Concept> rootConcepts = getConcepts(rootConceptNames);

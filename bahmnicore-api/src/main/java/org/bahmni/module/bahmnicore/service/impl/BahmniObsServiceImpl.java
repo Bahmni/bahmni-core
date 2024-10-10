@@ -6,6 +6,7 @@ import org.bahmni.module.bahmnicore.dao.ObsDao;
 import org.bahmni.module.bahmnicore.dao.VisitDao;
 import org.bahmni.module.bahmnicore.dao.impl.ObsDaoImpl;
 import org.bahmni.module.bahmnicore.dao.impl.ObsDaoImpl.OrderBy;
+import org.bahmni.module.bahmnicore.service.BahmniConceptService;
 import org.bahmni.module.bahmnicore.service.BahmniObsService;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.bahmni.module.bahmnicore.util.MiscUtils;
@@ -37,9 +38,10 @@ public class BahmniObsServiceImpl implements BahmniObsService {
     private ConceptService conceptService;
     private BahmniProgramWorkflowService programWorkflowService;
     private ObsService obsService;
+    private BahmniConceptService bahmniConceptService;
 
     @Autowired
-    public BahmniObsServiceImpl(ObsDao obsDao, OMRSObsToBahmniObsMapper omrsObsToBahmniObsMapper, VisitService visitService, ConceptService conceptService, VisitDao visitDao, BahmniProgramWorkflowService programWorkflowService, ObsService obsService) {
+    public BahmniObsServiceImpl(ObsDao obsDao, OMRSObsToBahmniObsMapper omrsObsToBahmniObsMapper, VisitService visitService, ConceptService conceptService, VisitDao visitDao, BahmniProgramWorkflowService programWorkflowService, ObsService obsService, BahmniConceptService bahmniConceptService) {
         this.obsDao = obsDao;
         this.omrsObsToBahmniObsMapper = omrsObsToBahmniObsMapper;
         this.visitService = visitService;
@@ -47,6 +49,7 @@ public class BahmniObsServiceImpl implements BahmniObsService {
         this.visitDao = visitDao;
         this.programWorkflowService = programWorkflowService;
         this.obsService = obsService;
+        this.bahmniConceptService = bahmniConceptService;
     }
 
     @Override
@@ -220,7 +223,7 @@ public class BahmniObsServiceImpl implements BahmniObsService {
         List<Person> persons = new ArrayList<>();
         persons.add(visit.getPatient());
         List<Obs> observations = obsDao.getObsForVisits(persons, new ArrayList<>(visit.getEncounters()),
-                MiscUtils.getConceptsForNames(conceptNames, conceptService), obsIgnoreList, filterOutOrders, order);
+                MiscUtils.getConceptsForNames(conceptNames, bahmniConceptService, conceptService), obsIgnoreList, filterOutOrders, order);
         observations = new ArrayList<>(getObsAtTopLevelAndApplyIgnoreList(observations, conceptNames, obsIgnoreList));
         return omrsObsToBahmniObsMapper.map(observations, null);
     }

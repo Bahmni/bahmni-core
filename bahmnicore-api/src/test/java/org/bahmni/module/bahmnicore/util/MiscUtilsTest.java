@@ -1,5 +1,6 @@
 package org.bahmni.module.bahmnicore.util;
 
+import org.bahmni.module.bahmnicore.service.BahmniConceptService;
 import org.junit.Test;
 import org.openmrs.Concept;
 import org.openmrs.api.ConceptService;
@@ -24,12 +25,13 @@ public class MiscUtilsTest {
     @Test
     public void shouldReturnConceptsWhenTheyAreAvailable() {
         ConceptService conceptService = mock(ConceptService.class);
+        BahmniConceptService bahmniconceptService = mock(BahmniConceptService.class);
         String nonExistantConceptName = "doesNotExist";
         String sampleConceptName = "sampleConcept";
         when(conceptService.getConceptByName(nonExistantConceptName)).thenReturn(null);
         Concept sampleConcept = new Concept();
-        when(conceptService.getConceptByName(sampleConceptName)).thenReturn(sampleConcept);
-        Collection<Concept> concepts = MiscUtils.getConceptsForNames(Arrays.asList(sampleConceptName, nonExistantConceptName), conceptService);
+        when(bahmniconceptService.getConceptByFullySpecifiedName(sampleConceptName)).thenReturn(sampleConcept);
+        Collection<Concept> concepts = MiscUtils.getConceptsForNames(Arrays.asList(sampleConceptName, nonExistantConceptName), bahmniconceptService, conceptService);
         assertThat(concepts.size(), is(equalTo(1)));
         assertThat(concepts.iterator().next(), is(sampleConcept));
     }

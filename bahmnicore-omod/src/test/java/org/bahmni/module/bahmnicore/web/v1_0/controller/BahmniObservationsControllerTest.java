@@ -1,6 +1,7 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.bahmni.module.bahmnicore.extensions.BahmniExtensions;
+import org.bahmni.module.bahmnicore.service.BahmniConceptService;
 import org.bahmni.module.bahmnicore.service.BahmniObsService;
 import org.bahmni.module.bahmnicore.web.v1_0.controller.display.controls.BahmniObservationsController;
 import org.bahmni.test.builder.VisitBuilder;
@@ -39,6 +40,8 @@ public class BahmniObservationsControllerTest {
     private VisitService visitService;
     @Mock
     private BahmniExtensions bahmniExtensions;
+    @Mock
+    private BahmniConceptService bahmniConceptService;
 
     private Visit visit;
     private Concept concept;
@@ -49,9 +52,10 @@ public class BahmniObservationsControllerTest {
         MockitoAnnotations.initMocks(this);
         visit = new VisitBuilder().build();
         concept = new Concept();
-        bahmniObservationsController = new BahmniObservationsController(bahmniObsService, conceptService, visitService, bahmniExtensions);
+        bahmniObservationsController = new BahmniObservationsController(bahmniObsService, conceptService, visitService, bahmniExtensions, bahmniConceptService);
         when(visitService.getVisitByUuid("visitId")).thenReturn(visit);
         when(conceptService.getConceptByName("Weight")).thenReturn(concept);
+        when(bahmniConceptService.getConceptByFullySpecifiedName("Weight")).thenReturn(concept);
     }
 
     @Test

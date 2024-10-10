@@ -4,6 +4,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bahmni.module.bahmnicore.extensions.BahmniExtensions;
 import org.bahmni.module.bahmnicore.obs.ObservationsAdder;
+import org.bahmni.module.bahmnicore.service.BahmniConceptService;
 import org.bahmni.module.bahmnicore.service.BahmniObsService;
 import org.bahmni.module.bahmnicore.util.MiscUtils;
 import org.bahmni.module.bahmnicore.web.v1_0.LocaleResolver;
@@ -48,13 +49,15 @@ public class BahmniObservationsController extends BaseRestController {
     private ConceptService conceptService;
     private VisitService visitService;
     private BahmniExtensions bahmniExtensions;
+    private BahmniConceptService bahmniConceptService;
 
     @Autowired
-    public BahmniObservationsController(BahmniObsService bahmniObsService, ConceptService conceptService, VisitService visitService, BahmniExtensions bahmniExtensions) {
+    public BahmniObservationsController(BahmniObsService bahmniObsService, ConceptService conceptService, VisitService visitService, BahmniExtensions bahmniExtensions, BahmniConceptService bahmniConceptService) {
         this.bahmniObsService = bahmniObsService;
         this.conceptService = conceptService;
         this.visitService = visitService;
         this.bahmniExtensions = bahmniExtensions;
+        this.bahmniConceptService = bahmniConceptService;
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -105,12 +108,12 @@ public class BahmniObservationsController extends BaseRestController {
 
         Visit visit = visitService.getVisitByUuid(visitUuid);
         if (ObjectUtils.equals(scope, INITIAL)) {
-            return bahmniObsService.getInitialObsByVisit(visit, MiscUtils.getConceptsForNames(conceptNames, conceptService), obsIgnoreList, filterObsWithOrders);
+            return bahmniObsService.getInitialObsByVisit(visit, MiscUtils.getConceptsForNames(conceptNames, bahmniConceptService, conceptService), obsIgnoreList, filterObsWithOrders);
         } else if (ObjectUtils.equals(scope, LATEST)) {
-            return bahmniObsService.getLatestObsByVisit(visit, MiscUtils.getConceptsForNames(conceptNames, conceptService), obsIgnoreList, filterObsWithOrders);
+            return bahmniObsService.getLatestObsByVisit(visit, MiscUtils.getConceptsForNames(conceptNames, bahmniConceptService, conceptService), obsIgnoreList, filterObsWithOrders);
         } else {
             // Sending conceptName and obsIgnorelist, kinda contradicts, since we filter directly on concept names (not on root concept)
-            return bahmniObsService.getObservationForVisit(visitUuid, conceptNames, MiscUtils.getConceptsForNames(obsIgnoreList, conceptService), filterObsWithOrders, null);
+            return bahmniObsService.getObservationForVisit(visitUuid, conceptNames, MiscUtils.getConceptsForNames(obsIgnoreList, bahmniConceptService, conceptService), filterObsWithOrders, null);
         }
     }
 
