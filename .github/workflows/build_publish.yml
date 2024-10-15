@@ -17,7 +17,7 @@ jobs:
           rm trivy_scan.sh
   build-publish-package:
     name: Build and Publish package
-    runs-on: macos-11
+    runs-on: ubuntu-latest
     needs: Trivy
     steps:
       - uses: actions/checkout@v2
