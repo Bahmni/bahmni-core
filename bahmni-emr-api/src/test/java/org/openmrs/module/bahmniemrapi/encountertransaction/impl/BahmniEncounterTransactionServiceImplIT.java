@@ -10,16 +10,12 @@ import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.Visit;
 import org.openmrs.VisitAttribute;
-import org.openmrs.Allergies;
 import org.openmrs.api.EncounterService;
 import org.openmrs.api.OrderService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.VisitService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.bahmniemrapi.BaseIntegrationTest;
-import org.openmrs.module.bahmniemrapi.allergy.contract.AllergenRequest;
-import org.openmrs.module.bahmniemrapi.allergy.contract.BahmniAllergyRequest;
-import org.openmrs.module.bahmniemrapi.allergy.contract.ReactionRequest;
 import org.openmrs.module.bahmniemrapi.builder.BahmniDiagnosisRequestBuilder;
 import org.openmrs.module.bahmniemrapi.builder.BahmniEncounterTransactionBuilder;
 import org.openmrs.module.bahmniemrapi.builder.BahmniObservationBuilder;
@@ -91,7 +87,6 @@ public class BahmniEncounterTransactionServiceImplIT extends BaseIntegrationTest
         executeDataSet("visitAttributeDataSet.xml");
         executeDataSet("drugOrderTestData.xml");
         executeDataSet("concepts.xml");
-        executeDataSet("allergyTestData.xml");
     }
 
     @Test
@@ -687,37 +682,6 @@ public class BahmniEncounterTransactionServiceImplIT extends BaseIntegrationTest
         assertThat(savedEncounter.getObsAtTopLevel(true).size(), is(equalTo(1)));
         assertThat(savedEncounter.getAllObs(true).size(), is(equalTo(7)));
         assertThat(savedEncounter.getAllObs(false).size(), is(equalTo(6)));
-    }
-
-    @Test
-    public void shouldSaveAllergyForAPatient() {
-
-        BahmniAllergyRequest bahmniAllergyRequest = new BahmniAllergyRequest();
-        AllergenRequest allergenRequest = new AllergenRequest();
-        allergenRequest.setAllergenKind("DRUG");
-        allergenRequest.setCodedAllergen("a0a690fd-75a4-447t-bmc6-4e1c15f4ed6b");
-
-        ReactionRequest reactionRequest = new ReactionRequest();
-        reactionRequest.setReaction("a0a690fd-75a4-447t-bmc6-4e1c15f4ed6c");
-        bahmniAllergyRequest.setAllergen(allergenRequest);
-        bahmniAllergyRequest.setReactions(Arrays.asList(reactionRequest));
-        bahmniAllergyRequest.setSeverity("a0a690fd-75a4-447t-bmc6-4e1c15f4ed6d");
-        bahmniAllergyRequest.setComment("Onset Date");
-
-        BahmniEncounterTransaction bahmniEncounterTransaction = new BahmniEncounterTransactionBuilder()
-                .withVisitTypeUuid(VISIT_TYPE_UUID)
-                .withEncounterTypeUuid(ENCOUNTER_TYPE_UUID)
-                .withPatientUuid(PATIENT_UUID)
-                .withVisitUuid(VISIT_UUID)
-                .withBahmniAllergyRequest(bahmniAllergyRequest)
-                .build();
-
-        BahmniEncounterTransaction encounterTransaction = bahmniEncounterTransactionService.save(bahmniEncounterTransaction);
-        Context.flushSession();
-        Context.clearSession();
-        Allergies patientAllergies = patientService.getAllergies(patientService.getPatientByUuid(PATIENT_UUID));
-        assertThat(patientAllergies.size(), is(equalTo(1)));
-
     }
 
     @Test

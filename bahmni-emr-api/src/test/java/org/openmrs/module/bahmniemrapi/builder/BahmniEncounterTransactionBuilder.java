@@ -1,6 +1,5 @@
 package org.openmrs.module.bahmniemrapi.builder;
 
-import org.openmrs.module.bahmniemrapi.allergy.contract.BahmniAllergyRequest;
 import org.openmrs.module.bahmniemrapi.diagnosis.contract.BahmniDiagnosisRequest;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObservation;
@@ -81,11 +80,6 @@ public class BahmniEncounterTransactionBuilder {
 
     public BahmniEncounterTransactionBuilder withDiagnoses(BahmniDiagnosisRequest... bahmniDiagnosisRequests){
         bahmniEncounterTransaction.setBahmniDiagnoses(Arrays.asList(bahmniDiagnosisRequests));
-        return this;
-    }
-
-    public BahmniEncounterTransactionBuilder withBahmniAllergyRequest(BahmniAllergyRequest bahmniAllergyRequest) {
-        bahmniEncounterTransaction.setAllergy(bahmniAllergyRequest);
         return this;
     }
 }

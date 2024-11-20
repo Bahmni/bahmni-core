@@ -7,11 +7,6 @@ import org.openmrs.EncounterType;
 import org.openmrs.Patient;
 import org.openmrs.Visit;
 import org.openmrs.VisitType;
-import org.openmrs.Concept;
-import org.openmrs.Allergen;
-import org.openmrs.AllergenType;
-import org.openmrs.Allergy;
-import org.openmrs.AllergyReaction;
 import org.openmrs.api.EncounterService;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.PatientService;
@@ -20,9 +15,6 @@ import org.openmrs.api.VisitService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.bahmniemrapi.BahmniEmrAPIException;
-import org.openmrs.module.bahmniemrapi.allergy.contract.AllergenRequest;
-import org.openmrs.module.bahmniemrapi.allergy.contract.BahmniAllergyRequest;
-import org.openmrs.module.bahmniemrapi.allergy.contract.ReactionRequest;
 import org.openmrs.module.bahmniemrapi.encountertransaction.command.EncounterDataPostSaveCommand;
 import org.openmrs.module.bahmniemrapi.encountertransaction.command.EncounterDataPreSaveCommand;
 import org.openmrs.module.bahmniemrapi.encountertransaction.command.impl.BahmniVisitAttributeService;
@@ -48,8 +40,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
-import java.util.Collections;
 
 @Transactional
 public class BahmniEncounterTransactionServiceImpl extends BaseOpenmrsService implements BahmniEncounterTransactionService {
@@ -138,9 +128,6 @@ public class BahmniEncounterTransactionServiceImpl extends BaseOpenmrsService im
         //Get the saved encounter transaction from emr-api
         String encounterUuid = encounterTransaction.getEncounterUuid();
         Encounter currentEncounter = encounterService.getEncounterByUuid(encounterUuid);
-        if(bahmniEncounterTransaction.getAllergy() != null){
-            handleAllergy(bahmniEncounterTransaction, currentEncounter, patient);
-        }
 
         boolean includeAll = false;
         EncounterTransaction updatedEncounterTransaction = encounterTransactionMapper.map(currentEncounter, includeAll);
@@ -149,29 +136,6 @@ public class BahmniEncounterTransactionServiceImpl extends BaseOpenmrsService im
         }
         bahmniVisitAttributeService.save(currentEncounter);
         return bahmniEncounterTransactionMapper.map(updatedEncounterTransaction, includeAll);
-    }
-
-    private void handleAllergy(BahmniEncounterTransaction bahmniEncounterTransaction, Encounter currentEncounter, Patient patient) {
-
-        BahmniAllergyRequest allergyRequest = bahmniEncounterTransaction.getAllergy();
-        AllergenRequest allergenRequest = allergyRequest.getAllergen();
-        Concept allergenConcept = Context.getConceptService().getConceptByUuid(allergenRequest.getCodedAllergen());
-        Allergen allergen = new Allergen(AllergenType.valueOf(allergenRequest.getAllergenKind()), allergenConcept,allergenRequest.getNonCodedAllergen());
-        Concept severityConcept = Context.getConceptService().getConceptByUuid(allergyRequest.getSeverity());
-        List<ReactionRequest> reactions = allergyRequest.getReactions();
-        List<AllergyReaction> allergyReactions = new ArrayList<>();
-        Allergy allergy = new Allergy(patient, allergen, severityConcept, allergyRequest.getComment(), Collections.emptyList());
-
-        reactions.forEach(reaction -> {
-            Concept reactionConcept = Context.getConceptService().getConceptByUuid(reaction.getReaction());
-            AllergyReaction allergyReaction = new AllergyReaction(allergy, reactionConcept, reaction.getNonCodedReaction());
-            allergyReactions.add(allergyReaction);
-        });
-
-        allergy.setEncounter(currentEncounter);
-        allergy.setReactions(allergyReactions);
-
-        patientService.saveAllergy(allergy);
     }
 
     private void setEncounterTypeUuid(BahmniEncounterTransaction bahmniEncounterTransaction) {
