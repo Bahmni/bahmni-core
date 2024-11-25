@@ -12,7 +12,7 @@
 
     <property name="now" value="now()"/>
 
-    <changeSet id="bahmni-setup-6" author="tw" context="rel3">
+    <changeSet id="bahmni-setup-6-updated" author="tw" context="rel3">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
                 SELECT COUNT(*) FROM concept_reference_source where name = 'org.openmrs.module.emrapi';
@@ -26,7 +26,7 @@
             <column name="date_created" valueDate="${now}"/>
             <column name="creator" value="1"/>
         </insert>
-        <modifySql dbms="mysql">
+        <modifySql dbms="mysql,mariadb">
             <replace replace="name-of-uuid-function" with="UUID()"/>
         </modifySql>
     </changeSet>
@@ -2967,7 +2967,7 @@
         </sql>
 
     </changeSet>
-    <changeSet id="20151218-1530-create-program_attribute_type-table" author="Rahul,Swathi" dbms="mysql">
+    <changeSet id="20151218-1530-create-program_attribute_type-table-updated" author="Rahul,Swathi" dbms="mysql,mariadb">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="program_attribute_type" />
@@ -3516,7 +3516,7 @@
         </sql>
     </changeSet>
 
-    <changeSet id="20100517-1545" author="wyclif and djazayeri" dbms="mysql">
+    <changeSet id="20100517-1545-updated" author="wyclif and djazayeri" dbms="mysql,mariadb">
         <comment>Switch boolean concepts/observations to be stored as coded</comment>
         <customChange class="org.openmrs.util.databasechange.BooleanConceptChangeSet"/>
     </changeSet>

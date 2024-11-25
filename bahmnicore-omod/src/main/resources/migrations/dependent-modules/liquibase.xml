@@ -29,7 +29,7 @@
         <sqlFile path="migrations/dependent-modules/V1_73__RemoveNotNullConstraintOnAddressEntryName.sql"/>
     </changeSet>
 
-    <changeSet id="bahmni-setup-5" author="tw" context="rel3">
+    <changeSet id="bahmni-setup-5-updated" author="tw" context="rel3">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
                 SELECT COUNT(*) FROM global_property where property = 'emr.primaryIdentifierType'
@@ -42,7 +42,7 @@
             <column name="description"
                     value="Primary identifier type for looking up patients, generating barcodes, etc"/>
         </insert>
-        <modifySql dbms="mysql">
+        <modifySql dbms="mysql,mariadb">
             <replace replace="name-of-uuid-function" with="UUID()"/>
         </modifySql>
     </changeSet>
