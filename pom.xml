@@ -115,16 +115,6 @@
                     <value>true</value>
                 </property>
             </activation>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>nexus-sonatype</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                </snapshotRepository>
-                <repository>
-                    <id>nexus-sonatype</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-                </repository>
-            </distributionManagement>
             <build>
                 <plugins>
                     <plugin>
@@ -175,22 +165,6 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
-			<id>nexus-sonatype</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<distributionManagement>
-				<snapshotRepository>
-					<id>nexus-sonatype</id>
-					<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-				</snapshotRepository>
-				<repository>
-					<id>nexus-sonatype</id>
-					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-				</repository>
-			</distributionManagement>
-		</profile>
 		<profile>
 			<id>mybahmni-s3</id>
 			<distributionManagement>
@@ -607,6 +581,17 @@
     </dependencyManagement>
 
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>nexus-sonatype</publishingServerId>
+                </configuration>
+            </plugin>
+        </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -717,24 +702,13 @@
         <repository>
             <id>sonatype-nexus-snapshots</id>
             <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <url>https://central.sonatype.com/repository/maven-snapshots</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
             <snapshots>
                 <enabled>true</enabled>
                 <updatePolicy>interval:10080</updatePolicy>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sonatype-nexus-releases</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/releases</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
             </snapshots>
         </repository>
         <repository>
