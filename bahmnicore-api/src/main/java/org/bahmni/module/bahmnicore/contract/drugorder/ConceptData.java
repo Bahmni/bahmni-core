@@ -6,6 +6,7 @@ import org.openmrs.api.context.Context;
 
 public class ConceptData {
     private String name;
+    private String uuid;
     private String rootConcept;
 
     public ConceptData() {
@@ -14,6 +15,7 @@ public class ConceptData {
     public ConceptData(Concept concept) {
         if(concept != null){
             this.name = concept.getName(Context.getLocale()).getName();
+            this.uuid = concept.getUuid();
         }
     }
 
@@ -31,5 +33,13 @@ public class ConceptData {
 
     public void setRootConcept(String rootConcept) {
         this.rootConcept = rootConcept;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 }
