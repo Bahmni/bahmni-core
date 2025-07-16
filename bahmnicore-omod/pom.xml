@@ -524,8 +524,8 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>bash</executable>
-                            <commandlineArgs>${basedir}/scripts/run-compass.sh ${basedir}/src/main/compass</commandlineArgs>
+                            <executable>compass</executable>
+                            <commandlineArgs>compile ${basedir}/src/main/compass</commandlineArgs>
                         </configuration>
                     </execution>
                 </executions>
