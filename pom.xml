@@ -69,7 +69,7 @@
         <idgenWebServicesVersion>1.4.0</idgenWebServicesVersion>
         <providermanagementVersion>2.14.0</providermanagementVersion>
         <velocityVersion>1.6.2</velocityVersion>
-        <bahmniCommons.version>1.1.0</bahmniCommons.version>
+        <bahmniCommons.version>1.2.0-SNAPSHOT</bahmniCommons.version>
         <communicationVersion>1.2.0</communicationVersion>
 
         <!--test dependencies-->
