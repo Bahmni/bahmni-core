@@ -19,14 +19,6 @@ jobs:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
-    - name: Install Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-          ruby-version: '2.7'
-          bundler-cache: true
-    - name: Install compass
-      run: |
-        sudo gem install compass -v 1.0.3
     - name: Build with Maven
       run: |
         ./mvnw install -U -Dmaven.javadoc.skip=true -V -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
