@@ -28,14 +28,6 @@ jobs:
           else
             echo "✅ The Git tag matches the Maven version."
           fi
-      - name: Install Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '2.7'
-          bundler-cache: true
-      - name: Install compass
-        run: |
-          sudo gem install compass -v 1.0.3
       - name: Build and deploy with Maven
         run: ./mvnw --no-transfer-progress clean -U deploy -DperformRelease=true
         env:
