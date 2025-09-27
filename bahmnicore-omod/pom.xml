@@ -35,16 +35,6 @@
             <version>${bahmniJavaUtilsVersion}</version>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
-            <artifactId>emrapi-api-1.12</artifactId>
-            <version>${emrapi-omod.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openmrs.module</groupId>
-            <artifactId>emrapi-api-2.2</artifactId>
-            <version>${emrapi-omod.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.bahmni.module</groupId>
             <artifactId>idgen-webservices-omod</artifactId>
             <version>${idgenWebServicesVersion}</version>
