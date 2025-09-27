@@ -31,14 +31,4 @@ public class ParentConceptSaveCommandImpl implements EncounterDataPreSaveCommand
             updateChildren(observation);
         }
     }
-
-    @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
-    }
-
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
-    }
 }
