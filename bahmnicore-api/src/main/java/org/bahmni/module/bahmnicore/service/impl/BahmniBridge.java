@@ -19,7 +19,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObservation;
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.OMRSObsToBahmniObsMapper;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
-import org.openmrs.module.emrapi.encounter.mapper.OrderMapper1_12;
+import org.openmrs.module.emrapi.encounter.mapper.DefaultOrderMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -52,7 +52,7 @@ public class BahmniBridge {
     private OMRSObsToBahmniObsMapper omrsObsToBahmniObsMapper;
     private BahmniConceptService bahmniConceptService;
 
-    private OrderMapper1_12 drugOrderMapper = new OrderMapper1_12();
+    private DefaultOrderMapper drugOrderMapper = new DefaultOrderMapper();
     /**
      * Factory method to construct objects of <code>BahmniBridge</code>.
      * This is provided so that <code>BahmniBridge</code> can be called by extensions without having to use the

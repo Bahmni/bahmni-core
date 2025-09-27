@@ -5,7 +5,7 @@ import org.openmrs.DrugOrder;
 import org.openmrs.module.bahmniemrapi.drugorder.contract.BahmniDrugOrder;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObservation;
 import org.openmrs.module.emrapi.encounter.ConceptMapper;
-import org.openmrs.module.emrapi.encounter.mapper.OrderMapper1_12;
+import org.openmrs.module.emrapi.encounter.mapper.DefaultOrderMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class BahmniDrugOrderMapper {
     }
 
     private BahmniDrugOrder mapDrugOrderToBahmniDrugOrder(DrugOrder openMRSDrugOrder, String locale, Map<String, DrugOrder> discontinuedOrderMap) {
-        OrderMapper1_12 drugOrderMapper = new OrderMapper1_12();
+        DefaultOrderMapper drugOrderMapper = new DefaultOrderMapper();
         BahmniDrugOrder bahmniDrugOrder = new BahmniDrugOrder();
         bahmniDrugOrder.setDrugOrder(drugOrderMapper.mapDrugOrder(openMRSDrugOrder));
         if(locale != null) {
