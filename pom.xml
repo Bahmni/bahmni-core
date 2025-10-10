@@ -4,7 +4,7 @@
 
     <groupId>org.bahmni.module</groupId>
     <artifactId>bahmni</artifactId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.3.0</version>
     <packaging>pom</packaging>
     <name>Bahmni EMR Core</name>
     <url>https://github.com/Bahmni/bahmni-core.git</url>
@@ -69,7 +69,7 @@
         <idgenWebServicesVersion>1.4.0</idgenWebServicesVersion>
         <providermanagementVersion>2.14.0</providermanagementVersion>
         <velocityVersion>1.6.2</velocityVersion>
-        <bahmniCommons.version>1.2.0-SNAPSHOT</bahmniCommons.version>
+        <bahmniCommons.version>1.2.0</bahmniCommons.version>
         <communicationVersion>1.2.0</communicationVersion>
 
         <!--test dependencies-->
