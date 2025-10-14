@@ -200,10 +200,6 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.openmrs.module</groupId>-->
-<!--            <artifactId>emrapi-api-1.12</artifactId>-->
-<!--        </dependency>-->
     </dependencies>
 
     <build>
