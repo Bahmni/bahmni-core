@@ -4,7 +4,7 @@ import org.bahmni.module.bahmnicore.BaseIntegrationTest;
 import org.bahmni.module.bahmnicore.service.OrderService;
 import org.junit.Assert;
 import org.junit.Test;
-import org.openmrs.CareSetting.CareSettingType;
+import org.openmrs.CareSetting;
 import org.openmrs.Order;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
@@ -102,7 +102,7 @@ public class OrderServiceImplIT extends BaseIntegrationTest {
     private void ensureCorrectDataSetup(String patientUuid, String radiologyOrderTypeUuid) {
         Patient patient = patientService.getPatientByUuid(patientUuid);
         OrderType orderType = orderService.getOrderTypeByUuid(radiologyOrderTypeUuid);
-        CareSetting careSetting = orderService.getCareSettingByName(CareSettingType.OUTPATIENT.toString());
+        CareSetting careSetting = orderService.getCareSettingByName(CareSetting.CareSettingType.OUTPATIENT.toString());
         List<Order> allRadiologyOrdersForPatient = orderService.getOrders(patient, careSetting, orderType, true);
         Assert.assertTrue("More than 1 radiology orders are setup for the patient", allRadiologyOrdersForPatient.size() > 1);
     }
