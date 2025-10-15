@@ -1,13 +1,14 @@
 package org.bahmni.module.elisatomfeedclient.api.mapper;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.bahmni.module.bahmnicommons.api.visitlocation.BahmniVisitLocationService;
 import org.bahmni.module.elisatomfeedclient.api.Constants;
 import org.bahmni.module.elisatomfeedclient.api.ElisAtomFeedProperties;
 import org.bahmni.module.elisatomfeedclient.api.domain.AccessionDiff;
 import org.bahmni.module.elisatomfeedclient.api.domain.OpenElisAccession;
 import org.bahmni.module.elisatomfeedclient.api.domain.OpenElisTestDetail;
 import org.joda.time.DateTime;
-import org.openmrs.CareSetting;
+import org.openmrs.CareSetting.CareSettingType;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterRole;
 import org.openmrs.EncounterType;
@@ -29,7 +30,6 @@ import org.openmrs.api.UserService;
 import org.openmrs.api.VisitService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.VisitIdentificationHelper;
-import org.bahmni.module.bahmnicommons.api.visitlocation.BahmniVisitLocationService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,11 +49,11 @@ public class AccessionHelper {
     private final VisitService visitService;
     private final ConceptService conceptService;
     private final AdministrationService administrationService;
-    private User labUser;
-    private OrderService orderService;
-    protected ElisAtomFeedProperties properties;
     private final UserService userService;
     private final ProviderService providerService;
+    protected ElisAtomFeedProperties properties;
+    private User labUser;
+    private OrderService orderService;
     private BahmniVisitLocationService bahmniVisitLocationService;
     private OrderType labOrderType;
 
@@ -168,7 +168,7 @@ public class AccessionHelper {
             order.setPatient(patient);
             order.setOrderType(getLabOrderType());
             order.setOrderer(getLabSystemProvider());
-            order.setCareSetting(orderService.getCareSettingByName(CareSetting.CareSettingType.OUTPATIENT.toString()));
+            order.setCareSetting(orderService.getCareSettingByName(CareSettingType.OUTPATIENT.toString()));
             orders.add(order);
         }
         return orders;

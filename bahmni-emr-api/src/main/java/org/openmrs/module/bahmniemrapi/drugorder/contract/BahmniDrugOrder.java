@@ -2,7 +2,7 @@ package org.openmrs.module.bahmniemrapi.drugorder.contract;
 
 import org.openmrs.Visit;
 import org.openmrs.module.bahmniemrapi.visit.contract.VisitData;
-import org.openmrs.CareSetting;
+import org.openmrs.CareSetting.CareSettingType;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 
 import java.util.Date;
@@ -28,7 +28,7 @@ public class BahmniDrugOrder implements Comparable<BahmniDrugOrder>{
         return drugOrder.getAutoExpireDate();
     }
 
-    public CareSetting.CareSettingType getCareSetting() {
+    public CareSettingType getCareSetting() {
         return drugOrder.getCareSetting();
     }
 

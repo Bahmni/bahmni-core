@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.openmrs.CareSetting;
+import org.openmrs.CareSetting.CareSettingType;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterProvider;
 import org.openmrs.Order;
@@ -108,7 +108,7 @@ public class LabResultPersisterIT extends BaseIntegrationTest {
         assertEquals(TestUtil.createDateTime("2014-10-11"), order.getDateActivated());
         assertEquals(TestUtil.createDateTime("2014-10-11 23:59:59"), order.getAutoExpireDate());
         assertEquals(LabResultPersister.LAB_ORDER_TYPE, order.getOrderType().getName());
-        assertEquals(CareSetting.CareSettingType.OUTPATIENT.name(), order.getCareSetting().getName());
+        assertEquals(CareSettingType.OUTPATIENT.name(), order.getCareSetting().getName());
         // Assert results data
         List<LabOrderResult> labOrderResults = labOrderResultsService.getAll(patient, visits, Integer.MAX_VALUE).getResults();
         assertEquals(1, labOrderResults.size());
@@ -153,7 +153,7 @@ public class LabResultPersisterIT extends BaseIntegrationTest {
         assertEquals(TestUtil.createDateTime("2014-10-11"), order.getDateActivated());
         assertEquals(TestUtil.createDateTime("2014-10-11 23:59:59"), order.getAutoExpireDate());
         assertEquals(LabResultPersister.LAB_ORDER_TYPE, order.getOrderType().getName());
-        assertEquals(CareSetting.CareSettingType.OUTPATIENT.name(), order.getCareSetting().getName());
+        assertEquals(CareSettingType.OUTPATIENT.name(), order.getCareSetting().getName());
         // Assert results data
         List<LabOrderResult> labOrderResults = labOrderResultsService.getAll(patient, visits, Integer.MAX_VALUE).getResults();
         assertEquals(1, labOrderResults.size());

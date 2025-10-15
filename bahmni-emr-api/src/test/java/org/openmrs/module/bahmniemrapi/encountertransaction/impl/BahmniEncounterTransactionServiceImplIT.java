@@ -27,7 +27,7 @@ import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObser
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService;
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.VisitIdentificationHelper;
 import org.openmrs.module.bahmniemrapi.obsrelation.contract.ObsRelationship;
-import org.openmrs.CareSetting;
+import org.openmrs.CareSetting.CareSettingType;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.parameter.EncounterSearchCriteria;
 import org.openmrs.parameter.EncounterSearchCriteriaBuilder;
@@ -728,7 +728,7 @@ public class BahmniEncounterTransactionServiceImplIT extends BaseIntegrationTest
         encounterTransactionDrug.setUuid(drugUuid);
 
         EncounterTransaction.DrugOrder drugOrder = new EncounterTransaction.DrugOrder();
-        drugOrder.setCareSetting(CareSetting.CareSettingType.OUTPATIENT);
+        drugOrder.setCareSetting(CareSettingType.OUTPATIENT);
         drugOrder.setAction(action);
         drugOrder.setOrderType("Drug Order");
         drugOrder.setPreviousOrderUuid(previousOrderUuid);

@@ -10,7 +10,7 @@ import org.bahmni.csv.Messages;
 import org.bahmni.module.admin.csv.models.LabResultRow;
 import org.bahmni.module.admin.csv.models.LabResultsRow;
 import org.bahmni.module.admin.csv.service.PatientMatchService;
-import org.openmrs.CareSetting;
+import org.openmrs.CareSetting.CareSettingType;
 import org.openmrs.Concept;
 import org.openmrs.ConceptNumeric;
 import org.openmrs.Encounter;
@@ -132,7 +132,7 @@ public class LabResultPersister implements EntityPersister<LabResultsRow> {
         order.setAutoExpireDate(testDate);
         order.setPatient(patient);
         order.setOrderType(orderService.getOrderTypeByName(LAB_ORDER_TYPE));
-        order.setCareSetting(orderService.getCareSettingByName(CareSetting.CareSettingType.OUTPATIENT.toString()));
+        order.setCareSetting(orderService.getCareSettingByName(CareSettingType.OUTPATIENT.toString()));
         order.setOrderer(getProvider());
         return order;
     }
