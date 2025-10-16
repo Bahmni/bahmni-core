@@ -22,6 +22,7 @@ public class BahmniCoreModuleConfig implements ModuleAppConfig {
                 "obs.conceptMappingsForOT", //should be moved to OT module
                 "drugOrder.drugOther",
                 "concept.reasonForDeath",
-                "bahmni.relationshipTypeMap");
+                "bahmni.relationshipTypeMap",
+                "bahmni.primaryIdentifierType");
     }
 }
