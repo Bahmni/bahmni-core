@@ -9,6 +9,8 @@ import org.openmrs.PatientState;
 import org.openmrs.Program;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.episodes.Episode;
+import org.openmrs.module.episodes.service.EpisodeService;
 import org.openmrs.module.webservices.rest.SimpleObject;
 import org.openmrs.module.webservices.rest.web.ConversionUtil;
 import org.openmrs.module.webservices.rest.web.RequestContext;
@@ -50,6 +52,10 @@ public class BahmniProgramEnrollmentResource extends ProgramEnrollmentResource1_
     public static Collection<PatientProgramAttribute> getAttributes(PatientProgram instance) {
         return instance.getActiveAttributes();
     }
+    @PropertyGetter("episodeUuid")
+    public static String getEpisodeUuid(PatientProgram instance) {
+        return getEpisodeUuidForPatientProgram(instance);
+    }
 
     @PropertyGetter("states")
     public static List<SimpleObject> getStates(PatientProgram instance) throws Exception {
@@ -85,10 +91,12 @@ public class BahmniProgramEnrollmentResource extends ProgramEnrollmentResource1_
         DelegatingResourceDescription parentRep = super.getRepresentationDescription(rep);
         if (rep instanceof DefaultRepresentation) {
             parentRep.addProperty("attributes", Representation.REF);
+            parentRep.addProperty("episodeUuid");
             return parentRep;
         } else if (rep instanceof FullRepresentation) {
             parentRep.addProperty("states");
             parentRep.addProperty("attributes", Representation.DEFAULT);
+            parentRep.addProperty("episodeUuid");
             return parentRep;
         } else {
             return null;
@@ -163,5 +171,13 @@ public class BahmniProgramEnrollmentResource extends ProgramEnrollmentResource1_
         } else {
             return new AlreadyPaged<>(context, Collections.singletonList(byUniqueId), false);
         }
+    }
+
+    private static String getEpisodeUuidForPatientProgram(PatientProgram patientProgram) {
+        EpisodeService episodeService = Context.getService(EpisodeService.class);
+        Episode episode = episodeService.getEpisodeForPatientProgram(patientProgram);
+        if (episode == null)
+            return null;
+        return episode.getUuid();
     }
 }
