@@ -1,4 +1,4 @@
-package org.bahmni.module.bahmnicore.web.v1_0.controller;
+package org.bahmni.module.bahmnicore.web.v2_0.controller;
 
 import org.bahmni.module.bahmnicore.service.PatientDocumentService;
 import org.openmrs.api.context.Context;
@@ -15,13 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 
-/**
- * @deprecated This API is deprecated because it returns a default image when patient image doesn't exist.
- *             If you don't want a default image, use V2: /openmrs/ws/rest/v2/patientImage
- */
-@Deprecated
-@Controller
-@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/patientImage")
+@Controller("bahmniPatientImageControllerV2")
+@RequestMapping(value = "/rest/" + RestConstants.VERSION_2 + "/patientImage")
 public class BahmniPatientImageController extends BaseRestController {
 
     private PatientDocumentService patientDocumentService;
@@ -36,9 +31,8 @@ public class BahmniPatientImageController extends BaseRestController {
     public ResponseEntity<Object> getImage(@RequestParam(value = "patientUuid", required = true) String patientUuid) {
         UserContext userContext = Context.getUserContext();
         if (userContext.isAuthenticated()) {
-            return patientDocumentService.retriveImage(patientUuid);
+            return patientDocumentService.retriveImageWithoutDefault(patientUuid);
         }
         return new ResponseEntity<Object>(new Object(), HttpStatus.UNAUTHORIZED);
     }
 }
-

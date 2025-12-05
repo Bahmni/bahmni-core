@@ -198,6 +198,12 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
     }
 
     @Override
+    public ResponseEntity<Object> retriveImageWithoutDefault(String patientUuid) {
+        File file = getPatientImageFileWithoutDefault(patientUuid);
+        return readImage(file);
+    }
+
+    @Override
     public void delete(String fileName) {
         validateFileToBeDeleted(fileName);
         File file = new File(getBasePath() + "/" + fileName);
@@ -243,6 +249,10 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
             return file;
         }
         return new File(BahmniCoreProperties.getProperty("bahmnicore.images.directory.defaultImage"));
+    }
+
+    private File getPatientImageFileWithoutDefault(String patientUuid) {
+        return new File(String.format("%s/%s.%s", BahmniCoreProperties.getProperty("bahmnicore.images.directory"), patientUuid, patientImagesFormat));
     }
 
     private ResponseEntity<Object> readImage(File file) {
