@@ -4,6 +4,7 @@ import org.bahmni.module.bahmnicore.service.BahmniOrderService;
 import org.openmrs.Order;
 import org.openmrs.OrderAttribute;
 import org.openmrs.api.context.Context;
+import org.openmrs.customdatatype.CustomDatatypeUtil;
 import org.openmrs.module.webservices.rest.web.RequestContext;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.annotation.PropertyGetter;
@@ -64,6 +65,12 @@ public class BahmniOrderResource extends OrderResource1_10 {
         DelegatingResourceDescription creatableProperties = super.getCreatableProperties();
         creatableProperties.addProperty("attributes");
         return creatableProperties;
+    }
+
+    @Override
+    public Order save(Order delegate) {
+        CustomDatatypeUtil.saveAttributesIfNecessary(delegate);
+        return super.save(delegate);
     }
 
     private void deleteChildOrder(Order order, RequestContext context) {
