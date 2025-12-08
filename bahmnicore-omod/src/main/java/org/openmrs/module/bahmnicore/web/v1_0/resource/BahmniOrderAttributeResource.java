@@ -63,19 +63,8 @@ public class BahmniOrderAttributeResource extends BaseAttributeCrudResource1_9<O
 
     @Override
     public OrderAttribute save(OrderAttribute delegate) {
-        boolean needToAdd = true;
-        Collection<OrderAttribute> activeAttributes = delegate.getOrder().getActiveAttributes();
-        for (OrderAttribute pa : activeAttributes) {
-            if (pa.equals(delegate)) {
-                needToAdd = false;
-                break;
-            }
-        }
-        if (needToAdd) {
-            delegate.getOrder().addAttribute(delegate);
-        }
-        Context.getService(OrderService.class).saveOrder(delegate.getOrder(),null);
-        return delegate;
+        //TODO Implement saving of order attributes through DAO. Order service cannot be leveraged since order is immutable.
+        throw new UnsupportedOperationException("Saving order attributes through sub resource is not supported");
     }
 
     @Override
