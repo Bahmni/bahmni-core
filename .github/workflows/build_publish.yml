@@ -1,7 +1,7 @@
 name: Build and Publish package
 on:
   push:
-    branches: [ master ]
+    branches: [ master, '1.x' ]
   workflow_dispatch:
 
 jobs:
