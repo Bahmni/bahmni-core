@@ -47,7 +47,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <openMRSVersion>2.6.15</openMRSVersion>
         <openMRSWebServicesVersion>2.49.0</openMRSWebServicesVersion>
-        <springVersion>5.2.14.RELEASE</springVersion>
+        <springVersion>6.2.11</springVersion>
         <atomfeed.version>1.10.1</atomfeed.version>
         <addressHierarchyVersion>2.17.0</addressHierarchyVersion>
         <reportingModuleVersion>1.26.0</reportingModuleVersion>
@@ -552,6 +552,35 @@
                 <artifactId>lombok</artifactId>
                 <version>${lombokVersion}</version>
                 <scope>provided</scope>
+            </dependency>
+            <!-- Override protobuf-java version to address CVE-2021-22569 -->
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>3.19.2</version>
+            </dependency>
+            <!-- Override gson version to address CVE-2022-25647 -->
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.8.9</version>
+            </dependency>
+            <!-- Override commons-lang3 version to address CVE-2025-48924 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.18.0</version>
+            </dependency>
+            <!-- Override httpclient version to address CVE-2020-13956 -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.13</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>4.4.15</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
