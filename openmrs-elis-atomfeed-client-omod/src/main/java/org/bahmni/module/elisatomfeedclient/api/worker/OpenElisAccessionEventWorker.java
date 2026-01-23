@@ -413,11 +413,12 @@ public class OpenElisAccessionEventWorker implements EventWorker {
 
     private void invokeResultPostSaveCommand(Set<Encounter> updatedEncounters) {
         try {
-            ELISResultPostSaveCommand resultPostSaveCommand = Context.getRegisteredComponent(
-                    "elisResultPostSaveCommand", ELISResultPostSaveCommand.class);
-            if (resultPostSaveCommand != null) {
+            List<ELISResultPostSaveCommand> postSaveCommands = Context.getRegisteredComponents(ELISResultPostSaveCommand.class);
+            if (postSaveCommands != null && !postSaveCommands.isEmpty()) {
                 List<Encounter> encounterList = new ArrayList<>(updatedEncounters);
-                resultPostSaveCommand.onResult(encounterList);
+                for (ELISResultPostSaveCommand postSaveCommand : postSaveCommands) {
+                    postSaveCommand.onResult(encounterList);
+                }
             }
         } catch (Exception e) {
             logger.warn("Error invoking ELISResultPostSaveCommand: {}", e.getMessage(), e);

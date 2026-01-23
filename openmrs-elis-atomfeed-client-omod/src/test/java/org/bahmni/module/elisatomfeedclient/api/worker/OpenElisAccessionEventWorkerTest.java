@@ -295,8 +295,8 @@ public class OpenElisAccessionEventWorkerTest {
         visit.setEncounters(new HashSet<>(Collections.singletonList(encounter)));
 
         ELISResultPostSaveCommand mockCommand = PowerMockito.mock(ELISResultPostSaveCommand.class);
-        when(Context.getRegisteredComponent(eq("elisResultPostSaveCommand"), eq(ELISResultPostSaveCommand.class)))
-                .thenReturn(mockCommand);
+        when(Context.getRegisteredComponents(ELISResultPostSaveCommand.class))
+                .thenReturn(Collections.singletonList(mockCommand));
 
         stubAccession(openElisAccession);
         when(accessionMapper.shouldIgnoreAccession(openElisAccession)).thenReturn(false);
@@ -317,7 +317,7 @@ public class OpenElisAccessionEventWorkerTest {
         encounter.setVisit(visit);
         visit.setEncounters(new HashSet<>(Collections.singletonList(encounter)));
 
-        when(Context.getRegisteredComponent(eq("elisResultPostSaveCommand"), eq(ELISResultPostSaveCommand.class)))
+        when(Context.getRegisteredComponents(ELISResultPostSaveCommand.class))
                 .thenReturn(null);
 
         stubAccession(openElisAccession);
@@ -342,8 +342,8 @@ public class OpenElisAccessionEventWorkerTest {
         ELISResultPostSaveCommand mockCommand = PowerMockito.mock(ELISResultPostSaveCommand.class);
         doThrow(new RuntimeException("Command execution failed")).when(mockCommand).onResult(anyList());
 
-        when(Context.getRegisteredComponent(eq("elisResultPostSaveCommand"), eq(ELISResultPostSaveCommand.class)))
-                .thenReturn(mockCommand);
+        when(Context.getRegisteredComponents(ELISResultPostSaveCommand.class))
+                .thenReturn(Collections.singletonList(mockCommand));
 
         stubAccession(openElisAccession);
         when(accessionMapper.shouldIgnoreAccession(openElisAccession)).thenReturn(false);
@@ -353,6 +353,53 @@ public class OpenElisAccessionEventWorkerTest {
         accessionEventWorker.process(event);
 
         verify(mockCommand, times(1)).onResult(anyList());
+        verify(encounterService, times(1)).saveEncounter(any(Encounter.class));
+    }
+
+    @Test
+    public void shouldInvokeAllResultPostSaveCommandsWhenMultipleImplementationsExist() throws Exception {
+        OpenElisAccession openElisAccession = new OpenElisAccessionBuilder().build();
+        Encounter encounter = getEncounterWithTests("test1");
+        Visit visit = new Visit();
+        visit.setId(1);
+        encounter.setVisit(visit);
+        visit.setEncounters(new HashSet<>(Collections.singletonList(encounter)));
+
+        ELISResultPostSaveCommand mockCommand1 = PowerMockito.mock(ELISResultPostSaveCommand.class);
+        ELISResultPostSaveCommand mockCommand2 = PowerMockito.mock(ELISResultPostSaveCommand.class);
+        when(Context.getRegisteredComponents(ELISResultPostSaveCommand.class))
+                .thenReturn(Arrays.asList(mockCommand1, mockCommand2));
+
+        stubAccession(openElisAccession);
+        when(accessionMapper.shouldIgnoreAccession(openElisAccession)).thenReturn(false);
+        when(encounterService.getEncounterByUuid(openElisAccession.getAccessionUuid())).thenReturn(encounter);
+        when(encounterService.saveEncounter(any(Encounter.class))).thenReturn(encounter);
+
+        accessionEventWorker.process(event);
+
+        verify(mockCommand1, times(1)).onResult(anyList());
+        verify(mockCommand2, times(1)).onResult(anyList());
+    }
+
+    @Test
+    public void shouldNotFailWhenResultPostSaveCommandListIsEmpty() throws Exception {
+        OpenElisAccession openElisAccession = new OpenElisAccessionBuilder().build();
+        Encounter encounter = getEncounterWithTests("test1");
+        Visit visit = new Visit();
+        visit.setId(1);
+        encounter.setVisit(visit);
+        visit.setEncounters(new HashSet<>(Collections.singletonList(encounter)));
+
+        when(Context.getRegisteredComponents(ELISResultPostSaveCommand.class))
+                .thenReturn(Collections.emptyList());
+
+        stubAccession(openElisAccession);
+        when(accessionMapper.shouldIgnoreAccession(openElisAccession)).thenReturn(false);
+        when(encounterService.getEncounterByUuid(openElisAccession.getAccessionUuid())).thenReturn(encounter);
+        when(encounterService.saveEncounter(any(Encounter.class))).thenReturn(encounter);
+
+        accessionEventWorker.process(event);
+
         verify(encounterService, times(1)).saveEncounter(any(Encounter.class));
     }
 }
