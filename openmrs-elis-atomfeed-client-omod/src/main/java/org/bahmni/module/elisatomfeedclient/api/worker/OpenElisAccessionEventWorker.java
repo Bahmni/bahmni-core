@@ -12,6 +12,7 @@ import org.bahmni.module.elisatomfeedclient.api.domain.AccessionDiff;
 import org.bahmni.module.elisatomfeedclient.api.domain.OpenElisAccession;
 import org.bahmni.module.elisatomfeedclient.api.domain.OpenElisAccessionNote;
 import org.bahmni.module.elisatomfeedclient.api.domain.OpenElisTestDetail;
+import org.bahmni.module.elisatomfeedclient.api.command.ELISResultPostSaveCommand;
 import org.bahmni.module.elisatomfeedclient.api.elisFeedInterceptor.ElisFeedAccessionInterceptor;
 import org.bahmni.module.elisatomfeedclient.api.elisFeedInterceptor.ElisFeedEncounterInterceptor;
 import org.bahmni.module.elisatomfeedclient.api.exception.OpenElisFeedException;
@@ -132,6 +133,8 @@ public class OpenElisAccessionEventWorker implements EventWorker {
             runInterceptor(ElisFeedEncounterInterceptor.class, updatedEncounters);
 
             saveUpdatedEncounters(updatedEncounters);
+
+            invokeResultPostSaveCommand(updatedEncounters);
         } catch (IOException e) {
             logger.error("openelisatomfeedclient:error processing event : {} {} {}", accessionUrl , e.getMessage(), e);
             throw new OpenElisFeedException("could not read accession data", e);
@@ -406,6 +409,19 @@ public class OpenElisAccessionEventWorker implements EventWorker {
 
         labResultProviders.add(provider);
         return provider;
+    }
+
+    private void invokeResultPostSaveCommand(Set<Encounter> updatedEncounters) {
+        try {
+            ELISResultPostSaveCommand resultPostSaveCommand = Context.getRegisteredComponent(
+                    "elisResultPostSaveCommand", ELISResultPostSaveCommand.class);
+            if (resultPostSaveCommand != null) {
+                List<Encounter> encounterList = new ArrayList<>(updatedEncounters);
+                resultPostSaveCommand.onResult(encounterList);
+            }
+        } catch (Exception e) {
+            logger.warn("Error invoking ELISResultPostSaveCommand: {}", e.getMessage(), e);
+        }
     }
 
     @Override

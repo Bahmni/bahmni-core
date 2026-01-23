@@ -4,6 +4,7 @@ import org.bahmni.module.elisatomfeedclient.api.Constants;
 import org.bahmni.module.elisatomfeedclient.api.ElisAtomFeedProperties;
 import org.bahmni.module.elisatomfeedclient.api.builder.OpenElisAccessionBuilder;
 import org.bahmni.module.elisatomfeedclient.api.builder.OpenElisTestDetailBuilder;
+import org.bahmni.module.elisatomfeedclient.api.command.ELISResultPostSaveCommand;
 import org.bahmni.module.elisatomfeedclient.api.domain.AccessionDiff;
 import org.bahmni.module.elisatomfeedclient.api.domain.OpenElisAccession;
 import org.bahmni.module.elisatomfeedclient.api.domain.OpenElisTestDetail;
@@ -41,6 +42,10 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -278,5 +283,76 @@ public class OpenElisAccessionEventWorkerTest {
 
     private void stubAccession(OpenElisAccession accession) throws IOException {
         when(httpClient.get(openElisUrl + event.getContent(), OpenElisAccession.class)).thenReturn(accession);
+    }
+
+    @Test
+    public void shouldInvokeResultPostSaveCommandWhenBeanExists() throws Exception {
+        OpenElisAccession openElisAccession = new OpenElisAccessionBuilder().build();
+        Encounter encounter = getEncounterWithTests("test1");
+        Visit visit = new Visit();
+        visit.setId(1);
+        encounter.setVisit(visit);
+        visit.setEncounters(new HashSet<>(Collections.singletonList(encounter)));
+
+        ELISResultPostSaveCommand mockCommand = PowerMockito.mock(ELISResultPostSaveCommand.class);
+        when(Context.getRegisteredComponent(eq("elisResultPostSaveCommand"), eq(ELISResultPostSaveCommand.class)))
+                .thenReturn(mockCommand);
+
+        stubAccession(openElisAccession);
+        when(accessionMapper.shouldIgnoreAccession(openElisAccession)).thenReturn(false);
+        when(encounterService.getEncounterByUuid(openElisAccession.getAccessionUuid())).thenReturn(encounter);
+        when(encounterService.saveEncounter(any(Encounter.class))).thenReturn(encounter);
+
+        accessionEventWorker.process(event);
+
+        verify(mockCommand, times(1)).onResult(anyList());
+    }
+
+    @Test
+    public void shouldNotFailWhenResultPostSaveCommandBeanIsNull() throws Exception {
+        OpenElisAccession openElisAccession = new OpenElisAccessionBuilder().build();
+        Encounter encounter = getEncounterWithTests("test1");
+        Visit visit = new Visit();
+        visit.setId(1);
+        encounter.setVisit(visit);
+        visit.setEncounters(new HashSet<>(Collections.singletonList(encounter)));
+
+        when(Context.getRegisteredComponent(eq("elisResultPostSaveCommand"), eq(ELISResultPostSaveCommand.class)))
+                .thenReturn(null);
+
+        stubAccession(openElisAccession);
+        when(accessionMapper.shouldIgnoreAccession(openElisAccession)).thenReturn(false);
+        when(encounterService.getEncounterByUuid(openElisAccession.getAccessionUuid())).thenReturn(encounter);
+        when(encounterService.saveEncounter(any(Encounter.class))).thenReturn(encounter);
+
+        accessionEventWorker.process(event);
+
+        verify(encounterService, times(1)).saveEncounter(any(Encounter.class));
+    }
+
+    @Test
+    public void shouldLogWarningWhenResultPostSaveCommandThrowsException() throws Exception {
+        OpenElisAccession openElisAccession = new OpenElisAccessionBuilder().build();
+        Encounter encounter = getEncounterWithTests("test1");
+        Visit visit = new Visit();
+        visit.setId(1);
+        encounter.setVisit(visit);
+        visit.setEncounters(new HashSet<>(Collections.singletonList(encounter)));
+
+        ELISResultPostSaveCommand mockCommand = PowerMockito.mock(ELISResultPostSaveCommand.class);
+        doThrow(new RuntimeException("Command execution failed")).when(mockCommand).onResult(anyList());
+
+        when(Context.getRegisteredComponent(eq("elisResultPostSaveCommand"), eq(ELISResultPostSaveCommand.class)))
+                .thenReturn(mockCommand);
+
+        stubAccession(openElisAccession);
+        when(accessionMapper.shouldIgnoreAccession(openElisAccession)).thenReturn(false);
+        when(encounterService.getEncounterByUuid(openElisAccession.getAccessionUuid())).thenReturn(encounter);
+        when(encounterService.saveEncounter(any(Encounter.class))).thenReturn(encounter);
+
+        accessionEventWorker.process(event);
+
+        verify(mockCommand, times(1)).onResult(anyList());
+        verify(encounterService, times(1)).saveEncounter(any(Encounter.class));
     }
 }
