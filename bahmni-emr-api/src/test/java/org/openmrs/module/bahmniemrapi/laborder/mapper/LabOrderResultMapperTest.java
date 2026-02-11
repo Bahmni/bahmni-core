@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
@@ -165,6 +166,51 @@ public class LabOrderResultMapperTest {
         assertEquals(1, testObs.size());
         assertEquals(1, resultObs.size());
         assertEquals(uploadedFileName, resultObs.get(0).getValueText());
+    }
+
+    @Test
+    public void shouldSetCommentAndInterpretationOnResultObsWhenNotesAndAbnormalFlagAreProvided() throws Exception {
+        LabOrderResult labOrderResult = new LabOrderResult();
+        labOrderResult.setResultUuid(null);
+        labOrderResult.setResult("18.5");
+        labOrderResult.setNotes("High value observed");
+        labOrderResult.setAbnormal(true);
+        labOrderResult.setAccessionUuid("accession-uuid");
+        labOrderResult.setTestName("Haemoglobin");
+
+        ConceptDatatype numeric = new ConceptDataTypeBuilder().numeric();
+        ConceptDatatype text = new ConceptDataTypeBuilder().text();
+
+        Concept testConcept = new Concept(1);
+        testConcept.setDatatype(numeric);
+
+        Concept labNotesConcept = new Concept(2);
+        labNotesConcept.setDatatype(text);
+
+        Concept labAbnormalConcept = new Concept(3);
+        labAbnormalConcept.setDatatype(text);
+
+        Order testOrder = new Order(1);
+
+        when(conceptService.getConceptByName(LabOrderResultMapper.LAB_NOTES)).thenReturn(labNotesConcept);
+        when(conceptService.getConceptByName(LabOrderResultMapper.LAB_ABNORMAL)).thenReturn(labAbnormalConcept);
+
+        Obs topLevelObs = labOrderResultMapper.map(labOrderResult, testOrder, testConcept);
+
+        assertEquals(testConcept, topLevelObs.getConcept());
+        assertEquals(testOrder, topLevelObs.getOrder());
+        List<Obs> testObs = new ArrayList<>(topLevelObs.getGroupMembers());
+        List<Obs> resultObs = new ArrayList<>(testObs.get(0).getGroupMembers());
+
+        Obs resultValueObs = resultObs.stream()
+                .filter(obs -> obs.getValueNumeric() != null)
+                .findFirst()
+                .orElse(null);
+
+        assertNotNull(resultValueObs);
+        assertEquals("High value observed", resultValueObs.getComment());
+        assertEquals(Obs.Interpretation.ABNORMAL, resultValueObs.getInterpretation());
+        assertEquals(new Double(18.5), resultValueObs.getValueNumeric());
     }
 
 }

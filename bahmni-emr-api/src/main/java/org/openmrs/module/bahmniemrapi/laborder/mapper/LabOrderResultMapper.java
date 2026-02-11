@@ -75,6 +75,15 @@ public class LabOrderResultMapper {
         obs.setConcept(concept);
         obs.setOrder(testOrder);
         obs.setObsDatetime(obsDate);
+        // Set comment and interpretation on result obs for modern API consumers.
+        // Note: These values are also stored as separate group member observations
+        // (LAB_NOTES, LAB_ABNORMAL) for backward compatibility with legacy reports.
+        if (isNotBlank(labOrderResult.getNotes())) {
+            obs.setComment(labOrderResult.getNotes());
+        }
+        if (BooleanUtils.isTrue(labOrderResult.getAbnormal())) {
+            obs.setInterpretation(Obs.Interpretation.ABNORMAL);
+        }
         String accessionUuid = Optional.ofNullable(labOrderResult.getAccessionUuid()).orElseGet(() -> Optional.ofNullable(obs.getOrder()).map(Order::getAccessionNumber).orElse(EMPTY_STRING));
         if (concept.getDatatype().getHl7Abbreviation().equals("CWE")) {
             String resultUuid = labOrderResult.getResultUuid();
