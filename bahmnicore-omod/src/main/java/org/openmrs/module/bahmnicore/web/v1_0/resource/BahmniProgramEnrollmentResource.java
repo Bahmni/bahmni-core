@@ -1,37 +1,31 @@
 package org.openmrs.module.bahmnicore.web.v1_0.resource;
 
 
-import org.openmrs.PatientProgramAttribute;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
-import org.openmrs.PatientState;
+import org.openmrs.PatientProgramAttribute;
 import org.openmrs.Program;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.episodes.Episode;
 import org.openmrs.module.episodes.service.EpisodeService;
-import org.openmrs.module.webservices.rest.SimpleObject;
-import org.openmrs.module.webservices.rest.web.ConversionUtil;
 import org.openmrs.module.webservices.rest.web.RequestContext;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.annotation.PropertyGetter;
 import org.openmrs.module.webservices.rest.web.annotation.PropertySetter;
 import org.openmrs.module.webservices.rest.web.annotation.Resource;
-import org.openmrs.module.webservices.rest.web.api.RestService;
 import org.openmrs.module.webservices.rest.web.representation.DefaultRepresentation;
 import org.openmrs.module.webservices.rest.web.representation.FullRepresentation;
 import org.openmrs.module.webservices.rest.web.representation.Representation;
 import org.openmrs.module.webservices.rest.web.resource.api.PageableResult;
 import org.openmrs.module.webservices.rest.web.resource.impl.AlreadyPaged;
 import org.openmrs.module.webservices.rest.web.resource.impl.DelegatingResourceDescription;
-import org.openmrs.module.webservices.rest.web.resource.impl.DelegatingSubResource;
 import org.openmrs.module.webservices.rest.web.resource.impl.EmptySearchResult;
 import org.openmrs.module.webservices.rest.web.resource.impl.NeedsPaging;
 import org.openmrs.module.webservices.rest.web.response.ResponseException;
 import org.openmrs.module.webservices.rest.web.v1_0.resource.openmrs1_10.ProgramEnrollmentResource1_10;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -57,30 +51,6 @@ public class BahmniProgramEnrollmentResource extends ProgramEnrollmentResource1_
         return getEpisodeUuidForPatientProgram(instance);
     }
 
-    @PropertyGetter("states")
-    public static List<SimpleObject> getStates(PatientProgram instance) throws Exception {
-        List<SimpleObject> states = new ArrayList<>();
-        for(PatientState state: instance.getStates()){
-            if (!state.isVoided()) {
-                states.add(getPatientState(state));
-            }
-        }
-        return states;
-    }
-
-    private static SimpleObject getPatientState(PatientState patientState) throws Exception {
-        DelegatingSubResource patientStateResource = (DelegatingSubResource)Context.getService(RestService.class).getResourceBySupportedClass(PatientState.class);
-
-        SimpleObject state = new SimpleObject();
-        state.put("auditInfo", patientStateResource.getAuditInfo(patientState));
-        state.put("uuid", patientState.getUuid());
-        state.put("startDate", ConversionUtil.convertToRepresentation(patientState.getStartDate(), Representation.DEFAULT));
-        state.put("endDate", ConversionUtil.convertToRepresentation(patientState.getEndDate(), Representation.DEFAULT));
-        state.put("voided", patientState.getVoided());
-        state.put("state", ConversionUtil.convertToRepresentation(patientState.getState(), Representation.REF));
-        return state;
-    }
-
     @Override
     public PatientProgram newDelegate() {
         return new PatientProgram();
@@ -94,7 +64,6 @@ public class BahmniProgramEnrollmentResource extends ProgramEnrollmentResource1_
             parentRep.addProperty("episodeUuid");
             return parentRep;
         } else if (rep instanceof FullRepresentation) {
-            parentRep.addProperty("states");
             parentRep.addProperty("attributes", Representation.DEFAULT);
             parentRep.addProperty("episodeUuid");
             return parentRep;
