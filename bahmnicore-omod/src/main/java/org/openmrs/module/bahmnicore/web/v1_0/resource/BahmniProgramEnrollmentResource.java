@@ -6,6 +6,7 @@ import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientProgramAttribute;
 import org.openmrs.Program;
+import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.episodes.Episode;
@@ -51,6 +52,11 @@ public class BahmniProgramEnrollmentResource extends ProgramEnrollmentResource1_
         return getEpisodeUuidForPatientProgram(instance);
     }
 
+    @PropertyGetter("allowedStates")
+    public static List<ProgramWorkflowState> getAllowedStatesForProgram(PatientProgram program) {
+        return Context.getService(BahmniProgramWorkflowService.class).getAllowedStatesForProgram(program);
+    }
+
     @Override
     public PatientProgram newDelegate() {
         return new PatientProgram();
@@ -66,6 +72,7 @@ public class BahmniProgramEnrollmentResource extends ProgramEnrollmentResource1_
         } else if (rep instanceof FullRepresentation) {
             parentRep.addProperty("attributes", Representation.DEFAULT);
             parentRep.addProperty("episodeUuid");
+            parentRep.addProperty("allowedStates");
             return parentRep;
         } else {
             return null;
