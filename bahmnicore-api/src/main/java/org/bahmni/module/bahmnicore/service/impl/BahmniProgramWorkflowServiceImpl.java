@@ -11,8 +11,6 @@ import org.openmrs.PatientProgram;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.APIException;
-import org.openmrs.api.ServiceNotFoundException;
-import org.openmrs.api.context.Context;
 import org.openmrs.api.db.ProgramWorkflowDAO;
 import org.openmrs.api.impl.ProgramWorkflowServiceImpl;
 import org.openmrs.module.episodes.Episode;
@@ -34,6 +32,8 @@ public class BahmniProgramWorkflowServiceImpl extends ProgramWorkflowServiceImpl
     private EpisodeService episodeService;
     @Autowired
     private List<BahmniProgramServiceValidator> bahmniProgramServiceValidators;
+    @Autowired(required = false)
+    private BahmniProgramWorkflowStateFilter programWorkflowStateFilter;
     private static final Logger logger =
             LogManager.getLogger(BahmniProgramWorkflowServiceImpl.class);
 
@@ -63,12 +63,10 @@ public class BahmniProgramWorkflowServiceImpl extends ProgramWorkflowServiceImpl
         List<ProgramWorkflowState> states = new ArrayList<>();
         getAllActiveStates(program, states);
 
-        try {
-            BahmniProgramWorkflowStateFilter programWorkflowStateService =
-                Context.getService(BahmniProgramWorkflowStateFilter.class);
-            states = programWorkflowStateService.filterAllowedStates(states);
-        } catch (ServiceNotFoundException e) {
-            logger.error("BahmniProgramWorkflowStateFilter not implemented, returning all states");
+        if (programWorkflowStateFilter != null) {
+            states = programWorkflowStateFilter.filterAllowedStates(program);
+        } else {
+            logger.warn("BahmniProgramWorkflowStateFilter not implemented, returning all states");
         }
 
         return states;

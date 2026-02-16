@@ -268,12 +268,4 @@
         </property>
     </bean>
 
-    <bean parent="serviceContext">
-        <property name="moduleService">
-            <list merge="true">
-                <value>org.bahmni.module.bahmnicore.filter.BahmniProgramWorkflowStateFilter</value>
-                <ref bean="bahmniProgramWorkflowStateFilter"/>
-            </list>
-        </property>
-    </bean>
 </beans>

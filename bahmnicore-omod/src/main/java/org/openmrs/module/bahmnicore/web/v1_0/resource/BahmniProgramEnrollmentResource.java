@@ -68,6 +68,7 @@ public class BahmniProgramEnrollmentResource extends ProgramEnrollmentResource1_
         if (rep instanceof DefaultRepresentation) {
             parentRep.addProperty("attributes", Representation.REF);
             parentRep.addProperty("episodeUuid");
+            parentRep.addProperty("allowedStates");
             return parentRep;
         } else if (rep instanceof FullRepresentation) {
             parentRep.addProperty("attributes", Representation.DEFAULT);
