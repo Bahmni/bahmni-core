@@ -66,7 +66,7 @@ public class BahmniProgramWorkflowServiceImpl extends ProgramWorkflowServiceImpl
         if (programWorkflowStateFilter != null) {
             states = programWorkflowStateFilter.filterAllowedStates(program);
         } else {
-            logger.warn("BahmniProgramWorkflowStateFilter not implemented, returning all states");
+            logger.debug("BahmniProgramWorkflowStateFilter not implemented, returning all states");
         }
 
         return states;
