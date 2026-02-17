@@ -1,5 +1,6 @@
 package org.bahmni.module.bahmnicore.service.impl;
 
+import org.bahmni.module.bahmnicore.filter.BahmniProgramWorkflowStateFilter;
 import org.openmrs.ProgramAttributeType;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.junit.Before;
@@ -11,16 +12,26 @@ import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.Program;
+import org.openmrs.ProgramWorkflow;
+import org.openmrs.ProgramWorkflowState;
+import org.openmrs.api.APIException;
 import org.openmrs.api.db.ProgramWorkflowDAO;
 import org.openmrs.module.episodes.Episode;
 import org.openmrs.module.episodes.service.EpisodeService;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -164,5 +175,84 @@ public class BahmniProgramWorkflowServiceImplTest {
         verify(patientProgram, times(1)).getOutcome();
         verify(patientProgram, times(1)).setDateCompleted(any(Date.class));
         verify(patientProgram, times(2)).getDateCompleted();
+    }
+
+    @Test(expected = APIException.class)
+    public void getAllowedStatesForProgramShouldThrowExceptionWhenPatientProgramIsNull() {
+        bahmniProgramWorkflowService.getAllowedStatesForProgram(null);
+    }
+
+    @Test(expected = APIException.class)
+    public void getAllowedStatesForProgramShouldThrowExceptionWhenProgramIsNull() {
+        PatientProgram patientProgram = new PatientProgram();
+        bahmniProgramWorkflowService.getAllowedStatesForProgram(patientProgram);
+    }
+
+    @Test
+    public void getAllowedStatesForProgramShouldReturnActiveStatesOnly() {
+        PatientProgram patientProgram = new PatientProgram();
+        Program program = new Program();
+        patientProgram.setProgram(program);
+
+        ProgramWorkflow workflow = new ProgramWorkflow();
+        workflow.setProgram(program);
+
+        ProgramWorkflowState activeState = new ProgramWorkflowState();
+        activeState.setRetired(false);
+        ProgramWorkflowState retiredState = new ProgramWorkflowState();
+        retiredState.setRetired(true);
+
+        Set<ProgramWorkflowState> states = new HashSet<>(Arrays.asList(activeState, retiredState));
+        workflow.setStates(states);
+
+        program.addWorkflow(workflow);
+
+        List<ProgramWorkflowState> result = bahmniProgramWorkflowService.getAllowedStatesForProgram(patientProgram);
+
+        assertThat(result, hasSize(1));
+        assertTrue(result.contains(activeState));
+    }
+
+    @Test
+    public void getAllowedStatesForProgramShouldReturnFilteredStatesWhenFilterIsConfigured() throws Exception {
+        final ProgramWorkflowState filteredState1 = new ProgramWorkflowState();
+        final ProgramWorkflowState filteredState2 = new ProgramWorkflowState();
+
+        BahmniProgramWorkflowStateFilter filter = new BahmniProgramWorkflowStateFilter() {
+            @Override
+            public List<ProgramWorkflowState> filterAllowedStates(PatientProgram patientProgram) {
+                return Arrays.asList(filteredState1, filteredState2);
+            }
+        };
+
+        BahmniProgramWorkflowServiceImpl serviceImpl = (BahmniProgramWorkflowServiceImpl) bahmniProgramWorkflowService;
+        Field filterField = BahmniProgramWorkflowServiceImpl.class.getDeclaredField("programWorkflowStateFilter");
+        filterField.setAccessible(true);
+        filterField.set(serviceImpl, filter);
+
+        PatientProgram patientProgram = new PatientProgram();
+        Program program = new Program();
+        patientProgram.setProgram(program);
+
+        ProgramWorkflow workflow = new ProgramWorkflow();
+        workflow.setProgram(program);
+
+        ProgramWorkflowState state1 = new ProgramWorkflowState();
+        state1.setRetired(false);
+        ProgramWorkflowState state2 = new ProgramWorkflowState();
+        state2.setRetired(false);
+        ProgramWorkflowState state3 = new ProgramWorkflowState();
+        state3.setRetired(false);
+
+        Set<ProgramWorkflowState> states = new HashSet<>(Arrays.asList(state1, state2, state3));
+        workflow.setStates(states);
+
+        program.addWorkflow(workflow);
+
+        List<ProgramWorkflowState> result = bahmniProgramWorkflowService.getAllowedStatesForProgram(patientProgram);
+
+        assertThat(result, hasSize(2));
+        assertTrue(result.contains(filteredState1));
+        assertTrue(result.contains(filteredState2));
     }
 }
