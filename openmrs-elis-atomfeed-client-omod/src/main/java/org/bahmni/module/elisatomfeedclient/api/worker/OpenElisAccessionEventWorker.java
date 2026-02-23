@@ -269,6 +269,7 @@ public class OpenElisAccessionEventWorker implements EventWorker {
                             continue;
                         }
                         order.setAccessionNumber(openElisAccession.getAccessionUuid());
+                        order.setFulfillerStatus(Order.FulfillerStatus.IN_PROGRESS);
                     }
                 }
             }
