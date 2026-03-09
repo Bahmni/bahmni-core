@@ -9,14 +9,13 @@
     <artifactId>bahmnicore-omod</artifactId>
     <packaging>jar</packaging>
     <name>Bahmni EMR Core OMOD</name>
-
-    <properties>
     <licenses>
         <license>
             <name>Mozilla Public License Version 2.0</name>
             <url>https://www.bahmni.org/license/mplv2hd</url>
         </license>
     </licenses>
+    <properties>
     
         <MODULE_ID>bahmnicore</MODULE_ID>
         <MODULE_NAME>${project.name}</MODULE_NAME>
