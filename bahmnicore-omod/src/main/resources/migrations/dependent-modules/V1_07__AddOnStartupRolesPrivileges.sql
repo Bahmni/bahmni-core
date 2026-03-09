@@ -1,3 +1,10 @@
+-- This Source Code Form is subject to the terms of the Mozilla Public License,
+-- v. 2.0. If a copy of the MPL was not distributed with this file, You can
+-- obtain one at https://www.bahmni.org/license/mplv2hd.
+--
+-- Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+-- graphic logo is a trademark of OpenMRS Inc.
+
 INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Add Allergies','Add allergies',uuid());
 INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Add HL7 Inbound Archive','Able to add an HL7 archive item',uuid());
 INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Add HL7 Inbound Exception','Able to add an HL7 error item',uuid());

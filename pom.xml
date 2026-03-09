@@ -11,8 +11,8 @@
     <description>Bahmni core modules</description>
     <licenses>
         <license>
-            <name>GNU AFFERO GENERAL PUBLIC LICENSE</name>
-            <url>https://www.gnu.org/licenses/agpl-3.0.txt</url>
+            <name>Mozilla Public License Version 2.0</name>
+            <url>https://www.bahmni.org/license/mplv2hd</url>
         </license>
     </licenses>
     <developers>

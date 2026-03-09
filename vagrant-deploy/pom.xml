@@ -15,6 +15,13 @@
     <name>Deploy scripts</name>
 
     <properties>
+    <licenses>
+        <license>
+            <name>Mozilla Public License Version 2.0</name>
+            <url>https://www.bahmni.org/license/mplv2hd</url>
+        </license>
+    </licenses>
+    
         <MODULE_ID>openerpatomfeedclient</MODULE_ID>
         <MODULE_NAME>${project.name}</MODULE_NAME>
         <MODULE_VERSION>${project.version}</MODULE_VERSION>

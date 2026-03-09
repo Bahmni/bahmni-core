@@ -11,6 +11,13 @@
     <version>${project.parent.version}</version>
     <description>Test setup for Bahmni</description>
 
+    
+    <licenses>
+        <license>
+            <name>Mozilla Public License Version 2.0</name>
+            <url>https://www.bahmni.org/license/mplv2hd</url>
+        </license>
+    </licenses>
     <parent>
         <artifactId>bahmni</artifactId>
         <groupId>org.bahmni.module</groupId>
