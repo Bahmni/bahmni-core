@@ -5,31 +5,24 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.events.eventPublisher.BahmniEventPublisher;
 import org.bahmni.module.eventoutbox.EMREvent;
-import org.bahmni.module.eventoutbox.EventAction;
 import org.openmrs.Location;
 import org.openmrs.api.context.Context;
 import org.springframework.aop.AfterReturningAdvice;
-import org.springframework.aop.MethodBeforeAdvice;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
-public class LocationAdvice extends BaseAdvice implements AfterReturningAdvice, MethodBeforeAdvice {
+public class LocationAdvice extends BaseAdvice implements AfterReturningAdvice {
 
     private static final String TEMPLATE = "/openmrs/ws/rest/v1/location/{uuid}?v=full";
     private static final String CATEGORY = "location";
     private static final String TITLE = "Location";
     private static final String SAVE_METHOD = "saveLocation";
-    private static final String eventRaiseFlagGP = "eventoutbox.publish.eventsForLocation";
-    private static final String urlTemplateGP = "eventoutbox.publish.urlTemplateForLocation";
+    private static final String eventRaiseFlagGP = "atomfeed.publish.eventsForLocation";
+    private static final String urlTemplateGP = "atomfeed.publish.urlTemplateForLocation";
 
     private final Logger log = LogManager.getLogger(this.getClass());
     private final BahmniEventPublisher eventPublisher;
-    private final ThreadLocal<Map<String, Integer>> threadLocal = new ThreadLocal<>();
-    private final String LOCATION_ID_KEY = "locationId";
-    private final Set<String> adviceMethodNames = Sets.newHashSet(SAVE_METHOD);
 
     public LocationAdvice() {
         this.eventPublisher = Context.getRegisteredComponent("bahmniEventPublisher", BahmniEventPublisher.class);
@@ -37,29 +30,13 @@ public class LocationAdvice extends BaseAdvice implements AfterReturningAdvice, 
 
     @Override
     public void afterReturning(Object returnValue, Method method, Object[] arguments, Object target) {
-        if (adviceMethodNames.contains(method.getName()) && shouldRaiseEvent()) {
-            Map<String, Integer> locationInfo = threadLocal.get();
-            if (locationInfo != null) {
-                EventAction action = locationInfo.get(LOCATION_ID_KEY) == null ? EventAction.CREATED : EventAction.UPDATED;
-                threadLocal.remove();
-
-                Location location = (Location) returnValue;
-                String locationUuid = location.getUuid();
-                String restUrl = getUrlPattern(locationUuid);
-                EMREvent<Location> emrEvent = new EMREvent<>(location, action, CATEGORY, TITLE, null, restUrl);
-                eventPublisher.publishEvent(emrEvent);
-                log.info("Successfully published EMREvent with uuid: " + locationUuid);
-            }
-        }
-    }
-
-    @Override
-    public void before(Method method, Object[] objects, Object o) {
-        if (adviceMethodNames.contains(method.getName()) && shouldRaiseEvent()) {
-            Location location = (Location) objects[0];
-            Map<String, Integer> locationInfo = new HashMap<>(1);
-            locationInfo.put(LOCATION_ID_KEY, location.getId());
-            threadLocal.set(locationInfo);
+        if (method.getName().equals(SAVE_METHOD) && shouldRaiseEvent()) {
+            Location location = (Location) returnValue;
+            String locationUuid = location.getUuid();
+            String restUrl = getUrlPattern(locationUuid);
+            EMREvent<Location> emrEvent = new EMREvent<>(location, CATEGORY, TITLE, null, restUrl);
+            eventPublisher.publishEvent(emrEvent);
+            log.info("Successfully published EMREvent with uuid: " + locationUuid);
         }
     }
 
