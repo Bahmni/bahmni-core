@@ -7,6 +7,7 @@ import org.bahmni.module.bahmnicore.events.eventPublisher.BahmniEventPublisher;
 import org.bahmni.module.eventoutbox.EMREvent;
 import org.openmrs.Encounter;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.springframework.aop.AfterReturningAdvice;
 
 import java.lang.reflect.Method;
@@ -29,10 +30,10 @@ public class EncounterSaveAdvice implements AfterReturningAdvice {
     @Override
     public void afterReturning(Object returnValue, Method method, Object[] arguments, Object target) {
         if (method.getName().equals(SAVE_METHOD)) {
-            Encounter encounter = (Encounter) returnValue;
-            String encounterUuid = encounter.getUuid();
+            EncounterTransaction encounter = (EncounterTransaction) returnValue;
+            String encounterUuid = encounter.getEncounterUuid();
             String restUrl = String.format(ENCOUNTER_REST_URL, encounterUuid);
-            EMREvent<Encounter> emrEvent = new EMREvent<>(encounter, CATEGORY, TITLE, null, restUrl);
+            EMREvent<EncounterTransaction> emrEvent = new EMREvent<>(encounter, CATEGORY, TITLE, null, restUrl);
             eventPublisher.publishEvent(emrEvent);
             log.info("Successfully published EMREvent with uuid: " + encounterUuid);
         }

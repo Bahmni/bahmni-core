@@ -8,8 +8,11 @@ import org.bahmni.module.eventoutbox.EMREvent;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.springframework.aop.AfterReturningAdvice;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.lang.reflect.Method;
+import java.util.Date;
 import java.util.Set;
 
 public class PatientAdvice extends BaseAdvice implements AfterReturningAdvice {
@@ -33,9 +36,28 @@ public class PatientAdvice extends BaseAdvice implements AfterReturningAdvice {
         if (method.getName().equals(SAVE_PATIENT_METHOD) && shouldRaiseEvent()) {
             Patient patient = (Patient) returnValue;
             String patientUuid = patient.getUuid();
+            if (TransactionSynchronizationManager.isSynchronizationActive()) {
+                TransactionSynchronizationManager.registerSynchronization(
+                        new TransactionSynchronization() {
+                            @Override
+                            public void afterCompletion(int status) {
+                                if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
+                                    log.info("TX rolled back for location: " + patientUuid);
+                                } else if (status == TransactionSynchronization.STATUS_COMMITTED) {
+                                    log.info("TX committed for location: " + patientUuid);
+                                }
+                            }
+                        }
+                );
+            } else {
+                log.info("No active transaction when LocationAdvice fired for: " + patientUuid);
+            }
+
+
             String restUrl = getUrlPattern(patientUuid);
             EMREvent<Patient> emrEvent = new EMREvent<>(patient, CATEGORY, TITLE, null, restUrl);
-            eventPublisher.publishEvent(emrEvent);
+            EMREvent<Patient> emrEvent1 = new EMREvent<>(patient, CATEGORY, TITLE, null, restUrl,"ABCD");
+            eventPublisher.publishEvent(emrEvent1);
             log.info("Successfully published EMREvent with uuid: " + patientUuid);
         }
     }

@@ -223,7 +223,7 @@
         <class>org.bahmni.module.bahmnicore.openmrsadvice.PatientAdvice</class>
     </advice>
     <advice>
-        <point>org.openmrs.api.EncounterService</point>
+        <point>org.openmrs.module.emrapi.encounter.EmrEncounterService</point>
         <class>org.bahmni.module.bahmnicore.openmrsadvice.EncounterSaveAdvice</class>
     </advice>
     <advice>
