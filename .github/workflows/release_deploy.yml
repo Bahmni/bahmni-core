@@ -7,7 +7,7 @@ on:
 jobs:
   build-release-package:
     name: Build and Release package
-    runs-on: macos-14
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
