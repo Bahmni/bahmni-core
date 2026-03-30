@@ -78,8 +78,6 @@
         <hamcrestVersion>1.3</hamcrestVersion>
         <mockitoVersion>3.5.11</mockitoVersion>
         <argLine>-Xmx1024m</argLine>
-        <sonar.projectKey>Bahmni_bahmni-core</sonar.projectKey>
-        <sonar.organization>bahmni</sonar.organization>
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
@@ -573,11 +571,6 @@
         </plugins>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.sonarsource.scanner.maven</groupId>
-                    <artifactId>sonar-maven-plugin</artifactId>
-                    <version>3.9.1.2184</version>
-                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
