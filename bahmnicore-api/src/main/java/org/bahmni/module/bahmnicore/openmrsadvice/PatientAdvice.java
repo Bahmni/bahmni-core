@@ -21,8 +21,8 @@ public class PatientAdvice extends BaseAdvice implements AfterReturningAdvice {
     private static final String CATEGORY = "patient";
     private static final String TITLE = "Patient";
     private static final String SAVE_PATIENT_METHOD = "savePatient";
-    private static final String eventRaiseFlagGP = "atomfeed.publish.eventsForPatient";
-    private static final String urlTemplateGP = "atomfeed.publish.urlTemplateForPatient";
+    private static final String eventRaiseFlagGP = "bahmnievents.publish.eventsForPatient";
+    private static final String urlTemplateGP = "bahmnievents.publish.urlTemplateForPatient";
 
     private final Logger log = LogManager.getLogger(this.getClass());
     private final BahmniEventPublisher eventPublisher;
