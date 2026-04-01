@@ -18,6 +18,13 @@
 
     <description>Reference data for data setup for Bahmni</description>
 
+    <licenses>
+        <license>
+            <name>Mozilla Public License Version 2.0</name>
+            <url>https://www.bahmni.org/license/mplv2hd</url>
+        </license>
+    </licenses>
+
     <developers>
         <developer>
             <name>Thoughtworks</name>
@@ -27,6 +34,7 @@
     <organization>
         <name>OpenMRS</name>
         <url>http://openmrs.org</url>
+    
     </organization>
 
     <dependencyManagement>
