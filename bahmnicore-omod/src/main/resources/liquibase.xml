@@ -4683,7 +4683,7 @@
         <sqlFile path="V1_99_WardsListSql.sql"/>
     </changeSet>
 
-    <changeSet id="bahmni-core-202603300001" author="BAHMNI">
+    <changeSet id="bahmni-core-202603300001" author="Lingeswaran">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
                 SELECT COUNT(*) FROM global_property WHERE property = 'bahmnievents.publish.eventsForPatient'
@@ -4701,7 +4701,7 @@
         </sql>
     </changeSet>
 
-    <changeSet id="bahmni-core-202603300002" author="BAHMNI">
+    <changeSet id="bahmni-core-202603300002" author="Lingeswaran">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
                 SELECT COUNT(*) FROM global_property WHERE property = 'bahmnievents.publish.urlTemplateForPatient'
@@ -4719,7 +4719,7 @@
         </sql>
     </changeSet>
 
-    <changeSet id="bahmni-core-202603300003" author="BAHMNI">
+    <changeSet id="bahmni-core-202603300003" author="Lingeswaran">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
                 SELECT COUNT(*) FROM global_property WHERE property = 'bahmnievents.publish.eventsForPatientProgramStateChange'
@@ -4730,14 +4730,14 @@
             INSERT INTO global_property(`property`, `property_value`, `description`, `uuid`)
             VALUES (
                 'bahmnievents.publish.eventsForPatientProgramStateChange',
-                IFNULL(NULLIF((SELECT pv FROM (SELECT property_value AS pv FROM global_property WHERE property = 'atomfeed.publish.eventsForPatientProgramStateChange' LIMIT 1) AS t), ''), 'true'),
+                IFNULL(NULLIF((SELECT pv FROM (SELECT property_value AS pv FROM global_property WHERE property = 'atomfeed.publish.eventsForPatientProgramStateChange' LIMIT 1) AS t), ''), ''),
                 'If set to true, events related to patient program state change are published',
                 UUID()
             );
         </sql>
     </changeSet>
 
-    <changeSet id="bahmni-core-202603300004" author="BAHMNI">
+    <changeSet id="bahmni-core-202603300004" author="Lingeswaran">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
                 SELECT COUNT(*) FROM global_property WHERE property = 'bahmnievents.event.urlPatternForProgramStateChange'
@@ -4755,7 +4755,7 @@
         </sql>
     </changeSet>
 
-    <changeSet id="bahmni-core-202603300005" author="BAHMNI">
+    <changeSet id="bahmni-core-202603300005" author="Lingeswaran">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
                 SELECT COUNT(*) FROM global_property WHERE property = 'bahmnievents.publish.eventsForPatientRelationshipChange'
@@ -4766,14 +4766,14 @@
             INSERT INTO global_property(`property`, `property_value`, `description`, `uuid`)
             VALUES (
                 'bahmnievents.publish.eventsForPatientRelationshipChange',
-                IFNULL(NULLIF((SELECT pv FROM (SELECT property_value AS pv FROM global_property WHERE property = 'atomfeed.publish.eventsForPatientRelationshipChange' LIMIT 1) AS t), ''), 'true'),
+                IFNULL(NULLIF((SELECT pv FROM (SELECT property_value AS pv FROM global_property WHERE property = 'atomfeed.publish.eventsForPatientRelationshipChange' LIMIT 1) AS t), ''), ''),
                 'If set to true, events related to patient relationship change are published',
                 UUID()
             );
         </sql>
     </changeSet>
 
-    <changeSet id="bahmni-core-202603300006" author="BAHMNI">
+    <changeSet id="bahmni-core-202603300006" author="Lingeswaran">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
                 SELECT COUNT(*) FROM global_property WHERE property = 'bahmnievents.event.urlPatternForPatientRelationshipChange'
@@ -4791,7 +4791,7 @@
         </sql>
     </changeSet>
 
-    <changeSet id="bahmni-core-202603300007" author="BAHMNI">
+    <changeSet id="bahmni-core-202603300007" author="Lingeswaran">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
                 SELECT COUNT(*) FROM global_property WHERE property = 'bahmnievents.encounter.feed.publish.url'

@@ -227,6 +227,10 @@
         <class>org.bahmni.module.bahmnicore.openmrsadvice.EncounterSaveAdvice</class>
     </advice>
     <advice>
+        <point>org.openmrs.api.EncounterService</point>
+        <class>org.bahmni.module.bahmnicore.openmrsadvice.EncounterServiceSaveAdvice</class>
+    </advice>
+    <advice>
         <point>org.openmrs.api.LocationService</point>
         <class>org.bahmni.module.bahmnicore.openmrsadvice.LocationAdvice</class>
     </advice>
