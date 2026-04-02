@@ -146,6 +146,7 @@
         EntityMappingType.hbm.xml
         Notes.hbm.xml
         NoteType.hbm.xml
+        FormDraft.hbm.xml
         </mappingFiles>
     <!-- Internationalization -->
     <!-- All message codes should start with moduleId.* -->

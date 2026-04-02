@@ -4713,4 +4713,97 @@
         </sql>
     </changeSet>
 
+    <changeSet id="bahmni-core-20260331-109059-form-draft" author="Bahmni">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="form_draft"/>
+            </not>
+        </preConditions>
+        <comment>Create form_draft table for auto-save functionality in observation forms</comment>
+        <createTable tableName="form_draft">
+            <column name="draft_id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="uuid" type="varchar(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="patient_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="encounter_id" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="user_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="form_data_path" type="varchar(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="marked_as_saved" type="tinyint(1)" defaultValueNumeric="0">
+                <constraints nullable="true"/>
+            </column>
+            <column name="date_created" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creator" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_changed" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="changed_by" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="voided" type="tinyint(1)" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_voided" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="voided_by" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="void_reason" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="form_draft" baseColumnNames="patient_id"
+                                 referencedTableName="patient" referencedColumnNames="patient_id"
+                                 constraintName="fk_form_draft_patient"/>
+        <addForeignKeyConstraint baseTableName="form_draft" baseColumnNames="encounter_id"
+                                 referencedTableName="encounter" referencedColumnNames="encounter_id"
+                                 constraintName="fk_form_draft_encounter"/>
+        <addForeignKeyConstraint baseTableName="form_draft" baseColumnNames="user_id"
+                                 referencedTableName="users" referencedColumnNames="user_id"
+                                 constraintName="fk_form_draft_user"/>
+        <addForeignKeyConstraint baseTableName="form_draft" baseColumnNames="creator"
+                                 referencedTableName="users" referencedColumnNames="user_id"
+                                 constraintName="fk_form_draft_creator"/>
+        <addForeignKeyConstraint baseTableName="form_draft" baseColumnNames="changed_by"
+                                 referencedTableName="users" referencedColumnNames="user_id"
+                                 constraintName="fk_form_draft_changed_by"/>
+        <addForeignKeyConstraint baseTableName="form_draft" baseColumnNames="voided_by"
+                                 referencedTableName="users" referencedColumnNames="user_id"
+                                 constraintName="fk_form_draft_voided_by"/>
+        <createIndex tableName="form_draft" indexName="idx_form_draft_patient_user_voided">
+            <column name="patient_id"/>
+            <column name="user_id"/>
+            <column name="voided"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="bahmni-core-20260402-109059-delete-form-draft-privilege" author="Bahmni">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM privilege WHERE privilege = 'Delete Form Draft'
+            </sqlCheck>
+        </preConditions>
+        <comment>Add Delete Form Draft privilege for discarding form drafts</comment>
+        <insert tableName="privilege">
+            <column name="privilege" value="Delete Form Draft"/>
+            <column name="description" value="Privilege to discard/void form drafts"/>
+            <column name="uuid" value="a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"/>
+        </insert>
+    </changeSet>
+
 </databaseChangeLog>
