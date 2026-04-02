@@ -53,33 +53,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.ict4h.openmrs</groupId>
-            <artifactId>openmrs-atomfeed-common</artifactId>
-            <version>${openmrsAtomfeedVersion}</version>
+            <groupId>org.bahmni.module</groupId>
+            <artifactId>eventoutbox-api</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.ict4h.openmrs</groupId>
-            <artifactId>openmrs-atomfeed-omod</artifactId>
-            <version>${openmrsAtomfeedVersion}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ict4h.openmrs</groupId>
-            <artifactId>openmrs-atomfeed-api</artifactId>
-            <version>${openmrsAtomfeedVersion}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ict4h</groupId>
-            <artifactId>atomfeed-server</artifactId>
-            <version>${atomfeed.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ict4h</groupId>
-            <artifactId>atomfeed-commons</artifactId>
-            <version>${atomfeed.version}</version>
+            <groupId>org.bahmni.module</groupId>
+            <artifactId>bahmnicore-api</artifactId>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

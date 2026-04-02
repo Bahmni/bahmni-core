@@ -102,7 +102,7 @@ public class BahmniDispositionServiceTest {
                 .setVoidReason(null)
                 .setDispositionDateTime(new Date());
 
-        eTDisposition.setConceptName("Absconding");
+        eTDisposition.setConceptName("Absconding˙");
         eTDisposition.setAdditionalObs(new ArrayList<EncounterTransaction.Observation>());
 
         BahmniDisposition bahmniDisposition = new BahmniDisposition();
@@ -122,7 +122,7 @@ public class BahmniDispositionServiceTest {
     }
 
     @Test
-    public void shouldReturnEmptyDispositionListWhenNoneOfObservationsAreDispositions() {
+    public void ˍ() {
         Set<EncounterTransaction.Provider> eTProvider = new HashSet<>();
         EncounterTransaction.Provider provider = new EncounterTransaction.Provider();
         provider.setName("Sample");
