@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class PersonRelationshipAdvice extends BaseAdvice implements AfterReturningAdvice {
 
-    private static final String DEFAULT_RELATIONSHIP_URL_PATTERN = "/openmrs/ws/rest/v1/relationship/{uuid}?v=full";
+    private static final String DEFAULT_RELATIONSHIP_URL_PATTERN = "/openmrs/ws/rest/v1/relationship/%s";
     private static final String CATEGORY = "relationship";
     private static final String TITLE = "Relationship";
     private static final String SAVE_RELATIONSHIP_METHOD = "saveRelationship";
@@ -33,7 +33,7 @@ public class PersonRelationshipAdvice extends BaseAdvice implements AfterReturni
         if (method.getName().equals(SAVE_RELATIONSHIP_METHOD) && shouldRaiseEvent()) {
             Relationship relationship = (Relationship) returnValue;
             String relationshipUuid = relationship.getUuid();
-            String restUrl = getUrlPattern(relationshipUuid);
+            String restUrl = getPersonRelationShipUrl(relationshipUuid);
             EMREvent<Relationship> emrEvent = new EMREvent<>(relationship, CATEGORY, TITLE, null, restUrl);
             eventPublisher.publishEvent(emrEvent);
             log.info("Successfully published EMREvent with uuid: " + relationshipUuid);
@@ -53,5 +53,13 @@ public class PersonRelationshipAdvice extends BaseAdvice implements AfterReturni
     @Override
     protected String getUrlTemplateGlobalProperty() {
         return RELATIONSHIP_EVENT_URL_PATTERN_GLOBAL_PROPERTY;
+    }
+
+    private String getPersonRelationShipUrl(String relationshipUuid) {
+        String globalProperty = Context.getAdministrationService().getGlobalProperty(getUrlTemplateGlobalProperty());
+        if(globalProperty == null || globalProperty.isEmpty()) {
+            globalProperty = getDefaultUrlTemplate();
+        }
+        return String.format(globalProperty, relationshipUuid);
     }
 }

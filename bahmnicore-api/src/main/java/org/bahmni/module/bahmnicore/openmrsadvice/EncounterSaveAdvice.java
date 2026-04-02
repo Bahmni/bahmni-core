@@ -40,6 +40,6 @@ public class EncounterSaveAdvice implements AfterReturningAdvice {
     }
 
     private static String getEncounterFeedUrl() {
-        return Context.getAdministrationService().getGlobalProperty("bahmnievents.encounter.publish.url");
+        return Context.getAdministrationService().getGlobalProperty("bahmnievents.encounter.feed.publish.url");
     }
 }
