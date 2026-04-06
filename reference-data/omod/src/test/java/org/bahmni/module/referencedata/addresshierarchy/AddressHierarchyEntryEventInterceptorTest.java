@@ -1,21 +1,15 @@
 package org.bahmni.module.referencedata.addresshierarchy;
 
-import org.ict4h.atomfeed.transaction.AFTransactionWorkWithoutResult;
+import org.bahmni.module.bahmnicore.events.eventPublisher.BahmniEventPublisher;
+import org.bahmni.module.eventoutbox.EMREvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.openmrs.api.context.Context;
-import org.openmrs.api.context.UserContext;
+import org.mockito.MockitoAnnotations;
 import org.openmrs.module.addresshierarchy.AddressHierarchyEntry;
 import org.openmrs.module.addresshierarchy.service.AddressHierarchyService;
-import org.openmrs.module.atomfeed.transaction.support.AtomFeedSpringTransactionManager;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -23,46 +17,35 @@ import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
-import static org.powermock.api.mockito.PowerMockito.whenNew;
 
-@PowerMockIgnore("javax.management.*")
-@PrepareForTest({Context.class, AddressHierarchyEntryEventInterceptor.class})
 @RunWith(PowerMockRunner.class)
 public class AddressHierarchyEntryEventInterceptorTest {
     @Mock
-    private AtomFeedSpringTransactionManager atomFeedSpringTransactionManager;
-    @Mock
-    private UserContext userContext;
+    private BahmniEventPublisher eventPublisher;
 
     private AddressHierarchyEntryEventInterceptor publishedFeed;
     private AddressHierarchyEntry addressHierarchyEntry;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
         addressHierarchyEntry = new AddressHierarchyEntry();
         addressHierarchyEntry.setUuid("uuid");
         addressHierarchyEntry.setUserGeneratedId("707070");
-        PowerMockito.mockStatic(Context.class);
-
-        ArrayList<PlatformTransactionManager> platformTransactionManagers = new ArrayList<>();
-        platformTransactionManagers.add(new HibernateTransactionManager());
-        when(Context.getRegisteredComponents(PlatformTransactionManager.class)).thenReturn(platformTransactionManagers);
-        whenNew(AtomFeedSpringTransactionManager.class).withAnyArguments().thenReturn(atomFeedSpringTransactionManager);
-        publishedFeed = new AddressHierarchyEntryEventInterceptor();
-
+        publishedFeed = new AddressHierarchyEntryEventInterceptor(eventPublisher);
     }
 
     @Test
-    public void shouldPublishToFeedAfterSavingAddressHierarchyEntry() throws Throwable {
+    public void shouldPublishEventAfterSavingAddressHierarchyEntry() throws Throwable {
         Method method = AddressHierarchyService.class.getMethod("saveAddressHierarchyEntry", AddressHierarchyEntry.class);
         Object[] objects = new Object[]{addressHierarchyEntry};
 
         publishedFeed.afterReturning(null, method, objects, null);
-        verify(atomFeedSpringTransactionManager).executeWithTransaction(any(AFTransactionWorkWithoutResult.class));
+        verify(eventPublisher).publishEvent(any(EMREvent.class));
     }
 
     @Test
-    public void shouldPublishToFeedAfterSavingAddressHierarchyEntries() throws Throwable {
+    public void shouldPublishEventAfterSavingAddressHierarchyEntries() throws Throwable {
         Method method = AddressHierarchyService.class.getMethod("saveAddressHierarchyEntries", List.class);
         ArrayList<Object> entries = new ArrayList<>();
         entries.add(addressHierarchyEntry);
@@ -70,20 +53,20 @@ public class AddressHierarchyEntryEventInterceptorTest {
         Object[] objects = new Object[]{entries};
 
         publishedFeed.afterReturning(null, method, objects, null);
-        verify(atomFeedSpringTransactionManager, times(2)).executeWithTransaction(any(AFTransactionWorkWithoutResult.class));
+        verify(eventPublisher, times(2)).publishEvent(any(EMREvent.class));
     }
 
     @Test
-    public void shouldNotCreateEventIfParameterIsNull() throws Exception {
+    public void shouldNotPublishEventIfParameterIsNull() throws Exception {
         Method method = AddressHierarchyService.class.getMethod("saveAddressHierarchyEntries", List.class);
 
         publishedFeed.afterReturning(null, method, null, null);
 
-        verify(atomFeedSpringTransactionManager, never()).executeWithTransaction(any(AFTransactionWorkWithoutResult.class));
+        verify(eventPublisher, never()).publishEvent(any(EMREvent.class));
     }
 
     @Test
-    public void shouldNotCreateEventIfEntryInParameterIsNull() throws Exception {
+    public void shouldNotPublishEventIfEntryInParameterIsNull() throws Exception {
         Method method = AddressHierarchyService.class.getMethod("saveAddressHierarchyEntries", List.class);
         ArrayList<Object> entries = new ArrayList<>();
         entries.add(null);
@@ -92,6 +75,6 @@ public class AddressHierarchyEntryEventInterceptorTest {
 
         publishedFeed.afterReturning(null, method, objects, null);
 
-        verify(atomFeedSpringTransactionManager, never()).executeWithTransaction(any(AFTransactionWorkWithoutResult.class));
+        verify(eventPublisher, never()).publishEvent(any(EMREvent.class));
     }
 }

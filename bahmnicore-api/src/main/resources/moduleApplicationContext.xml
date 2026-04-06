@@ -26,8 +26,10 @@
         <property name="transactionAttributeSource" ref="transactionAttributeSource"/>
     </bean>
 
+    <bean id="bahmniPatientProgramAdvice" class="org.bahmni.module.bahmnicore.openmrsadvice.PatientProgramAdvice"/>
+
     <util:list id="servicePostInterceptors">
-        <ref bean="patientProgramAdviceInterceptor"/>
+        <ref bean="bahmniPatientProgramAdvice"/>
     </util:list>
 
     <bean id="orderDao" class="org.bahmni.module.bahmnicore.dao.impl.OrderDaoImpl" />
