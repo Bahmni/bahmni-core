@@ -1,7 +1,7 @@
 package org.bahmni.module.referencedata.labconcepts.advice;
 
-import org.bahmni.module.bahmnicore.events.eventPublisher.BahmniEventPublisher;
 import org.bahmni.module.eventoutbox.EMREvent;
+import org.bahmni.module.referencedata.events.ReferenceDataEventPublisher;
 import org.bahmni.module.referencedata.labconcepts.contract.AllSamples;
 import org.bahmni.module.referencedata.labconcepts.contract.Sample;
 import org.bahmni.module.referencedata.labconcepts.model.event.SampleEventTest;
@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.openmrs.Concept;
 import org.openmrs.ConceptSet;
 import org.openmrs.api.ConceptService;
@@ -30,26 +29,21 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-@PrepareForTest(Context.class)
+@PrepareForTest({Context.class})
 @RunWith(PowerMockRunner.class)
 public class ConceptServiceEventInterceptorTest {
     @Mock
-    private BahmniEventPublisher eventPublisher;
+    private ReferenceDataEventPublisher eventPublisher;
     @Mock
     private ConceptService conceptService;
 
     private ConceptServiceEventInterceptor publishedFeed;
-
     private Concept concept;
 
     @Before
     public void setup() {
-        MockitoAnnotations.initMocks(this);
-
         concept = new ConceptBuilder().withClass(Sample.SAMPLE_CONCEPT_CLASSES.get(0)).withUUID(SampleEventTest.SAMPLE_CONCEPT_UUID).build();
-
         Concept parentConcept = new ConceptBuilder().withName(AllSamples.ALL_SAMPLES).withSetMember(concept).build();
-
         List<ConceptSet> conceptSets = getConceptSets(parentConcept, concept);
 
         when(conceptService.getSetsContainingConcept(any(Concept.class))).thenReturn(conceptSets);

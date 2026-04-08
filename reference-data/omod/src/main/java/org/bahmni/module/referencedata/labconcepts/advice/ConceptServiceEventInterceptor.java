@@ -1,9 +1,9 @@
 package org.bahmni.module.referencedata.labconcepts.advice;
 
-import org.bahmni.module.bahmnicore.events.eventPublisher.BahmniEventPublisher;
 import org.bahmni.module.eventoutbox.EMREvent;
+import org.bahmni.module.referencedata.events.ReferenceDataEventPublisher;
 import org.bahmni.module.referencedata.labconcepts.model.Operation;
-import org.openmrs.api.context.Context;
+import org.openmrs.api.context.ServiceContext;
 import org.springframework.aop.AfterReturningAdvice;
 
 import java.lang.reflect.Method;
@@ -13,13 +13,16 @@ import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 public class ConceptServiceEventInterceptor implements AfterReturningAdvice {
 
-    private final BahmniEventPublisher eventPublisher;
+    private ReferenceDataEventPublisher eventPublisher;
 
     public ConceptServiceEventInterceptor() {
-        this.eventPublisher = Context.getRegisteredComponent("bahmniEventPublisher", BahmniEventPublisher.class);
     }
 
-    public ConceptServiceEventInterceptor(BahmniEventPublisher eventPublisher) {
+    public ConceptServiceEventInterceptor(ReferenceDataEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    public void setEventPublisher(ReferenceDataEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
 
@@ -29,8 +32,15 @@ public class ConceptServiceEventInterceptor implements AfterReturningAdvice {
         List<EMREvent<?>> events = operation.apply(arguments);
         if (isNotEmpty(events)) {
             for (EMREvent<?> event : events) {
-                eventPublisher.publishEvent(event);
+                getEventPublisher().publishEvent(event);
             }
         }
+    }
+
+    private ReferenceDataEventPublisher getEventPublisher() {
+        if (eventPublisher == null) {
+            eventPublisher = ServiceContext.getInstance().getApplicationContext().getBean(ReferenceDataEventPublisher.class);
+        }
+        return eventPublisher;
     }
 }

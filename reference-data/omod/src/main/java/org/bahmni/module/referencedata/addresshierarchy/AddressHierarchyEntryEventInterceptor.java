@@ -1,8 +1,8 @@
 package org.bahmni.module.referencedata.addresshierarchy;
 
-import org.bahmni.module.bahmnicore.events.eventPublisher.BahmniEventPublisher;
 import org.bahmni.module.eventoutbox.EMREvent;
-import org.openmrs.api.context.Context;
+import org.bahmni.module.referencedata.events.ReferenceDataEventPublisher;
+import org.openmrs.api.context.ServiceContext;
 import org.openmrs.module.addresshierarchy.AddressHierarchyEntry;
 import org.springframework.aop.AfterReturningAdvice;
 
@@ -13,18 +13,21 @@ import static java.util.Arrays.asList;
 
 public class AddressHierarchyEntryEventInterceptor implements AfterReturningAdvice {
 
-    private final BahmniEventPublisher eventPublisher;
-
     private static final List<String> SAVE_ADDRESS_HIERARCHY_ENTRY_METHODS = asList("saveAddressHierarchyEntries", "saveAddressHierarchyEntry");
     private static final String TEMPLATE = "/openmrs/ws/rest/v1/addressHierarchy/%s";
     private static final String CATEGORY = "addressHierarchy";
     private static final String TITLE = "addressHierarchy";
 
+    private ReferenceDataEventPublisher eventPublisher;
+
     public AddressHierarchyEntryEventInterceptor() {
-        this.eventPublisher = Context.getRegisteredComponent("bahmniEventPublisher", BahmniEventPublisher.class);
     }
 
-    public AddressHierarchyEntryEventInterceptor(BahmniEventPublisher eventPublisher) {
+    public AddressHierarchyEntryEventInterceptor(ReferenceDataEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    public void setEventPublisher(ReferenceDataEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
 
@@ -55,6 +58,13 @@ public class AddressHierarchyEntryEventInterceptor implements AfterReturningAdvi
         }
         String restUrl = String.format(TEMPLATE, entry.getUuid());
         EMREvent<AddressHierarchyEntry> event = new EMREvent<>(entry, CATEGORY, TITLE, null, restUrl);
-        eventPublisher.publishEvent(event);
+        getEventPublisher().publishEvent(event);
+    }
+
+    private ReferenceDataEventPublisher getEventPublisher() {
+        if (eventPublisher == null) {
+            eventPublisher = ServiceContext.getInstance().getApplicationContext().getBean(ReferenceDataEventPublisher.class);
+        }
+        return eventPublisher;
     }
 }

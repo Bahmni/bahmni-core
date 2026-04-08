@@ -114,17 +114,6 @@
             <artifactId>serialization.xstream-api-2.0</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ict4h</groupId>
-            <artifactId>atomfeed-client</artifactId>
-            <version>${atomfeed.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>rome</groupId>
-                    <artifactId>rome</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>rome</groupId>
             <artifactId>rome</artifactId>
             <version>1.0</version>
@@ -140,17 +129,6 @@
             <artifactId>episodes-api</artifactId>
             <version>${episodes.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ict4h.openmrs</groupId>
-            <artifactId>openmrs-atomfeed-common</artifactId>
-            <version>${openmrsAtomfeedVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ict4h.openmrs</groupId>
-            <artifactId>openmrs-atomfeed-api</artifactId>
-            <version>${openmrsAtomfeedVersion}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.imgscalr</groupId>

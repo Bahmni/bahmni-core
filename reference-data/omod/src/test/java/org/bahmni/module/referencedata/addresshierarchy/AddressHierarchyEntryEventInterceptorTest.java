@@ -1,15 +1,14 @@
 package org.bahmni.module.referencedata.addresshierarchy;
 
-import org.bahmni.module.bahmnicore.events.eventPublisher.BahmniEventPublisher;
 import org.bahmni.module.eventoutbox.EMREvent;
+import org.bahmni.module.referencedata.events.ReferenceDataEventPublisher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.openmrs.module.addresshierarchy.AddressHierarchyEntry;
 import org.openmrs.module.addresshierarchy.service.AddressHierarchyService;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -18,20 +17,20 @@ import java.util.List;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class AddressHierarchyEntryEventInterceptorTest {
     @Mock
-    private BahmniEventPublisher eventPublisher;
+    private ReferenceDataEventPublisher eventPublisher;
 
     private AddressHierarchyEntryEventInterceptor publishedFeed;
     private AddressHierarchyEntry addressHierarchyEntry;
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         addressHierarchyEntry = new AddressHierarchyEntry();
         addressHierarchyEntry.setUuid("uuid");
         addressHierarchyEntry.setUserGeneratedId("707070");
+
         publishedFeed = new AddressHierarchyEntryEventInterceptor(eventPublisher);
     }
 

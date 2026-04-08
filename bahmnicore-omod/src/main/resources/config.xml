@@ -23,7 +23,6 @@
         <require_module>org.openmrs.module.idgen</require_module>
         <require_module>org.openmrs.module.idgen.webservices</require_module>
         <require_module>org.openmrs.module.emrapi</require_module>
-        <require_module>org.ict4h.openmrs.openmrs-atomfeed</require_module>
         <require_module>org.bahmni.module.reference-data</require_module>
         <require_module>org.openmrs.module.addresshierarchy</require_module>
         <require_module>org.openmrs.module.uiframework</require_module>
@@ -229,10 +228,6 @@
     <advice>
         <point>org.openmrs.api.EncounterService</point>
         <class>org.bahmni.module.bahmnicore.openmrsadvice.EncounterServiceSaveAdvice</class>
-    </advice>
-    <advice>
-        <point>org.openmrs.api.LocationService</point>
-        <class>org.bahmni.module.bahmnicore.openmrsadvice.LocationAdvice</class>
     </advice>
     <advice>
         <point>org.openmrs.api.ProgramWorkflowService</point>
