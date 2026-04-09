@@ -1,6 +1,5 @@
 package org.bahmni.module.bahmnicore.openmrsadvice;
 
-import com.google.common.collect.Sets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.events.eventPublisher.BahmniEventPublisher;
@@ -8,9 +7,7 @@ import org.bahmni.module.eventoutbox.EMREvent;
 import org.openmrs.Relationship;
 import org.openmrs.api.context.Context;
 import org.springframework.aop.AfterReturningAdvice;
-
 import java.lang.reflect.Method;
-import java.util.Set;
 
 public class PersonRelationshipAdvice extends BaseAdvice implements AfterReturningAdvice {
 
@@ -36,7 +33,7 @@ public class PersonRelationshipAdvice extends BaseAdvice implements AfterReturni
             String restUrl = getPersonRelationShipUrl(relationshipUuid);
             EMREvent<Relationship> emrEvent = new EMREvent<>(relationship, CATEGORY, TITLE, null, restUrl);
             eventPublisher.publishEvent(emrEvent);
-            log.info("Successfully published EMREvent with uuid: " + relationshipUuid);
+            log.info("Successfully published EMREvent with uuid: {}", relationshipUuid);
         }
     }
 

@@ -34,7 +34,7 @@ public class EncounterServiceSaveAdvice implements AfterReturningAdvice {
                 String restUrl = String.format(ENCOUNTER_REST_URL, encounterUuid);
                 EMREvent<Encounter> emrEvent = new EMREvent<>(encounter, CATEGORY, TITLE, null, restUrl);
                 eventPublisher.publishEvent(emrEvent);
-                log.info("Successfully published EMREvent with uuid: " + encounterUuid);
+                log.info("Successfully published EMREvent with uuid: {}", encounterUuid);
             }
         }
     }

@@ -1,6 +1,5 @@
 package org.bahmni.module.bahmnicore.openmrsadvice;
 
-import com.google.common.collect.Sets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.events.eventPublisher.BahmniEventPublisher;
@@ -8,12 +7,8 @@ import org.bahmni.module.eventoutbox.EMREvent;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.springframework.aop.AfterReturningAdvice;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.lang.reflect.Method;
-import java.util.Date;
-import java.util.Set;
 
 public class PatientAdvice extends BaseAdvice implements AfterReturningAdvice {
 
@@ -21,8 +16,8 @@ public class PatientAdvice extends BaseAdvice implements AfterReturningAdvice {
     private static final String CATEGORY = "patient";
     private static final String TITLE = "Patient";
     private static final String SAVE_PATIENT_METHOD = "savePatient";
-    private static final String eventRaiseFlagGP = "bahmnievents.publish.eventsForPatient";
-    private static final String urlTemplateGP = "bahmnievents.publish.urlTemplateForPatient";
+    private static final String EVENT_RAISE_FLAG_GP = "bahmnievents.publish.eventsForPatient";
+    private static final String URL_TEMPLATE_GP = "bahmnievents.publish.urlTemplateForPatient";
 
     private final Logger log = LogManager.getLogger(this.getClass());
     private final BahmniEventPublisher eventPublisher;
@@ -39,7 +34,7 @@ public class PatientAdvice extends BaseAdvice implements AfterReturningAdvice {
             String restUrl = getPatientUrl(patientUuid);
             EMREvent<Patient> emrEvent = new EMREvent<>(patient, CATEGORY, TITLE, null, restUrl);
             eventPublisher.publishEvent(emrEvent);
-            log.info("Successfully published EMREvent with uuid: " + patientUuid);
+            log.info("Successfully published EMREvent with uuid: {}", patientUuid);
         }
     }
 
@@ -50,12 +45,12 @@ public class PatientAdvice extends BaseAdvice implements AfterReturningAdvice {
 
     @Override
     protected String getEventRaiseFlagGlobalProperty() {
-        return eventRaiseFlagGP;
+        return EVENT_RAISE_FLAG_GP;
     }
 
     @Override
     protected String getUrlTemplateGlobalProperty() {
-        return urlTemplateGP;
+        return URL_TEMPLATE_GP;
     }
     private String getPatientUrl(String patientUuid) {
         String globalProperty = Context.getAdministrationService().getGlobalProperty(getUrlTemplateGlobalProperty());
