@@ -78,6 +78,9 @@
         <hamcrestVersion>1.3</hamcrestVersion>
         <mockitoVersion>3.5.11</mockitoVersion>
         <argLine>-Xmx1024m</argLine>
+        <sonar.projectKey>Bahmni_bahmni-core</sonar.projectKey>
+        <sonar.organization>bahmni</sonar.organization>
+        <sonar.projectName>bahmni-core</sonar.projectName>
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
