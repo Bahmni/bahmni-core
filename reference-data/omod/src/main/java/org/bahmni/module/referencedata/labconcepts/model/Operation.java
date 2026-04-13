@@ -1,7 +1,7 @@
 package org.bahmni.module.referencedata.labconcepts.model;
 
+import org.bahmni.module.eventoutbox.EMREvent;
 import org.bahmni.module.referencedata.labconcepts.model.event.ConceptServiceOperationEvent;
-import org.ict4h.atomfeed.server.service.Event;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -38,13 +38,13 @@ public class Operation {
         this.name = method.getName();
     }
 
-    public List<Event> apply(Object[] arguments) throws Exception {
-        List<Event> atomFeedEvents = new ArrayList<>();
+    public List<EMREvent<?>> apply(Object[] arguments) {
+        List<EMREvent<?>> emrEvents = new ArrayList<>();
         for (ConceptServiceOperationEvent event : events) {
             if (event.isApplicable(name, arguments)) {
-                addIgnoreNull(atomFeedEvents, event.asAtomFeedEvent(arguments));
+                addIgnoreNull(emrEvents, event.asEMREvent(arguments));
             }
         }
-        return atomFeedEvents;
+        return emrEvents;
     }
 }
