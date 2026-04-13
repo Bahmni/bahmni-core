@@ -16,8 +16,8 @@ public class PatientProgramAdvice extends BaseAdvice implements AfterReturningAd
     private static final String CATEGORY = "programenrollment";
     private static final String TITLE = "Program Enrollment";
     private static final String SAVE_PATIENT_PROGRAM_METHOD = "savePatientProgram";
-    private static final String RAISE_PATIENT_PROGRAM_EVENT_GLOBAL_PROPERTY = "bahmnievents.publish.eventsForPatientProgramStateChange";
-    private static final String PATIENT_PROGRAM_EVENT_URL_PATTERN_GLOBAL_PROPERTY = "bahmnievents.event.urlPatternForProgramStateChange";
+    private static final String RAISE_PATIENT_PROGRAM_EVENT_GLOBAL_PROPERTY = "eventoutbox.publish.eventsForPatientProgramStateChange";
+    private static final String PATIENT_PROGRAM_EVENT_URL_PATTERN_GLOBAL_PROPERTY = "eventoutbox.event.urlPatternForProgramStateChange";
 
     private final Logger log = LogManager.getLogger(this.getClass());
     private final BahmniEventPublisher eventPublisher;

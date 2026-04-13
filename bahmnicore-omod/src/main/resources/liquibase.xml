@@ -4686,14 +4686,14 @@
     <changeSet id="bahmni-core-202603300001" author="Lingeswaran,aishwarya">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
-                SELECT COUNT(*) FROM global_property WHERE property = 'bahmnievents.publish.eventsForPatient'
+                SELECT COUNT(*) FROM global_property WHERE property = 'eventoutbox.publish.eventsForPatient'
             </sqlCheck>
         </preConditions>
         <comment>Adding global property to specify the URL pattern for published patient events</comment>
         <sql>
             INSERT INTO global_property(`property`, `property_value`, `description`, `uuid`)
             VALUES (
-                'bahmnievents.publish.eventsForPatient',
+                'eventoutbox.publish.eventsForPatient',
                 'true',
                 'If set to true, events related to patient save are published',
                 UUID()
@@ -4704,14 +4704,14 @@
     <changeSet id="bahmni-core-202603300002" author="Lingeswaran,aishwarya">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
-                SELECT COUNT(*) FROM global_property WHERE property = 'bahmnievents.publish.urlTemplateForPatient'
+                SELECT COUNT(*) FROM global_property WHERE property = 'eventoutbox.publish.urlTemplateForPatient'
             </sqlCheck>
         </preConditions>
         <comment>Adding global property to specify the URL pattern for publish patient events</comment>
         <sql>
             INSERT INTO global_property(`property`, `property_value`, `description`, `uuid`)
             VALUES (
-                'bahmnievents.publish.urlTemplateForPatient',
+                'eventoutbox.publish.urlTemplateForPatient',
                 '/openmrs/ws/rest/v1/patient/%s?v=full',
                 'URL template for patient events. Use %s as placeholder.',
                 UUID()
@@ -4722,14 +4722,14 @@
     <changeSet id="bahmni-core-202603300003" author="Lingeswaran,aishwarya">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
-                SELECT COUNT(*) FROM global_property WHERE property = 'bahmnievents.publish.eventsForPatientProgramStateChange'
+                SELECT COUNT(*) FROM global_property WHERE property = 'eventoutbox.publish.eventsForPatientProgramStateChange'
             </sqlCheck>
         </preConditions>
-        <comment>Migrate atomfeed.publish.eventsForPatientProgramStateChange to bahmnievents.publish.eventsForPatientProgramStateChange</comment>
+        <comment>Migrate atomfeed.publish.eventsForPatientProgramStateChange to eventoutbox.publish.eventsForPatientProgramStateChange</comment>
         <sql>
             INSERT INTO global_property(`property`, `property_value`, `description`, `uuid`)
             VALUES (
-                'bahmnievents.publish.eventsForPatientProgramStateChange',
+                'eventoutbox.publish.eventsForPatientProgramStateChange',
                 IFNULL(NULLIF((SELECT pv FROM (SELECT property_value AS pv FROM global_property WHERE property = 'atomfeed.publish.eventsForPatientProgramStateChange' LIMIT 1) AS t), ''), ''),
                 'If set to true, events related to patient program state change are published',
                 UUID()
@@ -4740,14 +4740,14 @@
     <changeSet id="bahmni-core-202603300004" author="Lingeswaran,aishwarya">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
-                SELECT COUNT(*) FROM global_property WHERE property = 'bahmnievents.event.urlPatternForProgramStateChange'
+                SELECT COUNT(*) FROM global_property WHERE property = 'eventoutbox.event.urlPatternForProgramStateChange'
             </sqlCheck>
         </preConditions>
-        <comment>Migrate atomfeed.event.urlPatternForProgramStateChange to bahmnievents.event.urlPatternForProgramStateChange</comment>
+        <comment>Migrate atomfeed.event.urlPatternForProgramStateChange to eventoutbox.event.urlPatternForProgramStateChange</comment>
         <sql>
             INSERT INTO global_property(`property`, `property_value`, `description`, `uuid`)
             VALUES (
-                'bahmnievents.event.urlPatternForProgramStateChange',
+                'eventoutbox.event.urlPatternForProgramStateChange',
                 IFNULL(NULLIF((SELECT pv FROM (SELECT property_value AS pv FROM global_property WHERE property = 'atomfeed.event.urlPatternForProgramStateChange' LIMIT 1) AS t), ''), ''),
                 'URL pattern to use for published program events. Default is /openmrs/ws/rest/v1/programenrollment/{uuid}?v=full',
                 UUID()
@@ -4758,14 +4758,14 @@
     <changeSet id="bahmni-core-202603300005" author="Lingeswaran,aishwarya">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
-                SELECT COUNT(*) FROM global_property WHERE property = 'bahmnievents.publish.eventsForPatientRelationshipChange'
+                SELECT COUNT(*) FROM global_property WHERE property = 'eventoutbox.publish.eventsForPatientRelationshipChange'
             </sqlCheck>
         </preConditions>
-        <comment>Migrate atomfeed.publish.eventsForPatientRelationshipChange to bahmnievents.publish.eventsForPatientRelationshipChange</comment>
+        <comment>Migrate atomfeed.publish.eventsForPatientRelationshipChange to eventoutbox.publish.eventsForPatientRelationshipChange</comment>
         <sql>
             INSERT INTO global_property(`property`, `property_value`, `description`, `uuid`)
             VALUES (
-                'bahmnievents.publish.eventsForPatientRelationshipChange',
+                'eventoutbox.publish.eventsForPatientRelationshipChange',
                 IFNULL(NULLIF((SELECT pv FROM (SELECT property_value AS pv FROM global_property WHERE property = 'atomfeed.publish.eventsForPatientRelationshipChange' LIMIT 1) AS t), ''), ''),
                 'If set to true, events related to patient relationship change are published',
                 UUID()
@@ -4776,14 +4776,14 @@
     <changeSet id="bahmni-core-202603300006" author="Lingeswaran,aishwarya">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
-                SELECT COUNT(*) FROM global_property WHERE property = 'bahmnievents.event.urlPatternForPatientRelationshipChange'
+                SELECT COUNT(*) FROM global_property WHERE property = 'eventoutbox.event.urlPatternForPatientRelationshipChange'
             </sqlCheck>
         </preConditions>
-        <comment>Migrate atomfeed.event.urlPatternForPatientRelationshipChange to bahmnievents.event.urlPatternForPatientRelationshipChange</comment>
+        <comment>Migrate atomfeed.event.urlPatternForPatientRelationshipChange to eventoutbox.event.urlPatternForPatientRelationshipChange</comment>
         <sql>
             INSERT INTO global_property(`property`, `property_value`, `description`, `uuid`)
             VALUES (
-                'bahmnievents.event.urlPatternForPatientRelationshipChange',
+                'eventoutbox.event.urlPatternForPatientRelationshipChange',
                 IFNULL(NULLIF((SELECT pv FROM (SELECT property_value AS pv FROM global_property WHERE property = 'atomfeed.event.urlPatternForPatientRelationshipChange' LIMIT 1) AS t), ''), ''),
                 'URL pattern to use for published relationship events. Default is /openmrs/ws/rest/v1/relationship/%s',
                 UUID()
@@ -4794,14 +4794,14 @@
     <changeSet id="bahmni-core-202603300007" author="Lingeswaran,aishwarya">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
-                SELECT COUNT(*) FROM global_property WHERE property = 'bahmnievents.encounter.feed.publish.url'
+                SELECT COUNT(*) FROM global_property WHERE property = 'eventoutbox.encounter.feed.publish.url'
             </sqlCheck>
         </preConditions>
-        <comment>Migrate encounter.feed.publish.url to bahmnievents.encounter.feed.publish.url</comment>
+        <comment>Migrate encounter.feed.publish.url to eventoutbox.encounter.feed.publish.url</comment>
         <sql>
             INSERT INTO global_property(`property`, `property_value`, `description`, `uuid`)
             VALUES (
-                'bahmnievents.encounter.feed.publish.url',
+                'eventoutbox.encounter.feed.publish.url',
                 IFNULL(NULLIF((SELECT pv FROM (SELECT property_value AS pv FROM global_property WHERE property = 'encounter.feed.publish.url' LIMIT 1) AS t), ''), '/openmrs/ws/rest/v1/bahmnicore/bahmniencounter/%s?includeAll=true'),
                 'URL for encounter events. Use %s as placeholder for encounter UUID.',
                 UUID()

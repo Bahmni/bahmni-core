@@ -15,8 +15,8 @@ public class PersonRelationshipAdvice extends BaseAdvice implements AfterReturni
     private static final String CATEGORY = "relationship";
     private static final String TITLE = "Relationship";
     private static final String SAVE_RELATIONSHIP_METHOD = "saveRelationship";
-    private static final String RAISE_RELATIONSHIP_EVENT_GLOBAL_PROPERTY = "bahmnievents.publish.eventsForPatientRelationshipChange";
-    private static final String RELATIONSHIP_EVENT_URL_PATTERN_GLOBAL_PROPERTY = "bahmnievents.event.urlPatternForPatientRelationshipChange";
+    private static final String RAISE_RELATIONSHIP_EVENT_GLOBAL_PROPERTY = "eventoutbox.publish.eventsForPatientRelationshipChange";
+    private static final String RELATIONSHIP_EVENT_URL_PATTERN_GLOBAL_PROPERTY = "eventoutbox.event.urlPatternForPatientRelationshipChange";
 
     private final Logger log = LogManager.getLogger(this.getClass());
     private final BahmniEventPublisher eventPublisher;
