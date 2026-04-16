@@ -78,6 +78,10 @@
         <hamcrestVersion>1.3</hamcrestVersion>
         <mockitoVersion>3.5.11</mockitoVersion>
         <argLine>-Xmx1024m</argLine>
+        <sonar.projectKey>Bahmni_bahmni-core</sonar.projectKey>
+        <sonar.organization>bahmni</sonar.organization>
+        <sonar.projectName>bahmni-core</sonar.projectName>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <profiles>
@@ -603,7 +607,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.7.5.201505241946</version>
+                    <version>0.8.12</version>  
                     <executions>
                         <execution>
                             <goals>
@@ -614,6 +618,13 @@
                                     <include>*</include>
                                 </includes>
                             </configuration>
+                        </execution>
+                        <execution>
+                            <id>report</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
                         </execution>
                     </executions>
                 </plugin>
