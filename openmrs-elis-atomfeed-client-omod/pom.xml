@@ -4,13 +4,20 @@
     <parent>
         <groupId>org.bahmni.module</groupId>
         <artifactId>bahmni</artifactId>
-        <version>2.0.0</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>openelis-atomfeed-client-omod</artifactId>
     <packaging>jar</packaging>
     <name>Open-Elis Atom Feed Client</name>
+     <licenses>
+        <license>
+            <name>Mozilla Public License Version 2.0</name>
+            <url>https://www.bahmni.org/license/mplv2hd</url>
+        </license>
+    </licenses>
 
     <properties>
+    
         <MODULE_ID>elisatomfeedclient</MODULE_ID>
         <MODULE_NAME>${project.name}</MODULE_NAME>
         <MODULE_VERSION>${project.version}</MODULE_VERSION>

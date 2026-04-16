@@ -5,7 +5,7 @@
     <parent>
         <artifactId>bahmni</artifactId>
         <groupId>org.bahmni.module</groupId>
-        <version>2.0.0</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -13,6 +13,14 @@
     <artifactId>vagrant-deploy</artifactId>
     <packaging>pom</packaging>
     <name>Deploy scripts</name>
+
+     <licenses>
+        <license>
+            <name>Mozilla Public License Version 2.0</name>
+            <url>https://www.bahmni.org/license/mplv2hd</url>
+        </license>
+    </licenses>
+    
 
     <properties>
         <MODULE_ID>openerpatomfeedclient</MODULE_ID>
