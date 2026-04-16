@@ -38,4 +38,13 @@ public interface FormDraftService {
      * @return the form data as a string, or null if file doesn't exist
      */
     String getFormData(String formDataPath);
+
+    /**
+     * Mark the latest form draft as saved for a patient and provider.
+     * Sets markedAsSaved=true so subsequent saves will create a new draft.
+     *
+     * @param patientUuid the UUID of the patient
+     * @param providerUuid the UUID of the provider
+     */
+    void markDraftAsSaved(String patientUuid, String providerUuid);
 }

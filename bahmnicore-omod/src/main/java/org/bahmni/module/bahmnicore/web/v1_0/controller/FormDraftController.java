@@ -75,9 +75,7 @@ public class FormDraftController extends BaseRestController {
         try {
             FormDraft draft = formDraftService.getDraft(patientUuid, providerUuid);
             if (draft == null) {
-                return new ResponseEntity<>(
-                        WebUtils.wrapErrorResponse(null, "No draft found for this patient and provider"),
-                        HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(new FormDraftResponse(), HttpStatus.OK);
             }
 
             String formData = formDraftService.getFormData(draft.getFormDataPath());
@@ -91,6 +89,36 @@ public class FormDraftController extends BaseRestController {
                     HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error("Error retrieving form draft", e);
+            return new ResponseEntity<>(
+                    WebUtils.wrapErrorResponse(null, e.getMessage()),
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Mark a form draft as saved (finalized).
+     * PATCH /rest/v1/bahmnicore/formdraft?patientUuid=xxx&providerUuid=yyy
+     *
+     * @param patientUuid the UUID of the patient
+     * @param providerUuid the UUID of the provider
+     * @return 200 OK on success
+     */
+    @RequestMapping(method = RequestMethod.PATCH)
+    @ResponseBody
+    public ResponseEntity<Object> markDraftAsSaved(
+            @RequestParam(value = "patientUuid", required = true) String patientUuid,
+            @RequestParam(value = "providerUuid", required = true) String providerUuid) {
+        try {
+            formDraftService.markDraftAsSaved(patientUuid, providerUuid);
+            log.info("Draft marked as saved for patient: " + patientUuid + " and provider: " + providerUuid);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid form draft request", e);
+            return new ResponseEntity<>(
+                    WebUtils.wrapErrorResponse(null, e.getMessage()),
+                    HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            log.error("Error marking draft as saved", e);
             return new ResponseEntity<>(
                     WebUtils.wrapErrorResponse(null, e.getMessage()),
                     HttpStatus.BAD_REQUEST);

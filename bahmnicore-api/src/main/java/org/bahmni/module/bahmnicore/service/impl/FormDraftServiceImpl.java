@@ -104,11 +104,18 @@ public class FormDraftServiceImpl implements FormDraftService {
             boolean isNewDraft = (draft == null);
             boolean contentChanged = true;
 
+            // If the latest draft is marked as saved, create a new draft instead of updating
+            if (draft != null && draft.getMarkedAsSaved() != null && draft.getMarkedAsSaved()) {
+                isNewDraft = true;
+                draft = null;
+            }
+
             if (draft == null) {
                 draft = new FormDraft();
                 draft.setUuid(UUID.randomUUID().toString());
                 draft.setDateCreated(new Date());
                 draft.setCreator(getAuthenticatedUser());
+                draft.setMarkedAsSaved(false);
             } else {
                 contentChanged = hasFormDataChanged(draft.getFormDataPath(), request.getFormData());
                 if (contentChanged) {
@@ -321,6 +328,49 @@ public class FormDraftServiceImpl implements FormDraftService {
         } catch (IOException e) {
             log.warn("Error reading form data file: " + formDataPath, e);
             return null;
+        }
+    }
+
+    @Override
+    public void markDraftAsSaved(String patientUuid, String providerUuid) {
+        try {
+            // Validate required fields
+            if (patientUuid == null || patientUuid.isEmpty()) {
+                throw new IllegalArgumentException("Patient UUID is required");
+            }
+            if (providerUuid == null || providerUuid.isEmpty()) {
+                throw new IllegalArgumentException("Provider UUID is required");
+            }
+
+            // Fetch entities to get their IDs
+            PatientService ps = patientService != null ? patientService : Context.getPatientService();
+            Patient patient = ps.getPatientByUuid(patientUuid);
+            if (patient == null) {
+                throw new APIException("Patient not found with UUID: " + patientUuid);
+            }
+
+            UserService us = userService != null ? userService : Context.getUserService();
+            User user = us.getUserByUuid(providerUuid);
+            if (user == null) {
+                throw new APIException("User/Provider not found with UUID: " + providerUuid);
+            }
+
+            // Get latest draft and mark as saved
+            FormDraft draft = formDraftDAO.getLatestByPatientAndUser(patient.getPatientId(), user.getUserId());
+            if (draft != null) {
+                draft.setMarkedAsSaved(true);
+                draft.setDateChanged(new Date());
+                draft.setChangedBy(getAuthenticatedUser());
+                formDraftDAO.saveOrUpdate(draft);
+            }
+
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (APIException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error marking form draft as saved", e);
+            throw new RuntimeException("Failed to mark form draft as saved: " + e.getMessage(), e);
         }
     }
 }
