@@ -14,14 +14,17 @@ import org.mockito.MockitoAnnotations;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.User;
+import org.openmrs.api.APIException;
 import org.openmrs.api.EncounterService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.UserService;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
@@ -261,6 +264,126 @@ public class FormDraftServiceImplTest {
     @Test(expected = IllegalArgumentException.class)
     public void discardDraft_shouldThrowWhenProviderUuidIsEmpty() {
         formDraftService.discardDraft(PATIENT_UUID, "");
+    }
+
+    @Test
+    public void markDraftAsSaved_shouldUpdateDraftMarkedAsSavedFlag() {
+        FormDraft existingDraft = new FormDraft();
+        existingDraft.setUuid("draft-uuid");
+        existingDraft.setMarkedAsSaved(false);
+
+        Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
+        User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
+
+        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
+        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(existingDraft);
+        when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
+
+        formDraftService.markDraftAsSaved(PATIENT_UUID, PROVIDER_UUID);
+
+        ArgumentCaptor<FormDraft> captor = ArgumentCaptor.forClass(FormDraft.class);
+        verify(formDraftDAO).saveOrUpdate(captor.capture());
+
+        FormDraft updatedDraft = captor.getValue();
+        assertTrue(updatedDraft.getMarkedAsSaved());
+        assertNotNull(updatedDraft.getDateChanged());
+    }
+
+    @Test
+    public void markDraftAsSaved_shouldDoNothingWhenNoDraftExists() {
+        Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
+        User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
+
+        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
+        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(null);
+
+        formDraftService.markDraftAsSaved(PATIENT_UUID, PROVIDER_UUID);
+
+        verify(formDraftDAO, org.mockito.Mockito.never()).saveOrUpdate(any(FormDraft.class));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void markDraftAsSaved_shouldThrowWhenPatientUuidIsNull() {
+        formDraftService.markDraftAsSaved(null, PROVIDER_UUID);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void markDraftAsSaved_shouldThrowWhenPatientUuidIsEmpty() {
+        formDraftService.markDraftAsSaved("", PROVIDER_UUID);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void markDraftAsSaved_shouldThrowWhenProviderUuidIsNull() {
+        formDraftService.markDraftAsSaved(PATIENT_UUID, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void markDraftAsSaved_shouldThrowWhenProviderUuidIsEmpty() {
+        formDraftService.markDraftAsSaved(PATIENT_UUID, "");
+    }
+
+    @Test(expected = APIException.class)
+    public void markDraftAsSaved_shouldThrowWhenPatientNotFound() {
+        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(null);
+
+        formDraftService.markDraftAsSaved(PATIENT_UUID, PROVIDER_UUID);
+    }
+
+    @Test(expected = APIException.class)
+    public void markDraftAsSaved_shouldThrowWhenProviderNotFound() {
+        Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
+
+        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
+        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(null);
+
+        formDraftService.markDraftAsSaved(PATIENT_UUID, PROVIDER_UUID);
+    }
+
+    @Test
+    public void saveDraft_shouldCreateNewDraftWhenExistingDraftIsMarkedAsSaved() {
+        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, null, "{\"updated\":\"data\"}");
+        Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
+        User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
+
+        FormDraft markedDraft = new FormDraft();
+        markedDraft.setUuid("marked-draft-uuid");
+        markedDraft.setPatient(patient);
+        markedDraft.setUser(user);
+        markedDraft.setMarkedAsSaved(true);
+
+        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
+        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(markedDraft);
+        when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
+
+        FormDraft result = formDraftService.saveDraft(request);
+
+        // Should create a new draft instead of updating the marked one
+        assertNotNull(result.getUuid());
+        assertNotEquals("marked-draft-uuid", result.getUuid());
+        assertFalse(result.getMarkedAsSaved());
+        verify(formDraftDAO).saveOrUpdate(any(FormDraft.class));
+    }
+
+    @Test
+    public void saveDraft_shouldInitializeMarkedAsSavedAsFalseForNewDraft() {
+        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, null, "{\"form\":\"data\"}");
+        Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
+        User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
+
+        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
+        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(null);
+
+        ArgumentCaptor<FormDraft> captor = ArgumentCaptor.forClass(FormDraft.class);
+        when(formDraftDAO.saveOrUpdate(captor.capture())).thenAnswer(inv -> inv.getArguments()[0]);
+
+        formDraftService.saveDraft(request);
+
+        FormDraft saved = captor.getValue();
+        assertFalse(saved.getMarkedAsSaved());
     }
 
     // --- Helpers ---
