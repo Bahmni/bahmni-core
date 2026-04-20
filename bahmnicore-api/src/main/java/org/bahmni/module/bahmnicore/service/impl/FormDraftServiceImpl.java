@@ -1,22 +1,5 @@
 package org.bahmni.module.bahmnicore.service.impl;
 
-import org.bahmni.module.bahmnicore.contract.FormDraftRequest;
-import org.bahmni.module.bahmnicore.dao.FormDraftDAO;
-import org.bahmni.module.bahmnicore.model.FormDraft;
-import org.bahmni.module.bahmnicore.service.FormDraftService;
-import org.openmrs.api.context.Context;
-import org.openmrs.Encounter;
-import org.openmrs.Patient;
-import org.openmrs.User;
-import org.openmrs.api.APIException;
-import org.openmrs.api.EncounterService;
-import org.openmrs.api.PatientService;
-import org.openmrs.api.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,6 +8,23 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Date;
 import java.util.UUID;
+
+import org.bahmni.module.bahmnicore.contract.FormDraftRequest;
+import org.bahmni.module.bahmnicore.dao.FormDraftDAO;
+import org.bahmni.module.bahmnicore.model.FormDraft;
+import org.bahmni.module.bahmnicore.service.FormDraftService;
+import org.openmrs.Encounter;
+import org.openmrs.Patient;
+import org.openmrs.User;
+import org.openmrs.api.APIException;
+import org.openmrs.api.EncounterService;
+import org.openmrs.api.PatientService;
+import org.openmrs.api.UserService;
+import org.openmrs.api.context.Context;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class FormDraftServiceImpl implements FormDraftService {
@@ -36,13 +36,11 @@ public class FormDraftServiceImpl implements FormDraftService {
     private PatientService patientService;
     private UserService userService;
     private EncounterService encounterService;
-    private User authenticatedUser;  // For testing - overrides Context.getAuthenticatedUser()
+    private User authenticatedUser;
 
-    // For testing purposes - can be overridden
     private String formDraftsBasePath;
 
     public FormDraftServiceImpl() {
-        // Initialize with OPENMRS_APPLICATION_DATA_DIRECTORY
         String appDataDir = System.getProperty("OPENMRS_APPLICATION_DATA_DIRECTORY");
         if (appDataDir == null || appDataDir.isEmpty()) {
             throw new IllegalStateException("OPENMRS_APPLICATION_DATA_DIRECTORY system property not set");
@@ -70,7 +68,6 @@ public class FormDraftServiceImpl implements FormDraftService {
         this.encounterService = encounterService;
     }
 
-    // Package-private setters for testing
     protected void setFormDraftsBasePath(String basePath) {
         this.formDraftsBasePath = basePath;
     }
@@ -104,7 +101,6 @@ public class FormDraftServiceImpl implements FormDraftService {
             boolean isNewDraft = (draft == null);
             boolean contentChanged = true;
 
-            // If the latest draft is marked as saved, create a new draft instead of updating
             if (draft != null && draft.getMarkedAsSaved() != null && draft.getMarkedAsSaved()) {
                 isNewDraft = true;
                 draft = null;
@@ -170,14 +166,14 @@ public class FormDraftServiceImpl implements FormDraftService {
         try {
             File file = new File(filePath);
             if (!file.exists()) {
-                return true;  // File doesn't exist, so content is new
+                return true;
             }
 
             String existingContent = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
             return !existingContent.equals(newFormData);
         } catch (IOException e) {
             log.warn("Error reading existing form data file, assuming content changed", e);
-            return true;  // If we can't read, assume it changed to be safe
+            return true;
         }
     }
 
@@ -244,7 +240,6 @@ public class FormDraftServiceImpl implements FormDraftService {
     @Override
     public FormDraft getDraft(String patientUuid, String providerUuid) {
         try {
-            // Validate required fields
             if (patientUuid == null || patientUuid.isEmpty()) {
                 throw new IllegalArgumentException("Patient UUID is required");
             }
@@ -252,7 +247,6 @@ public class FormDraftServiceImpl implements FormDraftService {
                 throw new IllegalArgumentException("Provider UUID is required");
             }
 
-            // Fetch entities to get their IDs
             PatientService ps = patientService != null ? patientService : Context.getPatientService();
             Patient patient = ps.getPatientByUuid(patientUuid);
             if (patient == null) {
@@ -265,7 +259,6 @@ public class FormDraftServiceImpl implements FormDraftService {
                 return null;
             }
 
-            // Query by patient ID and user ID
             return formDraftDAO.getLatestByPatientAndUser(patient.getPatientId(), user.getUserId());
 
         } catch (IllegalArgumentException e) {
@@ -279,7 +272,6 @@ public class FormDraftServiceImpl implements FormDraftService {
     @Override
     public void discardDraft(String patientUuid, String providerUuid) {
         try {
-            // Validate required fields
             if (patientUuid == null || patientUuid.isEmpty()) {
                 throw new IllegalArgumentException("Patient UUID is required");
             }
@@ -287,7 +279,6 @@ public class FormDraftServiceImpl implements FormDraftService {
                 throw new IllegalArgumentException("Provider UUID is required");
             }
 
-            // Fetch entities to get their IDs
             PatientService ps = patientService != null ? patientService : Context.getPatientService();
             Patient patient = ps.getPatientByUuid(patientUuid);
             if (patient == null) {
@@ -300,7 +291,6 @@ public class FormDraftServiceImpl implements FormDraftService {
                 throw new APIException("User/Provider not found with UUID: " + providerUuid);
             }
 
-            // Delete (void) latest draft for this patient-provider pair
             formDraftDAO.deleteLatestDraft(patient.getPatientId(), user.getUserId());
 
         } catch (IllegalArgumentException e) {
@@ -334,7 +324,6 @@ public class FormDraftServiceImpl implements FormDraftService {
     @Override
     public void markDraftAsSaved(String patientUuid, String providerUuid) {
         try {
-            // Validate required fields
             if (patientUuid == null || patientUuid.isEmpty()) {
                 throw new IllegalArgumentException("Patient UUID is required");
             }
@@ -342,7 +331,6 @@ public class FormDraftServiceImpl implements FormDraftService {
                 throw new IllegalArgumentException("Provider UUID is required");
             }
 
-            // Fetch entities to get their IDs
             PatientService ps = patientService != null ? patientService : Context.getPatientService();
             Patient patient = ps.getPatientByUuid(patientUuid);
             if (patient == null) {
@@ -355,7 +343,6 @@ public class FormDraftServiceImpl implements FormDraftService {
                 throw new APIException("User/Provider not found with UUID: " + providerUuid);
             }
 
-            // Get latest draft and mark as saved
             FormDraft draft = formDraftDAO.getLatestByPatientAndUser(patient.getPatientId(), user.getUserId());
             if (draft != null) {
                 draft.setMarkedAsSaved(true);
