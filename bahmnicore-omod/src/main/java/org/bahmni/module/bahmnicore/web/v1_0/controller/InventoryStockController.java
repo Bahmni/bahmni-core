@@ -1,7 +1,7 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.bahmni.module.bahmnicore.contract.stock.AvailableStockResponse;
-import org.bahmni.module.bahmnicore.service.StockService;
+import org.bahmni.module.bahmnicore.service.InventoryStockService;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.v1_0.controller.BaseRestController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class InventoryStockController extends BaseRestController {
     private final String baseUrl = "/rest/" + RestConstants.VERSION_1 + "inventory/availableStocks";
 
     @Autowired
-    private StockService stockService;
+    private InventoryStockService inventoryStockService;
 
     @RequestMapping(value = baseUrl, method = RequestMethod.GET)
     @ResponseBody
@@ -33,7 +33,7 @@ public class InventoryStockController extends BaseRestController {
             throw new IllegalArgumentException("productUuid is required");
         }
 
-        return stockService.getAvailableStocks(productUuid, locationUuid);
+        return inventoryStockService.getAvailableStocks(productUuid, locationUuid);
     }
 
     @ExceptionHandler(HttpClientErrorException.class)

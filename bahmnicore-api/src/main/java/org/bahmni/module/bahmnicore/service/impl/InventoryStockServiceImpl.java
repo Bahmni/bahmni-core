@@ -7,18 +7,18 @@ import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.client.BahmniOdooClient;
 import org.bahmni.module.bahmnicore.contract.stock.AvailableStockResponse;
 import org.bahmni.module.bahmnicore.exception.OdooApiException;
-import org.bahmni.module.bahmnicore.service.StockService;
+import org.bahmni.module.bahmnicore.service.InventoryStockService;
 import org.bahmni.module.bahmnicore.util.OdooUrlBuilder;
 import org.springframework.web.client.HttpClientErrorException;
 
-public class StockServiceImpl implements StockService {
+public class InventoryStockServiceImpl implements InventoryStockService {
 
-    private static final Logger logger = LogManager.getLogger(StockServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(InventoryStockServiceImpl.class);
 
     private final BahmniOdooClient bahmniOdooClient;
     private final ObjectMapper objectMapper;
 
-    public StockServiceImpl(BahmniOdooClient bahmniOdooClient) {
+    public InventoryStockServiceImpl(BahmniOdooClient bahmniOdooClient) {
         this.bahmniOdooClient = bahmniOdooClient;
         this.objectMapper = new ObjectMapper();
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
