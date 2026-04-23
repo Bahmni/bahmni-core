@@ -8,9 +8,9 @@ package org.bahmni.module.bahmnicore.properties;
  */
 public class OdooConfigProperties {
 
-    private static final String ODOO_DATABASE = "odoo";
-    private static final String ODOO_USERNAME = "admin";
-    private static final String ODOO_PASSWORD = "admin";
+    private static final String ODOO_DATABASE = "tempdbname";
+    private static final String ODOO_USERNAME = "tempusername";
+    private static final String ODOO_PASSWORD = "temppassword";
     private static final String ODOO_BASE_URL = "http://odoo:8069";
 
     public static String getProperty(String key) {
