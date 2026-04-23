@@ -4683,4 +4683,30 @@
         <sqlFile path="V1_99_WardsListSql.sql"/>
     </changeSet>
 
+    <changeSet id="bahmni-core-202601151218" author="Vivek Kumar Pandey">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM global_property where property = 'allergy.concept.noKnownAllergyUuid'
+            </sqlCheck>
+        </preConditions>
+        <comment>Add no known allergy concept global property</comment>
+        <sql>
+            insert into global_property (property, property_value, description, uuid)
+            values ('allergy.concept.noKnownAllergyUuid', 'f535bd4e-33ff-4f35-bf7c-189e07d1ac90', 'Specifies the uuid of no known allergy concept', uuid());
+        </sql>
+    </changeSet>
+
+    <changeSet id="bahmni-core-202604231219" author="Vivek Kumar Pandey">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM global_property where property = 'allergy.concept.otherAllergenUuid'
+            </sqlCheck>
+        </preConditions>
+        <comment>Add other allergen non coded concept global property</comment>
+        <sql>
+            insert into global_property (property, property_value, description, uuid)
+            values ('allergy.concept.otherAllergenUuid', 'df2e7016-5f2e-41f4-b376-73762429a1c5', 'UUID for the allergy other non coded concept', uuid());
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
