@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpClientErrorException;
 
 @Controller
-public class BahmniStockController extends BaseRestController {
+public class InventoryStockController extends BaseRestController {
 
-    private final String baseUrl = "/rest/" + RestConstants.VERSION_1 + "/availableStocks";
+    private final String baseUrl = "/rest/" + RestConstants.VERSION_1 + "inventory/availableStocks";
 
     @Autowired
     private StockService stockService;
