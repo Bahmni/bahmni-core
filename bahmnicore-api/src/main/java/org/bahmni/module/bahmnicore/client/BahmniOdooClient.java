@@ -11,20 +11,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-/**
- * HTTP client for communicating with Odoo.
- * Supports authenticated GET requests with automatic retry on 401/403.
- * Returns raw JSON strings to avoid RestTemplate deserialization issues
- * in the OpenMRS module classloader context.
- */
-public class OdooClient {
+public class BahmniOdooClient {
 
-    private static final Logger logger = LogManager.getLogger(OdooClient.class);
+    private static final Logger logger = LogManager.getLogger(BahmniOdooClient.class);
 
     private final RestTemplate restTemplate;
-    private final OdooSessionManager sessionManager;
+    private final BahmniOdooSessionManager sessionManager;
 
-    public OdooClient(RestTemplate restTemplate, OdooSessionManager sessionManager) {
+    public BahmniOdooClient(RestTemplate restTemplate, BahmniOdooSessionManager sessionManager) {
         this.restTemplate = restTemplate;
         this.sessionManager = sessionManager;
     }

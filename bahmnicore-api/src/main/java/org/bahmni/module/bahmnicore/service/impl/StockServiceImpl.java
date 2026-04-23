@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bahmni.module.bahmnicore.client.OdooClient;
+import org.bahmni.module.bahmnicore.client.BahmniOdooClient;
 import org.bahmni.module.bahmnicore.contract.stock.AvailableStockResponse;
 import org.bahmni.module.bahmnicore.exception.OdooApiException;
 import org.bahmni.module.bahmnicore.service.StockService;
@@ -15,11 +15,11 @@ public class StockServiceImpl implements StockService {
 
     private static final Logger logger = LogManager.getLogger(StockServiceImpl.class);
 
-    private final OdooClient odooClient;
+    private final BahmniOdooClient bahmniOdooClient;
     private final ObjectMapper objectMapper;
 
-    public StockServiceImpl(OdooClient odooClient) {
-        this.odooClient = odooClient;
+    public StockServiceImpl(BahmniOdooClient bahmniOdooClient) {
+        this.bahmniOdooClient = bahmniOdooClient;
         this.objectMapper = new ObjectMapper();
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
@@ -29,7 +29,7 @@ public class StockServiceImpl implements StockService {
         logger.info("Fetching available stocks for product: {}, location: {}", productUuid, locationUuid);
         String url = OdooUrlBuilder.buildAvailableStocksUrl(productUuid, locationUuid);
         try {
-            String json = odooClient.getWithAuthRetry(url);
+            String json = bahmniOdooClient.getWithAuthRetry(url);
             AvailableStockResponse response = objectMapper.readValue(json, AvailableStockResponse.class);
             logger.info("Successfully fetched {} stock entries", response != null ? response.getCount() : 0);
             return response;

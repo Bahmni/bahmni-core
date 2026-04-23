@@ -18,7 +18,7 @@ import org.springframework.web.client.HttpClientErrorException;
 @Controller
 public class BahmniStockController extends BaseRestController {
 
-    private final String baseUrl = "/rest/" + RestConstants.VERSION_1 + "/bahmnicore/available-batches-for-vaccine";
+    private final String baseUrl = "/rest/" + RestConstants.VERSION_1 + "/availableStocks";
 
     @Autowired
     private StockService stockService;
@@ -36,9 +36,6 @@ public class BahmniStockController extends BaseRestController {
         return stockService.getAvailableStocks(productUuid, locationUuid);
     }
 
-    /**
-     * Passes through Odoo HTTP error responses (400, 404, etc.) with the original status and body.
-     */
     @ExceptionHandler(HttpClientErrorException.class)
     @ResponseBody
     public ResponseEntity<String> handleOdooClientError(HttpClientErrorException ex) {

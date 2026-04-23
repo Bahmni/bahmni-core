@@ -274,12 +274,12 @@
     <bean id="bahmniOdooRestTemplate" class="org.springframework.web.client.RestTemplate"/>
 
     <bean id="bahmniOdooSessionManager"
-          class="org.bahmni.module.bahmnicore.client.OdooSessionManager">
+          class="org.bahmni.module.bahmnicore.client.BahmniOdooSessionManager">
         <constructor-arg ref="bahmniOdooRestTemplate"/>
     </bean>
 
     <bean id="bahmniOdooClient"
-          class="org.bahmni.module.bahmnicore.client.OdooClient">
+          class="org.bahmni.module.bahmnicore.client.BahmniOdooClient">
         <constructor-arg ref="bahmniOdooRestTemplate"/>
         <constructor-arg ref="bahmniOdooSessionManager"/>
     </bean>

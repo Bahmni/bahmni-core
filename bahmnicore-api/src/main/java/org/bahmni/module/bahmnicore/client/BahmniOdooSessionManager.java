@@ -15,14 +15,14 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
-public class OdooSessionManager {
+public class BahmniOdooSessionManager {
 
-    private static final Logger logger = LogManager.getLogger(OdooSessionManager.class);
+    private static final Logger logger = LogManager.getLogger(BahmniOdooSessionManager.class);
 
     private final RestTemplate restTemplate;
     private volatile String cachedSessionCookie;
 
-    public OdooSessionManager(RestTemplate restTemplate) {
+    public BahmniOdooSessionManager(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
