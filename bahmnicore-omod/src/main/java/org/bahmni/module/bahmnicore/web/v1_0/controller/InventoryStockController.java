@@ -25,7 +25,7 @@ public class InventoryStockController extends BaseRestController {
 
     @RequestMapping(value = baseUrl, method = RequestMethod.GET)
     @ResponseBody
-    public AvailableStockResponse getAvailableBatchesForVaccine(
+    public AvailableStockResponse getAvailableInventoryStockDetailsForProduct(
             @RequestParam(value = "productUuid") String productUuid,
             @RequestParam(value = "locationUuid", required = false) String locationUuid) {
 
@@ -33,7 +33,7 @@ public class InventoryStockController extends BaseRestController {
             throw new IllegalArgumentException("productUuid is required");
         }
 
-        return inventoryStockService.getAvailableStocks(productUuid, locationUuid);
+        return inventoryStockService.getAvailableStocksFromInventory(productUuid, locationUuid);
     }
 
     @ExceptionHandler(HttpClientErrorException.class)

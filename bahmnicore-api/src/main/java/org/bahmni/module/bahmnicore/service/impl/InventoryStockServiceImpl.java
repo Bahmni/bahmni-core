@@ -25,7 +25,7 @@ public class InventoryStockServiceImpl implements InventoryStockService {
     }
 
     @Override
-    public AvailableStockResponse getAvailableStocks(String productUuid, String locationUuid) {
+    public AvailableStockResponse getAvailableStocksFromInventory(String productUuid, String locationUuid) {
         logger.info("Fetching available stocks for product: {}, location: {}", productUuid, locationUuid);
         String url = OdooUrlBuilder.buildAvailableStocksUrl(productUuid, locationUuid);
         try {
