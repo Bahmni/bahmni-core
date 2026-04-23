@@ -285,7 +285,7 @@
     </bean>
 
     <bean id="bahmniStockService"
-          class="org.bahmni.module.bahmnicore.service.impl.InventoryStockServiceImpl">
+          class="org.bahmni.module.bahmnicore.service.impl.InventoryStockDetailsServiceImpl">
         <constructor-arg ref="bahmniOdooClient"/>
     </bean>
 

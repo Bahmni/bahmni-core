@@ -2,7 +2,7 @@ package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.bahmni.module.bahmnicore.contract.stock.AvailableStockResponse;
 import org.bahmni.module.bahmnicore.contract.stock.StockData;
-import org.bahmni.module.bahmnicore.service.InventoryStockService;
+import org.bahmni.module.bahmnicore.service.InventoryStockDetailsService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -27,7 +27,7 @@ public class InventoryStockControllerTest {
     private static final String LOCATION_UUID = "7672b695-1872-40de-9ae8-a2bb38038208";
 
     @Mock
-    private InventoryStockService inventoryStockService;
+    private InventoryStockDetailsService inventoryStockDetailsService;
 
     @InjectMocks
     private InventoryStockController inventoryStockController;
@@ -36,7 +36,7 @@ public class InventoryStockControllerTest {
     @Test
     public void getAvailableInventoryStockDetailsForProduct_shouldDelegateToServiceAndReturnResponse() {
         AvailableStockResponse expectedResponse = buildSampleResponse();
-        when(inventoryStockService.getAvailableStocksFromInventory(PRODUCT_UUID, LOCATION_UUID))
+        when(inventoryStockDetailsService.getAvailableStocksFromInventory(PRODUCT_UUID, LOCATION_UUID))
                 .thenReturn(expectedResponse);
 
         AvailableStockResponse result =
@@ -46,20 +46,20 @@ public class InventoryStockControllerTest {
         assertEquals(2, result.getCount());
         assertNotNull(result.getData());
         assertEquals(2, result.getData().size());
-        verify(inventoryStockService).getAvailableStocksFromInventory(PRODUCT_UUID, LOCATION_UUID);
+        verify(inventoryStockDetailsService).getAvailableStocksFromInventory(PRODUCT_UUID, LOCATION_UUID);
     }
 
     @Test
     public void getAvailableInventoryStockDetailsForProduct_shouldWorkWithNullLocationUuid() {
         AvailableStockResponse expectedResponse = buildSampleResponse();
-        when(inventoryStockService.getAvailableStocksFromInventory(PRODUCT_UUID, null))
+        when(inventoryStockDetailsService.getAvailableStocksFromInventory(PRODUCT_UUID, null))
                 .thenReturn(expectedResponse);
 
         AvailableStockResponse result =
                 inventoryStockController.getAvailableInventoryStockDetailsForProduct(PRODUCT_UUID, null);
 
         assertNotNull(result);
-        verify(inventoryStockService).getAvailableStocksFromInventory(PRODUCT_UUID, null);
+        verify(inventoryStockDetailsService).getAvailableStocksFromInventory(PRODUCT_UUID, null);
     }
 
     @Test
