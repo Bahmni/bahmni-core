@@ -20,8 +20,10 @@ public class OdooUrlBuilder {
     }
 
     public static String buildAvailableStocksUrl(String productUuid, String locationUuid) {
-        return BASE_URL + GET_AVAILABLE_STOCKS_API
-                + "?product_uuid=" + productUuid
-                + "&location_uuid=" + locationUuid;
+        String url = BASE_URL + GET_AVAILABLE_STOCKS_API + "?product_uuid=" + productUuid;
+        if (locationUuid != null && !locationUuid.trim().isEmpty()) {
+            url += "&location_uuid=" + locationUuid;
+        }
+        return url;
     }
 }
