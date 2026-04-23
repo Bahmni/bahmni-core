@@ -34,7 +34,6 @@ public class StockServiceImpl implements StockService {
             logger.info("Successfully fetched {} stock entries", response != null ? response.getCount() : 0);
             return response;
         } catch (HttpClientErrorException e) {
-            // Let Odoo HTTP errors (400, 404, etc.) propagate to the controller
             logger.warn("Odoo returned HTTP {}: {}", e.getStatusCode(), e.getResponseBodyAsString());
             throw e;
         } catch (Exception e) {

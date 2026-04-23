@@ -8,10 +8,6 @@ import org.springframework.http.MediaType;
 
 import java.util.List;
 
-/**
- * Static utility for building Odoo authentication requests,
- * creating authenticated headers, and extracting session cookies.
- */
 public class OdooClientHelper {
 
     private static final Logger logger = LogManager.getLogger(OdooClientHelper.class);
@@ -20,13 +16,6 @@ public class OdooClientHelper {
         // Utility class — prevent instantiation
     }
 
-    /**
-     * Builds the Odoo authentication request body as a JSON string:
-     * { "params": { "db": "...", "login": "...", "password": "..." } }
-     *
-     * Uses a String body instead of Map to avoid Jackson serialization issues
-     * in the OpenMRS module classloader context.
-     */
     public static HttpEntity<String> createAuthenticationRequest(
             String database, String login, String password) {
         String jsonBody = String.format(
@@ -39,9 +28,6 @@ public class OdooClientHelper {
         return new HttpEntity<>(jsonBody, headers);
     }
 
-    /**
-     * Creates HTTP headers with the session cookie and JSON content type.
-     */
     public static HttpHeaders createAuthenticatedHeaders(String sessionCookie) {
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.COOKIE, sessionCookie);
@@ -49,10 +35,6 @@ public class OdooClientHelper {
         return headers;
     }
 
-    /**
-     * Extracts the session cookie from the Set-Cookie header values.
-     * Returns the first cookie value (everything before the first ';').
-     */
     public static String extractSessionCookie(List<String> cookies) {
         if (cookies == null || cookies.isEmpty()) {
             logger.warn("No cookies found in authentication response");

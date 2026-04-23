@@ -15,12 +15,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
-/**
- * Manages Odoo session authentication and cookie caching.
- * Authenticates with Odoo via POST to /web/session/authenticate,
- * and caches the session cookie using a simple volatile field
- * (avoids Spring cache proxy issues in the OpenMRS module classloader).
- */
 public class OdooSessionManager {
 
     private static final Logger logger = LogManager.getLogger(OdooSessionManager.class);
