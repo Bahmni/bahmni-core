@@ -11,11 +11,12 @@ public class OdooUrlBuilder {
     private static final String SESSION_AUTHENTICATE_API = "/web/session/authenticate";
     private static final String GET_AVAILABLE_STOCKS_API = "/api/get-available-stocks";
 
-    private OdooUrlBuilder() {
-        // Utility class — prevent instantiation
-    }
+    private OdooUrlBuilder() {}
 
     public static String buildAuthenticationUrl() {
+        if (BASE_URL == null || BASE_URL.trim().isEmpty()) {
+            System.out.println("Base URL is not set in Odoo config properties. Using default URL.");
+        }
         return BASE_URL + SESSION_AUTHENTICATE_API;
     }
 

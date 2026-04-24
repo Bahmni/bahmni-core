@@ -19,7 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class InventoryStockDetailsServiceImplTest {
+public class InventoryStockServiceImplTest {
 
     private static final String PRODUCT_UUID = "6c8fa2a3-5714-466d-b83c-ce3c9f58641f";
     private static final String LOCATION_UUID = "7672b695-1872-40de-9ae8-a2bb38038208";
@@ -35,11 +35,11 @@ public class InventoryStockDetailsServiceImplTest {
     @Mock
     private BahmniOdooClient bahmniOdooClient;
 
-    private InventoryStockDetailsServiceImpl inventoryStockService;
+    private InventoryStockServiceImpl inventoryStockService;
 
     @Before
     public void setUp() {
-        inventoryStockService = new InventoryStockDetailsServiceImpl(bahmniOdooClient);
+        inventoryStockService = new InventoryStockServiceImpl(bahmniOdooClient);
     }
 
     @Test
