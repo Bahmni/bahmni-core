@@ -1,5 +1,7 @@
 package org.bahmni.module.bahmnicore.service.impl;
 
+import java.util.Collections;
+
 import org.bahmni.module.bahmnicore.contract.FormDraftRequest;
 import org.bahmni.module.bahmnicore.dao.FormDraftDAO;
 import org.bahmni.module.bahmnicore.model.FormDraft;
@@ -13,10 +15,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
+import org.openmrs.Person;
+import org.openmrs.Provider;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
 import org.openmrs.api.EncounterService;
 import org.openmrs.api.PatientService;
+import org.openmrs.api.ProviderService;
 import org.openmrs.api.UserService;
 
 import static org.junit.Assert.assertEquals;
@@ -44,9 +49,13 @@ public class FormDraftServiceImplTest {
     private UserService userService;
 
     @Mock
+    private ProviderService providerService;
+
+    @Mock
     private EncounterService encounterService;
 
     private FormDraftServiceImpl formDraftService;
+    private Person person;
 
     private static final String PATIENT_UUID = "patient-uuid-123";
     private static final int PATIENT_ID = 1;
@@ -65,12 +74,15 @@ public class FormDraftServiceImplTest {
         formDraftService.setFormDraftDAO(formDraftDAO);
         formDraftService.setPatientService(patientService);
         formDraftService.setUserService(userService);
+        formDraftService.setProviderService(providerService);
         formDraftService.setEncounterService(encounterService);
 
         // Set authenticated user for testing
         User mockUser = new User();
         mockUser.setUuid("user-uuid");
         formDraftService.setAuthenticatedUser(mockUser);
+
+        person = new Person();
     }
 
     @After
@@ -86,7 +98,7 @@ public class FormDraftServiceImplTest {
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
         when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
-        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        mockProviderResolution(user);
         when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(null);
         when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
 
@@ -114,7 +126,7 @@ public class FormDraftServiceImplTest {
         existingDraft.setUser(user);
 
         when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
-        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        mockProviderResolution(user);
         when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(existingDraft);
         when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
 
@@ -134,7 +146,7 @@ public class FormDraftServiceImplTest {
         encounter.setUuid(ENCOUNTER_UUID);
 
         when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
-        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        mockProviderResolution(user);
         when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(null);
         when(encounterService.getEncounterByUuid(ENCOUNTER_UUID)).thenReturn(encounter);
         when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
@@ -151,7 +163,7 @@ public class FormDraftServiceImplTest {
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
         when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
-        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        mockProviderResolution(user);
         when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(null);
         when(encounterService.getEncounterByUuid("nonexistent-encounter")).thenReturn(null);
         when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
@@ -186,7 +198,7 @@ public class FormDraftServiceImplTest {
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
         when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
-        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        mockProviderResolution(user);
         when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(null);
 
         ArgumentCaptor<FormDraft> captor = ArgumentCaptor.forClass(FormDraft.class);
@@ -210,7 +222,7 @@ public class FormDraftServiceImplTest {
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
         when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
-        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        mockProviderResolution(user);
         when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(existingDraft);
 
         FormDraft result = formDraftService.getDraft(PATIENT_UUID, PROVIDER_UUID);
@@ -225,7 +237,7 @@ public class FormDraftServiceImplTest {
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
         when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
-        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        mockProviderResolution(user);
         when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(null);
 
         FormDraft result = formDraftService.getDraft(PATIENT_UUID, PROVIDER_UUID);
@@ -249,7 +261,7 @@ public class FormDraftServiceImplTest {
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
         when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
-        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        mockProviderResolution(user);
 
         formDraftService.discardDraft(PATIENT_UUID, PROVIDER_UUID);
 
@@ -276,7 +288,7 @@ public class FormDraftServiceImplTest {
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
         when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
-        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        mockProviderResolution(user);
         when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(existingDraft);
         when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
 
@@ -296,7 +308,7 @@ public class FormDraftServiceImplTest {
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
         when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
-        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        mockProviderResolution(user);
         when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(null);
 
         formDraftService.markDraftAsSaved(PATIENT_UUID, PROVIDER_UUID);
@@ -336,9 +348,26 @@ public class FormDraftServiceImplTest {
         Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
 
         when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
-        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(null);
+        when(providerService.getProviderByUuid(PROVIDER_UUID)).thenReturn(null);
 
         formDraftService.markDraftAsSaved(PATIENT_UUID, PROVIDER_UUID);
+    }
+
+    @Test
+    public void saveDraft_shouldResolveUserViaProvider() {
+        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, null, "{\"form\":\"data\"}");
+        Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
+        User user = buildUser("user-uuid-999", PROVIDER_ID);
+
+        mockProviderResolution(user);
+        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
+        when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(null);
+        when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
+
+        FormDraft result = formDraftService.saveDraft(request);
+
+        assertNotNull(result);
+        assertEquals(user, result.getUser());
     }
 
     @Test
@@ -354,7 +383,7 @@ public class FormDraftServiceImplTest {
         markedDraft.setMarkedAsSaved(true);
 
         when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
-        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        mockProviderResolution(user);
         when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(markedDraft);
         when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
 
@@ -374,7 +403,7 @@ public class FormDraftServiceImplTest {
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
         when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
-        when(userService.getUserByUuid(PROVIDER_UUID)).thenReturn(user);
+        mockProviderResolution(user);
         when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(null);
 
         ArgumentCaptor<FormDraft> captor = ArgumentCaptor.forClass(FormDraft.class);
@@ -387,6 +416,13 @@ public class FormDraftServiceImplTest {
     }
 
     // --- Helpers ---
+
+    private void mockProviderResolution(User user) {
+        Provider provider = new Provider();
+        provider.setPerson(person);
+        when(providerService.getProviderByUuid(PROVIDER_UUID)).thenReturn(provider);
+        when(userService.getUsersByPerson(person, false)).thenReturn(Collections.singletonList(user));
+    }
 
     private FormDraftRequest buildRequest(String patientUuid, String providerUuid, String encounterUuid, String formData) {
         FormDraftRequest request = new FormDraftRequest();

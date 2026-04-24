@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Collection;
 import java.util.Date;
 import java.util.UUID;
 
@@ -15,10 +16,12 @@ import org.bahmni.module.bahmnicore.model.FormDraft;
 import org.bahmni.module.bahmnicore.service.FormDraftService;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
+import org.openmrs.Provider;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
 import org.openmrs.api.EncounterService;
 import org.openmrs.api.PatientService;
+import org.openmrs.api.ProviderService;
 import org.openmrs.api.UserService;
 import org.openmrs.api.context.Context;
 import org.slf4j.Logger;
@@ -35,6 +38,7 @@ public class FormDraftServiceImpl implements FormDraftService {
     private FormDraftDAO formDraftDAO;
     private PatientService patientService;
     private UserService userService;
+    private ProviderService providerService;
     private EncounterService encounterService;
     private User authenticatedUser;
 
@@ -64,6 +68,11 @@ public class FormDraftServiceImpl implements FormDraftService {
     }
 
     @Autowired(required = false)
+    public void setProviderService(ProviderService providerService) {
+        this.providerService = providerService;
+    }
+
+    @Autowired(required = false)
     public void setEncounterService(EncounterService encounterService) {
         this.encounterService = encounterService;
     }
@@ -80,6 +89,22 @@ public class FormDraftServiceImpl implements FormDraftService {
         return authenticatedUser != null ? authenticatedUser : Context.getAuthenticatedUser();
     }
 
+    /**
+     * Resolves a User from a Provider UUID via Provider → Person → User lookup.
+     */
+    private User resolveUser(String providerUuid) {
+        ProviderService ps = this.providerService != null ? this.providerService : Context.getProviderService();
+        Provider provider = ps.getProviderByUuid(providerUuid);
+        if (provider != null && provider.getPerson() != null) {
+            UserService us = userService != null ? userService : Context.getUserService();
+            Collection<User> users = us.getUsersByPerson(provider.getPerson(), false);
+            if (users != null && !users.isEmpty()) {
+                return users.iterator().next();
+            }
+        }
+        return null;
+    }
+
     @Override
     public FormDraft saveDraft(FormDraftRequest request) {
         try {
@@ -91,8 +116,7 @@ public class FormDraftServiceImpl implements FormDraftService {
                 throw new APIException("Patient not found with UUID: " + request.getPatientUuid());
             }
 
-            UserService us = userService != null ? userService : Context.getUserService();
-            User user = us.getUserByUuid(request.getProviderUuid());
+            User user = resolveUser(request.getProviderUuid());
             if (user == null) {
                 throw new APIException("User/Provider not found with UUID: " + request.getProviderUuid());
             }
@@ -253,8 +277,7 @@ public class FormDraftServiceImpl implements FormDraftService {
                 return null;
             }
 
-            UserService us = userService != null ? userService : Context.getUserService();
-            User user = us.getUserByUuid(providerUuid);
+            User user = resolveUser(providerUuid);
             if (user == null) {
                 return null;
             }
@@ -285,8 +308,7 @@ public class FormDraftServiceImpl implements FormDraftService {
                 throw new APIException("Patient not found with UUID: " + patientUuid);
             }
 
-            UserService us = userService != null ? userService : Context.getUserService();
-            User user = us.getUserByUuid(providerUuid);
+            User user = resolveUser(providerUuid);
             if (user == null) {
                 throw new APIException("User/Provider not found with UUID: " + providerUuid);
             }
@@ -337,8 +359,7 @@ public class FormDraftServiceImpl implements FormDraftService {
                 throw new APIException("Patient not found with UUID: " + patientUuid);
             }
 
-            UserService us = userService != null ? userService : Context.getUserService();
-            User user = us.getUserByUuid(providerUuid);
+            User user = resolveUser(providerUuid);
             if (user == null) {
                 throw new APIException("User/Provider not found with UUID: " + providerUuid);
             }
