@@ -10,10 +10,8 @@ public class AvailableStockResponse {
     private int count;
     private List<StockData> data;
 
-    /**
-     * Default no-arg constructor required by Jackson for JSON deserialization.
-     */
     public AvailableStockResponse() {
+        // Required by Jackson for JSON deserialization
     }
 
     public int getCount() {

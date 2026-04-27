@@ -18,10 +18,8 @@ public class StockData {
     @JsonProperty("expiry_date")
     private String expiryDate;
 
-    /**
-     * Default no-arg constructor required by Jackson for JSON deserialization.
-     */
     public StockData() {
+        // Required by Jackson for JSON deserialization
     }
 
     public String getLocationName() {
