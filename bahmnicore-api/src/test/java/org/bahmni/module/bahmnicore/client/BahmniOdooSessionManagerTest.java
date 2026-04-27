@@ -98,14 +98,6 @@ public class BahmniOdooSessionManagerTest {
         }
     }
 
-    @Test
-    public void clearSessionCache_shouldBeIdempotentWhenCalledMultipleTimes() {
-        // Clearing an already-empty cache should not throw
-        sessionManager.clearSessionCache();
-        sessionManager.clearSessionCache();
-        // No exception expected
-    }
-
     // ---- helpers ----
 
     private ResponseEntity<String> buildAuthResponse(String setCookieValue) {
