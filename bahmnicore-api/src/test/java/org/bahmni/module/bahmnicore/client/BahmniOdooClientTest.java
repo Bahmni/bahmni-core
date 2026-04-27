@@ -1,6 +1,5 @@
 package org.bahmni.module.bahmnicore.client;
 
-import org.bahmni.module.bahmnicore.helper.OdooClientHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
