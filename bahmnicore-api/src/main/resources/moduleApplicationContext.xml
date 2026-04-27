@@ -6,7 +6,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		http://www.springframework.org/schema/context
-		http://www.springframework.org/schema/context/spring-context-3.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util.xsd">
 
     <context:component-scan base-package="org.bahmni.module"/>
 
@@ -266,6 +268,25 @@
                 <ref bean="noteService"/>
             </list>
         </property>
+    </bean>
+
+    <!-- Odoo Integration: Bean Definitions -->
+    <bean id="bahmniOdooRestTemplate" class="org.springframework.web.client.RestTemplate"/>
+
+    <bean id="bahmniOdooSessionManager"
+          class="org.bahmni.module.bahmnicore.client.BahmniOdooSessionManager">
+        <constructor-arg ref="bahmniOdooRestTemplate"/>
+    </bean>
+
+    <bean id="bahmniOdooClient"
+          class="org.bahmni.module.bahmnicore.client.BahmniOdooClient">
+        <constructor-arg ref="bahmniOdooRestTemplate"/>
+        <constructor-arg ref="bahmniOdooSessionManager"/>
+    </bean>
+
+    <bean id="bahmniStockService"
+          class="org.bahmni.module.bahmnicore.service.impl.InventoryStockServiceImpl">
+        <constructor-arg ref="bahmniOdooClient"/>
     </bean>
 
 </beans>
