@@ -52,8 +52,6 @@ public class BahmniOdooSessionManager {
             HttpEntity<String> authRequest =
                     OdooClientHelper.createAuthenticationRequest(database, username, password);
 
-            System.out.println("Authenticating with Odoo: " + authUrl + "request: " + authRequest);
-
             ResponseEntity<String> authResponse =
                     restTemplate.exchange(authUrl, HttpMethod.POST, authRequest, String.class);
 

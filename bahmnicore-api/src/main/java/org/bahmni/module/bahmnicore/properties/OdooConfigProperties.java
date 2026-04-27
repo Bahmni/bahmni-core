@@ -25,9 +25,9 @@ public class OdooConfigProperties {
             return;
         }
         log.info(String.format("Reading odoo config properties from: %s", propertyFilePath));
-        try {
+        try (FileInputStream fis = new FileInputStream(propertyFile)) {
             properties = new Properties(System.getProperties());
-            properties.load(new FileInputStream(propertyFile));
+            properties.load(fis);
         }
         catch (IOException e) {
             throw new RuntimeException(e);
