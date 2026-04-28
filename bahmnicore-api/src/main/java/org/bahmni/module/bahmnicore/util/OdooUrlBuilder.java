@@ -14,7 +14,7 @@ public class OdooUrlBuilder {
     private static final String SESSION_AUTHENTICATE_API = "/web/session/authenticate";
     private static final String GET_AVAILABLE_STOCKS_API = "/api/get-available-stocks";
 
-    private static final Logger logger = LogManager.getLogger(InventoryStockServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(OdooUrlBuilder.class);
 
     private OdooUrlBuilder() {}
 
