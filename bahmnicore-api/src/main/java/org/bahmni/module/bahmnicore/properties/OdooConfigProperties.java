@@ -2,6 +2,7 @@ package org.bahmni.module.bahmnicore.properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bahmni.module.bahmnicore.exception.OdooApiException;
 import org.openmrs.util.OpenmrsUtil;
 
 import java.io.File;
@@ -11,9 +12,11 @@ import java.util.Properties;
 
 public class OdooConfigProperties {
 
-    public static Properties properties;
+    private static Properties properties;
 
-    private static Log log = LogFactory.getLog(OdooConfigProperties.class);
+    private static final Log log = LogFactory.getLog(OdooConfigProperties.class);
+
+    private OdooConfigProperties() {}
 
     public static void load() {
         String propertyFilePath = new File(OpenmrsUtil.getApplicationDataDirectory(), "odoo-config.properties")
@@ -30,7 +33,7 @@ public class OdooConfigProperties {
             properties.load(fis);
         }
         catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new OdooApiException("Failed to load Odoo config properties", e);
         }
     }
 
@@ -43,9 +46,5 @@ public class OdooConfigProperties {
 
     public static void initialize(Properties props) {
         properties = props;
-    }
-
-    public static void setProperties(Properties properties) {
-        OdooConfigProperties.properties = properties;
     }
 }

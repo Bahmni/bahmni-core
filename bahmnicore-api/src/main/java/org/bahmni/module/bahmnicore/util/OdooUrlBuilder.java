@@ -3,11 +3,7 @@ package org.bahmni.module.bahmnicore.util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bahmni.module.bahmnicore.properties.OdooConfigProperties;
-import org.bahmni.module.bahmnicore.service.impl.InventoryStockServiceImpl;
 
-/**
- * Builds Odoo API URLs from base URL and endpoint paths.
- */
 public class OdooUrlBuilder {
 
     private static final String BASE_URL = OdooConfigProperties.getProperty("odoo.base_url");
