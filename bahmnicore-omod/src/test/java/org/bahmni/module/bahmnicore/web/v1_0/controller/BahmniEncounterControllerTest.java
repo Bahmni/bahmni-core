@@ -1,5 +1,6 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
+import org.bahmni.module.bahmnicore.service.EncounterMatchDecisionService;
 import org.bahmni.module.bahmnicore.web.v1_0.VisitClosedException;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +12,8 @@ import org.openmrs.api.EncounterService;
 import org.openmrs.api.OrderEntryException;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterSearchParameters;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
+import org.openmrs.module.bahmniemrapi.encountertransaction.contract.EncounterMatchRequest;
+import org.openmrs.module.bahmniemrapi.encountertransaction.contract.EncounterMatchResponse;
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.BahmniEncounterTransactionMapper;
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService;
 import org.openmrs.module.emrapi.encounter.EmrEncounterService;
@@ -38,6 +41,8 @@ public class BahmniEncounterControllerTest {
 
     @Mock
     private EncounterService encounterService;
+    @Mock
+    private EncounterMatchDecisionService encounterMatchDecisionService;
     private BahmniEncounterController bahmniEncounterController;
 
     @Before
@@ -56,7 +61,7 @@ public class BahmniEncounterControllerTest {
         when(bahmniEncounterTransactionService.find(encounterSearchParameters)).thenReturn(et1);
         when(bahmniEncounterTransactionMapper.map(et1, false)).thenReturn(new BahmniEncounterTransaction(et1));
 
-        bahmniEncounterController = new BahmniEncounterController(null, emrEncounterService, null, bahmniEncounterTransactionService, bahmniEncounterTransactionMapper);
+        bahmniEncounterController = new BahmniEncounterController(null, emrEncounterService, null, bahmniEncounterTransactionService, bahmniEncounterTransactionMapper, null);
 
         BahmniEncounterTransaction bahmniEncounterTransaction = bahmniEncounterController.find(encounterSearchParameters);
 
@@ -71,7 +76,7 @@ public class BahmniEncounterControllerTest {
         when(emrEncounterService.find(encounterSearchParameters)).thenReturn(null);
         when(bahmniEncounterTransactionMapper.map(any(EncounterTransaction.class), anyBoolean())).thenReturn(new BahmniEncounterTransaction(new EncounterTransaction()));
 
-        bahmniEncounterController = new BahmniEncounterController(null, emrEncounterService, null, bahmniEncounterTransactionService, bahmniEncounterTransactionMapper);
+        bahmniEncounterController = new BahmniEncounterController(null, emrEncounterService, null, bahmniEncounterTransactionService, bahmniEncounterTransactionMapper, null);
         BahmniEncounterTransaction bahmniEncounterTransactions = bahmniEncounterController.find(encounterSearchParameters);
 
         assertNull(bahmniEncounterTransactions.getEncounterUuid());
@@ -89,7 +94,7 @@ public class BahmniEncounterControllerTest {
         encounter.setUuid("410491d2-b617-42ad-bf0f-de2fc9b42998");
         encounter.setVisit(visit);
 
-        bahmniEncounterController = new BahmniEncounterController(encounterService, emrEncounterService, null, bahmniEncounterTransactionService, bahmniEncounterTransactionMapper);
+        bahmniEncounterController = new BahmniEncounterController(encounterService, emrEncounterService, null, bahmniEncounterTransactionService, bahmniEncounterTransactionMapper, null);
 
         when(encounterService.getEncounterByUuid("410491d2-b617-42ad-bf0f-de2fc9b42998")).thenReturn(encounter);
 
@@ -97,7 +102,7 @@ public class BahmniEncounterControllerTest {
     }
     @Test
     public void shouldThrowBadRequestStatusCodeForOrderEntryException() throws Exception{
-        bahmniEncounterController = new BahmniEncounterController(encounterService, emrEncounterService, null, bahmniEncounterTransactionService, bahmniEncounterTransactionMapper);
+        bahmniEncounterController = new BahmniEncounterController(encounterService, emrEncounterService, null, bahmniEncounterTransactionService, bahmniEncounterTransactionMapper, null);
 
         OrderEntryException mockException = new OrderEntryException("Order.cannot.have.more.than.one");
 
@@ -111,4 +116,21 @@ public class BahmniEncounterControllerTest {
         assertEquals("[Order.cannot.have.more.than.one]", errorBody.get("message"));
     }
 
+    @Test
+    public void matchDecision_shouldDelegateToServiceAndReturnResponse() {
+        bahmniEncounterController = new BahmniEncounterController(encounterService, emrEncounterService, null,
+                bahmniEncounterTransactionService, bahmniEncounterTransactionMapper, encounterMatchDecisionService);
+
+        EncounterMatchRequest request = new EncounterMatchRequest();
+        request.setVisitUuid("visit-uuid");
+        request.setPatientUuid("patient-uuid");
+        request.setLocationUuid("location-uuid");
+
+        EncounterMatchResponse expectedResponse = EncounterMatchResponse.noActiveVisit();
+        when(encounterMatchDecisionService.decideMatch(request)).thenReturn(expectedResponse);
+
+        Map actualResponse = bahmniEncounterController.matchDecision(request);
+
+        assertEquals("no_active_visit", actualResponse.get("status"));
+    }
 }

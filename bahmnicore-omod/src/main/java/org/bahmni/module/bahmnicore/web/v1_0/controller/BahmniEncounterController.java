@@ -2,6 +2,7 @@ package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.bahmni.module.bahmnicore.service.EncounterMatchDecisionService;
 import org.bahmni.module.bahmnicore.web.v1_0.VisitClosedException;
 import org.openmrs.Encounter;
 import org.openmrs.Visit;
@@ -9,6 +10,8 @@ import org.openmrs.api.EncounterService;
 import org.openmrs.api.OrderEntryException;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterSearchParameters;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
+import org.openmrs.module.bahmniemrapi.encountertransaction.contract.EncounterMatchRequest;
+import org.openmrs.module.bahmniemrapi.encountertransaction.contract.EncounterMatchResponse;
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.BahmniEncounterTransactionMapper;
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService;
 import org.openmrs.module.emrapi.encounter.EmrEncounterService;
@@ -37,6 +40,7 @@ public class BahmniEncounterController extends BaseRestController {
     private EncounterTransactionMapper encounterTransactionMapper;
     private BahmniEncounterTransactionService bahmniEncounterTransactionService;
     private BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper;
+    private EncounterMatchDecisionService encounterMatchDecisionService;
     private static Logger logger = LogManager.getLogger(BahmniEncounterController.class);
 
     public BahmniEncounterController() {
@@ -46,12 +50,40 @@ public class BahmniEncounterController extends BaseRestController {
     public BahmniEncounterController(EncounterService encounterService,
                                      EmrEncounterService emrEncounterService, EncounterTransactionMapper encounterTransactionMapper,
                                      BahmniEncounterTransactionService bahmniEncounterTransactionService,
-                                     BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper) {
+                                     BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper,
+                                     EncounterMatchDecisionService encounterMatchDecisionService) {
         this.encounterService = encounterService;
         this.emrEncounterService = emrEncounterService;
         this.encounterTransactionMapper = encounterTransactionMapper;
         this.bahmniEncounterTransactionService = bahmniEncounterTransactionService;
         this.bahmniEncounterTransactionMapper = bahmniEncounterTransactionMapper;
+        this.encounterMatchDecisionService = encounterMatchDecisionService;
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/match-decision")
+    @ResponseBody
+    public Map matchDecision(@RequestBody EncounterMatchRequest request) {
+        EncounterMatchResponse response = encounterMatchDecisionService.decideMatch(request);
+        return stripNulls(response);
+    }
+
+    private Map stripNulls(Object obj) {
+        try {
+            org.codehaus.jackson.map.ObjectMapper mapper = new org.codehaus.jackson.map.ObjectMapper();
+            String json = mapper.writeValueAsString(obj);
+            Map map = mapper.readValue(json, Map.class);
+            Map result = new HashMap();
+            for (Object key : map.keySet()) {
+                Object value = map.get(key);
+                if (value != null) {
+                    result.put(key, value);
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            logger.warn("Failed to strip nulls from response", e);
+            return new HashMap();
+        }
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{uuid}")
