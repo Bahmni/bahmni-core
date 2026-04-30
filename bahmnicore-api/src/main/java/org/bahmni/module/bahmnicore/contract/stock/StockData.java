@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class StockData {
 
     @JsonProperty("location_name")
-    private String locationName;
+    private String stockLocationName;
 
     @JsonProperty("available_quantity")
     private Double availableQuantity;
@@ -18,16 +18,12 @@ public class StockData {
     @JsonProperty("expiry_date")
     private String expiryDate;
 
-    public StockData() {
-        // Required by Jackson for JSON deserialization
+    public String getStockLocationName() {
+        return stockLocationName;
     }
 
-    public String getLocationName() {
-        return locationName;
-    }
-
-    public void setLocationName(String locationName) {
-        this.locationName = locationName;
+    public void setStockLocationName(String stockLocationName) {
+        this.stockLocationName = stockLocationName;
     }
 
     public Double getAvailableQuantity() {

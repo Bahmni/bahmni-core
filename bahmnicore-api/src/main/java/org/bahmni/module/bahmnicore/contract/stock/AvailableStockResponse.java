@@ -10,10 +10,6 @@ public class AvailableStockResponse {
     private int count;
     private List<StockData> data;
 
-    public AvailableStockResponse() {
-        // Required by Jackson for JSON deserialization
-    }
-
     public int getCount() {
         return count;
     }

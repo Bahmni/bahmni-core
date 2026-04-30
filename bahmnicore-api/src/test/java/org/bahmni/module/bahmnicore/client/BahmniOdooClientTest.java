@@ -53,24 +53,12 @@ public class BahmniOdooClientTest {
 
         assertEquals(RESPONSE_BODY, result);
         verify(sessionManager, times(1)).getSessionCookie();
-        verify(restTemplate, times(1)).exchange(eq(TEST_URL), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
-    }
-
-    @Test
-    public void getWithAuthRetry_shouldReturnResponseOnFirstSuccessfulCall() {
-        ResponseEntity<String> mockResponse = new ResponseEntity<>(RESPONSE_BODY, HttpStatus.OK);
-        when(restTemplate.exchange(eq(TEST_URL), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
-                .thenReturn(mockResponse);
-
-        String result = bahmniOdooClient.getWithAuthRetry(TEST_URL);
-
-        assertEquals(RESPONSE_BODY, result);
         verify(sessionManager, never()).clearSessionCache();
         verify(restTemplate, times(1)).exchange(eq(TEST_URL), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
     }
 
     @Test
-    public void getWithAuthRetry_shouldClearSessionCacheAndRetryOn401Unauthorized() {
+    public void get_shouldClearSessionCacheAndRetryOn401Unauthorized() {
         HttpClientErrorException unauthorizedException =
                 new HttpClientErrorException(HttpStatus.UNAUTHORIZED);
         ResponseEntity<String> retryResponse = new ResponseEntity<>(RESPONSE_BODY, HttpStatus.OK);
@@ -79,7 +67,7 @@ public class BahmniOdooClientTest {
                 .thenThrow(unauthorizedException)
                 .thenReturn(retryResponse);
 
-        String result = bahmniOdooClient.getWithAuthRetry(TEST_URL);
+        String result = bahmniOdooClient.get(TEST_URL);
 
         assertEquals(RESPONSE_BODY, result);
         verify(sessionManager, times(1)).clearSessionCache();
@@ -87,7 +75,7 @@ public class BahmniOdooClientTest {
     }
 
     @Test
-    public void getWithAuthRetry_shouldClearSessionCacheAndRetryOn403Forbidden() {
+    public void get_shouldClearSessionCacheAndRetryOn403Forbidden() {
         HttpClientErrorException forbiddenException =
                 new HttpClientErrorException(HttpStatus.FORBIDDEN);
         ResponseEntity<String> retryResponse = new ResponseEntity<>(RESPONSE_BODY, HttpStatus.OK);
@@ -96,7 +84,7 @@ public class BahmniOdooClientTest {
                 .thenThrow(forbiddenException)
                 .thenReturn(retryResponse);
 
-        String result = bahmniOdooClient.getWithAuthRetry(TEST_URL);
+        String result = bahmniOdooClient.get(TEST_URL);
 
         assertEquals(RESPONSE_BODY, result);
         verify(sessionManager, times(1)).clearSessionCache();
@@ -104,7 +92,7 @@ public class BahmniOdooClientTest {
     }
 
     @Test
-    public void getWithAuthRetry_shouldRethrowNonAuthErrorsWithoutRetrying() {
+    public void get_shouldRethrowNonAuthErrorsWithoutRetrying() {
         HttpClientErrorException notFoundException =
                 new HttpClientErrorException(HttpStatus.NOT_FOUND);
 
@@ -112,7 +100,7 @@ public class BahmniOdooClientTest {
                 .thenThrow(notFoundException);
 
         try {
-            bahmniOdooClient.getWithAuthRetry(TEST_URL);
+            bahmniOdooClient.get(TEST_URL);
             fail("Expected HttpClientErrorException to be thrown");
         } catch (HttpClientErrorException ex) {
             assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
@@ -123,7 +111,7 @@ public class BahmniOdooClientTest {
     }
 
     @Test
-    public void getWithAuthRetry_shouldRethrowInternalServerErrorWithoutRetrying() {
+    public void get_shouldRethrowInternalServerErrorWithoutRetrying() {
         HttpClientErrorException serverException =
                 new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
 
@@ -131,7 +119,7 @@ public class BahmniOdooClientTest {
                 .thenThrow(serverException);
 
         try {
-            bahmniOdooClient.getWithAuthRetry(TEST_URL);
+            bahmniOdooClient.get(TEST_URL);
             fail("Expected HttpClientErrorException to be thrown");
         } catch (HttpClientErrorException ex) {
             assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ex.getStatusCode());

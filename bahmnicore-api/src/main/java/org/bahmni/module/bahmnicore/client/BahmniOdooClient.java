@@ -24,25 +24,25 @@ public class BahmniOdooClient {
     }
 
     public String get(String url) {
+        try {
+            return executeGet(url);
+        } catch (HttpClientErrorException ex) {
+            if (isAuthenticationError(ex)) {
+                logger.warn("Authentication error ({}), clearing session cache and retrying", ex.getStatusCode());
+                sessionManager.clearSessionCache();
+                return executeGet(url);
+            }
+            throw ex;
+        }
+    }
+
+    private String executeGet(String url) {
         String sessionCookie = sessionManager.getSessionCookie();
         HttpHeaders headers = OdooClientHelper.createAuthenticatedHeaders(sessionCookie);
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
         return response.getBody();
-    }
-
-    public String getWithAuthRetry(String url) {
-        try {
-            return get(url);
-        } catch (HttpClientErrorException ex) {
-            if (isAuthenticationError(ex)) {
-                logger.warn("Authentication error ({}), clearing session cache and retrying", ex.getStatusCode());
-                sessionManager.clearSessionCache();
-                return get(url);
-            }
-            throw ex;
-        }
     }
 
     private boolean isAuthenticationError(HttpClientErrorException ex) {

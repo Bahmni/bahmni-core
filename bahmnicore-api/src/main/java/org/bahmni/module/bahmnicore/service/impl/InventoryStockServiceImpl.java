@@ -1,6 +1,5 @@
 package org.bahmni.module.bahmnicore.service.impl;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +20,6 @@ public class InventoryStockServiceImpl implements InventoryStockService {
     public InventoryStockServiceImpl(BahmniOdooClient bahmniOdooClient) {
         this.bahmniOdooClient = bahmniOdooClient;
         this.objectMapper = new ObjectMapper();
-        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override
@@ -29,7 +27,7 @@ public class InventoryStockServiceImpl implements InventoryStockService {
         logger.info("Fetching available stocks for product: {}, location: {}", productUuid, locationUuid);
         String url = OdooUrlBuilder.buildAvailableStocksUrl(productUuid, locationUuid);
         try {
-            String json = bahmniOdooClient.getWithAuthRetry(url);
+            String json = bahmniOdooClient.get(url);
             AvailableStockResponse response = objectMapper.readValue(json, AvailableStockResponse.class);
             logger.info("Successfully fetched {} stock entries", response != null ? response.getCount() : 0);
             return response;

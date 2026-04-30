@@ -27,9 +27,9 @@ public class InventoryStockServiceImplTest {
     private static final String VALID_RESPONSE_JSON = "{"
             + "\"count\":3,"
             + "\"data\":["
-            + "  {\"location_name\":\"Stock\",\"available_quantity\":100.0,\"batch_number\":\"AB0001\",\"expiry_date\":\"2026-06-26T10:10:08Z\"},"
-            + "  {\"location_name\":\"Stock\",\"available_quantity\":200.0},"
-            + "  {\"location_name\":\"Spare Stock\",\"available_quantity\":300.0,\"batch_number\":\"AB0002\",\"expiry_date\":\"2026-08-29T10:10:37Z\"}"
+            + "  {\"stock_location_name\":\"Stock\",\"available_quantity\":100.0,\"batch_number\":\"AB0001\",\"expiry_date\":\"2026-06-26T10:10:08Z\"},"
+            + "  {\"stock_location_name\":\"Stock\",\"available_quantity\":200.0},"
+            + "  {\"stock_location_name\":\"Spare Stock\",\"available_quantity\":300.0,\"batch_number\":\"AB0002\",\"expiry_date\":\"2026-08-29T10:10:37Z\"}"
             + "]}";
 
     @Mock
@@ -44,7 +44,7 @@ public class InventoryStockServiceImplTest {
 
     @Test
     public void getAvailableStocks_FromInventory_shouldReturnParsedResponseOnSuccess() {
-        when(bahmniOdooClient.getWithAuthRetry(anyString())).thenReturn(VALID_RESPONSE_JSON);
+        when(bahmniOdooClient.get(anyString())).thenReturn(VALID_RESPONSE_JSON);
 
         AvailableStockResponse response =
                 inventoryStockService.getAvailableStocksFromInventory(PRODUCT_UUID, LOCATION_UUID);
@@ -53,7 +53,7 @@ public class InventoryStockServiceImplTest {
         assertEquals(3, response.getCount());
         assertNotNull(response.getData());
         assertEquals(3, response.getData().size());
-        assertEquals("Stock", response.getData().get(0).getLocationName());
+        assertEquals("Stock", response.getData().get(0).getStockLocationName());
         assertEquals(100.0, response.getData().get(0).getAvailableQuantity(), 0.001);
         assertEquals("AB0001", response.getData().get(0).getBatchNumber());
         assertEquals("2026-06-26T10:10:08Z", response.getData().get(0).getExpiryDate());
@@ -61,14 +61,14 @@ public class InventoryStockServiceImplTest {
 
     @Test
     public void getAvailableStocks_FromInventory_shouldHandleStockEntriesWithoutBatchInfo() {
-        when(bahmniOdooClient.getWithAuthRetry(anyString())).thenReturn(VALID_RESPONSE_JSON);
+        when(bahmniOdooClient.get(anyString())).thenReturn(VALID_RESPONSE_JSON);
 
         AvailableStockResponse response =
                 inventoryStockService.getAvailableStocksFromInventory(PRODUCT_UUID, LOCATION_UUID);
 
         // Second entry has no batch_number or expiry_date
         assertNotNull(response.getData().get(1));
-        assertEquals("Stock", response.getData().get(1).getLocationName());
+        assertEquals("Stock", response.getData().get(1).getStockLocationName());
         assertEquals(200.0, response.getData().get(1).getAvailableQuantity(), 0.001);
         assertEquals(null, response.getData().get(1).getBatchNumber());
         assertEquals(null, response.getData().get(1).getExpiryDate());
@@ -76,18 +76,18 @@ public class InventoryStockServiceImplTest {
 
     @Test
     public void getAvailableStocks_FromInventory_shouldCallOdooClientWithUrlContainingProductUuid() {
-        when(bahmniOdooClient.getWithAuthRetry(anyString())).thenReturn(VALID_RESPONSE_JSON);
+        when(bahmniOdooClient.get(anyString())).thenReturn(VALID_RESPONSE_JSON);
 
         inventoryStockService.getAvailableStocksFromInventory(PRODUCT_UUID, LOCATION_UUID);
 
-        verify(bahmniOdooClient).getWithAuthRetry(
+        verify(bahmniOdooClient).get(
                 org.mockito.Matchers.contains("product_uuid=" + PRODUCT_UUID));
     }
 
     @Test
     public void getAvailableStocks_FromInventory_shouldRethrowHttpClientErrorExceptionFromOdooClient() {
         HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.NOT_FOUND);
-        when(bahmniOdooClient.getWithAuthRetry(anyString())).thenThrow(exception);
+        when(bahmniOdooClient.get(anyString())).thenThrow(exception);
 
         try {
             inventoryStockService.getAvailableStocksFromInventory(PRODUCT_UUID, LOCATION_UUID);
@@ -99,7 +99,7 @@ public class InventoryStockServiceImplTest {
 
     @Test
     public void getAvailableStocks_FromInventory_shouldWrapGeneralExceptionInOdooApiException() {
-        when(bahmniOdooClient.getWithAuthRetry(anyString()))
+        when(bahmniOdooClient.get(anyString()))
                 .thenReturn("this is not valid json {{{");
 
         try {
@@ -112,7 +112,7 @@ public class InventoryStockServiceImplTest {
 
     @Test
     public void getAvailableStocks_FromInventory_shouldWrapRuntimeExceptionInOdooApiException() {
-        when(bahmniOdooClient.getWithAuthRetry(anyString()))
+        when(bahmniOdooClient.get(anyString()))
                 .thenThrow(new RuntimeException("Something went wrong"));
 
         try {

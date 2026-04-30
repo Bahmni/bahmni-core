@@ -136,13 +136,13 @@ public class InventoryStockControllerTest {
 
     private AvailableStockResponse buildSampleResponse() {
         StockData stock1 = new StockData();
-        stock1.setLocationName("Stock");
+        stock1.setStockLocationName("Stock");
         stock1.setAvailableQuantity(100.0);
         stock1.setBatchNumber("AB0001");
         stock1.setExpiryDate("2026-06-26T10:10:08Z");
 
         StockData stock2 = new StockData();
-        stock2.setLocationName("Spare Stock");
+        stock2.setStockLocationName("Spare Stock");
         stock2.setAvailableQuantity(200.0);
 
         AvailableStockResponse response = new AvailableStockResponse();
