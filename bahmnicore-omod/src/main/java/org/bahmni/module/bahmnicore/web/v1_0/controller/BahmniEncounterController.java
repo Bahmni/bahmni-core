@@ -1,7 +1,8 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.bahmni.module.bahmnicore.service.EncounterMatchDecisionService;
 import org.bahmni.module.bahmnicore.web.v1_0.VisitClosedException;
 import org.openmrs.Encounter;
 import org.openmrs.Visit;
@@ -9,6 +10,8 @@ import org.openmrs.api.EncounterService;
 import org.openmrs.api.OrderEntryException;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterSearchParameters;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
+import org.openmrs.module.bahmniemrapi.encountertransaction.contract.EncounterMatchRequest;
+import org.openmrs.module.bahmniemrapi.encountertransaction.contract.EncounterMatchResponse;
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.BahmniEncounterTransactionMapper;
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService;
 import org.openmrs.module.emrapi.encounter.EmrEncounterService;
@@ -37,7 +40,8 @@ public class BahmniEncounterController extends BaseRestController {
     private EncounterTransactionMapper encounterTransactionMapper;
     private BahmniEncounterTransactionService bahmniEncounterTransactionService;
     private BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper;
-    private static Logger logger = LogManager.getLogger(BahmniEncounterController.class);
+    private EncounterMatchDecisionService encounterMatchDecisionService;
+    private static Logger logger = LoggerFactory.getLogger(BahmniEncounterController.class);
 
     public BahmniEncounterController() {
     }
@@ -46,12 +50,37 @@ public class BahmniEncounterController extends BaseRestController {
     public BahmniEncounterController(EncounterService encounterService,
                                      EmrEncounterService emrEncounterService, EncounterTransactionMapper encounterTransactionMapper,
                                      BahmniEncounterTransactionService bahmniEncounterTransactionService,
-                                     BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper) {
+                                     BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper,
+                                     EncounterMatchDecisionService encounterMatchDecisionService) {
         this.encounterService = encounterService;
         this.emrEncounterService = emrEncounterService;
         this.encounterTransactionMapper = encounterTransactionMapper;
         this.bahmniEncounterTransactionService = bahmniEncounterTransactionService;
         this.bahmniEncounterTransactionMapper = bahmniEncounterTransactionMapper;
+        this.encounterMatchDecisionService = encounterMatchDecisionService;
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/match-decision")
+    @ResponseBody
+    public Map<String, Object> matchDecision(@RequestBody EncounterMatchRequest request) {
+        EncounterMatchResponse response = encounterMatchDecisionService.decideMatch(request);
+        return removeNulls(response);
+    }
+
+    private Map<String, Object> removeNulls(EncounterMatchResponse response) {
+        Map<String, Object> result = new HashMap<>();
+        if (response.getStatus() != null) result.put("status", response.getStatus());
+        if (response.getEncounterUuid() != null) result.put("encounterUuid", response.getEncounterUuid());
+        if (response.getEncounterDateTime() != null) result.put("encounterDateTime", response.getEncounterDateTime());
+        if (response.getEncounterType() != null) result.put("encounterType", response.getEncounterType());
+        if (response.getProvider() != null) result.put("provider", response.getProvider());
+        if (response.getLocation() != null) result.put("location", response.getLocation());
+        if (response.getMatchDetails() != null) result.put("matchDetails", response.getMatchDetails());
+        if (response.getReason() != null) result.put("reason", response.getReason());
+        if (response.getReasonDescription() != null) result.put("reasonDescription", response.getReasonDescription());
+        if (response.getErrorCode() != null) result.put("errorCode", response.getErrorCode());
+        if (response.getErrorMessage() != null) result.put("errorMessage", response.getErrorMessage());
+        return result;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{uuid}")
