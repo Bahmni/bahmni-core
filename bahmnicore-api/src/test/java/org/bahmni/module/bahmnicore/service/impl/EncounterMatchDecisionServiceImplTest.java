@@ -114,8 +114,7 @@ public class EncounterMatchDecisionServiceImplTest {
         request.setVisitUuid("visit-uuid");
         request.setPatientUuid("patient-uuid");
         request.setLocationUuid("location-uuid");
-        request.setEncounterTypeUuids(Arrays.asList("enc-type-uuid"));
-        request.setProviderUuids(Arrays.asList("provider-uuid"));
+        request.setProviderUuid("provider-uuid");
         return request;
     }
 
@@ -144,7 +143,6 @@ public class EncounterMatchDecisionServiceImplTest {
         EncounterMatchRequest request = buildRequest();
         Encounter matchedEncounter = buildEncounter(new Date());
 
-        when(encounterService.getEncounterTypeByUuid("enc-type-uuid")).thenReturn(encounterType);
         when(providerService.getProviderByUuid("provider-uuid")).thenReturn(provider);
         when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
                 .thenReturn(matchedEncounter);
@@ -170,7 +168,6 @@ public class EncounterMatchDecisionServiceImplTest {
         Provider requestedProvider = new Provider();
         requestedProvider.setUuid("provider-uuid");
         when(providerService.getProviderByUuid("provider-uuid")).thenReturn(requestedProvider);
-        when(encounterService.getEncounterTypeByUuid("enc-type-uuid")).thenReturn(encounterType);
         when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
                 .thenReturn(null);
 
@@ -202,9 +199,7 @@ public class EncounterMatchDecisionServiceImplTest {
     @Test
     public void no_match_whenLocationDiffers() {
         EncounterMatchRequest request = buildRequest();
-        request.setProviderUuids(null); // no provider filter — isolate location check
-
-        when(encounterService.getEncounterTypeByUuid("enc-type-uuid")).thenReturn(encounterType);
+        request.setProviderUuid(null); // no provider filter — isolate location check
         when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
                 .thenReturn(null);
 
@@ -242,7 +237,6 @@ public class EncounterMatchDecisionServiceImplTest {
     public void no_match_whenSessionExpired() {
         EncounterMatchRequest request = buildRequest();
 
-        when(encounterService.getEncounterTypeByUuid("enc-type-uuid")).thenReturn(encounterType);
         when(providerService.getProviderByUuid("provider-uuid")).thenReturn(provider);
         when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
                 .thenReturn(null);
@@ -292,7 +286,6 @@ public class EncounterMatchDecisionServiceImplTest {
     public void no_match_whenNoEncountersInVisit() {
         EncounterMatchRequest request = buildRequest();
 
-        when(encounterService.getEncounterTypeByUuid("enc-type-uuid")).thenReturn(encounterType);
         when(providerService.getProviderByUuid("provider-uuid")).thenReturn(provider);
         when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
                 .thenReturn(null);
@@ -311,7 +304,6 @@ public class EncounterMatchDecisionServiceImplTest {
     public void error_whenMultipleEncountersMatch() {
         EncounterMatchRequest request = buildRequest();
 
-        when(encounterService.getEncounterTypeByUuid("enc-type-uuid")).thenReturn(encounterType);
         when(providerService.getProviderByUuid("provider-uuid")).thenReturn(provider);
         when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
                 .thenThrow(new RuntimeException("More than one encounter matches the criteria"));
@@ -333,7 +325,6 @@ public class EncounterMatchDecisionServiceImplTest {
         Date encounterDatetime = DateUtils.addMinutes(new Date(), -90);
         Encounter matchedEncounter = buildEncounter(encounterDatetime);
 
-        when(encounterService.getEncounterTypeByUuid("enc-type-uuid")).thenReturn(encounterType);
         when(providerService.getProviderByUuid("provider-uuid")).thenReturn(provider);
         when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
                 .thenReturn(matchedEncounter);

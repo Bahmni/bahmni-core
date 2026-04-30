@@ -1,14 +1,12 @@
 package org.openmrs.module.bahmniemrapi.encountertransaction.contract;
 
 import java.util.Date;
-import java.util.List;
 
 public class EncounterMatchRequest {
 
     private String patientUuid;
     private String visitUuid;
-    private List<String> encounterTypeUuids;
-    private List<String> providerUuids;
+    private String providerUuid;
     private String locationUuid;
     private Date encounterDateTime;
     private String patientProgramUuid;
@@ -33,20 +31,12 @@ public class EncounterMatchRequest {
         this.visitUuid = visitUuid;
     }
 
-    public List<String> getEncounterTypeUuids() {
-        return encounterTypeUuids;
+    public String getProviderUuid() {
+        return providerUuid;
     }
 
-    public void setEncounterTypeUuids(List<String> encounterTypeUuids) {
-        this.encounterTypeUuids = encounterTypeUuids;
-    }
-
-    public List<String> getProviderUuids() {
-        return providerUuids;
-    }
-
-    public void setProviderUuids(List<String> providerUuids) {
-        this.providerUuids = providerUuids;
+    public void setProviderUuid(String providerUuid) {
+        this.providerUuid = providerUuid;
     }
 
     public String getLocationUuid() {

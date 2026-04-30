@@ -109,27 +109,19 @@ public class EncounterMatchDecisionServiceImpl implements EncounterMatchDecision
         Location location = locationService.getLocationByUuid(request.getLocationUuid());
         logger.info("Location resolved: " + (location != null ? "UUID=" + location.getUuid() + ", Name=" + location.getName() : "NULL"));
 
-        Set<Provider> providers = resolveProviders(request.getProviderUuids());
-        logger.info("Providers resolved: count=" + (providers != null ? providers.size() : 0));
-        if (providers != null && !providers.isEmpty()) {
-            for (Provider p : providers) {
-                logger.info("  - Provider: UUID=" + p.getUuid() + ", ID=" + p.getId());
-            }
-        }
-
-        EncounterType encounterType = resolveEncounterType(request.getEncounterTypeUuids());
-        logger.info("EncounterType resolved: " + (encounterType != null ? "UUID=" + encounterType.getUuid() + ", Name=" + encounterType.getName() : "NULL"));
+        Provider provider = resolveProvider(request.getProviderUuid());
+        logger.info("Provider resolved: " + (provider != null ? "UUID=" + provider.getUuid() + ", ID=" + provider.getId() : "NULL"));
 
         Date encounterDateTime = request.getEncounterDateTime() != null ? request.getEncounterDateTime() : new Date();
         logger.info("EncounterDateTime: " + encounterDateTime);
 
         // Step 3: Build EncounterParameters for the matcher
         logger.info("STEP 3: Building EncounterParameters for matcher...");
+        Set<Provider> providerSet = provider != null ? new HashSet<>(Arrays.asList(provider)) : new HashSet<>();
         EncounterParameters params = EncounterParameters.instance()
                 .setPatient(patient)
                 .setLocation(location)
-                .setProviders(providers)
-                .setEncounterType(encounterType)
+                .setProviders(providerSet)
                 .setEncounterDateTime(encounterDateTime);
 
         if (request.getPatientProgramUuid() != null) {
@@ -164,7 +156,8 @@ public class EncounterMatchDecisionServiceImpl implements EncounterMatchDecision
 
         // Step 5: Diagnostic pass — matcher returned null, determine reason
         logger.info("STEP 5: Matcher returned null - running diagnostic pass to determine reason...");
-        EncounterMatchResponse diagResult = diagnoseNoMatch(patient, visit, encounterType, encounterDateTime, location, providers);
+        Set<Provider> providerSetForDiag = provider != null ? new HashSet<>(Arrays.asList(provider)) : new HashSet<>();
+        EncounterMatchResponse diagResult = diagnoseNoMatch(patient, visit, encounterDateTime, location, providerSetForDiag);
         logger.info("RESULT: " + diagResult.getStatus() + " - " + diagResult.getReason());
         logger.info("========== ENCOUNTER MATCH DECISION END ==========");
         return diagResult;
@@ -216,16 +209,15 @@ public class EncounterMatchDecisionServiceImpl implements EncounterMatchDecision
                 matchDetails);
     }
 
-    private EncounterMatchResponse diagnoseNoMatch(Patient patient, Visit visit, EncounterType encounterType,
+    private EncounterMatchResponse diagnoseNoMatch(Patient patient, Visit visit,
                                                     Date encounterDateTime, Location location,
                                                     Set<Provider> requestedProviders) {
         logger.info("  [DIAGNOSTIC] Querying encounters to determine no-match reason...");
 
-        // Query encounters in this visit for the encounter type, ignoring provider/location filters,
+        // Query all encounters in this visit (no encounter type filter)
         // to determine why the matcher returned null.
         Date startOfDay = DateUtils.truncate(encounterDateTime, Calendar.DATE);
-        logger.info("  [DIAGNOSTIC] Query params: startOfDay=" + startOfDay + ", endDate=" + encounterDateTime +
-                   ", encounterType=" + (encounterType != null ? encounterType.getUuid() : "NULL"));
+        logger.info("  [DIAGNOSTIC] Query params: startOfDay=" + startOfDay + ", endDate=" + encounterDateTime);
 
         Collection<Encounter> candidates = encounterService.getEncounters(
                 patient,
@@ -233,7 +225,7 @@ public class EncounterMatchDecisionServiceImpl implements EncounterMatchDecision
                 startOfDay,
                 encounterDateTime,
                 new ArrayList<Form>(),
-                Arrays.asList(encounterType),
+                null,
                 null,
                 null,
                 Arrays.asList(visit),
@@ -388,39 +380,20 @@ public class EncounterMatchDecisionServiceImpl implements EncounterMatchDecision
         return mostRecent;
     }
 
-    private Set<Provider> resolveProviders(List<String> providerUuids) {
-        Set<Provider> providers = new HashSet<Provider>();
-        if (CollectionUtils.isNotEmpty(providerUuids)) {
-            logger.info("Resolving " + providerUuids.size() + " provider UUIDs...");
-            for (String uuid : providerUuids) {
-                Provider provider = providerService.getProviderByUuid(uuid);
-                if (provider != null) {
-                    logger.info("  Resolved provider UUID " + uuid + " -> ID=" + provider.getId());
-                    providers.add(provider);
-                } else {
-                    logger.warn("  Could not resolve provider UUID: " + uuid);
-                }
+    private Provider resolveProvider(String providerUuid) {
+        if (providerUuid != null && !providerUuid.isEmpty()) {
+            logger.info("Resolving provider UUID: " + providerUuid);
+            Provider provider = providerService.getProviderByUuid(providerUuid);
+            if (provider != null) {
+                logger.info("  Resolved provider UUID " + providerUuid + " -> ID=" + provider.getId());
+                return provider;
+            } else {
+                logger.warn("  Could not resolve provider UUID: " + providerUuid);
             }
         } else {
-            logger.info("No provider UUIDs provided");
+            logger.info("No provider UUID provided");
         }
-        return providers;
-    }
-
-    private EncounterType resolveEncounterType(List<String> encounterTypeUuids) {
-        if (CollectionUtils.isNotEmpty(encounterTypeUuids)) {
-            logger.info("Resolving encounter type from UUIDs: " + encounterTypeUuids);
-            EncounterType encounterType = encounterService.getEncounterTypeByUuid(encounterTypeUuids.get(0));
-            if (encounterType != null) {
-                logger.info("Resolved encounter type UUID " + encounterTypeUuids.get(0) + " -> " + encounterType.getName());
-                return encounterType;
-            } else {
-                logger.warn("Could not resolve encounter type UUID: " + encounterTypeUuids.get(0));
-            }
-        }
-        EncounterType defaultType = encounterTypeIdentifier.getDefaultEncounterType();
-        logger.info("Using default encounter type: " + (defaultType != null ? defaultType.getName() : "NULL"));
-        return defaultType;
+        return null;
     }
 
     private int getSessionDurationMinutes() {
