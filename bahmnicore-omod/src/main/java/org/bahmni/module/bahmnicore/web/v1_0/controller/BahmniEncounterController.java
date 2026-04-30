@@ -1,7 +1,7 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.bahmni.module.bahmnicore.service.EncounterMatchDecisionService;
 import org.bahmni.module.bahmnicore.web.v1_0.VisitClosedException;
 import org.openmrs.Encounter;
@@ -41,7 +41,7 @@ public class BahmniEncounterController extends BaseRestController {
     private BahmniEncounterTransactionService bahmniEncounterTransactionService;
     private BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper;
     private EncounterMatchDecisionService encounterMatchDecisionService;
-    private static Logger logger = LogManager.getLogger(BahmniEncounterController.class);
+    private static Logger logger = LoggerFactory.getLogger(BahmniEncounterController.class);
 
     public BahmniEncounterController() {
     }
@@ -62,28 +62,25 @@ public class BahmniEncounterController extends BaseRestController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/match-decision")
     @ResponseBody
-    public Map matchDecision(@RequestBody EncounterMatchRequest request) {
+    public Map<String, Object> matchDecision(@RequestBody EncounterMatchRequest request) {
         EncounterMatchResponse response = encounterMatchDecisionService.decideMatch(request);
-        return stripNulls(response);
+        return removeNulls(response);
     }
 
-    private Map stripNulls(Object obj) {
-        try {
-            org.codehaus.jackson.map.ObjectMapper mapper = new org.codehaus.jackson.map.ObjectMapper();
-            String json = mapper.writeValueAsString(obj);
-            Map map = mapper.readValue(json, Map.class);
-            Map result = new HashMap();
-            for (Object key : map.keySet()) {
-                Object value = map.get(key);
-                if (value != null) {
-                    result.put(key, value);
-                }
-            }
-            return result;
-        } catch (Exception e) {
-            logger.warn("Failed to strip nulls from response", e);
-            return new HashMap();
-        }
+    private Map<String, Object> removeNulls(EncounterMatchResponse response) {
+        Map<String, Object> result = new HashMap<>();
+        if (response.getStatus() != null) result.put("status", response.getStatus());
+        if (response.getEncounterUuid() != null) result.put("encounterUuid", response.getEncounterUuid());
+        if (response.getEncounterDateTime() != null) result.put("encounterDateTime", response.getEncounterDateTime());
+        if (response.getEncounterType() != null) result.put("encounterType", response.getEncounterType());
+        if (response.getProvider() != null) result.put("provider", response.getProvider());
+        if (response.getLocation() != null) result.put("location", response.getLocation());
+        if (response.getMatchDetails() != null) result.put("matchDetails", response.getMatchDetails());
+        if (response.getReason() != null) result.put("reason", response.getReason());
+        if (response.getReasonDescription() != null) result.put("reasonDescription", response.getReasonDescription());
+        if (response.getErrorCode() != null) result.put("errorCode", response.getErrorCode());
+        if (response.getErrorMessage() != null) result.put("errorMessage", response.getErrorMessage());
+        return result;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{uuid}")

@@ -1,13 +1,21 @@
 package org.openmrs.module.bahmniemrapi.encountertransaction.contract;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public class EncounterMatchResponse {
+
+    public static final String STATUS_MATCH_FOUND = "match_found";
+    public static final String STATUS_NO_MATCH = "no_match";
+    public static final String STATUS_NO_ACTIVE_VISIT = "no_active_visit";
+    public static final String STATUS_ERROR = "error";
+
+    public static final String REASON_PROVIDER_MISMATCH = "provider_mismatch";
+    public static final String REASON_LOCATION_MISMATCH = "location_mismatch";
+    public static final String REASON_SESSION_EXPIRED = "session_expired";
+    public static final String REASON_NO_ACTIVE_ENCOUNTER = "no_active_encounter";
+    public static final String REASON_NO_ACTIVE_VISIT = "no_active_visit";
+
+    public static final String ERROR_CODE_MULTIPLE_ENCOUNTERS_MATCH = "MULTIPLE_ENCOUNTERS_MATCH";
 
     private String status;
     private String encounterUuid;
@@ -30,7 +38,7 @@ public class EncounterMatchResponse {
                                                      Ref encounterType, Ref provider, Ref location,
                                                      MatchDetails matchDetails) {
         EncounterMatchResponse response = new EncounterMatchResponse();
-        response.status = "match_found";
+        response.status = STATUS_MATCH_FOUND;
         response.encounterUuid = encounterUuid;
         response.encounterDateTime = encounterDateTime;
         response.encounterType = encounterType;
@@ -42,7 +50,7 @@ public class EncounterMatchResponse {
 
     public static EncounterMatchResponse noMatch(String reason, String reasonDescription) {
         EncounterMatchResponse response = new EncounterMatchResponse();
-        response.status = "no_match";
+        response.status = STATUS_NO_MATCH;
         response.reason = reason;
         response.reasonDescription = reasonDescription;
         return response;
@@ -50,15 +58,15 @@ public class EncounterMatchResponse {
 
     public static EncounterMatchResponse noActiveVisit() {
         EncounterMatchResponse response = new EncounterMatchResponse();
-        response.status = "no_active_visit";
-        response.reason = "no_active_visit";
+        response.status = STATUS_NO_ACTIVE_VISIT;
+        response.reason = REASON_NO_ACTIVE_VISIT;
         response.reasonDescription = "Patient has no active visit.";
         return response;
     }
 
     public static EncounterMatchResponse error(String errorCode, String errorMessage) {
         EncounterMatchResponse response = new EncounterMatchResponse();
-        response.status = "error";
+        response.status = STATUS_ERROR;
         response.errorCode = errorCode;
         response.errorMessage = errorMessage;
         return response;
@@ -156,7 +164,6 @@ public class EncounterMatchResponse {
 
     // --- Static nested classes ---
 
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public static class Ref {
         private String uuid;
         private String display;
@@ -186,7 +193,6 @@ public class EncounterMatchResponse {
         }
     }
 
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public static class MatchDetails {
         private Boolean providerMatched;
         private Boolean locationMatched;

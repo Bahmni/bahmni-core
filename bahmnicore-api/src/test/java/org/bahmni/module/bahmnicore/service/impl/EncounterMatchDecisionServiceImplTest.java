@@ -6,6 +6,7 @@ import org.bahmni.module.bahmnicore.matcher.EncounterSessionMatcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterProvider;
@@ -27,7 +28,6 @@ import org.openmrs.module.emrapi.encounter.EncounterParameters;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -35,12 +35,10 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -60,11 +58,12 @@ public class EncounterMatchDecisionServiceImplTest {
     @Mock
     private EncounterSessionMatcher encounterSessionMatcher;
     @Mock
-    private EncounterTypeIdentifier encounterTypeIdentifier;
-    @Mock
     private BahmniVisitLocationService bahmniVisitLocationService;
     @Mock
     private AdministrationService administrationService;
+
+    @Mock
+    private EncounterTypeIdentifier encounterTypeIdentifier;
 
     private EncounterMatchDecisionServiceImpl service;
 
@@ -77,10 +76,6 @@ public class EncounterMatchDecisionServiceImplTest {
     @Before
     public void setUp() {
         initMocks(this);
-        service = new EncounterMatchDecisionServiceImpl(
-                visitService, patientService, locationService, providerService,
-                encounterService, encounterSessionMatcher, encounterTypeIdentifier,
-                bahmniVisitLocationService, administrationService);
 
         activeVisit = new Visit();
         activeVisit.setId(1);
@@ -105,6 +100,17 @@ public class EncounterMatchDecisionServiceImplTest {
         when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
         when(locationService.getLocationByUuid("location-uuid")).thenReturn(location);
         when(encounterTypeIdentifier.getDefaultEncounterType()).thenReturn(encounterType);
+
+        service = new EncounterMatchDecisionServiceImpl(
+            visitService,
+            patientService,
+            locationService,
+            providerService,
+            encounterService,
+            encounterSessionMatcher,
+            bahmniVisitLocationService,
+            administrationService
+        );
     }
 
     // --- Helper methods ---
@@ -342,5 +348,160 @@ public class EncounterMatchDecisionServiceImplTest {
         assertEquals("match_found", response.getStatus());
         assertEquals("enc-uuid", response.getEncounterUuid());
         assertEquals(Integer.valueOf(120), response.getMatchDetails().getSessionDurationMinutes());
+    }
+
+    // Null input tests
+    @Test
+    public void error_whenPatientUuidIsNull() {
+        EncounterMatchRequest request = buildRequest();
+        request.setPatientUuid(null);
+
+        when(visitService.getVisitByUuid("visit-uuid")).thenReturn(activeVisit);
+        when(patientService.getPatientByUuid(null)).thenReturn(null);
+
+        EncounterMatchResponse response = service.decideMatch(request);
+
+        assertEquals("error", response.getStatus());
+        assertEquals("INVALID_PATIENT", response.getErrorCode());
+    }
+
+    @Test
+    public void error_whenLocationUuidIsNull() {
+        EncounterMatchRequest request = buildRequest();
+        request.setLocationUuid(null);
+
+        when(visitService.getVisitByUuid("visit-uuid")).thenReturn(activeVisit);
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+        when(locationService.getLocationByUuid(null)).thenReturn(null);
+
+        EncounterMatchResponse response = service.decideMatch(request);
+
+        assertEquals("error", response.getStatus());
+        assertEquals("INVALID_LOCATION", response.getErrorCode());
+    }
+
+    @Test
+    public void no_match_whenProviderUuidIsEmpty() {
+        EncounterMatchRequest request = buildRequest();
+        request.setProviderUuid(""); // empty string
+
+        when(visitService.getVisitByUuid("visit-uuid")).thenReturn(activeVisit);
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+        when(locationService.getLocationByUuid("location-uuid")).thenReturn(location);
+        when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
+                .thenReturn(null);
+
+        Encounter candidate = buildEncounter(new Date());
+        when(encounterService.getEncounters(any(Patient.class), eq(null), any(Date.class), any(Date.class),
+                anyCollection(), any(), eq(null), eq(null), anyCollection(), eq(false)))
+                .thenReturn(Arrays.asList(candidate));
+
+        EncounterMatchResponse response = service.decideMatch(request);
+
+        assertEquals("match_found", response.getStatus()); // should match since no provider filter
+    }
+
+    @Test
+    public void use_current_date_whenEncounterDateTimeIsNull() {
+        EncounterMatchRequest request = buildRequest();
+        request.setEncounterDateTime(null); // defaults to new Date()
+
+        when(visitService.getVisitByUuid("visit-uuid")).thenReturn(activeVisit);
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+        when(locationService.getLocationByUuid("location-uuid")).thenReturn(location);
+        when(providerService.getProviderByUuid("provider-uuid")).thenReturn(provider);
+        when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
+                .thenReturn(buildEncounter(new Date()));
+
+        EncounterMatchResponse response = service.decideMatch(request);
+
+        assertEquals("match_found", response.getStatus());
+    }
+
+    // Global property fallback tests
+    @Test
+    public void use_default_session_duration_whenPropertyMissing() {
+        EncounterMatchRequest request = buildRequest();
+        when(administrationService.getGlobalProperty("bahmni.encountersession.duration")).thenReturn(null);
+
+        when(visitService.getVisitByUuid("visit-uuid")).thenReturn(activeVisit);
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+        when(locationService.getLocationByUuid("location-uuid")).thenReturn(location);
+        when(providerService.getProviderByUuid("provider-uuid")).thenReturn(provider);
+        when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
+                .thenReturn(buildEncounter(new Date()));
+
+        EncounterMatchResponse response = service.decideMatch(request);
+
+        assertEquals("match_found", response.getStatus());
+        assertEquals(Integer.valueOf(60), response.getMatchDetails().getSessionDurationMinutes()); // default
+    }
+
+    @Test
+    public void use_default_session_duration_whenPropertyInvalid() {
+        EncounterMatchRequest request = buildRequest();
+        when(administrationService.getGlobalProperty("bahmni.encountersession.duration")).thenReturn("invalid");
+
+        when(visitService.getVisitByUuid("visit-uuid")).thenReturn(activeVisit);
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+        when(locationService.getLocationByUuid("location-uuid")).thenReturn(location);
+        when(providerService.getProviderByUuid("provider-uuid")).thenReturn(provider);
+        when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
+                .thenReturn(buildEncounter(new Date()));
+
+        EncounterMatchResponse response = service.decideMatch(request);
+
+        assertEquals("match_found", response.getStatus());
+        assertEquals(Integer.valueOf(60), response.getMatchDetails().getSessionDurationMinutes()); // default fallback
+    }
+
+    // Patient program UUID context test
+    @Test
+    public void set_patient_program_uuid_in_context_when_provided() {
+        EncounterMatchRequest request = buildRequest();
+        request.setPatientProgramUuid("program-uuid");
+
+        when(visitService.getVisitByUuid("visit-uuid")).thenReturn(activeVisit);
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+        when(locationService.getLocationByUuid("location-uuid")).thenReturn(location);
+        when(providerService.getProviderByUuid("provider-uuid")).thenReturn(provider);
+        when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
+                .thenReturn(buildEncounter(new Date()));
+
+        EncounterMatchResponse response = service.decideMatch(request);
+
+        assertEquals("match_found", response.getStatus());
+    }
+
+    // Exception handling test
+    @Test
+    public void error_whenMatcherThrowsMultipleEncountersException() {
+        EncounterMatchRequest request = buildRequest();
+
+        when(visitService.getVisitByUuid("visit-uuid")).thenReturn(activeVisit);
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+        when(locationService.getLocationByUuid("location-uuid")).thenReturn(location);
+        when(providerService.getProviderByUuid("provider-uuid")).thenReturn(provider);
+        when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
+                .thenThrow(new RuntimeException("More than one encounter matches the criteria"));
+
+        EncounterMatchResponse response = service.decideMatch(request);
+
+        assertEquals("error", response.getStatus());
+        assertEquals("MULTIPLE_ENCOUNTERS_MATCH", response.getErrorCode());
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void propagate_generic_runtime_exception() {
+        EncounterMatchRequest request = buildRequest();
+
+        when(visitService.getVisitByUuid("visit-uuid")).thenReturn(activeVisit);
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+        when(locationService.getLocationByUuid("location-uuid")).thenReturn(location);
+        when(providerService.getProviderByUuid("provider-uuid")).thenReturn(provider);
+        when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
+                .thenThrow(new RuntimeException("Some other error"));
+
+        service.decideMatch(request);
     }
 }

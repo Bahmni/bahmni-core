@@ -129,8 +129,10 @@ public class BahmniEncounterControllerTest {
         EncounterMatchResponse expectedResponse = EncounterMatchResponse.noActiveVisit();
         when(encounterMatchDecisionService.decideMatch(request)).thenReturn(expectedResponse);
 
-        Map actualResponse = bahmniEncounterController.matchDecision(request);
+        Map<String, Object> actualResponse = bahmniEncounterController.matchDecision(request);
 
         assertEquals("no_active_visit", actualResponse.get("status"));
+        assertEquals("no_active_visit", actualResponse.get("reason"));
+        assertNull(actualResponse.get("errorCode"));
     }
 }

@@ -10,7 +10,6 @@ public class EncounterMatchRequest {
     private String locationUuid;
     private Date encounterDateTime;
     private String patientProgramUuid;
-    private Boolean includeAll;
 
     public EncounterMatchRequest() {
     }
@@ -61,13 +60,5 @@ public class EncounterMatchRequest {
 
     public void setPatientProgramUuid(String patientProgramUuid) {
         this.patientProgramUuid = patientProgramUuid;
-    }
-
-    public Boolean getIncludeAll() {
-        return includeAll;
-    }
-
-    public void setIncludeAll(Boolean includeAll) {
-        this.includeAll = includeAll;
     }
 }
