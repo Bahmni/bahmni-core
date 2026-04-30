@@ -135,4 +135,77 @@ public class BahmniEncounterControllerTest {
         assertEquals("no_active_visit", actualResponse.get("reason"));
         assertNull(actualResponse.get("errorCode"));
     }
+
+    @Test
+    public void matchDecision_shouldReturnOnlyNonNullFields() {
+        bahmniEncounterController = new BahmniEncounterController(
+                encounterService,
+                emrEncounterService,
+                null,
+                bahmniEncounterTransactionService,
+                bahmniEncounterTransactionMapper,
+                encounterMatchDecisionService
+        );
+
+        EncounterMatchRequest request = new EncounterMatchRequest();
+
+        EncounterMatchResponse response = new EncounterMatchResponse();
+        response.setStatus("MATCHED");
+        response.setEncounterUuid("uuid-123");
+        response.setReason(null); // should be removed
+
+        when(encounterMatchDecisionService.decideMatch(request)).thenReturn(response);
+
+        Map<String, Object> result = bahmniEncounterController.matchDecision(request);
+
+        assertEquals("MATCHED", result.get("status"));
+        assertEquals("uuid-123", result.get("encounterUuid"));
+        assertNull(result.get("reason")); // null should not be present
+    }
+
+    @Test
+    public void matchDecision_shouldReturnEmptyMapWhenAllFieldsNull() {
+        bahmniEncounterController = new BahmniEncounterController(
+                encounterService,
+                emrEncounterService,
+                null,
+                bahmniEncounterTransactionService,
+                bahmniEncounterTransactionMapper,
+                encounterMatchDecisionService
+        );
+
+        EncounterMatchRequest request = new EncounterMatchRequest();
+        EncounterMatchResponse response = new EncounterMatchResponse(); // all null
+
+        when(encounterMatchDecisionService.decideMatch(request)).thenReturn(response);
+
+        Map<String, Object> result = bahmniEncounterController.matchDecision(request);
+
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void matchDecision_shouldHandleErrorFields() {
+        bahmniEncounterController = new BahmniEncounterController(
+                encounterService,
+                emrEncounterService,
+                null,
+                bahmniEncounterTransactionService,
+                bahmniEncounterTransactionMapper,
+                encounterMatchDecisionService
+        );
+
+        EncounterMatchRequest request = new EncounterMatchRequest();
+
+        EncounterMatchResponse response = new EncounterMatchResponse();
+        response.setErrorCode("ERR_001");
+        response.setErrorMessage("Something went wrong");
+
+        when(encounterMatchDecisionService.decideMatch(request)).thenReturn(response);
+
+        Map<String, Object> result = bahmniEncounterController.matchDecision(request);
+
+        assertEquals("ERR_001", result.get("errorCode"));
+        assertEquals("Something went wrong", result.get("errorMessage"));
+    }
 }
