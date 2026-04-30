@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StockData {
 
-    @JsonProperty("location_name")
+    @JsonProperty("stock_location_name")
     private String stockLocationName;
 
     @JsonProperty("available_quantity")
