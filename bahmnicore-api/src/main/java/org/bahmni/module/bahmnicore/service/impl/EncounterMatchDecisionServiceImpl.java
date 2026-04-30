@@ -109,8 +109,25 @@ public class EncounterMatchDecisionServiceImpl implements EncounterMatchDecision
         Location location = locationService.getLocationByUuid(request.getLocationUuid());
         logger.info("Location resolved: " + (location != null ? "UUID=" + location.getUuid() + ", Name=" + location.getName() : "NULL"));
 
-        Provider provider = resolveProvider(request.getProviderUuid());
-        logger.info("Provider resolved: " + (provider != null ? "UUID=" + provider.getUuid() + ", ID=" + provider.getId() : "NULL"));
+        // Check if provider was specified
+        String providerUuid = request.getProviderUuid();
+        boolean providerSpecified = providerUuid != null && !providerUuid.isEmpty();
+
+        Provider provider = null;
+        if (providerSpecified) {
+            provider = resolveProvider(providerUuid);
+            logger.info("Provider resolved: " + (provider != null ? "UUID=" + provider.getUuid() + ", ID=" + provider.getId() : "NULL"));
+
+            // If provider was specified but not found, return provider_mismatch
+            if (provider == null) {
+                logger.warn("RESULT: Provider UUID specified but not found: " + providerUuid);
+                return EncounterMatchResponse.noMatch(
+                        "provider_mismatch",
+                        "Specified provider not found. A new encounter will be created.");
+            }
+        } else {
+            logger.info("No provider specified - will match any provider");
+        }
 
         Date encounterDateTime = request.getEncounterDateTime() != null ? request.getEncounterDateTime() : new Date();
         logger.info("EncounterDateTime: " + encounterDateTime);
@@ -288,42 +305,7 @@ public class EncounterMatchDecisionServiceImpl implements EncounterMatchDecision
             }
             logger.info("  [DIAGNOSTIC] PASS: Provider matches");
         } else {
-            logger.info("  [DIAGNOSTIC] No requested providers - checking if encounter has providers and matches current user...");
-            Set<Provider> encounterProviders = extractProviders(candidate);
-            logger.info("  [DIAGNOSTIC] Encounter providers: count=" + encounterProviders.size());
-
-            if (CollectionUtils.isEmpty(encounterProviders)) {
-                logger.info("  [DIAGNOSTIC] Encounter has no providers - checking if created by current user...");
-
-                org.openmrs.User encounterCreator = candidate.getCreator();
-                org.openmrs.User currentUser = null;
-                try {
-                    currentUser = org.openmrs.api.context.Context.getUserContext().getAuthenticatedUser();
-                } catch (Exception e) {
-                    logger.warn("  [DIAGNOSTIC] Could not get current user: " + e.getMessage());
-                }
-
-                logger.info("  [DIAGNOSTIC] Encounter creator: " + (encounterCreator != null ? "ID=" + encounterCreator.getId() + ", Username=" + encounterCreator.getUsername() : "NULL"));
-                logger.info("  [DIAGNOSTIC] Current user: " + (currentUser != null ? "ID=" + currentUser.getId() + ", Username=" + currentUser.getUsername() : "NULL"));
-
-                boolean isSameUser = encounterCreator != null &&
-                                    currentUser != null &&
-                                    encounterCreator.getId().intValue() == currentUser.getId().intValue();
-                logger.info("  [DIAGNOSTIC] isSameUser: " + isSameUser);
-
-                if (!isSameUser) {
-                    logger.info("  [DIAGNOSTIC] FAILED: Encounter created by different user - provider_mismatch");
-                    return EncounterMatchResponse.noMatch(
-                            "provider_mismatch",
-                            "Encounter exists but belongs to different provider. A new encounter will be created.");
-                }
-                logger.info("  [DIAGNOSTIC] PASS: Same user");
-            } else {
-                logger.info("  [DIAGNOSTIC] Encounter has providers - cannot match when no providers requested");
-                return EncounterMatchResponse.noMatch(
-                        "provider_mismatch",
-                        "Encounter exists but belongs to different provider. A new encounter will be created.");
-            }
+            logger.info("  [DIAGNOSTIC] No provider filter - skipping provider check");
         }
 
         // Check 3: location_mismatch

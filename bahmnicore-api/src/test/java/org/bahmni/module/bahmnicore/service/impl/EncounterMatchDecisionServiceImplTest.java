@@ -185,7 +185,7 @@ public class EncounterMatchDecisionServiceImplTest {
         candidate.setEncounterProviders(eps);
 
         when(encounterService.getEncounters(any(Patient.class), eq(null), any(Date.class), any(Date.class),
-                anyCollection(), anyCollection(), eq(null), eq(null), anyCollection(), eq(false)))
+                anyCollection(), any(), eq(null), eq(null), anyCollection(), eq(false)))
                 .thenReturn(Arrays.asList(candidate));
 
         EncounterMatchResponse response = service.decideMatch(request);
@@ -211,10 +211,18 @@ public class EncounterMatchDecisionServiceImplTest {
         candidate.setEncounterDatetime(new Date());
         candidate.setEncounterType(encounterType);
         candidate.setLocation(otherLocation);
-        candidate.setEncounterProviders(new HashSet<EncounterProvider>());
+
+        Provider candidateProvider = new Provider();
+        candidateProvider.setUuid("provider-uuid");
+        candidateProvider.setName("Dr. Smith");
+        EncounterProvider ep = new EncounterProvider();
+        ep.setProvider(candidateProvider);
+        Set<EncounterProvider> eps = new HashSet<EncounterProvider>();
+        eps.add(ep);
+        candidate.setEncounterProviders(eps);
 
         when(encounterService.getEncounters(any(Patient.class), eq(null), any(Date.class), any(Date.class),
-                anyCollection(), anyCollection(), eq(null), eq(null), anyCollection(), eq(false)))
+                anyCollection(), any(), eq(null), eq(null), anyCollection(), eq(false)))
                 .thenReturn(Arrays.asList(candidate));
 
         Location requestedVisitLocation = new Location();
@@ -246,7 +254,7 @@ public class EncounterMatchDecisionServiceImplTest {
         Encounter candidate = buildEncounter(oldDatetime);
 
         when(encounterService.getEncounters(any(Patient.class), eq(null), any(Date.class), any(Date.class),
-                anyCollection(), anyCollection(), eq(null), eq(null), anyCollection(), eq(false)))
+                anyCollection(), any(), eq(null), eq(null), anyCollection(), eq(false)))
                 .thenReturn(Arrays.asList(candidate));
 
         EncounterMatchResponse response = service.decideMatch(request);
@@ -290,7 +298,7 @@ public class EncounterMatchDecisionServiceImplTest {
         when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
                 .thenReturn(null);
         when(encounterService.getEncounters(any(Patient.class), eq(null), any(Date.class), any(Date.class),
-                anyCollection(), anyCollection(), eq(null), eq(null), anyCollection(), eq(false)))
+                anyCollection(), any(), eq(null), eq(null), anyCollection(), eq(false)))
                 .thenReturn(Collections.<Encounter>emptyList());
 
         EncounterMatchResponse response = service.decideMatch(request);
