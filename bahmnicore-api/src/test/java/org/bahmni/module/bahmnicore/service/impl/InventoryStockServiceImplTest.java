@@ -27,9 +27,9 @@ public class InventoryStockServiceImplTest {
     private static final String VALID_RESPONSE_JSON = "{"
             + "\"count\":3,"
             + "\"data\":["
-            + "  {\"stock_location_name\":\"Stock\",\"available_quantity\":100.0,\"batch_number\":\"AB0001\",\"expiry_date\":\"2026-06-26T10:10:08Z\"},"
-            + "  {\"stock_location_name\":\"Stock\",\"available_quantity\":200.0},"
-            + "  {\"stock_location_name\":\"Spare Stock\",\"available_quantity\":300.0,\"batch_number\":\"AB0002\",\"expiry_date\":\"2026-08-29T10:10:37Z\"}"
+            + "  {\"location_name\":\"Stock\",\"available_quantity\":100.0,\"batch_number\":\"AB0001\",\"expiry_date\":\"2026-06-26T10:10:08Z\"},"
+            + "  {\"location_name\":\"Stock\",\"available_quantity\":200.0},"
+            + "  {\"location_name\":\"Spare Stock\",\"available_quantity\":300.0,\"batch_number\":\"AB0002\",\"expiry_date\":\"2026-08-29T10:10:37Z\"}"
             + "]}";
 
     @Mock
