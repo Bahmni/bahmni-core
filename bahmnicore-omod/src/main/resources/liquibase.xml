@@ -4682,5 +4682,9 @@
         <comment>Update the wards list sql to optimize for MySQL 8 - Bahmni Standard 1.0</comment>
         <sqlFile path="V1_99_WardsListSql.sql"/>
     </changeSet>
+    <changeSet id="bahmni-4222-202505021800" author="Bahmni">
+        <comment>Add SQL query to get active patients with lab orders</comment>
+        <sqlFile path="V1_100_AddActivePatientWithLabOrdersQuery.sql"/>
+    </changeSet>
 
 </databaseChangeLog>
