@@ -12,6 +12,12 @@ public class StockData {
     @JsonProperty("available_quantity")
     private Double availableQuantity;
 
+    @JsonProperty("on_hand_quantity")
+    private Double onHandQuantity;
+
+    @JsonProperty("unit")
+    private String unit;
+
     @JsonProperty("batch_number")
     private String batchNumber;
 
@@ -32,6 +38,22 @@ public class StockData {
 
     public void setAvailableQuantity(Double availableQuantity) {
         this.availableQuantity = availableQuantity;
+    }
+
+    public Double getOnHandQuantity() {
+        return onHandQuantity;
+    }
+
+    public void setOnHandQuantity(Double onHandQuantity) {
+        this.onHandQuantity = onHandQuantity;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 
     public String getBatchNumber() {

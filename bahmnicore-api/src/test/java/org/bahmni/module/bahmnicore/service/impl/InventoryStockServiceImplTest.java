@@ -27,9 +27,9 @@ public class InventoryStockServiceImplTest {
     private static final String VALID_RESPONSE_JSON = "{"
             + "\"count\":3,"
             + "\"data\":["
-            + "  {\"stock_location_name\":\"Stock\",\"available_quantity\":100.0,\"batch_number\":\"AB0001\",\"expiry_date\":\"2026-06-26T10:10:08Z\"},"
+            + "  {\"stock_location_name\":\"Stock\",\"available_quantity\":100.0,\"on_hand_quantity\":150.0,\"unit\":\"Units\",\"batch_number\":\"AB0001\",\"expiry_date\":\"2026-06-26T10:10:08Z\"},"
             + "  {\"stock_location_name\":\"Stock\",\"available_quantity\":200.0},"
-            + "  {\"stock_location_name\":\"Spare Stock\",\"available_quantity\":300.0,\"batch_number\":\"AB0002\",\"expiry_date\":\"2026-08-29T10:10:37Z\"}"
+            + "  {\"stock_location_name\":\"Spare Stock\",\"available_quantity\":300.0,\"on_hand_quantity\":400.0,\"unit\":\"Tablets\",\"batch_number\":\"AB0002\",\"expiry_date\":\"2026-08-29T10:10:37Z\"}"
             + "]}";
 
     @Mock
@@ -55,6 +55,8 @@ public class InventoryStockServiceImplTest {
         assertEquals(3, response.getData().size());
         assertEquals("Stock", response.getData().get(0).getStockLocationName());
         assertEquals(100.0, response.getData().get(0).getAvailableQuantity(), 0.001);
+        assertEquals(150.0, response.getData().get(0).getOnHandQuantity(), 0.001);
+        assertEquals("Units", response.getData().get(0).getUnit());
         assertEquals("AB0001", response.getData().get(0).getBatchNumber());
         assertEquals("2026-06-26T10:10:08Z", response.getData().get(0).getExpiryDate());
     }
@@ -70,6 +72,8 @@ public class InventoryStockServiceImplTest {
         assertNotNull(response.getData().get(1));
         assertEquals("Stock", response.getData().get(1).getStockLocationName());
         assertEquals(200.0, response.getData().get(1).getAvailableQuantity(), 0.001);
+        assertEquals(null, response.getData().get(1).getOnHandQuantity());
+        assertEquals(null, response.getData().get(1).getUnit());
         assertEquals(null, response.getData().get(1).getBatchNumber());
         assertEquals(null, response.getData().get(1).getExpiryDate());
     }
