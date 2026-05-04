@@ -1,23 +1,18 @@
 package org.bahmni.module.bahmnicore.client;
 
+import org.bahmni.webclients.HttpClient;
+import org.bahmni.webclients.WebClientsException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+
+import java.net.URI;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,106 +21,40 @@ import static org.mockito.Mockito.when;
 public class BahmniOdooClientTest {
 
     private static final String TEST_URL = "http://odoo:8069/api/get-available-stocks?productUuid=abc";
-    private static final String SESSION_COOKIE = "session_id=test-session-123";
     private static final String RESPONSE_BODY = "{\"count\":2,\"data\":[]}";
 
     @Mock
-    private RestTemplate restTemplate;
+    private HttpClient httpClient;
 
-    @Mock
-    private BahmniOdooSessionManager sessionManager;
-
-    @InjectMocks
     private BahmniOdooClient bahmniOdooClient;
 
     @Before
     public void setUp() {
-        when(sessionManager.getSessionCookie()).thenReturn(SESSION_COOKIE);
+        bahmniOdooClient = new BahmniOdooClient(httpClient);
     }
 
     @Test
-    public void get_shouldCallRestTemplateWithAuthenticatedHeadersAndReturnBody() {
-        ResponseEntity<String> mockResponse = new ResponseEntity<>(RESPONSE_BODY, HttpStatus.OK);
-        when(restTemplate.exchange(eq(TEST_URL), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
-                .thenReturn(mockResponse);
+    public void get_shouldDelegateToHttpClientAndReturnBody() {
+        when(httpClient.get(any(URI.class))).thenReturn(RESPONSE_BODY);
 
         String result = bahmniOdooClient.get(TEST_URL);
 
         assertEquals(RESPONSE_BODY, result);
-        verify(sessionManager, times(1)).getSessionCookie();
-        verify(sessionManager, never()).clearSessionCache();
-        verify(restTemplate, times(1)).exchange(eq(TEST_URL), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
+        verify(httpClient, times(1)).get(URI.create(TEST_URL));
     }
 
     @Test
-    public void get_shouldClearSessionCacheAndRetryOn401Unauthorized() {
-        HttpClientErrorException unauthorizedException =
-                new HttpClientErrorException(HttpStatus.UNAUTHORIZED);
-        ResponseEntity<String> retryResponse = new ResponseEntity<>(RESPONSE_BODY, HttpStatus.OK);
-
-        when(restTemplate.exchange(eq(TEST_URL), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
-                .thenThrow(unauthorizedException)
-                .thenReturn(retryResponse);
-
-        String result = bahmniOdooClient.get(TEST_URL);
-
-        assertEquals(RESPONSE_BODY, result);
-        verify(sessionManager, times(1)).clearSessionCache();
-        verify(restTemplate, times(2)).exchange(eq(TEST_URL), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
-    }
-
-    @Test
-    public void get_shouldClearSessionCacheAndRetryOn403Forbidden() {
-        HttpClientErrorException forbiddenException =
-                new HttpClientErrorException(HttpStatus.FORBIDDEN);
-        ResponseEntity<String> retryResponse = new ResponseEntity<>(RESPONSE_BODY, HttpStatus.OK);
-
-        when(restTemplate.exchange(eq(TEST_URL), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
-                .thenThrow(forbiddenException)
-                .thenReturn(retryResponse);
-
-        String result = bahmniOdooClient.get(TEST_URL);
-
-        assertEquals(RESPONSE_BODY, result);
-        verify(sessionManager, times(1)).clearSessionCache();
-        verify(restTemplate, times(2)).exchange(eq(TEST_URL), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
-    }
-
-    @Test
-    public void get_shouldRethrowNonAuthErrorsWithoutRetrying() {
-        HttpClientErrorException notFoundException =
-                new HttpClientErrorException(HttpStatus.NOT_FOUND);
-
-        when(restTemplate.exchange(eq(TEST_URL), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
-                .thenThrow(notFoundException);
+    public void get_shouldPropagateWebClientsExceptionFromHttpClient() {
+        when(httpClient.get(any(URI.class)))
+                .thenThrow(new WebClientsException(new RuntimeException("Connection refused")));
 
         try {
             bahmniOdooClient.get(TEST_URL);
-            fail("Expected HttpClientErrorException to be thrown");
-        } catch (HttpClientErrorException ex) {
-            assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+            fail("Expected WebClientsException to be thrown");
+        } catch (WebClientsException ex) {
+            // expected
         }
 
-        verify(sessionManager, never()).clearSessionCache();
-        verify(restTemplate, times(1)).exchange(eq(TEST_URL), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
-    }
-
-    @Test
-    public void get_shouldRethrowInternalServerErrorWithoutRetrying() {
-        HttpClientErrorException serverException =
-                new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
-
-        when(restTemplate.exchange(eq(TEST_URL), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
-                .thenThrow(serverException);
-
-        try {
-            bahmniOdooClient.get(TEST_URL);
-            fail("Expected HttpClientErrorException to be thrown");
-        } catch (HttpClientErrorException ex) {
-            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ex.getStatusCode());
-        }
-
-        verify(sessionManager, never()).clearSessionCache();
-        verify(restTemplate, times(1)).exchange(eq(TEST_URL), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
+        verify(httpClient, times(1)).get(URI.create(TEST_URL));
     }
 }

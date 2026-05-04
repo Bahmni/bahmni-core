@@ -2,51 +2,28 @@ package org.bahmni.module.bahmnicore.client;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bahmni.module.bahmnicore.helper.OdooClientHelper;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.bahmni.webclients.ConnectionDetails;
+import org.bahmni.webclients.HttpClient;
+
+import java.net.URI;
 
 public class BahmniOdooClient {
 
     private static final Logger logger = LogManager.getLogger(BahmniOdooClient.class);
 
-    private final RestTemplate restTemplate;
-    private final BahmniOdooSessionManager sessionManager;
+    private final HttpClient httpClient;
 
-    public BahmniOdooClient(RestTemplate restTemplate, BahmniOdooSessionManager sessionManager) {
-        this.restTemplate = restTemplate;
-        this.sessionManager = sessionManager;
+    public BahmniOdooClient() {
+        ConnectionDetails connectionDetails = new ConnectionDetails("", "", "", 20000, 30000);
+        this.httpClient = new HttpClient(connectionDetails, new BahmniOdooSessionManager());
+    }
+
+    BahmniOdooClient(HttpClient httpClient) {
+        this.httpClient = httpClient;
     }
 
     public String get(String url) {
-        try {
-            return executeGet(url);
-        } catch (HttpClientErrorException ex) {
-            if (isAuthenticationError(ex)) {
-                logger.warn("Authentication error ({}), clearing session cache and retrying", ex.getStatusCode());
-                sessionManager.clearSessionCache();
-                return executeGet(url);
-            }
-            throw ex;
-        }
-    }
-
-    private String executeGet(String url) {
-        String sessionCookie = sessionManager.getSessionCookie();
-        HttpHeaders headers = OdooClientHelper.createAuthenticatedHeaders(sessionCookie);
-        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
-        return response.getBody();
-    }
-
-    private boolean isAuthenticationError(HttpClientErrorException ex) {
-        return ex.getStatusCode() == HttpStatus.UNAUTHORIZED
-                || ex.getStatusCode() == HttpStatus.FORBIDDEN;
+        logger.debug("Making GET request to Odoo: {}", url);
+        return httpClient.get(URI.create(url));
     }
 }

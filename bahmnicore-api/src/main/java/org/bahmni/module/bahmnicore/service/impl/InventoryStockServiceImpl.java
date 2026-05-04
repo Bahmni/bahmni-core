@@ -8,7 +8,7 @@ import org.bahmni.module.bahmnicore.contract.stock.AvailableStockResponse;
 import org.bahmni.module.bahmnicore.exception.OdooApiException;
 import org.bahmni.module.bahmnicore.service.InventoryStockService;
 import org.bahmni.module.bahmnicore.util.OdooUrlBuilder;
-import org.springframework.web.client.HttpClientErrorException;
+import org.bahmni.webclients.WebClientsException;
 
 public class InventoryStockServiceImpl implements InventoryStockService {
 
@@ -31,9 +31,9 @@ public class InventoryStockServiceImpl implements InventoryStockService {
             AvailableStockResponse response = objectMapper.readValue(json, AvailableStockResponse.class);
             logger.info("Successfully fetched {} stock entries", response != null ? response.getCount() : 0);
             return response;
-        } catch (HttpClientErrorException e) {
-            logger.warn("Odoo returned HTTP {}: {}", e.getStatusCode(), e.getResponseBodyAsString());
-            throw e;
+        } catch (WebClientsException e) {
+            logger.warn("Odoo request failed: {}", e.getMessage());
+            throw new OdooApiException("Error fetching available stocks: " + e.getMessage(), e);
         } catch (Exception e) {
             logger.error("Error fetching available stocks from Odoo", e);
             throw new OdooApiException("Error fetching available stocks: " + e.getMessage(), e);

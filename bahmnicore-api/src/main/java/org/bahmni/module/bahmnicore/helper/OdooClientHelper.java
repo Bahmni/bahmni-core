@@ -4,9 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 
 import java.util.List;
 
@@ -16,7 +13,7 @@ public class OdooClientHelper {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final String SESSION_COOKIE_NAME = "session_id";
 
-    public static HttpEntity<String> createAuthenticationRequest(
+    public static String createAuthenticationRequestBody(
             String database, String login, String password) {
         try {
             ObjectNode params = objectMapper.createObjectNode();
@@ -27,22 +24,10 @@ public class OdooClientHelper {
             ObjectNode root = objectMapper.createObjectNode();
             root.set("params", params);
 
-            String jsonBody = objectMapper.writeValueAsString(root);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            return new HttpEntity<>(jsonBody, headers);
+            return objectMapper.writeValueAsString(root);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to build authentication request body", e);
         }
-    }
-
-    public static HttpHeaders createAuthenticatedHeaders(String sessionCookie) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.COOKIE, sessionCookie);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return headers;
     }
 
     public static String extractSessionCookie(List<String> cookies) {

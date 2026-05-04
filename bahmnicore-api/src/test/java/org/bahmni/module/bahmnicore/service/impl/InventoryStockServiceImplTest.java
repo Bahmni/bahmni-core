@@ -3,13 +3,12 @@ package org.bahmni.module.bahmnicore.service.impl;
 import org.bahmni.module.bahmnicore.client.BahmniOdooClient;
 import org.bahmni.module.bahmnicore.contract.stock.AvailableStockResponse;
 import org.bahmni.module.bahmnicore.exception.OdooApiException;
+import org.bahmni.webclients.WebClientsException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -89,15 +88,16 @@ public class InventoryStockServiceImplTest {
     }
 
     @Test
-    public void getAvailableStocks_FromInventory_shouldRethrowHttpClientErrorExceptionFromOdooClient() {
-        HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.NOT_FOUND);
+    public void getAvailableStocks_FromInventory_shouldWrapWebClientsExceptionInOdooApiException() {
+        WebClientsException exception = new WebClientsException(new RuntimeException("Connection refused"));
         when(bahmniOdooClient.get(anyString())).thenThrow(exception);
 
         try {
             inventoryStockService.getAvailableStocksFromInventory(PRODUCT_UUID, LOCATION_UUID);
-            fail("Expected HttpClientErrorException to be rethrown");
-        } catch (HttpClientErrorException ex) {
-            assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+            fail("Expected OdooApiException to be thrown");
+        } catch (OdooApiException ex) {
+            assertNotNull(ex.getMessage());
+            assertNotNull(ex.getCause());
         }
     }
 

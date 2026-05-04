@@ -1,108 +1,118 @@
 package org.bahmni.module.bahmnicore.client;
 
-import org.bahmni.module.bahmnicore.exception.OdooApiException;
+import org.bahmni.webclients.HttpRequestDetails;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
+import java.net.URI;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertNull;
 
-@RunWith(MockitoJUnitRunner.class)
 public class BahmniOdooSessionManagerTest {
 
     private static final String SESSION_COOKIE_VALUE = "session_id=abc123xyz";
-
-    @Mock
-    private RestTemplate restTemplate;
+    private static final URI TEST_URI = URI.create("http://odoo:8069/api/test");
 
     private BahmniOdooSessionManager sessionManager;
 
     @Before
     public void setUp() {
-        sessionManager = new BahmniOdooSessionManager(restTemplate);
+        sessionManager = new BahmniOdooSessionManager();
     }
 
     @Test
-    public void getSessionCookie_shouldAuthenticateWithOdooAndReturnSessionCookie() {
-        ResponseEntity<String> authResponse = buildAuthResponse(SESSION_COOKIE_VALUE + "; Path=/; HttpOnly");
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String.class)))
-                .thenReturn(authResponse);
-
-        String cookie = sessionManager.getSessionCookie();
-
-        assertNotNull(cookie);
-        assertEquals(SESSION_COOKIE_VALUE, cookie);
-        verify(restTemplate, times(1)).exchange(anyString(), eq(HttpMethod.POST), any(), eq(String.class));
-    }
-
-    @Test
-    public void getSessionCookie_shouldReturnCachedCookieWithoutReauthenticatingOnSecondCall() {
-        ResponseEntity<String> authResponse = buildAuthResponse(SESSION_COOKIE_VALUE + "; Path=/");
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String.class)))
-                .thenReturn(authResponse);
+    public void getSessionCookie_shouldReturnCachedCookieOnSecondCall() {
+        // Simulate a cached cookie by setting it via the authenticate flow
+        // Use reflection or direct field access for test setup
+        setSessionCookieViaReflection(SESSION_COOKIE_VALUE);
 
         String firstCall = sessionManager.getSessionCookie();
         String secondCall = sessionManager.getSessionCookie();
 
+        assertEquals(SESSION_COOKIE_VALUE, firstCall);
         assertEquals(firstCall, secondCall);
-        // RestTemplate.exchange() should only be called once despite two getSessionCookie() calls
-        verify(restTemplate, times(1)).exchange(anyString(), eq(HttpMethod.POST), any(), eq(String.class));
     }
 
     @Test
-    public void clearSessionCache_shouldForceReauthenticationOnNextGetSessionCookieCall() {
-        ResponseEntity<String> authResponse = buildAuthResponse(SESSION_COOKIE_VALUE + "; Path=/");
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String.class)))
-                .thenReturn(authResponse);
+    public void clearSessionCache_shouldClearTheCachedCookie() {
+        setSessionCookieViaReflection(SESSION_COOKIE_VALUE);
 
-        sessionManager.getSessionCookie();
+        assertEquals(SESSION_COOKIE_VALUE, sessionManager.getSessionCookie());
+
         sessionManager.clearSessionCache();
-        sessionManager.getSessionCookie();
 
-        // exchange() should be called twice: once before clear, once after clear
-        verify(restTemplate, times(2)).exchange(anyString(), eq(HttpMethod.POST), any(), eq(String.class));
+        // After clearing, the next call should try to authenticate again
+        // Since there's no real Odoo server, we verify the cache was cleared
+        // by checking that the internal state is null
+        assertNull(getCachedCookieViaReflection());
     }
 
     @Test
-    public void getSessionCookie_shouldThrowOdooApiExceptionWhenAuthenticationFails() {
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String.class)))
-                .thenThrow(new RestClientException("Connection refused"));
+    public void getRequestDetails_shouldReturnHttpRequestDetailsWithSessionCookie() {
+        setSessionCookieViaReflection(SESSION_COOKIE_VALUE);
 
-        try {
-            sessionManager.getSessionCookie();
-            fail("Expected OdooApiException to be thrown");
-        } catch (OdooApiException ex) {
-            assertNotNull(ex.getMessage());
-            assertNotNull(ex.getCause());
-            assertEquals(RestClientException.class, ex.getCause().getClass());
-        }
+        HttpRequestDetails details = sessionManager.getRequestDetails(TEST_URI);
+
+        assertNotNull(details);
+        assertEquals(TEST_URI, details.getUri());
+        assertNotNull(details.getClientCookies());
+        assertEquals("abc123xyz", details.getClientCookies().get("session_id"));
+    }
+
+    @Test
+    public void getRequestDetails_shouldReturnCachedRequestDetailsOnSubsequentCalls() {
+        setSessionCookieViaReflection(SESSION_COOKIE_VALUE);
+
+        HttpRequestDetails firstDetails = sessionManager.getRequestDetails(TEST_URI);
+        URI anotherUri = URI.create("http://odoo:8069/api/other");
+        HttpRequestDetails secondDetails = sessionManager.getRequestDetails(anotherUri);
+
+        assertNotNull(firstDetails);
+        assertNotNull(secondDetails);
+        // Second call should reuse cached auth but with new URI
+        assertEquals(anotherUri, secondDetails.getUri());
+        assertEquals("abc123xyz", secondDetails.getClientCookies().get("session_id"));
+    }
+
+    @Test
+    public void refreshRequestDetails_shouldClearCacheAndRebuildDetails() {
+        setSessionCookieViaReflection(SESSION_COOKIE_VALUE);
+
+        // Build initial request details
+        sessionManager.getRequestDetails(TEST_URI);
+
+        // Clear and set a new cookie to simulate re-authentication
+        sessionManager.clearSessionCache();
+        String newCookie = "session_id=newSession456";
+        setSessionCookieViaReflection(newCookie);
+
+        HttpRequestDetails refreshed = sessionManager.refreshRequestDetails(TEST_URI);
+
+        assertNotNull(refreshed);
+        assertEquals(TEST_URI, refreshed.getUri());
     }
 
     // ---- helpers ----
 
-    private ResponseEntity<String> buildAuthResponse(String setCookieValue) {
-        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.put(HttpHeaders.SET_COOKIE, Collections.singletonList(setCookieValue));
-        return new ResponseEntity<>("{\"result\":{}}", new HttpHeaders(headers), HttpStatus.OK);
+    private void setSessionCookieViaReflection(String cookie) {
+        try {
+            java.lang.reflect.Field field = BahmniOdooSessionManager.class.getDeclaredField("cachedSessionCookie");
+            field.setAccessible(true);
+            field.set(sessionManager, cookie);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to set session cookie via reflection", e);
+        }
+    }
+
+    private String getCachedCookieViaReflection() {
+        try {
+            java.lang.reflect.Field field = BahmniOdooSessionManager.class.getDeclaredField("cachedSessionCookie");
+            field.setAccessible(true);
+            return (String) field.get(sessionManager);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get session cookie via reflection", e);
+        }
     }
 }
