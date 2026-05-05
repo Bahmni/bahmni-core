@@ -1,7 +1,9 @@
 package org.openmrs.module.bahmniemrapi.encountertransaction.contract;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Date;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class EncounterMatchResponse {
 
     public static final String STATUS_MATCH_FOUND = "match_found";

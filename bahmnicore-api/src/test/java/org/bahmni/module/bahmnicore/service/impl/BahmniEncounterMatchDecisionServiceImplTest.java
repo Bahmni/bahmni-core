@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(PowerMockRunner.class)
-public class EncounterMatchDecisionServiceImplTest {
+public class BahmniEncounterMatchDecisionServiceImplTest {
 
     @Mock
     private VisitService visitService;
@@ -66,7 +66,7 @@ public class EncounterMatchDecisionServiceImplTest {
     @Mock
     private EncounterTypeIdentifier encounterTypeIdentifier;
 
-    private EncounterMatchDecisionServiceImpl service;
+    private BahmniEncounterMatchDecisionServiceImpl service;
 
     private Visit activeVisit;
     private Patient patient;
@@ -103,15 +103,14 @@ public class EncounterMatchDecisionServiceImplTest {
         when(locationService.getLocationByUuid("location-uuid")).thenReturn(location);
         when(encounterTypeIdentifier.getDefaultEncounterType()).thenReturn(encounterType);
 
-        service = new EncounterMatchDecisionServiceImpl(
+        service = new BahmniEncounterMatchDecisionServiceImpl(
             visitService,
             patientService,
             locationService,
             providerService,
             encounterService,
             encounterSessionMatcher,
-            bahmniVisitLocationService,
-            administrationService
+            bahmniVisitLocationService
         );
     }
 
@@ -510,5 +509,22 @@ public class EncounterMatchDecisionServiceImplTest {
                 .thenThrow(new RuntimeException("Some other error"));
 
         service.decideMatch(request);
+    }
+
+    @Test
+    public void returnsErrorWhenProviderNotFound() {
+        EncounterMatchRequest request = buildRequest();
+        request.setProviderUuid("invalid-provider-uuid");
+
+        when(visitService.getVisitByUuid("visit-uuid")).thenReturn(activeVisit);
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+        when(locationService.getLocationByUuid("location-uuid")).thenReturn(location);
+        when(providerService.getProviderByUuid("invalid-provider-uuid")).thenReturn(null);
+
+        EncounterMatchResponse response = service.decideMatch(request);
+
+        assertEquals("error", response.getStatus());
+        assertEquals("INVALID_PROVIDER", response.getErrorCode());
+        assertEquals("Provider not found.", response.getErrorMessage());
     }
 }

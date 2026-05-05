@@ -9,7 +9,6 @@ import org.bahmni.module.bahmnicommons.api.visitlocation.BahmniVisitLocationServ
 import org.bahmni.module.bahmnicore.matcher.EncounterSessionMatcher;
 import org.bahmni.module.bahmnicore.matcher.MultipleEncountersMatchException;
 import org.bahmni.module.bahmnicore.service.BahmniEncounterMatchDecisionService;
-import org.openmrs.api.AdministrationService;
 import org.openmrs.api.EncounterService;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.PatientService;
@@ -20,7 +19,7 @@ import org.openmrs.module.bahmniemrapi.encountertransaction.contract.EncounterMa
 import org.openmrs.module.emrapi.encounter.EncounterParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,10 +31,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-@Service
-public class EncounterMatchDecisionServiceImpl implements BahmniEncounterMatchDecisionService {
+public class BahmniEncounterMatchDecisionServiceImpl implements BahmniEncounterMatchDecisionService {
 
-    private static final Logger logger = LoggerFactory.getLogger(EncounterMatchDecisionServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(BahmniEncounterMatchDecisionServiceImpl.class);
 
     private final VisitService visitService;
     private final PatientService patientService;
@@ -44,17 +42,15 @@ public class EncounterMatchDecisionServiceImpl implements BahmniEncounterMatchDe
     private final EncounterService encounterService;
     private final EncounterSessionMatcher encounterSessionMatcher;
     private final BahmniVisitLocationService bahmniVisitLocationService;
-    private final AdministrationService administrationService;
 
     @Autowired
-    public EncounterMatchDecisionServiceImpl(VisitService visitService,
+    public BahmniEncounterMatchDecisionServiceImpl(VisitService visitService,
                                              PatientService patientService,
                                              LocationService locationService,
                                              ProviderService providerService,
                                              EncounterService encounterService,
                                              EncounterSessionMatcher encounterSessionMatcher,
-                                             BahmniVisitLocationService bahmniVisitLocationService,
-                                             @Qualifier("adminService") AdministrationService administrationService) {
+                                             BahmniVisitLocationService bahmniVisitLocationService) {
         this.visitService = visitService;
         this.patientService = patientService;
         this.locationService = locationService;
@@ -62,10 +58,10 @@ public class EncounterMatchDecisionServiceImpl implements BahmniEncounterMatchDe
         this.encounterService = encounterService;
         this.encounterSessionMatcher = encounterSessionMatcher;
         this.bahmniVisitLocationService = bahmniVisitLocationService;
-        this.administrationService = administrationService;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EncounterMatchResponse decideMatch(EncounterMatchRequest request) {
         logger.debug("Encounter match decision requested for visit: {}, patient: {}",
                      request.getVisitUuid(), request.getPatientUuid());
@@ -101,9 +97,7 @@ public class EncounterMatchDecisionServiceImpl implements BahmniEncounterMatchDe
             provider = resolveProvider(providerUuid);
             if (provider == null) {
                 logger.warn("Provider not found for UUID: {}", providerUuid);
-                return EncounterMatchResponse.noMatch(
-                        EncounterMatchResponse.REASON_PROVIDER_MISMATCH,
-                        "Specified provider not found. A new encounter will be created.");
+                return EncounterMatchResponse.error("INVALID_PROVIDER", "Provider not found.");
             }
         }
 
@@ -138,7 +132,7 @@ public class EncounterMatchDecisionServiceImpl implements BahmniEncounterMatchDe
         }
 
         logger.debug("No match found by matcher. Running diagnostic to determine reason.");
-        EncounterMatchResponse diagResult = diagnoseNoMatch(patient, visit, encounterDateTime, location, providerSet);
+        EncounterMatchResponse diagResult = diagnoseNoMatch(patient, visit, encounterDateTime, location, providerSet, params.getEncounterType());
         logger.info("Encounter match decision: {} - {}", diagResult.getStatus(), diagResult.getReason());
         return diagResult;
     }
@@ -187,13 +181,12 @@ public class EncounterMatchDecisionServiceImpl implements BahmniEncounterMatchDe
 
     private EncounterMatchResponse diagnoseNoMatch(Patient patient, Visit visit,
                                                     Date encounterDateTime, Location location,
-                                                    Set<Provider> requestedProviders) {
+                                                    Set<Provider> requestedProviders, EncounterType encounterType) {
         logger.debug("Querying encounters to determine no-match reason");
 
-        // Query all encounters in this visit (no encounter type filter)
-        // to determine why the matcher returned null.
+        // Query encounters filtered by encounter type to match the matcher's behavior.
         Date startOfDay = DateUtils.truncate(encounterDateTime, Calendar.DATE);
-        logger.info("  [DIAGNOSTIC] Query params: startOfDay=" + startOfDay + ", endDate=" + encounterDateTime);
+        logger.debug("Diagnostic query params: startOfDay={}, endDate={}", startOfDay, encounterDateTime);
 
         Collection<Encounter> candidates = encounterService.getEncounters(
                 patient,
@@ -201,7 +194,7 @@ public class EncounterMatchDecisionServiceImpl implements BahmniEncounterMatchDe
                 startOfDay,
                 encounterDateTime,
                 new ArrayList<Form>(),
-                null,
+                encounterType != null ? Arrays.asList(encounterType) : null,
                 null,
                 null,
                 Arrays.asList(visit),
@@ -249,7 +242,13 @@ public class EncounterMatchDecisionServiceImpl implements BahmniEncounterMatchDe
             }
         }
 
-        if (location != null && candidate.getLocation() != null) {
+        if (location != null) {
+            if (candidate.getLocation() == null) {
+                logger.debug("Encounter location is null for encounter: {}", candidate.getUuid());
+                return EncounterMatchResponse.noMatch(
+                        EncounterMatchResponse.REASON_LOCATION_MISMATCH,
+                        "Encounter exists but has no location. A new encounter will be created.");
+            }
             Location requestedVisitLocation = bahmniVisitLocationService.getVisitLocation(location.getUuid());
             Location encounterVisitLocation = bahmniVisitLocationService.getVisitLocation(candidate.getLocation().getUuid());
 
@@ -264,7 +263,7 @@ public class EncounterMatchDecisionServiceImpl implements BahmniEncounterMatchDe
         logger.debug("Encounter exists but does not match session criteria.");
         return EncounterMatchResponse.noMatch(
                 EncounterMatchResponse.REASON_NO_ACTIVE_ENCOUNTER,
-                "Encounter exists but does not meet current session criteria. A new encounter will be created.");
+                "No active encounter found matching current session criteria. A new encounter will be created.");
     }
 
     private Set<Provider> extractProviders(Encounter encounter) {
@@ -295,28 +294,20 @@ public class EncounterMatchDecisionServiceImpl implements BahmniEncounterMatchDe
 
     private Provider resolveProvider(String providerUuid) {
         if (providerUuid != null && !providerUuid.isEmpty()) {
-            logger.info("Resolving provider UUID: " + providerUuid);
+            logger.debug("Resolving provider UUID: {}", providerUuid);
             Provider provider = providerService.getProviderByUuid(providerUuid);
             if (provider != null) {
-                logger.info("  Resolved provider UUID " + providerUuid + " -> ID=" + provider.getId());
+                logger.debug("Resolved provider UUID {} -> ID={}", providerUuid, provider.getId());
                 return provider;
             } else {
-                logger.warn("  Could not resolve provider UUID: " + providerUuid);
+                logger.debug("Could not resolve provider UUID: {}", providerUuid);
             }
         } else {
-            logger.info("No provider UUID provided");
+            logger.debug("No provider UUID provided");
         }
         return null;
     }
 
-    private Date getSearchStartDate(Date endDate) {
-        int sessionDuration = getSessionDurationMinutes();
-        Date startDate = DateUtils.addMinutes(endDate, -sessionDuration);
-        if (!DateUtils.isSameDay(startDate, endDate)) {
-            return DateUtils.truncate(endDate, Calendar.DATE);
-        }
-        return startDate;
-    }
 
     private int getSessionDurationMinutes() {
         return encounterSessionMatcher.getSessionDuration();

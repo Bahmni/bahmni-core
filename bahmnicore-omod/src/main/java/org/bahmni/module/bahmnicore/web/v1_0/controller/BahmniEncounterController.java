@@ -40,6 +40,7 @@ public class BahmniEncounterController extends BaseRestController {
     private EncounterTransactionMapper encounterTransactionMapper;
     private BahmniEncounterTransactionService bahmniEncounterTransactionService;
     private BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper;
+    @Autowired
     private BahmniEncounterMatchDecisionService encounterMatchDecisionService;
     private static Logger logger = LogManager.getLogger(BahmniEncounterController.class);
 
@@ -62,25 +63,8 @@ public class BahmniEncounterController extends BaseRestController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/match-decision")
     @ResponseBody
-    public Map<String, Object> matchDecision(@RequestBody EncounterMatchRequest request) {
-        EncounterMatchResponse response = encounterMatchDecisionService.decideMatch(request);
-        return removeNulls(response);
-    }
-
-    private Map<String, Object> removeNulls(EncounterMatchResponse response) {
-        Map<String, Object> result = new HashMap<>();
-        if (response.getStatus() != null) result.put("status", response.getStatus());
-        if (response.getEncounterUuid() != null) result.put("encounterUuid", response.getEncounterUuid());
-        if (response.getEncounterDateTime() != null) result.put("encounterDateTime", response.getEncounterDateTime());
-        if (response.getEncounterType() != null) result.put("encounterType", response.getEncounterType());
-        if (response.getProvider() != null) result.put("provider", response.getProvider());
-        if (response.getLocation() != null) result.put("location", response.getLocation());
-        if (response.getMatchDetails() != null) result.put("matchDetails", response.getMatchDetails());
-        if (response.getReason() != null) result.put("reason", response.getReason());
-        if (response.getReasonDescription() != null) result.put("reasonDescription", response.getReasonDescription());
-        if (response.getErrorCode() != null) result.put("errorCode", response.getErrorCode());
-        if (response.getErrorMessage() != null) result.put("errorMessage", response.getErrorMessage());
-        return result;
+    public EncounterMatchResponse matchDecision(@RequestBody EncounterMatchRequest request) {
+        return encounterMatchDecisionService.decideMatch(request);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{uuid}")

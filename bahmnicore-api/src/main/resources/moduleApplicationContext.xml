@@ -267,4 +267,38 @@
             </list>
         </property>
     </bean>
+
+    <bean parent="serviceContext">
+        <property name="moduleService">
+            <list merge="true">
+                <value>org.bahmni.module.bahmnicore.service.BahmniEncounterMatchDecisionService</value>
+                <ref bean="bahmniEncounterMatchDecisionService"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="bahmniEncounterMatchDecisionService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="transactionManager"/>
+        </property>
+        <property name="target">
+            <ref bean="bahmniEncounterMatchDecisionServiceTarget"/>
+        </property>
+        <property name="preInterceptors">
+            <ref bean="serviceInterceptors"/>
+        </property>
+        <property name="transactionAttributeSource">
+            <ref bean="transactionAttributeSource"/>
+        </property>
+    </bean>
+
+    <bean id="bahmniEncounterMatchDecisionServiceTarget" class="org.bahmni.module.bahmnicore.service.impl.BahmniEncounterMatchDecisionServiceImpl" autowire="constructor">
+        <constructor-arg ref="visitService"/>
+        <constructor-arg ref="patientService"/>
+        <constructor-arg ref="locationService"/>
+        <constructor-arg ref="providerService"/>
+        <constructor-arg ref="encounterService"/>
+        <constructor-arg ref="encounterSessionMatcher"/>
+        <constructor-arg ref="bahmniVisitLocationService"/>
+    </bean>
 </beans>
