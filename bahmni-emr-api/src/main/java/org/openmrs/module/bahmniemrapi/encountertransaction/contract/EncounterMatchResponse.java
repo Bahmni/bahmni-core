@@ -72,8 +72,6 @@ public class EncounterMatchResponse {
         return response;
     }
 
-    // --- Getters and setters ---
-
     public String getStatus() {
         return status;
     }
@@ -161,8 +159,6 @@ public class EncounterMatchResponse {
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
-
-    // --- Static nested classes ---
 
     public static class Ref {
         private String uuid;

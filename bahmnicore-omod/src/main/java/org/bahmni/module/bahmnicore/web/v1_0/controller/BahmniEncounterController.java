@@ -1,8 +1,8 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.bahmni.module.bahmnicore.service.EncounterMatchDecisionService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.bahmni.module.bahmnicore.service.BahmniEncounterMatchDecisionService;
 import org.bahmni.module.bahmnicore.web.v1_0.VisitClosedException;
 import org.openmrs.Encounter;
 import org.openmrs.Visit;
@@ -40,8 +40,8 @@ public class BahmniEncounterController extends BaseRestController {
     private EncounterTransactionMapper encounterTransactionMapper;
     private BahmniEncounterTransactionService bahmniEncounterTransactionService;
     private BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper;
-    private EncounterMatchDecisionService encounterMatchDecisionService;
-    private static Logger logger = LoggerFactory.getLogger(BahmniEncounterController.class);
+    private BahmniEncounterMatchDecisionService encounterMatchDecisionService;
+    private static Logger logger = LogManager.getLogger(BahmniEncounterController.class);
 
     public BahmniEncounterController() {
     }
@@ -51,7 +51,7 @@ public class BahmniEncounterController extends BaseRestController {
                                      EmrEncounterService emrEncounterService, EncounterTransactionMapper encounterTransactionMapper,
                                      BahmniEncounterTransactionService bahmniEncounterTransactionService,
                                      BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper,
-                                     EncounterMatchDecisionService encounterMatchDecisionService) {
+                                     BahmniEncounterMatchDecisionService encounterMatchDecisionService) {
         this.encounterService = encounterService;
         this.emrEncounterService = emrEncounterService;
         this.encounterTransactionMapper = encounterTransactionMapper;

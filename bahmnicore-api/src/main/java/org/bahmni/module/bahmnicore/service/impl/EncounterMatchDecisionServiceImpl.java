@@ -7,7 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.bahmni.module.bahmnicommons.api.visitlocation.BahmniVisitLocationService;
 import org.bahmni.module.bahmnicore.matcher.EncounterSessionMatcher;
-import org.bahmni.module.bahmnicore.service.EncounterMatchDecisionService;
+import org.bahmni.module.bahmnicore.matcher.MultipleEncountersMatchException;
+import org.bahmni.module.bahmnicore.service.BahmniEncounterMatchDecisionService;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.EncounterService;
 import org.openmrs.api.LocationService;
@@ -32,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Service
-public class EncounterMatchDecisionServiceImpl implements EncounterMatchDecisionService {
+public class EncounterMatchDecisionServiceImpl implements BahmniEncounterMatchDecisionService {
 
     private static final Logger logger = LoggerFactory.getLogger(EncounterMatchDecisionServiceImpl.class);
 
@@ -124,14 +125,11 @@ public class EncounterMatchDecisionServiceImpl implements EncounterMatchDecision
         Encounter matchedEncounter;
         try {
             matchedEncounter = encounterSessionMatcher.findEncounter(visit, params);
-        } catch (RuntimeException e) {
-            if (e.getMessage() != null && e.getMessage().contains("More than one encounter matches")) {
-                logger.warn("Multiple encounters match criteria");
-                return EncounterMatchResponse.error(
-                        EncounterMatchResponse.ERROR_CODE_MULTIPLE_ENCOUNTERS_MATCH,
-                        "Multiple encounters match the criteria. Please contact administrator.");
-            }
-            throw e;
+        } catch (MultipleEncountersMatchException e) {
+            logger.warn("Multiple encounters match criteria");
+            return EncounterMatchResponse.error(
+                    EncounterMatchResponse.ERROR_CODE_MULTIPLE_ENCOUNTERS_MATCH,
+                    "Multiple encounters match the criteria. Please contact administrator.");
         }
 
         if (matchedEncounter != null) {
@@ -263,8 +261,10 @@ public class EncounterMatchDecisionServiceImpl implements EncounterMatchDecision
             }
         }
 
-        logger.debug("All diagnostic checks passed. Treating as match.");
-        return buildMatchFoundResponse(candidate);
+        logger.debug("Encounter exists but does not match session criteria.");
+        return EncounterMatchResponse.noMatch(
+                EncounterMatchResponse.REASON_NO_ACTIVE_ENCOUNTER,
+                "Encounter exists but does not meet current session criteria. A new encounter will be created.");
     }
 
     private Set<Provider> extractProviders(Encounter encounter) {
@@ -319,14 +319,6 @@ public class EncounterMatchDecisionServiceImpl implements EncounterMatchDecision
     }
 
     private int getSessionDurationMinutes() {
-        String configured = administrationService.getGlobalProperty("bahmni.encountersession.duration");
-        if (configured != null) {
-            try {
-                return Integer.parseInt(configured);
-            } catch (NumberFormatException e) {
-                logger.warn("Invalid bahmni.encountersession.duration global property value: {}", configured);
-            }
-        }
-        return EncounterSessionMatcher.DEFAULT_SESSION_DURATION_IN_MINUTES;
+        return encounterSessionMatcher.getSessionDuration();
     }
 }

@@ -3,6 +3,7 @@ package org.bahmni.module.bahmnicore.service.impl;
 import org.apache.commons.lang3.time.DateUtils;
 import org.bahmni.module.bahmnicommons.api.visitlocation.BahmniVisitLocationService;
 import org.bahmni.module.bahmnicore.matcher.EncounterSessionMatcher;
+import org.bahmni.module.bahmnicore.matcher.MultipleEncountersMatchException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -96,6 +97,7 @@ public class EncounterMatchDecisionServiceImplTest {
         provider.setName("Dr. Smith");
 
         when(administrationService.getGlobalProperty("bahmni.encountersession.duration")).thenReturn("60");
+        when(encounterSessionMatcher.getSessionDuration()).thenReturn(60);
         when(visitService.getVisitByUuid("visit-uuid")).thenReturn(activeVisit);
         when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
         when(locationService.getLocationByUuid("location-uuid")).thenReturn(location);
@@ -320,7 +322,7 @@ public class EncounterMatchDecisionServiceImplTest {
 
         when(providerService.getProviderByUuid("provider-uuid")).thenReturn(provider);
         when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
-                .thenThrow(new RuntimeException("More than one encounter matches the criteria"));
+                .thenThrow(new MultipleEncountersMatchException("More than one encounter matches the criteria"));
 
         EncounterMatchResponse response = service.decideMatch(request);
 
@@ -333,6 +335,7 @@ public class EncounterMatchDecisionServiceImplTest {
     @Test
     public void match_found_whenEncounterWithin120MinSessionDuration() {
         when(administrationService.getGlobalProperty("bahmni.encountersession.duration")).thenReturn("120");
+        when(encounterSessionMatcher.getSessionDuration()).thenReturn(120);
 
         EncounterMatchRequest request = buildRequest();
         // Encounter is 90 minutes old — within 120 min session, so matcher returns it
@@ -388,6 +391,7 @@ public class EncounterMatchDecisionServiceImplTest {
         when(visitService.getVisitByUuid("visit-uuid")).thenReturn(activeVisit);
         when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
         when(locationService.getLocationByUuid("location-uuid")).thenReturn(location);
+        when(bahmniVisitLocationService.getVisitLocation("location-uuid")).thenReturn(location);
         when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
                 .thenReturn(null);
 
@@ -398,7 +402,8 @@ public class EncounterMatchDecisionServiceImplTest {
 
         EncounterMatchResponse response = service.decideMatch(request);
 
-        assertEquals("match_found", response.getStatus()); // should match since no provider filter
+        assertEquals("no_match", response.getStatus()); // matcher explicitly returned null, don't override
+        assertEquals("no_active_encounter", response.getReason());
     }
 
     @Test
@@ -423,6 +428,7 @@ public class EncounterMatchDecisionServiceImplTest {
     public void use_default_session_duration_whenPropertyMissing() {
         EncounterMatchRequest request = buildRequest();
         when(administrationService.getGlobalProperty("bahmni.encountersession.duration")).thenReturn(null);
+        when(encounterSessionMatcher.getSessionDuration()).thenReturn(60);
 
         when(visitService.getVisitByUuid("visit-uuid")).thenReturn(activeVisit);
         when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
@@ -441,6 +447,7 @@ public class EncounterMatchDecisionServiceImplTest {
     public void use_default_session_duration_whenPropertyInvalid() {
         EncounterMatchRequest request = buildRequest();
         when(administrationService.getGlobalProperty("bahmni.encountersession.duration")).thenReturn("invalid");
+        when(encounterSessionMatcher.getSessionDuration()).thenReturn(60);
 
         when(visitService.getVisitByUuid("visit-uuid")).thenReturn(activeVisit);
         when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
@@ -483,7 +490,7 @@ public class EncounterMatchDecisionServiceImplTest {
         when(locationService.getLocationByUuid("location-uuid")).thenReturn(location);
         when(providerService.getProviderByUuid("provider-uuid")).thenReturn(provider);
         when(encounterSessionMatcher.findEncounter(eq(activeVisit), any(EncounterParameters.class)))
-                .thenThrow(new RuntimeException("More than one encounter matches the criteria"));
+                .thenThrow(new MultipleEncountersMatchException("More than one encounter matches the criteria"));
 
         EncounterMatchResponse response = service.decideMatch(request);
 

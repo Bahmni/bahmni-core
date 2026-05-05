@@ -1,6 +1,6 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
-import org.bahmni.module.bahmnicore.service.EncounterMatchDecisionService;
+import org.bahmni.module.bahmnicore.service.BahmniEncounterMatchDecisionService;
 import org.bahmni.module.bahmnicore.web.v1_0.VisitClosedException;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +27,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.when;
@@ -42,7 +43,7 @@ public class BahmniEncounterControllerTest {
     @Mock
     private EncounterService encounterService;
     @Mock
-    private EncounterMatchDecisionService encounterMatchDecisionService;
+    private BahmniEncounterMatchDecisionService encounterMatchDecisionService;
     private BahmniEncounterController bahmniEncounterController;
 
     @Before
@@ -152,7 +153,7 @@ public class BahmniEncounterControllerTest {
         EncounterMatchResponse response = new EncounterMatchResponse();
         response.setStatus("MATCHED");
         response.setEncounterUuid("uuid-123");
-        response.setReason(null); // should be removed
+        response.setReason(null);
 
         when(encounterMatchDecisionService.decideMatch(request)).thenReturn(response);
 
@@ -160,7 +161,7 @@ public class BahmniEncounterControllerTest {
 
         assertEquals("MATCHED", result.get("status"));
         assertEquals("uuid-123", result.get("encounterUuid"));
-        assertNull(result.get("reason")); // null should not be present
+        assertFalse(result.containsKey("reason"));
     }
 
     @Test
@@ -175,7 +176,7 @@ public class BahmniEncounterControllerTest {
         );
 
         EncounterMatchRequest request = new EncounterMatchRequest();
-        EncounterMatchResponse response = new EncounterMatchResponse(); // all null
+        EncounterMatchResponse response = new EncounterMatchResponse();
 
         when(encounterMatchDecisionService.decideMatch(request)).thenReturn(response);
 
