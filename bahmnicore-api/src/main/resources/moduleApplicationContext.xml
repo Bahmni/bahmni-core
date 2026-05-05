@@ -301,4 +301,5 @@
         <constructor-arg ref="encounterSessionMatcher"/>
         <constructor-arg ref="bahmniVisitLocationService"/>
     </bean>
+
 </beans>
