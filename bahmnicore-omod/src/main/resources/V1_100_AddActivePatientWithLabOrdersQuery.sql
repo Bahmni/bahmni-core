@@ -4,7 +4,7 @@ WHERE property = 'emrapi.sqlSearch.activePatientsWithLabOrders';
 INSERT INTO global_property (`property`, `property_value`, `description`, `uuid`)
 VALUES ('emrapi.sqlSearch.activePatientsWithLabOrders',
         'select distinct
-          concat(pn.given_name, ' ', ifnull(pn.family_name, '')) as name,
+          concat(pn.given_name, \' \', ifnull(pn.family_name, \'\')) as name,
           pi.identifier as identifier,
           concat("",p.uuid) as uuid,
           concat("",v.uuid) as activeVisitUuid
