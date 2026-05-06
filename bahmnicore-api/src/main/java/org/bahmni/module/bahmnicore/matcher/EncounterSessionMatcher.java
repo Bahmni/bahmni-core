@@ -111,7 +111,7 @@ public class EncounterSessionMatcher implements BaseEncounterMatcher {
         matchingEncounters = encounterParameters.getLocation() != null ? checkEncounterIsInCurrentVisitLocation(matchingEncounters, encounterParameters.getLocation()) : new ArrayList<Encounter>();
 
         if (matchingEncounters.size() > 1) {
-            throw new RuntimeException("More than one encounter matches the criteria");
+            throw new MultipleEncountersMatchException("More than one encounter matches the criteria");
         }
 
         if (!matchingEncounters.isEmpty()) {
@@ -170,7 +170,7 @@ public class EncounterSessionMatcher implements BaseEncounterMatcher {
         return encounter.getCreator().getId().intValue() == Context.getUserContext().getAuthenticatedUser().getId().intValue();
     }
 
-    private int getSessionDuration() {
+    public int getSessionDuration() {
         String configuredSessionDuration = adminService.getGlobalProperty("bahmni.encountersession.duration");
         int sessionDurationInMinutes = DEFAULT_SESSION_DURATION_IN_MINUTES;
         if (configuredSessionDuration != null) {
