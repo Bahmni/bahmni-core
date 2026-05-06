@@ -76,4 +76,43 @@ public class OdooClientHelperTest {
 
         assertNull(result);
     }
+
+    @Test
+    public void extractSessionCookie_shouldReturnNullWhenNoSessionIdCookiePresent() {
+        List<String> cookies = Arrays.asList(
+                "other_cookie=somevalue; Path=/",
+                "csrf_token=xyz789; HttpOnly"
+        );
+
+        String result = OdooClientHelper.extractSessionCookie(cookies);
+
+        assertNull(result);
+    }
+
+    @Test
+    public void createAuthenticationRequestBody_shouldHandleNullInputs() {
+        String body = OdooClientHelper.createAuthenticationRequestBody(null, null, null);
+
+        assertNotNull(body);
+        assertTrue(body.contains("\"params\""));
+    }
+
+    @Test
+    public void createAuthenticationRequestBody_shouldHandleEmptyInputs() {
+        String body = OdooClientHelper.createAuthenticationRequestBody("", "", "");
+
+        assertNotNull(body);
+        assertTrue(body.contains("\"db\":\"\""));
+        assertTrue(body.contains("\"login\":\"\""));
+        assertTrue(body.contains("\"password\":\"\""));
+    }
+
+    @Test
+    public void extractSessionCookie_shouldHandleSingleNonSessionCookie() {
+        List<String> cookies = Collections.singletonList("random_cookie=value");
+
+        String result = OdooClientHelper.extractSessionCookie(cookies);
+
+        assertNull(result);
+    }
 }

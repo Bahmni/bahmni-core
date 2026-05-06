@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Enclosed.class)
@@ -22,6 +23,25 @@ public class OdooUrlBuilderTest {
 
             assertTrue(url.endsWith("/web/session/authenticate"));
             assertFalse(url.isEmpty());
+        }
+
+        @Test
+        public void buildAuthenticationUrl_shouldReturnNonNullUrl() {
+            String url = OdooUrlBuilder.buildAuthenticationUrl();
+
+            // Even if BASE_URL is null in test context, the method should still return a string
+            // (it concatenates null + "/web/session/authenticate")
+            assertTrue(url != null);
+            assertTrue(url.contains("/web/session/authenticate"));
+        }
+
+        @Test
+        public void buildAvailableStocksUrl_shouldContainGetAvailableStocksEndpoint() {
+            String productUuid = "test-uuid";
+
+            String url = OdooUrlBuilder.buildAvailableStocksUrl(productUuid, null);
+
+            assertTrue(url.contains("/api/get-available-stocks"));
         }
 
         @Test

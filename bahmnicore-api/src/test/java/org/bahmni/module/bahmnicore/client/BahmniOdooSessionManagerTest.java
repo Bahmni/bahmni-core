@@ -11,6 +11,7 @@ import org.bahmni.module.bahmnicore.exception.OdooApiException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class BahmniOdooSessionManagerTest {
@@ -96,6 +97,61 @@ public class BahmniOdooSessionManagerTest {
             assertNull(getCachedCookieViaReflection());
             assertNotNull(ex.getMessage());
         }
+    }
+
+    @Test
+    public void getRequestDetails_shouldBuildNewDetailsWhenCookieDoesNotContainEquals() {
+        // Cookie without "=" should result in empty ClientCookies
+        setSessionCookieViaReflection("invalidcookieformat");
+
+        HttpRequestDetails details = sessionManager.getRequestDetails(TEST_URI);
+
+        assertNotNull(details);
+        assertEquals(TEST_URI, details.getUri());
+        assertNotNull(details.getClientCookies());
+    }
+
+    @Test
+    public void getRequestDetails_shouldBuildNewDetailsWhenCookieIsNull() {
+        // Set cookie to null, but also set previousSuccessfulRequest to non-null
+        // so getRequestDetails takes the cached path
+        setSessionCookieViaReflection("session_id=initial");
+        sessionManager.getRequestDetails(TEST_URI);
+
+        // Now clear only the cookie cache but keep previousSuccessfulRequest
+        setSessionCookieViaReflection(null);
+
+        // This should still use previousSuccessfulRequest.createNewWith(uri)
+        URI newUri = URI.create("http://odoo:8069/api/other");
+        HttpRequestDetails details = sessionManager.getRequestDetails(newUri);
+
+        assertNotNull(details);
+        assertEquals(newUri, details.getUri());
+    }
+
+    @Test
+    public void getSessionCookie_shouldThrowOdooApiExceptionWhenAuthenticateFails() {
+        // With no cached cookie and no real Odoo server, authenticate() will throw
+        try {
+            sessionManager.getSessionCookie();
+            fail("Expected OdooApiException since no Odoo server is available");
+        } catch (OdooApiException ex) {
+            assertNotNull(ex.getMessage());
+            assertTrue(ex.getMessage().contains("Authentication failed"));
+        }
+    }
+
+    @Test
+    public void clearSessionCache_shouldAllowRecachingAfterClear() {
+        setSessionCookieViaReflection("session_id=original");
+        assertEquals("session_id=original", sessionManager.getSessionCookie());
+
+        sessionManager.clearSessionCache();
+        assertNull(getCachedCookieViaReflection());
+
+        // Re-set via reflection to simulate re-authentication
+        setSessionCookieViaReflection("session_id=refreshed");
+        assertEquals("session_id=refreshed", sessionManager.getSessionCookie());
     }
 
     // ---- helpers ----
