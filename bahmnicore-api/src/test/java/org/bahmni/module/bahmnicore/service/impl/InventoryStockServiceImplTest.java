@@ -98,6 +98,35 @@ public class InventoryStockServiceImplTest {
         } catch (OdooApiException ex) {
             assertNotNull(ex.getMessage());
             assertNotNull(ex.getCause());
+            assertEquals(0, ex.getHttpStatusCode());
+        }
+    }
+
+    @Test
+    public void getAvailableStocks_FromInventory_shouldExtract404StatusCodeFromWebClientsException() {
+        WebClientsException exception = new WebClientsException("Bad response code of 404");
+        when(bahmniOdooClient.get(anyString())).thenThrow(exception);
+
+        try {
+            inventoryStockService.getAvailableStocksFromInventory(PRODUCT_UUID, LOCATION_UUID);
+            fail("Expected OdooApiException to be thrown");
+        } catch (OdooApiException ex) {
+            assertEquals(404, ex.getHttpStatusCode());
+            assertNotNull(ex.getMessage());
+        }
+    }
+
+    @Test
+    public void getAvailableStocks_FromInventory_shouldExtract400StatusCodeFromWebClientsException() {
+        WebClientsException exception = new WebClientsException("Bad response code of 400");
+        when(bahmniOdooClient.get(anyString())).thenThrow(exception);
+
+        try {
+            inventoryStockService.getAvailableStocksFromInventory(PRODUCT_UUID, LOCATION_UUID);
+            fail("Expected OdooApiException to be thrown");
+        } catch (OdooApiException ex) {
+            assertEquals(400, ex.getHttpStatusCode());
+            assertNotNull(ex.getMessage());
         }
     }
 

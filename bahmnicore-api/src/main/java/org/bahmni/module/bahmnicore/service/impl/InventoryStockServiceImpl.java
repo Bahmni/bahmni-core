@@ -32,8 +32,12 @@ public class InventoryStockServiceImpl implements InventoryStockService {
             logger.info("Successfully fetched {} stock entries", response != null ? response.getCount() : 0);
             return response;
         } catch (WebClientsException e) {
-            logger.warn("Odoo request failed: {}", e.getMessage());
-            throw new OdooApiException("Error fetching available stocks: " + e.getMessage(), e);
+            String msg = e.getMessage() != null ? e.getMessage() : "";
+            int statusCode = msg.startsWith("Bad response code of ")
+                    ? Integer.parseInt(msg.replace("Bad response code of ", "").trim())
+                    : 0;
+            logger.warn("Odoo request failed with status {}: {}", statusCode, msg);
+            throw new OdooApiException("Error fetching available stocks: " + msg, statusCode, e);
         } catch (Exception e) {
             logger.error("Error fetching available stocks from Odoo", e);
             throw new OdooApiException("Error fetching available stocks: " + e.getMessage(), e);

@@ -27,11 +27,14 @@ public class BahmniOdooClientTest {
     @Mock
     private HttpClient httpClient;
 
+    @Mock
+    private BahmniOdooSessionManager sessionManager;
+
     private BahmniOdooClient bahmniOdooClient;
 
     @Before
     public void setUp() {
-        bahmniOdooClient = new BahmniOdooClient(httpClient);
+        bahmniOdooClient = new BahmniOdooClient(httpClient, sessionManager);
     }
 
     @Test
@@ -60,8 +63,8 @@ public class BahmniOdooClientTest {
     }
 
     @Test
-    public void defaultConstructor_shouldCreateClientWithoutError() {
-        BahmniOdooClient client = new BahmniOdooClient();
+    public void constructor_shouldCreateClientWithSessionManager() {
+        BahmniOdooClient client = new BahmniOdooClient(new BahmniOdooSessionManager());
         assertNotNull(client);
     }
 }
