@@ -2,6 +2,7 @@ package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.bahmni.module.bahmnicore.contract.stock.AvailableStockResponse;
 import org.bahmni.module.bahmnicore.contract.stock.StockData;
+import org.bahmni.module.bahmnicore.exception.OdooApiException;
 import org.bahmni.module.bahmnicore.service.InventoryStockService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -115,6 +116,44 @@ public class InventoryStockControllerTest {
                 inventoryStockController.handleOdooClientError(exception);
 
         assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
+    }
+
+    @Test
+    public void handleOdooApiError_shouldReturn404WhenOdooReturnsNotFound() {
+        OdooApiException exception = new OdooApiException(
+                "Error fetching available stocks: Bad response code of 404", 404, new RuntimeException());
+
+        ResponseEntity<String> responseEntity =
+                inventoryStockController.handleOdooApiError(exception);
+
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assert responseEntity.getBody().contains("not_found");
+        assert responseEntity.getBody().contains("Error fetching available stocks");
+    }
+
+    @Test
+    public void handleOdooApiError_shouldReturn400WhenOdooReturnsBadRequest() {
+        OdooApiException exception = new OdooApiException(
+                "Error fetching available stocks: Bad response code of 400", 400, new RuntimeException());
+
+        ResponseEntity<String> responseEntity =
+                inventoryStockController.handleOdooApiError(exception);
+
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assert responseEntity.getBody().contains("bad_request");
+    }
+
+    @Test
+    public void handleOdooApiError_shouldReturn500WhenStatusCodeIsUnknown() {
+        OdooApiException exception = new OdooApiException("Error fetching available stocks: Connection refused");
+
+        ResponseEntity<String> responseEntity =
+                inventoryStockController.handleOdooApiError(exception);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
     }
 
     @Test

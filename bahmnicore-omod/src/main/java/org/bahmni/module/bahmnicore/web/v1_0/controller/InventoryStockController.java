@@ -1,6 +1,7 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.bahmni.module.bahmnicore.contract.stock.AvailableStockResponse;
+ import org.bahmni.module.bahmnicore.exception.OdooApiException;
 import org.bahmni.module.bahmnicore.service.InventoryStockService;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.v1_0.controller.BaseRestController;
@@ -45,11 +46,30 @@ public class InventoryStockController extends BaseRestController {
                 .body(ex.getResponseBodyAsString());
     }
 
+    @ExceptionHandler(OdooApiException.class)
+    @ResponseBody
+    public ResponseEntity<String> handleOdooApiError(OdooApiException ex) {
+        int statusCode = ex.getHttpStatusCode();
+        HttpStatus httpStatus = resolveHttpStatus(statusCode);
+        return ResponseEntity
+                .status(httpStatus)
+                .body("{\"status\": \"" + httpStatus.getReasonPhrase().toLowerCase().replace(" ", "_")
+                        + "\", \"message\": \"" + ex.getMessage() + "\"}");
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseBody
     public ResponseEntity<String> handleValidationError(IllegalArgumentException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body("{\"status\": \"bad_request\", \"message\": \"" + ex.getMessage() + "\"}");
+    }
+
+    private HttpStatus resolveHttpStatus(int statusCode) {
+        try {
+            return statusCode > 0 ? HttpStatus.valueOf(statusCode) : HttpStatus.INTERNAL_SERVER_ERROR;
+        } catch (IllegalArgumentException e) {
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        }
     }
 }
