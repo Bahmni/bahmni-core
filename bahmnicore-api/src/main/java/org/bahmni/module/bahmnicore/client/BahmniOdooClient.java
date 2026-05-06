@@ -7,7 +7,6 @@ import org.bahmni.webclients.ConnectionDetails;
 import org.bahmni.webclients.HttpClient;
 
 import java.net.URI;
-import java.util.concurrent.TimeUnit;
 
 public class BahmniOdooClient {
 
@@ -33,21 +32,10 @@ public class BahmniOdooClient {
     }
 
     public String get(String url) {
-        try {
+
             return httpClient.get(URI.create(url));
-        } catch (Exception e) {
-            logger.warn("Odoo request failed, resetting connection pool ", e);
-            resetConnectionPool();
-            throw e;
-        }
+
     }
 
-    private synchronized void resetConnectionPool() {
-        if (connectionManager != null) {
-            connectionManager.shutdown();
-        }
-        this.connectionManager = new PoolingHttpClientConnectionManager();
-        ConnectionDetails cd = new ConnectionDetails("", "", "", 20000, 30000, connectionManager);
-        this.httpClient = new HttpClient(cd, sessionManager);
-    }
+
 }
