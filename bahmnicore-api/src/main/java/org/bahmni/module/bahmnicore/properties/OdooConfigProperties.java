@@ -19,7 +19,12 @@ public class OdooConfigProperties {
     private OdooConfigProperties() {}
 
     public static void load() {
-        String propertyFilePath = new File(OpenmrsUtil.getApplicationDataDirectory(), "odoo-config.properties")
+        load(OpenmrsUtil.getApplicationDataDirectory());
+    }
+
+    // Package-private for testing
+    static void load(String directoryPath) {
+        String propertyFilePath = new File(directoryPath, "odoo-config.properties")
                 .getAbsolutePath();
         File propertyFile = new File(propertyFilePath);
 

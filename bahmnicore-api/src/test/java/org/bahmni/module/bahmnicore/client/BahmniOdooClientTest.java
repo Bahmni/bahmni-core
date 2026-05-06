@@ -11,6 +11,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.net.URI;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
@@ -56,5 +57,11 @@ public class BahmniOdooClientTest {
         }
 
         verify(httpClient, times(1)).get(URI.create(TEST_URL));
+    }
+
+    @Test
+    public void defaultConstructor_shouldCreateClientWithoutError() {
+        BahmniOdooClient client = new BahmniOdooClient();
+        assertNotNull(client);
     }
 }

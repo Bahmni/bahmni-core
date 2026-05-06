@@ -1,19 +1,25 @@
 package org.bahmni.module.bahmnicore.properties;
 
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class OdooConfigPropertiesTest {
 
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
+
     @After
     public void tearDown() {
-        // Reset properties to null after each test via initialize
         OdooConfigProperties.initialize(null);
     }
 
@@ -37,20 +43,6 @@ public class OdooConfigPropertiesTest {
         OdooConfigProperties.initialize(props);
 
         assertNull(OdooConfigProperties.getProperty("non.existent.key"));
-    }
-
-    @Test
-    public void getProperty_shouldReturnNullWhenPropertiesNotInitializedAndFileNotFound() {
-        // properties is null, getProperty will call load() which won't find the file
-        // In test context, OpenmrsUtil.getApplicationDataDirectory() may throw or return a path
-        // where odoo-config.properties doesn't exist, so properties stays null
-        OdooConfigProperties.initialize(null);
-
-        // This will attempt to call load(), which will either set properties to null
-        // (file not found) or throw. Either way, for a missing key it should handle gracefully.
-        String result = OdooConfigProperties.getProperty("odoo.base_url");
-        // Result is null because properties file doesn't exist in test environment
-        assertNull(result);
     }
 
     @Test
@@ -78,5 +70,73 @@ public class OdooConfigPropertiesTest {
 
         assertEquals("admin", OdooConfigProperties.getProperty("odoo.username"));
         assertEquals("secret", OdooConfigProperties.getProperty("odoo.password"));
+    }
+
+    @Test
+    public void load_shouldLoadPropertiesFromFile() throws Exception {
+        File tempDir = tempFolder.newFolder();
+        File propsFile = new File(tempDir, "odoo-config.properties");
+        Properties testProps = new Properties();
+        testProps.setProperty("odoo.base_url", "http://odoo:8069");
+        testProps.setProperty("odoo.database", "testdb");
+        testProps.setProperty("odoo.username", "admin");
+        try (FileOutputStream fos = new FileOutputStream(propsFile)) {
+            testProps.store(fos, null);
+        }
+
+        OdooConfigProperties.initialize(null);
+        OdooConfigProperties.load(tempDir.getAbsolutePath());
+
+        assertEquals("http://odoo:8069", OdooConfigProperties.getProperty("odoo.base_url"));
+        assertEquals("testdb", OdooConfigProperties.getProperty("odoo.database"));
+        assertEquals("admin", OdooConfigProperties.getProperty("odoo.username"));
+    }
+
+    @Test
+    public void load_shouldReturnEarlyWhenFileNotFound() {
+        OdooConfigProperties.initialize(null);
+        OdooConfigProperties.load("/non/existent/path");
+
+        // Properties should remain null since file was not found
+        assertNull(OdooConfigProperties.getProperty("odoo.base_url"));
+    }
+
+    @Test
+    public void load_shouldLoadMultiplePropertiesFromFile() throws Exception {
+        File tempDir = tempFolder.newFolder();
+        File propsFile = new File(tempDir, "odoo-config.properties");
+        Properties testProps = new Properties();
+        testProps.setProperty("odoo.base_url", "http://localhost:8069");
+        testProps.setProperty("odoo.database", "production");
+        testProps.setProperty("odoo.username", "user");
+        testProps.setProperty("odoo.password", "pass123");
+        try (FileOutputStream fos = new FileOutputStream(propsFile)) {
+            testProps.store(fos, null);
+        }
+
+        OdooConfigProperties.initialize(null);
+        OdooConfigProperties.load(tempDir.getAbsolutePath());
+
+        assertEquals("http://localhost:8069", OdooConfigProperties.getProperty("odoo.base_url"));
+        assertEquals("production", OdooConfigProperties.getProperty("odoo.database"));
+        assertEquals("user", OdooConfigProperties.getProperty("odoo.username"));
+        assertEquals("pass123", OdooConfigProperties.getProperty("odoo.password"));
+    }
+
+    @Test
+    public void getProperty_shouldReturnNullForMissingKeyAfterLoadFromFile() throws Exception {
+        File tempDir = tempFolder.newFolder();
+        File propsFile = new File(tempDir, "odoo-config.properties");
+        Properties testProps = new Properties();
+        testProps.setProperty("odoo.base_url", "http://odoo:8069");
+        try (FileOutputStream fos = new FileOutputStream(propsFile)) {
+            testProps.store(fos, null);
+        }
+
+        OdooConfigProperties.initialize(null);
+        OdooConfigProperties.load(tempDir.getAbsolutePath());
+
+        assertNotNull(OdooConfigProperties.getProperty("odoo.base_url"));
+        assertNull(OdooConfigProperties.getProperty("non.existent.key"));
     }
 }
