@@ -1,8 +1,6 @@
 package org.bahmni.module.bahmnicore.client;
 
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.bahmni.webclients.ConnectionDetails;
 import org.bahmni.webclients.HttpClient;
 
@@ -14,7 +12,7 @@ public class BahmniOdooClient {
     private HttpClient httpClient;
     private PoolingHttpClientConnectionManager connectionManager;
 
-    public BahmniOdooClient(BahmniOdooSessionManager sessionManager) {
+    public BahmniOdooClient() {
         this.connectionManager = new PoolingHttpClientConnectionManager();
         ConnectionDetails connectionDetails = new ConnectionDetails(
                 "", "", "", 20000, 30000, connectionManager);
@@ -29,6 +27,5 @@ public class BahmniOdooClient {
     public String get(String url) {
             return httpClient.get(URI.create(url));
     }
-
 
 }

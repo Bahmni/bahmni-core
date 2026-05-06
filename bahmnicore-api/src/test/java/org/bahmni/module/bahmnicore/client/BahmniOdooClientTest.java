@@ -62,9 +62,4 @@ public class BahmniOdooClientTest {
         verify(httpClient, times(1)).get(URI.create(TEST_URL));
     }
 
-    @Test
-    public void constructor_shouldCreateClientWithSessionManager() {
-        BahmniOdooClient client = new BahmniOdooClient(new BahmniOdooSessionManager());
-        assertNotNull(client);
-    }
 }
