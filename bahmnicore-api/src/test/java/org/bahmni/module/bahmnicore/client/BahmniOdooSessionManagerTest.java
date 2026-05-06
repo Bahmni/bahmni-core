@@ -6,9 +6,12 @@ import org.junit.Test;
 
 import java.net.URI;
 
+import org.bahmni.module.bahmnicore.exception.OdooApiException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 public class BahmniOdooSessionManagerTest {
 
@@ -77,21 +80,22 @@ public class BahmniOdooSessionManagerTest {
     }
 
     @Test
-    public void refreshRequestDetails_shouldClearCacheAndRebuildDetails() {
+    public void refreshRequestDetails_shouldClearPreviousCacheAndAttemptReAuthentication() {
         setSessionCookieViaReflection(SESSION_COOKIE_VALUE);
 
         // Build initial request details
         sessionManager.getRequestDetails(TEST_URI);
 
-        // Clear and set a new cookie to simulate re-authentication
-        sessionManager.clearSessionCache();
-        String newCookie = "session_id=newSession456";
-        setSessionCookieViaReflection(newCookie);
-
-        HttpRequestDetails refreshed = sessionManager.refreshRequestDetails(TEST_URI);
-
-        assertNotNull(refreshed);
-        assertEquals(TEST_URI, refreshed.getUri());
+        // refreshRequestDetails clears cache internally and tries to re-authenticate.
+        // Without a real Odoo server, authenticate() will throw OdooApiException.
+        try {
+            sessionManager.refreshRequestDetails(TEST_URI);
+            fail("Expected OdooApiException since no Odoo server is available");
+        } catch (OdooApiException ex) {
+            // Verify cache was cleared by refreshRequestDetails
+            assertNull(getCachedCookieViaReflection());
+            assertNotNull(ex.getMessage());
+        }
     }
 
     // ---- helpers ----
