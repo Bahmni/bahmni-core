@@ -34,7 +34,7 @@ public class BahmniOdooClientTest {
 
     @Before
     public void setUp() {
-        bahmniOdooClient = new BahmniOdooClient(httpClient, sessionManager);
+        bahmniOdooClient = new BahmniOdooClient(httpClient);
     }
 
     @Test
