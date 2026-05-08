@@ -14,8 +14,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,87 +28,108 @@ public class TemplateServiceClientTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         client = new TemplateServiceClient(restTemplate, "http://template-service:8080");
     }
 
     @Test
-    public void forwardBuildsUrlFromBaseUrlAndPath() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("X-OpenMRS-Session-Id", "test-session");
-        ResponseEntity<String> expected = new ResponseEntity<>("body", HttpStatus.OK);
-        when(restTemplate.exchange(eq("http://template-service:8080/reports"), eq(HttpMethod.GET),
+    public void getTemplatesCallsCorrectUrl() {
+        ResponseEntity<String> expected = new ResponseEntity<>("[{\"id\":\"1\"}]", HttpStatus.OK);
+        when(restTemplate.exchange(eq("http://template-service:8080/api/templates"), eq(HttpMethod.GET),
                 any(HttpEntity.class), eq(String.class))).thenReturn(expected);
 
-        ResponseEntity<String> result = client.forward(HttpMethod.GET, "/reports", null, headers, null);
+        ResponseEntity<String> result = client.getTemplates(new HttpHeaders());
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("body", result.getBody());
-        verify(restTemplate).exchange(eq("http://template-service:8080/reports"), eq(HttpMethod.GET),
+        assertEquals("[{\"id\":\"1\"}]", result.getBody());
+        verify(restTemplate).exchange(eq("http://template-service:8080/api/templates"), eq(HttpMethod.GET),
                 any(HttpEntity.class), eq(String.class));
     }
 
     @Test
-    public void forwardAppendsQueryStringToUrl() {
-        HttpHeaders headers = new HttpHeaders();
-        ResponseEntity<String> expected = new ResponseEntity<>("result", HttpStatus.OK);
-        when(restTemplate.exchange(eq("http://template-service:8080/reports?format=pdf"),
-                eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class))).thenReturn(expected);
-
-        client.forward(HttpMethod.GET, "/reports", "format=pdf", headers, null);
-
-        verify(restTemplate).exchange(eq("http://template-service:8080/reports?format=pdf"),
-                eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
-    }
-
-    @Test
-    public void forwardOmitsQueryStringSeparatorWhenQueryStringIsNull() {
-        HttpHeaders headers = new HttpHeaders();
-        ResponseEntity<String> expected = new ResponseEntity<>("result", HttpStatus.OK);
-        when(restTemplate.exchange(eq("http://template-service:8080/reports"), eq(HttpMethod.GET),
-                any(HttpEntity.class), eq(String.class))).thenReturn(expected);
-
-        client.forward(HttpMethod.GET, "/reports", null, headers, null);
-
-        verify(restTemplate).exchange(eq("http://template-service:8080/reports"),
-                eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
-    }
-
-    @Test
-    public void forwardPassesThroughDownstream4xxStatus() {
-        HttpHeaders headers = new HttpHeaders();
-        when(restTemplate.exchange(any(String.class), any(HttpMethod.class),
+    public void getTemplatesPassesThroughDownstream4xxStatus() {
+        when(restTemplate.exchange(any(String.class), eq(HttpMethod.GET),
                 any(HttpEntity.class), eq(String.class)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
 
-        ResponseEntity<String> result = client.forward(HttpMethod.GET, "/missing", null, headers, null);
+        ResponseEntity<String> result = client.getTemplates(new HttpHeaders());
 
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
     }
 
     @Test
-    public void forwardPassesThroughDownstream5xxStatus() {
-        HttpHeaders headers = new HttpHeaders();
-        when(restTemplate.exchange(any(String.class), any(HttpMethod.class),
+    public void getTemplatesPassesThroughDownstream5xxStatus() {
+        when(restTemplate.exchange(any(String.class), eq(HttpMethod.GET),
                 any(HttpEntity.class), eq(String.class)))
                 .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        ResponseEntity<String> result = client.forward(HttpMethod.GET, "/failing", null, headers, null);
+        ResponseEntity<String> result = client.getTemplates(new HttpHeaders());
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
     }
 
     @Test
-    public void forwardSendsBodyForPostRequest() {
+    public void renderCallsCorrectUrl() {
         HttpHeaders headers = new HttpHeaders();
-        String body = "{\"key\":\"value\"}";
-        ResponseEntity<String> expected = new ResponseEntity<>("created", HttpStatus.CREATED);
-        when(restTemplate.exchange(eq("http://template-service:8080/render"), eq(HttpMethod.POST),
+        ResponseEntity<String> expected = new ResponseEntity<>("rendered", HttpStatus.OK);
+        when(restTemplate.exchange(eq("http://template-service:8080/api/render"), eq(HttpMethod.POST),
                 any(HttpEntity.class), eq(String.class))).thenReturn(expected);
 
-        ResponseEntity<String> result = client.forward(HttpMethod.POST, "/render", null, headers, body);
+        ResponseEntity<String> result = client.render(headers, "{\"id\":\"1\"}");
 
-        assertEquals(HttpStatus.CREATED, result.getStatusCode());
-        assertEquals("created", result.getBody());
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals("rendered", result.getBody());
+        verify(restTemplate).exchange(eq("http://template-service:8080/api/render"), eq(HttpMethod.POST),
+                any(HttpEntity.class), eq(String.class));
+    }
+
+    @Test
+    public void renderPassesThroughDownstream4xxStatus() {
+        when(restTemplate.exchange(any(String.class), eq(HttpMethod.POST),
+                any(HttpEntity.class), eq(String.class)))
+                .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
+
+        ResponseEntity<String> result = client.render(new HttpHeaders(), "{}");
+
+        assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+    }
+
+    @Test
+    public void renderPassesThroughDownstream5xxStatus() {
+        when(restTemplate.exchange(any(String.class), eq(HttpMethod.POST),
+                any(HttpEntity.class), eq(String.class)))
+                .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        ResponseEntity<String> result = client.render(new HttpHeaders(), "{}");
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+    }
+
+    @Test
+    public void parseIntPropertyReturnsDefaultWhenValueIsNull() {
+        assertEquals(5000, TemplateServiceClient.parseIntProperty(null, 5000));
+    }
+
+    @Test
+    public void parseIntPropertyParsesValidIntAndTrimsWhitespace() {
+        assertEquals(3000, TemplateServiceClient.parseIntProperty("  3000  ", 5000));
+    }
+
+    @Test
+    public void parseIntPropertyReturnsDefaultForNonNumericValue() {
+        assertEquals(5000, TemplateServiceClient.parseIntProperty("not-a-number", 5000));
+    }
+
+    @Test
+    public void renderSendsBodyToService() {
+        String body = "{\"templateId\":\"abc\"}";
+        when(restTemplate.exchange(any(String.class), eq(HttpMethod.POST),
+                any(HttpEntity.class), eq(String.class)))
+                .thenReturn(new ResponseEntity<>("output", HttpStatus.OK));
+
+        client.render(new HttpHeaders(), body);
+
+        verify(restTemplate).exchange(eq("http://template-service:8080/api/render"),
+                eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class));
     }
 }

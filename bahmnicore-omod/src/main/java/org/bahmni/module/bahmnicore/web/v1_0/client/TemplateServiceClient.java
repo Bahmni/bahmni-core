@@ -1,6 +1,7 @@
 package org.bahmni.module.bahmnicore.web.v1_0.client;
 
 import org.bahmni.module.bahmnicore.properties.BahmniCoreProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,10 +19,13 @@ public class TemplateServiceClient {
     private static final String READ_TIMEOUT_KEY = "template.service.readTimeoutInMilliseconds";
     private static final int DEFAULT_CONNECT_TIMEOUT = 5000;
     private static final int DEFAULT_READ_TIMEOUT = 10000;
+    private static final String TEMPLATES_PATH = "/api/templates";
+    private static final String RENDER_PATH = "/api/render";
 
     private final RestTemplate restTemplate;
     private final String baseUrl;
 
+    @Autowired
     public TemplateServiceClient() {
         this.baseUrl = BahmniCoreProperties.getProperty(URL_KEY);
         this.restTemplate = buildRestTemplate();
@@ -32,12 +36,19 @@ public class TemplateServiceClient {
         this.baseUrl = baseUrl;
     }
 
-    public ResponseEntity<String> forward(HttpMethod method, String path,
-                                          String queryString, HttpHeaders headers,
-                                          String body) {
-        String url = baseUrl + path + (queryString != null ? "?" + queryString : "");
+    public ResponseEntity<String> getTemplates(HttpHeaders headers) {
         try {
-            return restTemplate.exchange(url, method, new HttpEntity<>(body, headers), String.class);
+            return restTemplate.exchange(baseUrl + TEMPLATES_PATH, HttpMethod.GET,
+                    new HttpEntity<>(headers), String.class);
+        } catch (HttpStatusCodeException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+        }
+    }
+
+    public ResponseEntity<String> render(HttpHeaders headers, String body) {
+        try {
+            return restTemplate.exchange(baseUrl + RENDER_PATH, HttpMethod.POST,
+                    new HttpEntity<>(body, headers), String.class);
         } catch (HttpStatusCodeException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
         }
@@ -45,13 +56,12 @@ public class TemplateServiceClient {
 
     private RestTemplate buildRestTemplate() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(getIntProperty(CONNECT_TIMEOUT_KEY, DEFAULT_CONNECT_TIMEOUT));
-        factory.setReadTimeout(getIntProperty(READ_TIMEOUT_KEY, DEFAULT_READ_TIMEOUT));
+        factory.setConnectTimeout(parseIntProperty(BahmniCoreProperties.getProperty(CONNECT_TIMEOUT_KEY), DEFAULT_CONNECT_TIMEOUT));
+        factory.setReadTimeout(parseIntProperty(BahmniCoreProperties.getProperty(READ_TIMEOUT_KEY), DEFAULT_READ_TIMEOUT));
         return new RestTemplate(factory);
     }
 
-    private int getIntProperty(String key, int defaultValue) {
-        String value = BahmniCoreProperties.getProperty(key);
+    static int parseIntProperty(String value, int defaultValue) {
         if (value == null) {
             return defaultValue;
         }
