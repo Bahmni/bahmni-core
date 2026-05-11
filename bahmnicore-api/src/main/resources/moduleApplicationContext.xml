@@ -271,13 +271,8 @@
     </bean>
 
     <!-- Odoo Integration: Bean Definitions -->
-    <bean id="bahmniOdooSessionManager"
-          class="org.bahmni.module.bahmnicore.client.BahmniOdooSessionManager"/>
-
     <bean id="bahmniOdooClient"
-          class="org.bahmni.module.bahmnicore.client.BahmniOdooClient">
-        <constructor-arg ref="bahmniOdooSessionManager"/>
-    </bean>
+          class="org.bahmni.module.bahmnicore.client.BahmniOdooClient"/>
 
     <bean id="bahmniStockService"
           class="org.bahmni.module.bahmnicore.service.impl.InventoryStockServiceImpl">
