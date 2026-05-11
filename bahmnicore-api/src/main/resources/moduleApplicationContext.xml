@@ -282,7 +282,15 @@
             <ref bean="transactionManager"/>
         </property>
         <property name="target">
-            <ref bean="bahmniEncounterMatchDecisionServiceTarget"/>
+            <bean class="org.bahmni.module.bahmnicore.service.impl.BahmniEncounterMatchDecisionServiceImpl" autowire="constructor">
+                <constructor-arg ref="visitService"/>
+                <constructor-arg ref="patientService"/>
+                <constructor-arg ref="locationService"/>
+                <constructor-arg ref="providerService"/>
+                <constructor-arg ref="encounterService"/>
+                <constructor-arg ref="encounterSessionMatcher"/>
+                <constructor-arg ref="bahmniVisitLocationService"/>
+            </bean>
         </property>
         <property name="preInterceptors">
             <ref bean="serviceInterceptors"/>
@@ -291,15 +299,4 @@
             <ref bean="transactionAttributeSource"/>
         </property>
     </bean>
-
-    <bean id="bahmniEncounterMatchDecisionServiceTarget" class="org.bahmni.module.bahmnicore.service.impl.BahmniEncounterMatchDecisionServiceImpl" autowire="constructor">
-        <constructor-arg ref="visitService"/>
-        <constructor-arg ref="patientService"/>
-        <constructor-arg ref="locationService"/>
-        <constructor-arg ref="providerService"/>
-        <constructor-arg ref="encounterService"/>
-        <constructor-arg ref="encounterSessionMatcher"/>
-        <constructor-arg ref="bahmniVisitLocationService"/>
-    </bean>
-
 </beans>
