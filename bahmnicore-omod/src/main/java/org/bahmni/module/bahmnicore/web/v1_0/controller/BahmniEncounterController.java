@@ -53,7 +53,7 @@ public class BahmniEncounterController extends BaseRestController {
                                      EmrEncounterService emrEncounterService, EncounterTransactionMapper encounterTransactionMapper,
                                      BahmniEncounterTransactionService bahmniEncounterTransactionService,
                                      BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper,
-                                     @Qualifier("bahmniEncounterMatchDecisionService") BahmniEncounterMatchDecisionService encounterMatchDecisionService) {
+                                     BahmniEncounterMatchDecisionService encounterMatchDecisionService) {
         this.encounterService = encounterService;
         this.emrEncounterService = emrEncounterService;
         this.encounterTransactionMapper = encounterTransactionMapper;
