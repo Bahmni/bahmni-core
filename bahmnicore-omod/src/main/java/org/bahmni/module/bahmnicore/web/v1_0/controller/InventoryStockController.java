@@ -43,7 +43,7 @@ public class InventoryStockController extends BaseRestController {
     public ResponseEntity<String> handleOdooClientError(HttpClientErrorException ex) {
         return ResponseEntity
                 .status(ex.getStatusCode())
-                .body(ex.getResponseBodyAsString());
+                .body("{\"message\": \"Odoo client error\"}");
     }
 
     @ExceptionHandler(OdooApiException.class)

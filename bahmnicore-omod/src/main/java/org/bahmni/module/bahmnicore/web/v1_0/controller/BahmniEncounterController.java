@@ -20,6 +20,7 @@ import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.v1_0.controller.BaseRestController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -40,7 +41,7 @@ public class BahmniEncounterController extends BaseRestController {
     private EncounterTransactionMapper encounterTransactionMapper;
     private BahmniEncounterTransactionService bahmniEncounterTransactionService;
     private BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper;
-    @Autowired
+    
     private BahmniEncounterMatchDecisionService encounterMatchDecisionService;
     private static Logger logger = LogManager.getLogger(BahmniEncounterController.class);
 
@@ -52,7 +53,7 @@ public class BahmniEncounterController extends BaseRestController {
                                      EmrEncounterService emrEncounterService, EncounterTransactionMapper encounterTransactionMapper,
                                      BahmniEncounterTransactionService bahmniEncounterTransactionService,
                                      BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper,
-                                     BahmniEncounterMatchDecisionService encounterMatchDecisionService) {
+                                     @Qualifier("bahmniEncounterMatchDecisionService") BahmniEncounterMatchDecisionService encounterMatchDecisionService) {
         this.encounterService = encounterService;
         this.emrEncounterService = emrEncounterService;
         this.encounterTransactionMapper = encounterTransactionMapper;

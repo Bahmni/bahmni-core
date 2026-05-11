@@ -95,7 +95,7 @@ public class InventoryStockControllerTest {
 
     @Test
     public void handleOdooClientError_shouldReturnResponseEntityWithExceptionStatusCodeAndBody() {
-        String errorBody = "{\"message\":\"Not Found\"}";
+        String errorBody = "{\"message\": \"Odoo client error\"}";
         HttpClientErrorException exception = new HttpClientErrorException(
                 HttpStatus.NOT_FOUND, "Not Found",
                 errorBody.getBytes(), java.nio.charset.StandardCharsets.UTF_8);
