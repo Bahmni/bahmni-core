@@ -41,7 +41,7 @@ public class BahmniEncounterController extends BaseRestController {
     private EncounterTransactionMapper encounterTransactionMapper;
     private BahmniEncounterTransactionService bahmniEncounterTransactionService;
     private BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper;
-    
+    @Autowired
     private BahmniEncounterMatchDecisionService encounterMatchDecisionService;
     private static Logger logger = LogManager.getLogger(BahmniEncounterController.class);
 

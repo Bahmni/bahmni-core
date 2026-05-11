@@ -8,9 +8,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.lang.reflect.Field;
 import java.net.URI;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
@@ -34,6 +36,19 @@ public class BahmniOdooClientTest {
     @Before
     public void setUp() {
         bahmniOdooClient = new BahmniOdooClient(httpClient);
+    }
+
+    @Test
+    public void defaultConstructor_shouldInitializeHttpClientAndConnectionManager() throws Exception {
+        BahmniOdooClient client = new BahmniOdooClient();
+
+        Field httpClientField = BahmniOdooClient.class.getDeclaredField("httpClient");
+        httpClientField.setAccessible(true);
+        assertNotNull(httpClientField.get(client));
+
+        Field connectionManagerField = BahmniOdooClient.class.getDeclaredField("connectionManager");
+        connectionManagerField.setAccessible(true);
+        assertNotNull(connectionManagerField.get(client));
     }
 
     @Test
