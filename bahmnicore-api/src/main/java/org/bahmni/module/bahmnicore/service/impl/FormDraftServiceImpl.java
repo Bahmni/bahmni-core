@@ -6,11 +6,16 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bahmni.module.bahmnicore.contract.FormDraftRequest;
+import org.bahmni.module.bahmnicore.contract.FormDraftSummaryResponse;
 import org.bahmni.module.bahmnicore.dao.FormDraftDAO;
 import org.bahmni.module.bahmnicore.model.FormDraft;
 import org.bahmni.module.bahmnicore.service.FormDraftService;
@@ -34,6 +39,7 @@ public class FormDraftServiceImpl implements FormDraftService {
 
     private static final Logger log = LoggerFactory.getLogger(FormDraftServiceImpl.class);
     private static final String FORM_DRAFTS_SUBDIRECTORY = "form_draft";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private FormDraftDAO formDraftDAO;
     private PatientService patientService;
@@ -339,6 +345,84 @@ public class FormDraftServiceImpl implements FormDraftService {
             return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
         } catch (IOException e) {
             log.warn("Error reading form data file: " + formDataPath, e);
+            return null;
+        }
+    }
+
+    @Override
+    public List<FormDraftSummaryResponse> getDraftsByProvider(String providerUuid) {
+        if (providerUuid == null || providerUuid.trim().isEmpty()) {
+            throw new IllegalArgumentException("Provider UUID is required");
+        }
+
+        User user = resolveUser(providerUuid);
+        if (user == null) {
+            log.warn("getDraftsByProvider: no user found for providerUuid={}", providerUuid);
+            return new ArrayList<>();
+        }
+
+        List<FormDraft> drafts = formDraftDAO.getAllByUserOrderedByDateDesc(user.getUserId());
+        List<FormDraftSummaryResponse> results = new ArrayList<>();
+        for (FormDraft draft : drafts) {
+            FormDraftSummaryResponse summary = buildSummary(draft);
+            if (summary != null) {
+                results.add(summary);
+            }
+        }
+        return results;
+    }
+
+    private FormDraftSummaryResponse buildSummary(FormDraft draft) {
+        Patient patient = draft.getPatient();
+        if (patient == null) {
+            log.warn("buildSummary: draft {} has null patient — skipping", draft.getUuid());
+            return null;
+        }
+
+        String patientName = patient.getPersonName() != null
+                ? patient.getPersonName().getFullName()
+                : "";
+        String patientIdentifier = patient.getPatientIdentifier() != null
+                ? patient.getPatientIdentifier().getIdentifier()
+                : null;
+        String encounterUuid = draft.getEncounter() != null ? draft.getEncounter().getUuid() : null;
+        long timestamp = draft.getDateChanged() != null
+                ? draft.getDateChanged().getTime()
+                : draft.getDateCreated().getTime();
+
+        String formName = extractFormName(draft.getFormDataPath());
+
+        FormDraftSummaryResponse response = new FormDraftSummaryResponse();
+        response.setDraftUuid(draft.getUuid());
+        response.setPatientUuid(patient.getUuid());
+        response.setPatientName(patientName);
+        response.setPatientIdentifier(patientIdentifier);
+        response.setEncounterUuid(encounterUuid);
+        response.setFormName(formName);
+        response.setTimestamp(timestamp);
+        return response;
+    }
+
+    private String extractFormName(String formDataPath) {
+        String formData = getFormData(formDataPath);
+        if (formData == null || formData.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            JsonNode root = OBJECT_MAPPER.readTree(formData);
+            if (!root.isArray()) {
+                log.warn("extractFormName: expected observations array but got object at path={}", formDataPath);
+                return null;
+            }
+            for (JsonNode obs : root) {
+                String formFieldPath = obs.path("formFieldPath").asText(null);
+                if (formFieldPath != null && !formFieldPath.isEmpty()) {
+                    return formFieldPath.split("\\.")[0];
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            log.warn("extractFormName: failed to parse form data at path={}", formDataPath, e);
             return null;
         }
     }

@@ -2,6 +2,7 @@ package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.bahmni.module.bahmnicore.contract.FormDraftRequest;
 import org.bahmni.module.bahmnicore.contract.FormDraftResponse;
+import org.bahmni.module.bahmnicore.contract.FormDraftSummaryResponse;
 import org.bahmni.module.bahmnicore.model.FormDraft;
 import org.bahmni.module.bahmnicore.service.FormDraftService;
 import org.junit.Before;
@@ -9,7 +10,10 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -109,6 +113,46 @@ public class FormDraftControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
+    
+    @Test
+    public void getDraftsByProvider_returns200WithList() {
+        FormDraftSummaryResponse summary = new FormDraftSummaryResponse();
+        summary.setDraftUuid("draft-uuid-1");
+        summary.setPatientUuid("patient-uuid-1");
+        summary.setPatientName("John Doe");
+        summary.setPatientIdentifier("ET001");
+        summary.setTimestamp(1000L);
+        when(formDraftService.getDraftsByProvider(PROVIDER_UUID)).thenReturn(Collections.singletonList(summary));
+
+        ResponseEntity<Object> response = controller.getDraftsByProvider(PROVIDER_UUID);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        List<?> body = (List<?>) response.getBody();
+        assertNotNull(body);
+        assertEquals(1, body.size());
+    }
+
+    @Test
+    public void getDraftsByProvider_returns200WithEmptyList() {
+        when(formDraftService.getDraftsByProvider(PROVIDER_UUID)).thenReturn(Collections.emptyList());
+
+        ResponseEntity<Object> response = controller.getDraftsByProvider(PROVIDER_UUID);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        List<?> body = (List<?>) response.getBody();
+        assertNotNull(body);
+        assertTrue(body.isEmpty());
+    }
+
+    @Test
+    public void getDraftsByProvider_returns400_whenProviderUuidIsInvalid() {
+        doThrow(new IllegalArgumentException("Provider UUID is required")).when(formDraftService)
+                .getDraftsByProvider("   ");
+
+        ResponseEntity<Object> response = controller.getDraftsByProvider("   ");
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
 
     // --- Helpers ---
 

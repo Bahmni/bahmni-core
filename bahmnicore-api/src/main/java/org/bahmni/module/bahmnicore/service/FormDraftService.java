@@ -1,7 +1,10 @@
 package org.bahmni.module.bahmnicore.service;
 
 import org.bahmni.module.bahmnicore.contract.FormDraftRequest;
+import org.bahmni.module.bahmnicore.contract.FormDraftSummaryResponse;
 import org.bahmni.module.bahmnicore.model.FormDraft;
+
+import java.util.List;
 
 public interface FormDraftService {
 
@@ -47,4 +50,14 @@ public interface FormDraftService {
      * @param providerUuid the UUID of the provider
      */
     void markDraftAsSaved(String patientUuid, String providerUuid);
+
+    /**
+     * Retrieve a summary list of all unsaved drafts for a given provider.
+     * Reads formData to extract formUuid/formName where available.
+     * Drafts with missing patient name or identifier are skipped with a warning log.
+     *
+     * @param providerUuid the UUID of the provider
+     * @return list of FormDraftSummaryResponse, ordered newest first; empty list if provider not found
+     */
+    List<FormDraftSummaryResponse> getDraftsByProvider(String providerUuid);
 }

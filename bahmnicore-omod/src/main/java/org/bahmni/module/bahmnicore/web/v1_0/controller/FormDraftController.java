@@ -2,6 +2,7 @@ package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.bahmni.module.bahmnicore.contract.FormDraftRequest;
 import org.bahmni.module.bahmnicore.contract.FormDraftResponse;
+import org.bahmni.module.bahmnicore.contract.FormDraftSummaryResponse;
 import org.bahmni.module.bahmnicore.model.FormDraft;
 import org.bahmni.module.bahmnicore.security.PrivilegeConstants;
 import org.bahmni.module.bahmnicore.service.FormDraftService;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+
 @Controller
 @RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/bahmnicore/formdraft")
 public class FormDraftController extends BaseRestController {
@@ -29,6 +32,26 @@ public class FormDraftController extends BaseRestController {
 
     @Autowired
     private FormDraftService formDraftService;
+
+    /**
+     * List all unsaved drafts for a given provider.
+     * GET /rest/v1/bahmnicore/formdraft/list?providerUuid=xxx
+     */
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Object> getDraftsByProvider(
+            @RequestParam(value = "providerUuid", required = true) String providerUuid) {
+        try {
+            List<FormDraftSummaryResponse> drafts = formDraftService.getDraftsByProvider(providerUuid);
+            return new ResponseEntity<>(drafts, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid request for draft list", e);
+            return new ResponseEntity<>(WebUtils.wrapErrorResponse(null, e.getMessage()), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            log.error("Error retrieving draft list for provider: " + providerUuid, e);
+            return new ResponseEntity<>(WebUtils.wrapErrorResponse(null, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     /**
      * Auto-save a form draft. Upserts by patient and provider UUID.

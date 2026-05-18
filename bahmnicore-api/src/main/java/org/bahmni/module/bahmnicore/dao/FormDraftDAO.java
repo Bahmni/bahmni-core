@@ -2,6 +2,8 @@ package org.bahmni.module.bahmnicore.dao;
 
 import org.bahmni.module.bahmnicore.model.FormDraft;
 
+import java.util.List;
+
 public interface FormDraftDAO {
 
     /**
@@ -30,4 +32,13 @@ public interface FormDraftDAO {
      * @param userId the OpenMRS user ID (provider)
      */
     void deleteLatestDraft(Integer patientId, Integer userId);
+
+    /**
+     * Retrieve all non-voided, unsaved drafts for a user, ordered newest first.
+     * Drafts where markedAsSaved is true are excluded.
+     *
+     * @param userId the OpenMRS user ID (provider)
+     * @return list of FormDraft objects, ordered by COALESCE(dateChanged, dateCreated) DESC
+     */
+    List<FormDraft> getAllByUserOrderedByDateDesc(Integer userId);
 }

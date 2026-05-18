@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.List;
 
 public class FormDraftDaoImpl implements FormDraftDAO {
 
@@ -64,6 +65,22 @@ public class FormDraftDaoImpl implements FormDraftDAO {
         } catch (Exception e) {
             log.error("Error deleting latest form draft for patient: " + patientId + ", user: " + userId, e);
             throw new DAOException("Failed to delete form draft", e);
+        }
+    }
+
+    @Override
+    public List<FormDraft> getAllByUserOrderedByDateDesc(Integer userId) throws DAOException {
+        try {
+            Query<FormDraft> query = sessionFactory.getCurrentSession()
+                    .createQuery("FROM FormDraft WHERE user.userId = :userId " +
+                            "AND voided = false " +
+                            "AND (markedAsSaved IS NULL OR markedAsSaved = false) " +
+                            "ORDER BY COALESCE(dateChanged, dateCreated) DESC", FormDraft.class);
+            query.setParameter("userId", userId);
+            return query.getResultList();
+        } catch (Exception e) {
+            log.error("Error retrieving all form drafts for user: " + userId, e);
+            throw new DAOException("Failed to retrieve form drafts for user", e);
         }
     }
 }
