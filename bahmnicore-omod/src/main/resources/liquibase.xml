@@ -4792,18 +4792,19 @@
         </createIndex>
     </changeSet>
 
-    <changeSet id="bahmni-core-20260402-109059-delete-form-draft-privilege" author="Bahmni">
+    <changeSet id="bahmni-core-20260518-116474-remove-delete-form-draft-privilege" author="Bahmni">
         <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">
+            <sqlCheck expectedResult="1">
                 SELECT COUNT(*) FROM privilege WHERE privilege = 'Delete Form Draft'
             </sqlCheck>
         </preConditions>
-        <comment>Add Delete Form Draft privilege for discarding form drafts</comment>
-        <insert tableName="privilege">
-            <column name="privilege" value="Delete Form Draft"/>
-            <column name="description" value="Privilege to discard/void form drafts"/>
-            <column name="uuid" value="a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"/>
-        </insert>
+        <comment>Remove Delete Form Draft privilege as discard no longer requires a privilege check</comment>
+        <delete tableName="role_privilege">
+            <where>privilege = 'Delete Form Draft'</where>
+        </delete>
+        <delete tableName="privilege">
+            <where>privilege = 'Delete Form Draft'</where>
+        </delete>
     </changeSet>
 
 </databaseChangeLog>

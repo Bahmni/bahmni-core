@@ -4,7 +4,6 @@ import org.bahmni.module.bahmnicore.contract.FormDraftRequest;
 import org.bahmni.module.bahmnicore.contract.FormDraftResponse;
 import org.bahmni.module.bahmnicore.contract.FormDraftSummaryResponse;
 import org.bahmni.module.bahmnicore.model.FormDraft;
-import org.bahmni.module.bahmnicore.security.PrivilegeConstants;
 import org.bahmni.module.bahmnicore.service.FormDraftService;
 import org.bahmni.module.bahmnicore.util.WebUtils;
 import org.openmrs.api.context.Context;
@@ -154,20 +153,13 @@ public class FormDraftController extends BaseRestController {
      *
      * @param patientUuid the UUID of the patient
      * @param providerUuid the UUID of the provider
-     * @return 204 No Content on success, 403 Forbidden if insufficient privileges
+     * @return 204 No Content on success
      */
     @RequestMapping(method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Object> discardDraft(
             @RequestParam(value = "patientUuid", required = true) String patientUuid,
             @RequestParam(value = "providerUuid", required = true) String providerUuid) {
-        if (!Context.getUserContext().hasPrivilege(PrivilegeConstants.DELETE_FORM_DRAFT_PRIVILEGE)) {
-            log.error("User " + Context.getAuthenticatedUser().getUsername() +
-                    " does not have privilege to discard form drafts");
-            return new ResponseEntity<>(
-                    WebUtils.wrapErrorResponse(null, "Insufficient privileges to discard form draft"),
-                    HttpStatus.FORBIDDEN);
-        }
         try {
             formDraftService.discardDraft(patientUuid, providerUuid);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
