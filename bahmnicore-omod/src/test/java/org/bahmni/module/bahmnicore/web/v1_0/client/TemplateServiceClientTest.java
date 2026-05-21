@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import static org.junit.Assert.assertEquals;
@@ -118,6 +119,30 @@ public class TemplateServiceClientTest {
     @Test
     public void parseIntPropertyReturnsDefaultForNonNumericValue() {
         assertEquals(5000, TemplateServiceClient.parseIntProperty("not-a-number", 5000));
+    }
+
+    @Test
+    public void getTemplatesReturnsBadGatewayWhenServiceUnreachable() {
+        when(restTemplate.exchange(any(String.class), eq(HttpMethod.GET),
+                any(HttpEntity.class), eq(String.class)))
+                .thenThrow(new ResourceAccessException("Connection refused"));
+
+        ResponseEntity<String> result = client.getTemplates(new HttpHeaders());
+
+        assertEquals(HttpStatus.BAD_GATEWAY, result.getStatusCode());
+        assertEquals(true, result.getBody().contains("unavailable"));
+    }
+
+    @Test
+    public void renderReturnsBadGatewayWhenServiceUnreachable() {
+        when(restTemplate.exchange(any(String.class), eq(HttpMethod.POST),
+                any(HttpEntity.class), eq(String.class)))
+                .thenThrow(new ResourceAccessException("Connection refused"));
+
+        ResponseEntity<String> result = client.render(new HttpHeaders(), "{}");
+
+        assertEquals(HttpStatus.BAD_GATEWAY, result.getStatusCode());
+        assertEquals(true, result.getBody().contains("unavailable"));
     }
 
     @Test
