@@ -64,20 +64,18 @@ public class LabOrderResultsServiceImpl implements LabOrderResultsService {
         int currentAccession = 0;
         for (int count = totalEncounters - 1; count >= 0; count--) {
             Encounter encounter = encounters.get(count);
-            if (currentAccession >= numberOfAccessions) {
-                break;
-            }
-
             EncounterTransaction encounterTransaction = encounterTransactionMapper.map(encounter, false);
-            List<EncounterTransaction.Order> existingTestOrders = filterTestOrders(encounterTransaction, encounter, encounterTestOrderUuidMap, null, null, null);
-            testOrders.addAll(existingTestOrders);
+            if (currentAccession < numberOfAccessions) {
+                List<EncounterTransaction.Order> existingTestOrders = filterTestOrders(encounterTransaction, encounter, encounterTestOrderUuidMap, null, null, null);
+                testOrders.addAll(existingTestOrders);
+                if (existingTestOrders.size() > 0) {
+                    currentAccession++;
+                }
+            }
             List<EncounterTransaction.Observation> nonVoidedObservations = filterObservations(encounterTransaction.getObservations(), null, null);
             observations.addAll(nonVoidedObservations);
             createAccessionNotesByEncounter(encounterToAccessionNotesMap, encounters, encounter);
-            mapObservationsWithEncounter(nonVoidedObservations, encounter, encounterObservationMap);
-            if (existingTestOrders.size() > 0) {
-                currentAccession++;
-            }
+            mapObservationsWithEncounter(nonVoidedObservations, encounter, encounterObservationMap);            
         }
 
         List<LabOrderResult> labOrderResults = mapOrdersWithObs(testOrders, observations, encounterTestOrderUuidMap, encounterObservationMap, encounterToAccessionNotesMap);
