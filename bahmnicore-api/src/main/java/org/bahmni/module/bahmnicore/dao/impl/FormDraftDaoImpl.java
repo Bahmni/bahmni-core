@@ -69,6 +69,22 @@ public class FormDraftDaoImpl implements FormDraftDAO {
     }
 
     @Override
+    public void deleteAllDrafts() throws DAOException {
+        try {
+            sessionFactory.getCurrentSession()
+                    .createQuery("UPDATE FormDraft SET voided = true, dateVoided = :now, " +
+                            "voidedBy = :user, voidReason = :reason WHERE voided = false")
+                    .setParameter("now", new Date())
+                    .setParameter("user", Context.getAuthenticatedUser())
+                    .setParameter("reason", "Draft deleted by scheduler")
+                    .executeUpdate();
+        } catch (Exception e) {
+            log.error("Error deleting all form drafts", e);
+            throw new DAOException("Failed to delete all form drafts", e);
+        }
+    }
+
+    @Override
     public List<FormDraft> getAllByUserOrderedByDateDesc(Integer userId) throws DAOException {
         try {
             Query<FormDraft> query = sessionFactory.getCurrentSession()

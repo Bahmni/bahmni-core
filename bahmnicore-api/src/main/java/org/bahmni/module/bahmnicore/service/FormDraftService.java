@@ -52,6 +52,12 @@ public interface FormDraftService {
     void markDraftAsSaved(String patientUuid, String providerUuid);
 
     /**
+     * Soft delete (void) all non-voided form drafts regardless of markedAsSaved value.
+     * Intended to be called by a scheduled task at midnight.
+     */
+    void discardAllDrafts();
+
+    /**
      * Retrieve a summary list of all unsaved drafts for a given provider.
      * Reads formData to extract formUuid/formName where available.
      * Drafts with missing patient name or identifier are skipped with a warning log.

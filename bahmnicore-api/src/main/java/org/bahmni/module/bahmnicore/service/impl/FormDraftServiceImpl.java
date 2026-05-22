@@ -332,6 +332,11 @@ public class FormDraftServiceImpl implements FormDraftService {
     }
 
     @Override
+    public void discardAllDrafts() {
+        formDraftDAO.deleteAllDrafts();
+    }
+
+    @Override
     public String getFormData(String formDataPath) {
         if (formDataPath == null) {
             return null;

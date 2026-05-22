@@ -4792,6 +4792,19 @@
         </createIndex>
     </changeSet>
 
+    <changeSet id="bahmni-core-20260518-116474-discard-all-drafts-scheduler" author="Bahmni">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM scheduler_task_config WHERE schedulable_class = 'org.bahmni.module.bahmnicore.task.DiscardAllFormDraftsTask'
+            </sqlCheck>
+        </preConditions>
+        <comment>Register scheduled task to discard all form drafts at midnight daily</comment>
+        <sql>
+            INSERT INTO scheduler_task_config(name, schedulable_class, start_time, start_time_pattern, repeat_interval, start_on_startup, started, created_by, date_created, uuid)
+            VALUES ('Discard All Form Drafts Task', 'org.bahmni.module.bahmnicore.task.DiscardAllFormDraftsTask', DATE_FORMAT(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '%Y-%m-%d 00:00:00'), 'MM/dd/yyyy HH:mm:ss', 86400, 1, 1, 1, CURDATE(), UUID());
+        </sql>
+    </changeSet>
+
     <changeSet id="bahmni-core-20260518-116474-remove-delete-form-draft-privilege" author="Bahmni">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="1">

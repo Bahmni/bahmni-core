@@ -34,6 +34,12 @@ public interface FormDraftDAO {
     void deleteLatestDraft(Integer patientId, Integer userId);
 
     /**
+     * Soft delete (void) all non-voided form drafts.
+     * Sets voided = true and dateVoided = now, voidedBy = currentUser, voidReason = "Draft deleted by scheduler"
+     */
+    void deleteAllDrafts();
+
+    /**
      * Retrieve all non-voided, unsaved drafts for a user, ordered newest first.
      * Drafts where markedAsSaved is true are excluded.
      *

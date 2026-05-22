@@ -265,6 +265,12 @@ public class FormDraftServiceImplTest {
     }
 
     @Test
+    public void discardAllDrafts_shouldCallDaoDeleteAllDrafts() {
+        formDraftService.discardAllDrafts();
+        verify(formDraftDAO).deleteAllDrafts();
+    }
+
+    @Test
     public void discardDraft_shouldCallDaoDeleteLatestDraft() {
         Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
