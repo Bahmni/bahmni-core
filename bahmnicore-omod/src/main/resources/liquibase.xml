@@ -4687,4 +4687,19 @@
         <sqlFile path="V1_100_AddActivePatientWithLabOrdersQuery.sql"/>
     </changeSet>
 
+    <changeSet id="bahmni-core-20250527-bah-4652" author="Bahmni">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">SELECT IF(count(*) > 0, 1, 0) FROM role_privilege WHERE BINARY privilege IN ('Edit conditions', 'Get conditions')</sqlCheck>
+        </preConditions>
+        <comment>Rename 'Edit conditions' and 'Get conditions' to title case for consistency with config</comment>
+        <sql>
+            SET FOREIGN_KEY_CHECKS = 0;
+            UPDATE privilege SET privilege = 'Edit Conditions' WHERE BINARY privilege = 'Edit conditions';
+            UPDATE privilege SET privilege = 'Get Conditions' WHERE BINARY privilege = 'Get conditions';
+            UPDATE role_privilege SET privilege = 'Edit Conditions' WHERE BINARY privilege = 'Edit conditions';
+            UPDATE role_privilege SET privilege = 'Get Conditions' WHERE BINARY privilege = 'Get conditions';
+            SET FOREIGN_KEY_CHECKS = 1;
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
