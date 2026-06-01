@@ -34,48 +34,6 @@ public class TemplateRenderControllerTest {
     }
 
     @Test
-    public void getTemplatesReturnsServiceResponse() {
-        when(request.getCookies()).thenReturn(null);
-        when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
-        when(request.getContentType()).thenReturn(null);
-        when(templateServiceClient.getTemplates(any(HttpHeaders.class)))
-                .thenReturn(new ResponseEntity<>("[{\"id\":\"1\"}]", HttpStatus.OK));
-
-        ResponseEntity<String> result = controller.getTemplates(request);
-
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("[{\"id\":\"1\"}]", result.getBody());
-    }
-
-    @Test
-    public void getTemplatesPropagatesContentTypeFromServiceResponse() {
-        when(request.getCookies()).thenReturn(null);
-        when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
-        when(request.getContentType()).thenReturn(null);
-        HttpHeaders serviceHeaders = new HttpHeaders();
-        serviceHeaders.setContentType(MediaType.APPLICATION_JSON);
-        when(templateServiceClient.getTemplates(any()))
-                .thenReturn(new ResponseEntity<>("[]", serviceHeaders, HttpStatus.OK));
-
-        ResponseEntity<String> result = controller.getTemplates(request);
-
-        assertEquals(MediaType.APPLICATION_JSON, result.getHeaders().getContentType());
-    }
-
-    @Test
-    public void getTemplatesPropagatesErrorStatusFromService() {
-        when(request.getCookies()).thenReturn(null);
-        when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
-        when(request.getContentType()).thenReturn(null);
-        when(templateServiceClient.getTemplates(any()))
-                .thenReturn(new ResponseEntity<>("error", HttpStatus.INTERNAL_SERVER_ERROR));
-
-        ResponseEntity<String> result = controller.getTemplates(request);
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
-    }
-
-    @Test
     public void renderForwardsBodyAndReturnsServiceResponse() {
         String body = "{\"templateId\":\"abc\"}";
         when(request.getCookies()).thenReturn(null);

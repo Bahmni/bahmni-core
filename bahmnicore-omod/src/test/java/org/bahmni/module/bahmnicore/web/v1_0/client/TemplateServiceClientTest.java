@@ -34,42 +34,6 @@ public class TemplateServiceClientTest {
     }
 
     @Test
-    public void getTemplatesCallsCorrectUrl() {
-        ResponseEntity<String> expected = new ResponseEntity<>("[{\"id\":\"1\"}]", HttpStatus.OK);
-        when(restTemplate.exchange(eq("http://template-service:8080/api/templates"), eq(HttpMethod.GET),
-                any(HttpEntity.class), eq(String.class))).thenReturn(expected);
-
-        ResponseEntity<String> result = client.getTemplates(new HttpHeaders());
-
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("[{\"id\":\"1\"}]", result.getBody());
-        verify(restTemplate).exchange(eq("http://template-service:8080/api/templates"), eq(HttpMethod.GET),
-                any(HttpEntity.class), eq(String.class));
-    }
-
-    @Test
-    public void getTemplatesPassesThroughDownstream4xxStatus() {
-        when(restTemplate.exchange(any(String.class), eq(HttpMethod.GET),
-                any(HttpEntity.class), eq(String.class)))
-                .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
-
-        ResponseEntity<String> result = client.getTemplates(new HttpHeaders());
-
-        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
-    }
-
-    @Test
-    public void getTemplatesPassesThroughDownstream5xxStatus() {
-        when(restTemplate.exchange(any(String.class), eq(HttpMethod.GET),
-                any(HttpEntity.class), eq(String.class)))
-                .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
-
-        ResponseEntity<String> result = client.getTemplates(new HttpHeaders());
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
-    }
-
-    @Test
     public void renderCallsCorrectUrl() {
         HttpHeaders headers = new HttpHeaders();
         ResponseEntity<String> expected = new ResponseEntity<>("rendered", HttpStatus.OK);
@@ -119,18 +83,6 @@ public class TemplateServiceClientTest {
     @Test
     public void parseIntPropertyReturnsDefaultForNonNumericValue() {
         assertEquals(5000, TemplateServiceClient.parseIntProperty("not-a-number", 5000));
-    }
-
-    @Test
-    public void getTemplatesReturnsBadGatewayWhenServiceUnreachable() {
-        when(restTemplate.exchange(any(String.class), eq(HttpMethod.GET),
-                any(HttpEntity.class), eq(String.class)))
-                .thenThrow(new ResourceAccessException("Connection refused"));
-
-        ResponseEntity<String> result = client.getTemplates(new HttpHeaders());
-
-        assertEquals(HttpStatus.BAD_GATEWAY, result.getStatusCode());
-        assertEquals(true, result.getBody().contains("unavailable"));
     }
 
     @Test

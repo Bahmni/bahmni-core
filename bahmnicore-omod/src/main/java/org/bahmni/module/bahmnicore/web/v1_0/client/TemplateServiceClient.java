@@ -25,7 +25,6 @@ public class TemplateServiceClient {
     private static final String READ_TIMEOUT_KEY = "template.service.readTimeoutInMilliseconds";
     private static final int DEFAULT_CONNECT_TIMEOUT = 5000;
     private static final int DEFAULT_READ_TIMEOUT = 10000;
-    private static final String TEMPLATES_PATH = "/api/templates";
     private static final String RENDER_PATH = "/api/render";
 
     private final RestTemplate restTemplate;
@@ -40,18 +39,6 @@ public class TemplateServiceClient {
     TemplateServiceClient(RestTemplate restTemplate, String baseUrl) {
         this.restTemplate = restTemplate;
         this.baseUrl = baseUrl;
-    }
-
-    public ResponseEntity<String> getTemplates(HttpHeaders headers) {
-        try {
-            return restTemplate.exchange(baseUrl + TEMPLATES_PATH, HttpMethod.GET,
-                    new HttpEntity<>(headers), String.class);
-        } catch (HttpStatusCodeException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
-        } catch (RestClientException e) {
-            log.error("Template service unreachable at " + baseUrl, e);
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Template service is unavailable: " + e.getMessage());
-        }
     }
 
     public ResponseEntity<String> render(HttpHeaders headers, String body) {
