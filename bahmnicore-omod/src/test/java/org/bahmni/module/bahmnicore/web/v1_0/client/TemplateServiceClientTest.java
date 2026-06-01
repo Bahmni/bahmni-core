@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.ArgumentCaptor;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -71,21 +72,6 @@ public class TemplateServiceClientTest {
     }
 
     @Test
-    public void parseIntPropertyReturnsDefaultWhenValueIsNull() {
-        assertEquals(5000, TemplateServiceClient.parseIntProperty(null, 5000));
-    }
-
-    @Test
-    public void parseIntPropertyParsesValidIntAndTrimsWhitespace() {
-        assertEquals(3000, TemplateServiceClient.parseIntProperty("  3000  ", 5000));
-    }
-
-    @Test
-    public void parseIntPropertyReturnsDefaultForNonNumericValue() {
-        assertEquals(5000, TemplateServiceClient.parseIntProperty("not-a-number", 5000));
-    }
-
-    @Test
     public void renderReturnsBadGatewayWhenServiceUnreachable() {
         when(restTemplate.exchange(any(String.class), eq(HttpMethod.POST),
                 any(HttpEntity.class), eq(String.class)))
@@ -106,7 +92,9 @@ public class TemplateServiceClientTest {
 
         client.render(new HttpHeaders(), body);
 
+        ArgumentCaptor<HttpEntity> captor = ArgumentCaptor.forClass(HttpEntity.class);
         verify(restTemplate).exchange(eq("http://template-service:8080/api/render"),
-                eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class));
+                eq(HttpMethod.POST), captor.capture(), eq(String.class));
+        assertEquals(body, captor.getValue().getBody());
     }
 }

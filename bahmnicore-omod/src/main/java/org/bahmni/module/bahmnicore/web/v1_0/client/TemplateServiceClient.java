@@ -1,5 +1,7 @@
 package org.bahmni.module.bahmnicore.web.v1_0.client;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bahmni.module.bahmnicore.properties.BahmniCoreProperties;
@@ -55,19 +57,13 @@ public class TemplateServiceClient {
 
     private RestTemplate buildRestTemplate() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(parseIntProperty(BahmniCoreProperties.getProperty(CONNECT_TIMEOUT_KEY), DEFAULT_CONNECT_TIMEOUT));
-        factory.setReadTimeout(parseIntProperty(BahmniCoreProperties.getProperty(READ_TIMEOUT_KEY), DEFAULT_READ_TIMEOUT));
+        factory.setConnectTimeout(parseTimeout(CONNECT_TIMEOUT_KEY, DEFAULT_CONNECT_TIMEOUT));
+        factory.setReadTimeout(parseTimeout(READ_TIMEOUT_KEY, DEFAULT_READ_TIMEOUT));
         return new RestTemplate(factory);
     }
 
-    static int parseIntProperty(String value, int defaultValue) {
-        if (value == null) {
-            return defaultValue;
-        }
-        try {
-            return Integer.parseInt(value.trim());
-        } catch (NumberFormatException e) {
-            return defaultValue;
-        }
+    private int parseTimeout(String key, int defaultValue) {
+        int value = NumberUtils.toInt(StringUtils.trim(BahmniCoreProperties.getProperty(key)), defaultValue);
+        return value > 0 ? value : defaultValue;
     }
 }

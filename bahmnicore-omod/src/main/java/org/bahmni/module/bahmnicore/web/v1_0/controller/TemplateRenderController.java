@@ -68,7 +68,7 @@ public class TemplateRenderController extends BaseRestController {
 
         String contentType = request.getContentType();
         if (contentType != null) {
-            headers.setContentType(MediaType.parseMediaType(contentType));
+            headers.set(HttpHeaders.CONTENT_TYPE, contentType);
         }
 
         return headers;
