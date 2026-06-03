@@ -10,6 +10,7 @@
 package org.bahmni.module.bahmnicore.events.eventPublisher;
 
 import org.bahmni.module.bahmnicore.events.BahmniEvent;
+import org.bahmni.module.eventoutbox.EMREvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.lang.NonNull;
@@ -24,7 +25,12 @@ public class BahmniEventPublisher implements ApplicationEventPublisherAware {
     public void setApplicationEventPublisher(@NonNull ApplicationEventPublisher applicationEventPublisher) {
         this.eventPublisher = applicationEventPublisher;
     }
+
     public void publishEvent(BahmniEvent event) {
+        this.eventPublisher.publishEvent(event);
+    }
+
+    public void publishEvent(EMREvent<?> event) {
         this.eventPublisher.publishEvent(event);
     }
 }
