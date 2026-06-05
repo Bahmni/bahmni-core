@@ -12,6 +12,7 @@ package org.openmrs.module.bahmnicore.web.v1_0.resource;
 
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.openmrs.Patient;
+import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientProgramAttribute;
 import org.openmrs.Program;
@@ -41,6 +42,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Resource(name = RestConstants.VERSION_1 + "/bahmniprogramenrollment", supportedClass = PatientProgram.class, supportedOpenmrsVersions = {"1.12.* - 2.*"}, order = 0)
 public class BahmniProgramEnrollmentResource extends ProgramEnrollmentResource1_10 {
@@ -66,6 +68,13 @@ public class BahmniProgramEnrollmentResource extends ProgramEnrollmentResource1_
         return Context.getService(BahmniProgramWorkflowService.class).getAllowedStatesForProgram(program);
     }
 
+    @PropertyGetter("identifiers")
+    public static List<PatientIdentifier> getIdentifiers(PatientProgram instance) {
+        return instance.getPatient().getActiveIdentifiers().stream()
+                .filter(id -> instance.equals(id.getPatientProgram()))
+                .collect(Collectors.toList());
+    }
+
     @Override
     public PatientProgram newDelegate() {
         return new PatientProgram();
@@ -78,11 +87,14 @@ public class BahmniProgramEnrollmentResource extends ProgramEnrollmentResource1_
             parentRep.addProperty("attributes", Representation.REF);
             parentRep.addProperty("episodeUuid");
             parentRep.addProperty("allowedStates");
+            parentRep.addProperty("identifiers", Representation.REF);
             return parentRep;
         } else if (rep instanceof FullRepresentation) {
+            parentRep.addProperty("patient", Representation.FULL);
             parentRep.addProperty("attributes", Representation.DEFAULT);
             parentRep.addProperty("episodeUuid");
             parentRep.addProperty("allowedStates");
+            parentRep.addProperty("identifiers", Representation.FULL);
             return parentRep;
         } else {
             return null;
