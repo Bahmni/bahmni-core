@@ -36,6 +36,12 @@ public class FhirDosingInstructions implements DosingInstructions {
 
     @Override
     public Date getAutoExpireDate(DrugOrder drugOrder) {
-        return null;
+        return DrugOrderUtil.calculateAutoExpireDate(
+            drugOrder.getDuration(),
+            drugOrder.getDurationUnits(),
+            drugOrder.getNumRefills(),
+            drugOrder.getEffectiveStartDate(),
+            drugOrder.getFrequency()
+        );
     }
 }
