@@ -1,0 +1,31 @@
+name: Semgrep SAST
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+  schedule:
+    - cron: '24 13 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    container:
+      # semgrep/semgrep:1.165.0 — pinned by digest; bump manually when needed
+      image: semgrep/semgrep@sha256:bd2ada83c7aa5a60e07d86ee84ba0c12282264781c8d783be5a912549a94394f
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+        with:
+          persist-credentials: false
+      - run: semgrep scan --config auto --sarif --output semgrep.sarif
+        continue-on-error: true
+      - uses: github/codeql-action/upload-sarif@dd903d2e4f5405488e5ef1422510ee31c8b32357  # v3.36.2
+        if: always() && hashFiles('semgrep.sarif') != ''
+        with:
+          sarif_file: semgrep.sarif
