@@ -1,7 +1,17 @@
-Copyright (C) 2018 OpenMRS, Inc
+# NOTICE                                                                                                       
+                                                                                                                 
+## Bahmni Core  
 
+Copyright (C) 2026 OpenMRS, Inc
+
+### Contributors                                                                                                                
 This product includes software developed under the stewardship of the Bahmni Coalition, under fiscal sponsorship of OpenMRS, Inc. (http://www.openmrs.org/)
 
 This product includes software developed at ThoughtWorks, Inc (http://www.thoughtworks.com/)
 
-This software contains code derived from the RAXA-Core (https://github.com/Raxa/raxacore)
+This software contains code derived from the RAXA-Core (https://github.com/Raxa/raxacore)                                                
+                                                                                                            
+This repository includes features developed with the International Organization                                 
+for Migration (IOM) under its MiHealth initiative, aligned with IOM's       
+commitment to advancing open-source digital public health solutions for
+migration health assessments to promote orderly and safe migration.
