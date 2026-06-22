@@ -55,13 +55,13 @@
     </properties>
 
 
-<distributionManagement>
-       <snapshotRepository>
-           <id>repo.mybahmni.org</id>
-           <name>bahmni-artifactory-snapshots</name>
-           <url>s3://repo.mybahmni.org/artifactory/snapshot</url>
-       </snapshotRepository>
-   </distributionManagement>
+<!--<distributionManagement>-->
+<!--       <snapshotRepository>-->
+<!--           <id>repo.mybahmni.org</id>-->
+<!--           <name>bahmni-artifactory-snapshots</name>-->
+<!--           <url>s3://repo.mybahmni.org/artifactory/snapshot</url>-->
+<!--       </snapshotRepository>-->
+<!--   </distributionManagement>-->
 
     <dependencyManagement>
         <dependencies>
@@ -397,6 +397,17 @@
     </dependencyManagement>
 
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>nexus-sonatype</publishingServerId>
+                </configuration>
+            </plugin>
+        </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>
