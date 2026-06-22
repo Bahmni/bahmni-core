@@ -133,7 +133,7 @@
             <version>${bahmniJavaUtilsVersion}</version>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
+            <groupId>org.bahmni.module</groupId>
             <artifactId>episodes-api</artifactId>
             <version>${episodes.version}</version>
             <scope>provided</scope>
@@ -211,6 +211,18 @@
             <testResource>
                 <directory>src/test/resources</directory>
                 <filtering>true</filtering>
+                <excludes>
+                    <exclude>**/*.mkv</exclude>
+                    <exclude>**/*.mov</exclude>
+                </excludes>
+            </testResource>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.mkv</include>
+                    <include>**/*.mov</include>
+                </includes>
             </testResource>
         </testResources>
         <plugins>

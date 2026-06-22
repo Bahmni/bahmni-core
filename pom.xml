@@ -38,10 +38,10 @@
         <lombokVersion>1.16.0</lombokVersion>
         <idgenVersion>4.4.1</idgenVersion>
         <legacyuiVersion>1.3.3</legacyuiVersion>
-        <episodes.version>1.0-SNAPSHOT</episodes.version>
-        <auditLogVersion>1.0-SNAPSHOT</auditLogVersion>
-        <bacteriology.version>1.1-SNAPSHOT</bacteriology.version>
-        <rulesEngineVersion>0.92-SNAPSHOT</rulesEngineVersion>
+        <episodes.version>1.0.0</episodes.version>
+        <auditLogVersion>1.2.0</auditLogVersion>
+        <bacteriology.version>1.1</bacteriology.version>
+        <rulesEngineVersion>1.0.0</rulesEngineVersion>
         <bahmniJavaUtilsVersion>0.94.2</bahmniJavaUtilsVersion>
         <log4jVersion>2.17.1</log4jVersion>
 
@@ -92,7 +92,7 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.openmrs.module</groupId>
+                <groupId>org.bahmni.module</groupId>
                 <artifactId>auditlog-api</artifactId>
                 <version>${auditLogVersion}</version>
             </dependency>
@@ -505,6 +505,18 @@
 
     <repositories>
         <repository>
+            <id>sonatype-nexus-snapshots-latest</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://central.sonatype.com/repository/maven-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>interval:10080</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
             <id>sonatype-nexus-snapshots</id>
             <name>Sonatype Nexus Snapshots</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -537,14 +549,6 @@
             </snapshots>
         </repository>
         <repository>
-            <id>spring-maven-release</id>
-            <name>Spring Maven Release Repository</name>
-            <url>https://maven.springframework.org/release</url>
-            <releases>
-                <updatePolicy>interval:10080</updatePolicy>
-            </releases>
-        </repository>
-        <repository>
             <id>apache-maven-release</id>
             <name>Apache Maven Release Repository</name>
             <url>https://repository.apache.org/content/repositories/releases</url>
@@ -563,17 +567,6 @@
             </releases>
         </repository>
         <repository>
-            <id>spring-repo</id>
-            <name>Spring Maven Repository</name>
-            <url>https://maven.springframework.org/milestone</url>
-            <releases>
-                <updatePolicy>interval:10080</updatePolicy>
-            </releases>
-            <snapshots>
-                <updatePolicy>interval:10080</updatePolicy>
-            </snapshots>
-        </repository>
-        <repository>
             <id>openmrs-repo</id>
             <name>OpenMRS Nexus Repository</name>
             <url>https://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
@@ -581,19 +574,6 @@
                 <updatePolicy>always</updatePolicy>
             </releases>
         </repository>
-       <repository>
-           <id>repo.mybahmni.org</id>
-           <name>bahmni-artifactory-snapshots</name>
-           <url>https://repo.mybahmni.org.s3.amazonaws.com/artifactory/snapshot</url>
-           <snapshots>
-               <updatePolicy>always</updatePolicy>
-           </snapshots>
-       </repository>
-    <repository>
-          <id>repo.mybahmni.org-release</id>
-          <name>bahmni-artifactory-release</name>
-          <url>https://repo.mybahmni.org.s3.amazonaws.com/artifactory/release</url>
-      </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>

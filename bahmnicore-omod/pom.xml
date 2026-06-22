@@ -24,7 +24,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
+            <groupId>org.bahmni.module</groupId>
             <artifactId>episodes-api</artifactId>
             <version>${episodes.version}</version>
             <scope>provided</scope>
@@ -40,9 +40,9 @@
             <version>${emrapi-omod.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
+            <groupId>org.bahmni.module</groupId>
             <artifactId>idgen-webservices-omod</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.4.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -249,13 +249,13 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
+            <groupId>org.bahmni.module</groupId>
             <artifactId>rulesengine-api</artifactId>
             <version>${rulesEngineVersion}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
+            <groupId>org.bahmni.module</groupId>
             <artifactId>rulesengine-api</artifactId>
             <version>${rulesEngineVersion}</version>
             <scope>provided</scope>
@@ -293,7 +293,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
+            <groupId>org.bahmni.module</groupId>
             <artifactId>auditlog-api</artifactId>
             <scope>provided</scope>
         </dependency>
