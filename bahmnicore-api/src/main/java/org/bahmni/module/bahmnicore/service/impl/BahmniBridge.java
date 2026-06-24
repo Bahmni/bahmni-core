@@ -54,9 +54,8 @@ public class BahmniBridge {
     private BahmniConceptService bahmniConceptService;
 
     private OrderMapper drugOrderMapper = new OrderMapper1_12();
-    /**
+    /*
      * Factory method to construct objects of <code>BahmniBridge</code>.
-     * <p/>
      * This is provided so that <code>BahmniBridge</code> can be called by extensions without having to use the
      * Spring application context. Prefer using this as opposed to the constructor.
      *
@@ -78,9 +77,8 @@ public class BahmniBridge {
         this.bahmniConceptService = bahmniConceptService;
     }
 
-    /**
+    /*
      * Set patient uuid. This will be used by methods that require the patient to perform its operations.
-     * <p/>
      * Setting patient uuid might be mandatory depending on the operation you intend to perform using the bridge.
      *
      * @param patientUuid
@@ -91,9 +89,8 @@ public class BahmniBridge {
         return this;
     }
 
-    /**
+    /*
      * Set patient program uuid. This will be used by methods that require the patient to perform its operations associated with a specific program.
-     * <p/>
      * Setting patient program uuid might be mandatory depending on the operation you intend to perform using the bridge.
      *
      * @param patientProgramUuid
@@ -104,9 +101,8 @@ public class BahmniBridge {
         return this;
     }
 
-    /**
+    /*
      * Set visit uuid. This will be used by methods that require a visit to perform its operations.
-     * <p/>
      * Setting visit uuid might be mandatory depending on the operation you intend to perform using the bridge.
      *
      * @param visitUuid
@@ -117,7 +113,7 @@ public class BahmniBridge {
         return this;
     }
 
-    /**
+    /*
      * Retrieve last observation for <code>patientUuid</code> set using {@link org.bahmni.module.bahmnicore.service.impl.BahmniBridge#forPatient(String)}
      * for the given <code>conceptName</code>.
      *
@@ -139,7 +135,7 @@ public class BahmniBridge {
         return null;
     }
 
-    /**
+    /*
      * Retrieve age in years for <code>patientUuid</code> set using {@link org.bahmni.module.bahmnicore.service.impl.BahmniBridge#forPatient(String)}
      *
      * @param asOfDate
@@ -151,7 +147,7 @@ public class BahmniBridge {
 
     }
 
-    /**
+    /*
      * Retrieve drug orders set for <code>regimenName</code>
      *
      * @param regimenName
@@ -161,7 +157,7 @@ public class BahmniBridge {
         return orderDao.getDrugOrderForRegimen(regimenName);
     }
 
-    /**
+    /*
      * Retrieve active Drug orders for <code>patientUuid<code/>
      *
      * @return
@@ -178,7 +174,7 @@ public class BahmniBridge {
         return drugOrders;
     }
 
-    /**
+    /*
      * Retrieve person attribute type for <code>attributeType</code>
      *
      * @return
@@ -187,7 +183,7 @@ public class BahmniBridge {
         return personService.getPersonAttributeTypeByName(attributeType);
     }
 
-    /**
+    /*
      * Retrieve concept for <code>conceptName</code>
      *
      * @return
@@ -208,7 +204,7 @@ public class BahmniBridge {
         return drugOrder.getScheduledDate().before(new Date());
     }
 
-    /**
+    /*
      * Retrieve concept by FullySpecifiedName
      */
 
@@ -216,7 +212,7 @@ public class BahmniBridge {
         return bahmniConceptService.getConceptByFullySpecifiedName(conceptName);
     }
 
-    /**
+    /*
      * Retrieve concept for <code>conceptName</code>
      *
      * @return

@@ -13,6 +13,22 @@ public interface PatientDao {
 
     /***
      * Please do not use this method, use the getPatients(PatientSearchParameters ...) instead.
+     * @param identifier Patient Identifier
+     * @param name Patient Name
+     * @param customAttribute Person Attribute
+     * @param addressFieldName Person Address Field
+     * @param addressFieldValue Person Address Field Value
+     * @param length Size of result
+     * @param offset Offset for result
+     * @param patientAttributes List of person attributes
+     * @param programAttribute Program Attribute
+     * @param programAttributeField Program Attribute Field
+     * @param addressSearchResultFields Search Result Fields from Address
+     * @param patientSearchResultFields Search Result Fields from Patient
+     * @param loginLocationUuid Login Location UUID
+     * @param filterPatientsByLocation Enable Filtering By Location
+     * @param filterOnAllIdentifiers Enable filtering on All Identifiers
+     * @return List of Patients
      */
     @Deprecated
     public List<PatientResponse> getPatients(String identifier, String name, String customAttribute,
