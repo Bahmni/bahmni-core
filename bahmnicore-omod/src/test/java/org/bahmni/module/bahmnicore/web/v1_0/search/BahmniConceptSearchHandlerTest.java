@@ -110,7 +110,9 @@ public class BahmniConceptSearchHandlerTest {
 
         List<Locale> expectedLocaleList = new ArrayList<>();
         expectedLocaleList.add(new Locale("es"));
-        expectedLocaleList.add(LocaleUtility.getDefaultLocale());
+        if (!LocaleUtility.getDefaultLocale().equals(new Locale("es"))) {
+            expectedLocaleList.add(LocaleUtility.getDefaultLocale());
+        }
 
         when(conceptService.getConcepts(anyString(), anyList(), anyBoolean(), isNull(), isNull(), isNull(), isNull(), isNull(), any(Integer.class), isNull())).thenReturn(conceptSearchResults);
         when(requestContext.getLimit()).thenReturn(10);
