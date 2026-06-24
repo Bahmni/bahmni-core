@@ -78,7 +78,9 @@ public class BahmniConceptSearchHandler implements SearchHandler {
 
     /**
      * Returns list of unique locales based on the context.getParameter("locale") parameter
-     * <strong>Should</strong> return List of results for locales: If locale is specified, then return results for that locale.
+     * <strong>Should</strong> return List of results for locales: If locale is specified, then return results for that
+     * locale and the default locale (if different), so that fully-specified names stored in the default locale are
+     * always included in the candidate set.
      * If locale is not specified, then return results for logged in locale and default locale.
      */
 
@@ -88,7 +90,11 @@ public class BahmniConceptSearchHandler implements SearchHandler {
         List<Locale> localeList = new ArrayList<>();
 
         if (locale != null) {
-            localeList.add(LocaleUtility.fromSpecification(locale));
+            Locale requestedLocale = LocaleUtility.fromSpecification(locale);
+            localeList.add(requestedLocale);
+            if (!LocaleUtility.getDefaultLocale().equals(requestedLocale)) {
+                localeList.add(LocaleUtility.getDefaultLocale());
+            }
         } else {
             localeList.add(Context.getLocale());
             if (!LocaleUtility.getDefaultLocale().equals(Context.getLocale())) {
