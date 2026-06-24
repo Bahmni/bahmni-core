@@ -7,6 +7,27 @@
     <version>0.93.1</version>
     <packaging>pom</packaging>
     <name>Bahmni EMR Core</name>
+    <url>https://github.com/Bahmni/bahmni-core.git</url>
+    <description>Bahmni core modules</description>
+    <licenses>
+        <license>
+            <name>GNU AFFERO GENERAL PUBLIC LICENSE</name>
+            <url>https://www.gnu.org/licenses/agpl-3.0.txt</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Bahmni</name>
+            <email>info@bahmni.org</email>
+            <organization>Bahmni</organization>
+            <organizationUrl>https://github.com/Bahmni</organizationUrl>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:git@github.com:Bahmni/bahmni-core.git</connection>
+        <developerConnection>scm:git:git@github.com:Bahmni/bahmni-core.git</developerConnection>
+        <url>https://github.com/Bahmni/bahmni-core</url>
+    </scm>
 
     <modules>
         <module>bahmni-emr-api</module>
