@@ -37,32 +37,45 @@ import org.bahmni.module.admin.csv.persister.PatientPersister;
 import org.bahmni.module.admin.csv.persister.PatientProgramPersister;
 import org.bahmni.module.admin.csv.persister.ReferenceTermPersister;
 import org.bahmni.module.admin.csv.persister.RelationshipPersister;
+import org.bahmni.module.bahmnicore.security.PrivilegeConstants;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.internal.SessionImpl;
+import org.openmrs.User;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.v1_0.controller.BaseRestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 public class AdminImportController extends BaseRestController {
+    public static final String COULD_NOT_UPLOAD_FILE = "Could not upload file";
+    public static final HttpStatus FILE_UPLOAD_ERROR = HttpStatus.INTERNAL_SERVER_ERROR;
+    public static final String FILE_NAME_DATE_PART_FORMAT = "YYYY-MM-dd-HHmm";
     private final String baseUrl = "/rest/" + RestConstants.VERSION_1 + "/bahmnicore/admin/upload";
     private static Logger logger = LogManager.getLogger(AdminImportController.class);
 
@@ -84,6 +97,7 @@ public class AdminImportController extends BaseRestController {
     private static final String PATIENT_FILES_DIRECTORY = "patient/";
     private static final String REFERENCETERM_FILES_DIRECTORY = "referenceterms/";
     private static final String RELATIONSHIP_FILES_DIRECTORY = "relationship/";
+    private static final String INSUFFICIENT_USER_PRIVILEGE = "User [%d] does not have required privilege to upload file";
 
     @Autowired
     private EncounterPersister encounterPersister;
@@ -128,37 +142,46 @@ public class AdminImportController extends BaseRestController {
 
     @RequestMapping(value = baseUrl + "/patient", method = RequestMethod.POST)
     @ResponseBody
-        public boolean upload(@RequestParam(value = "file") MultipartFile file, @RequestHeader("Host") String host, @RequestHeader(value = "Origin", required = false) String origin, @RequestHeader(value = "Referer", required = false) String referer) throws IOException {
+        public ResponseEntity<Serializable> upload(@RequestParam(value = "file") MultipartFile file, @RequestHeader("Host") String host, @RequestHeader(value = "Origin", required = false) String origin, @RequestHeader(value = "Referer", required = false) String referer) throws IOException {
+        if (!hasRequiredPrivilege()) {
+            return insufficientUserPrivilegeResponse();
+        }
         try {
+            String randomNameForUploadedFile = createRandomFileName("patient");
             registrationPageService.setProtocol(getProtocol(origin, referer));
             registrationPageService.setHost(host);
             patientPersister.init(Context.getUserContext());
-            return importCsv(PATIENT_FILES_DIRECTORY, file, patientPersister, 1, true, PatientRow.class);
+            boolean importResult = importCsv(PATIENT_FILES_DIRECTORY, file, patientPersister, 1, true, PatientRow.class, randomNameForUploadedFile);
+            return new ResponseEntity<>(importResult, HttpStatus.OK);
         } catch (Throwable e) {
-            logger.error("Could not upload file", e);
-            throw e;
+            logger.error(COULD_NOT_UPLOAD_FILE, e);
+            return new ResponseEntity<>(COULD_NOT_UPLOAD_FILE, FILE_UPLOAD_ERROR);
         }
     }
 
     @RequestMapping(value = baseUrl + "/encounter", method = RequestMethod.POST)
     @ResponseBody
-    public boolean upload(@CookieValue(value="bahmni.user.location", required=true) String loginCookie,
+    public ResponseEntity<Serializable> upload(@CookieValue(value="bahmni.user.location", required=true) String loginCookie,
                           @RequestParam(value = "file") MultipartFile file,
                           @RequestParam(value = "patientMatchingAlgorithm", required = false) String patientMatchingAlgorithm) throws IOException {
-
+        if (!hasRequiredPrivilege()) {
+            return insufficientUserPrivilegeResponse();
+        }
         return uploadEncounter(loginCookie, file, patientMatchingAlgorithm, false);
     }
 
     @RequestMapping(value = baseUrl + "/form2encounter", method = RequestMethod.POST)
     @ResponseBody
-    public boolean uploadForm2EncountersWithValidations(@CookieValue(value="bahmni.user.location", required=true) String loginCookie,
+    public ResponseEntity<Serializable> uploadForm2EncountersWithValidations(@CookieValue(value="bahmni.user.location", required=true) String loginCookie,
                           @RequestParam(value = "file") MultipartFile file,
                           @RequestParam(value = "patientMatchingAlgorithm", required = false) String patientMatchingAlgorithm) throws IOException {
-
+        if (!hasRequiredPrivilege()) {
+            return insufficientUserPrivilegeResponse();
+        }
         return uploadEncounter(loginCookie, file, patientMatchingAlgorithm, true);
     }
 
-    private boolean uploadEncounter(@CookieValue(value = "bahmni.user.location", required = true) String loginCookie, @RequestParam("file") MultipartFile file, @RequestParam(value = "patientMatchingAlgorithm", required = false) String patientMatchingAlgorithm, boolean performForm2Validations) throws IOException {
+    private ResponseEntity<Serializable> uploadEncounter(@CookieValue(value = "bahmni.user.location", required = true) String loginCookie, @RequestParam("file") MultipartFile file, @RequestParam(value = "patientMatchingAlgorithm", required = false) String patientMatchingAlgorithm, boolean performForm2Validations) throws IOException {
         try {
             String configuredExactPatientIdMatch = administrationService.getGlobalProperty(SHOULD_MATCH_EXACT_PATIENT_ID_CONFIG);
             JsonParser jsonParser = new JsonParser();
@@ -169,109 +192,150 @@ public class AdminImportController extends BaseRestController {
                 shouldMatchExactPatientId = Boolean.parseBoolean(configuredExactPatientIdMatch);
 
             encounterPersister.init(Context.getUserContext(), patientMatchingAlgorithm, shouldMatchExactPatientId, loginUuid, performForm2Validations);
-            return importCsv(ENCOUNTER_FILES_DIRECTORY, file, encounterPersister, 5, true, MultipleEncounterRow.class);
+            String randomNameForUploadedFile = createRandomFileName("encounter");
+            boolean imported = importCsv(ENCOUNTER_FILES_DIRECTORY, file, encounterPersister, 5, true, MultipleEncounterRow.class, randomNameForUploadedFile);
+            return new ResponseEntity<>(imported, HttpStatus.OK);
         } catch (Throwable e) {
-            logger.error("Could not upload file", e);
-            throw e;
+            logger.error(COULD_NOT_UPLOAD_FILE, e);
+            return new ResponseEntity<>(COULD_NOT_UPLOAD_FILE, FILE_UPLOAD_ERROR);
         }
     }
 
     @RequestMapping(value = baseUrl + "/referenceterms", method = RequestMethod.POST)
     @ResponseBody
-    public boolean uploadReferenceTerms(@RequestParam(value = "file") MultipartFile file) throws IOException {
+    public ResponseEntity<Serializable> uploadReferenceTerms(@RequestParam(value = "file") MultipartFile file) {
+        if (!hasRequiredPrivilege()) {
+            return insufficientUserPrivilegeResponse();
+        }
         try {
             referenceTermPersister.init(Context.getUserContext());
-            return importCsv(REFERENCETERM_FILES_DIRECTORY, file, referenceTermPersister, 1, true, ReferenceTermRow.class);
+            String randomNameForUploadedFile = createRandomFileName("refTerm");
+            boolean imported = importCsv(REFERENCETERM_FILES_DIRECTORY, file, referenceTermPersister, 1, true, ReferenceTermRow.class, randomNameForUploadedFile);
+            return new ResponseEntity<>(imported, HttpStatus.OK);
         } catch (Throwable e) {
-            logger.error("Could not upload file", e);
-            throw e;
+            logger.error(COULD_NOT_UPLOAD_FILE, e);
+            return new ResponseEntity<>(COULD_NOT_UPLOAD_FILE, FILE_UPLOAD_ERROR);
         }
 
     }
 
     @RequestMapping(value = baseUrl + "/referenceterms/new", method = RequestMethod.POST)
     @ResponseBody
-    public boolean uploadReferenceTermsForExistingConcepts(@RequestParam(value = "file") MultipartFile file) throws IOException {
+    public ResponseEntity<Serializable> uploadReferenceTermsForExistingConcepts(@RequestParam(value = "file") MultipartFile file) throws IOException {
+        if (!hasRequiredPrivilege()) {
+            return insufficientUserPrivilegeResponse();
+        }
         try {
             conceptReferenceTermPersister.init(Context.getUserContext());
-            return importCsv(REFERENCETERM_FILES_DIRECTORY, file, new DatabasePersister<>(conceptReferenceTermPersister), 1, false, FormerConceptReferenceRow.class);
+            String randomNameForUploadedFile = createRandomFileName("newRefTerm");
+            boolean imported = importCsv(REFERENCETERM_FILES_DIRECTORY, file, new DatabasePersister<>(conceptReferenceTermPersister), 1, false, FormerConceptReferenceRow.class, randomNameForUploadedFile);
+            return new ResponseEntity<>(imported, HttpStatus.OK);
         } catch (Throwable e) {
-            logger.error("Could not upload file", e);
-            throw e;
+            logger.error(COULD_NOT_UPLOAD_FILE, e);
+            return new ResponseEntity<>(COULD_NOT_UPLOAD_FILE, FILE_UPLOAD_ERROR);
         }
 
     }
 
     @RequestMapping(value = baseUrl + "/program", method = RequestMethod.POST)
     @ResponseBody
-    public boolean uploadProgram(@RequestParam(value = "file") MultipartFile file, @RequestParam(value = "patientMatchingAlgorithm", required = false) String patientMatchingAlgorithm) throws IOException {
+    public ResponseEntity<Serializable> uploadProgram(@RequestParam(value = "file") MultipartFile file, @RequestParam(value = "patientMatchingAlgorithm", required = false) String patientMatchingAlgorithm) throws IOException {
+        if (!hasRequiredPrivilege()) {
+            return insufficientUserPrivilegeResponse();
+        }
         try {
             patientProgramPersister.init(Context.getUserContext(), patientMatchingAlgorithm);
-            return importCsv(PROGRAM_FILES_DIRECTORY, file, patientProgramPersister, 1, true, PatientProgramRow.class);
+            String randomNameForUploadedFile = createRandomFileName("program");
+            boolean imported = importCsv(PROGRAM_FILES_DIRECTORY, file, patientProgramPersister, 1, true, PatientProgramRow.class, randomNameForUploadedFile);
+            return new ResponseEntity<>(imported, HttpStatus.OK);
         } catch (Throwable e) {
-            logger.error("Could not upload file", e);
-            throw e;
+            logger.error(COULD_NOT_UPLOAD_FILE, e);
+            return new ResponseEntity<>(COULD_NOT_UPLOAD_FILE, FILE_UPLOAD_ERROR);
         }
     }
 
     @RequestMapping(value = baseUrl + "/drug", method = RequestMethod.POST)
     @ResponseBody
-    public boolean uploadDrug(@RequestParam(value = "file") MultipartFile file) throws IOException {
+    public ResponseEntity<Serializable> uploadDrug(@RequestParam(value = "file") MultipartFile file) throws IOException {
+        if (!hasRequiredPrivilege()) {
+            return insufficientUserPrivilegeResponse();
+        }
         try {
-            return importCsv(DRUG_FILES_DIRECTORY, file, new DatabasePersister<>(drugPersister), 1, false, DrugRow.class);
+            String randomNameForUploadedFile = createRandomFileName("drug");
+            boolean imported = importCsv(DRUG_FILES_DIRECTORY, file, new DatabasePersister<>(drugPersister), 1, false, DrugRow.class, randomNameForUploadedFile);
+            return new ResponseEntity<>(imported, HttpStatus.OK);
         } catch (Throwable e) {
-            logger.error("Could not upload file", e);
-            throw e;
+            logger.error(COULD_NOT_UPLOAD_FILE, e);
+            return new ResponseEntity<>(COULD_NOT_UPLOAD_FILE, FILE_UPLOAD_ERROR);
         }
     }
 
     @RequestMapping(value = baseUrl + "/concept", method = RequestMethod.POST)
     @ResponseBody
-    public boolean uploadConcept(@RequestParam(value = "file") MultipartFile file) throws IOException {
+    public ResponseEntity<Serializable> uploadConcept(@RequestParam(value = "file") MultipartFile file) throws IOException {
+        if (!hasRequiredPrivilege()) {
+            return insufficientUserPrivilegeResponse();
+        }
         try {
-            return importCsv(CONCEPT_FILES_DIRECTORY, file, new DatabasePersister<>(conceptPersister), 1, false, ConceptRow.class);
+            String randomNameForUploadedFile = createRandomFileName("concept");
+            boolean imported = importCsv(CONCEPT_FILES_DIRECTORY, file, new DatabasePersister<>(conceptPersister), 1, false, ConceptRow.class, randomNameForUploadedFile);
+            return new ResponseEntity<>(imported, HttpStatus.OK);
         } catch (Throwable e) {
-            logger.error("Could not upload file", e);
-            throw e;
+            logger.error(COULD_NOT_UPLOAD_FILE, e);
+            return new ResponseEntity<>(COULD_NOT_UPLOAD_FILE, FILE_UPLOAD_ERROR);
         }
     }
 
     @RequestMapping(value = baseUrl + "/labResults", method = RequestMethod.POST)
     @ResponseBody
-    public boolean uploadLabResults(@CookieValue(value="bahmni.user.location", required=true) String loginCookie, @RequestParam(value = "file") MultipartFile file, @RequestParam(value = "patientMatchingAlgorithm", required = false) String patientMatchingAlgorithm) throws IOException {
+    public ResponseEntity<Serializable> uploadLabResults(@CookieValue(value="bahmni.user.location", required=true) String loginCookie, @RequestParam(value = "file") MultipartFile file, @RequestParam(value = "patientMatchingAlgorithm", required = false) String patientMatchingAlgorithm) throws IOException {
+        if (!hasRequiredPrivilege()) {
+            return insufficientUserPrivilegeResponse();
+        }
         try {
             JsonParser jsonParser = new JsonParser();
             JsonObject jsonObject = (JsonObject) jsonParser.parse(loginCookie);
             String loginUuid =  jsonObject.get("uuid").getAsString();
             labResultPersister.init(Context.getUserContext(), patientMatchingAlgorithm, true,loginUuid);
-            return importCsv(LAB_RESULTS_DIRECTORY, file, new DatabasePersister<>(labResultPersister), 1, false, LabResultsRow.class);
+            String randomNameForUploadedFile = createRandomFileName("labResults");
+            boolean imported = importCsv(LAB_RESULTS_DIRECTORY, file, new DatabasePersister<>(labResultPersister), 1, false, LabResultsRow.class, randomNameForUploadedFile);
+            return new ResponseEntity<>(imported, HttpStatus.OK);
         } catch (Throwable e) {
-            logger.error("Could not upload file", e);
-            throw e;
+            logger.error(COULD_NOT_UPLOAD_FILE, e);
+            return new ResponseEntity<>(COULD_NOT_UPLOAD_FILE, FILE_UPLOAD_ERROR);
         }
     }
 
     @RequestMapping(value = baseUrl + "/conceptset", method = RequestMethod.POST)
     @ResponseBody
-    public boolean uploadConceptSet(@RequestParam(value = "file") MultipartFile file) throws IOException {
+    public ResponseEntity<Serializable> uploadConceptSet(@RequestParam(value = "file") MultipartFile file) throws IOException {
+        if (!hasRequiredPrivilege()) {
+            return insufficientUserPrivilegeResponse();
+        }
         try {
-            return importCsv(CONCEPT_SET_FILES_DIRECTORY, file, new DatabasePersister<>(conceptSetPersister), 1, false, ConceptSetRow.class);
+            String randomNameForUploadedFile = createRandomFileName("conceptset");
+            boolean imported = importCsv(CONCEPT_SET_FILES_DIRECTORY, file, new DatabasePersister<>(conceptSetPersister), 1, false, ConceptSetRow.class, randomNameForUploadedFile);
+            return new ResponseEntity<>(imported, HttpStatus.OK);
         } catch (Throwable e) {
-            logger.error("Could not upload file", e);
-            throw e;
+            logger.error(COULD_NOT_UPLOAD_FILE, e);
+            return new ResponseEntity<>(COULD_NOT_UPLOAD_FILE, FILE_UPLOAD_ERROR);
         }
     }
 
     @RequestMapping(value = baseUrl + "/relationship", method = RequestMethod.POST)
     @ResponseBody
-    public boolean uploadRelationship(@RequestParam(value = "file") MultipartFile file) throws IOException {
+    public ResponseEntity<Serializable> uploadRelationship(@RequestParam(value = "file") MultipartFile file) throws IOException {
+        if (!hasRequiredPrivilege()) {
+            return insufficientUserPrivilegeResponse();
+        }
         try {
             relationshipPersister.init(Context.getUserContext());
-            return importCsv(RELATIONSHIP_FILES_DIRECTORY, file, new DatabasePersister<>(relationshipPersister), 1, false, RelationshipRow.class);
-
+            String randomNameForUploadedFile = createRandomFileName("relationship");
+            boolean imported = importCsv(RELATIONSHIP_FILES_DIRECTORY, file, new DatabasePersister<>(relationshipPersister), 1, false, RelationshipRow.class, randomNameForUploadedFile);
+            return new ResponseEntity<>(imported, HttpStatus.OK);
         } catch (Throwable e) {
-            logger.error("Could not upload file", e);
-            throw e;
+            logger.error(COULD_NOT_UPLOAD_FILE, e);
+            return new ResponseEntity<>(COULD_NOT_UPLOAD_FILE, FILE_UPLOAD_ERROR);
         }
     }
 
@@ -284,19 +348,21 @@ public class AdminImportController extends BaseRestController {
     }
 
     private <T extends org.bahmni.csv.CSVEntity> boolean importCsv(String filesDirectory, MultipartFile file, EntityPersister<T> persister,
-                                                                   int numberOfThreads, boolean skipValidation, Class entityClass) throws IOException {
-        String uploadedOriginalFileName = ((CommonsMultipartFile) file).getFileItem().getName();
+                                                                   int numberOfThreads, boolean skipValidation, Class entityClass, String nameForUploadedFile) throws IOException {
         String systemId = Context.getUserContext().getAuthenticatedUser().getSystemId();
-        CSVFile persistedUploadedFile = writeToLocalFile(file, filesDirectory);
-        return new FileImporter<T>().importCSV(uploadedOriginalFileName, persistedUploadedFile,
+        CSVFile persistedUploadedFile = writeToLocalFile(file, filesDirectory, nameForUploadedFile);
+        return createFileImporter().importCSV(nameForUploadedFile, persistedUploadedFile,
                 persister, entityClass, new NewMRSConnectionProvider(), systemId, skipValidation, numberOfThreads);
     }
 
+    protected FileImporter createFileImporter() {
+        return new FileImporter();
+    }
 
-    private CSVFile writeToLocalFile(MultipartFile file, String filesDirectory) throws IOException {
-        String uploadedOriginalFileName = ((CommonsMultipartFile) file).getFileItem().getName();
+
+    private CSVFile writeToLocalFile(MultipartFile file, String filesDirectory, String nameForUploadedFile) throws IOException {
         byte[] fileBytes = file.getBytes();
-        CSVFile uploadedFile = getFile(uploadedOriginalFileName, filesDirectory);
+        CSVFile uploadedFile = getFile(filesDirectory, nameForUploadedFile);
         FileOutputStream uploadedFileStream = null;
         try {
             uploadedFileStream = new FileOutputStream(new File(uploadedFile.getAbsolutePath()));
@@ -318,21 +384,16 @@ public class AdminImportController extends BaseRestController {
         }
     }
 
-    private CSVFile getFile(String fileName, String filesDirectory) throws IOException {
-        String fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf("."));
-        String fileExtension = fileName.substring(fileName.lastIndexOf("."));
-
-        String timestampForFile = new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(new Date());
-
+    private CSVFile getFile(String filesDirectory, String nameForUploadedFile) throws IOException {
         String uploadDirectory = administrationService.getGlobalProperty(PARENT_DIRECTORY_UPLOADED_FILES_CONFIG);
-        String relativePath = filesDirectory + fileNameWithoutExtension + timestampForFile + fileExtension;
+        String relativePath = filesDirectory + nameForUploadedFile;
         FileUtils.forceMkdir(new File(uploadDirectory, filesDirectory));
         return new CSVFile(uploadDirectory, relativePath);
     }
 
     private class NewMRSConnectionProvider implements JDBCConnectionProvider {
-        private ThreadLocal<Session> session = new ThreadLocal<>();
 
+        private ThreadLocal<Session> session = new ThreadLocal<>();
         @Override
         public Connection getConnection() {
             if (session.get() == null || !session.get().isOpen())
@@ -345,6 +406,7 @@ public class AdminImportController extends BaseRestController {
         public void closeConnection() {
             session.get().close();
         }
+
     }
 
     private class CurrentThreadConnectionProvider implements JDBCConnectionProvider {
@@ -354,10 +416,8 @@ public class AdminImportController extends BaseRestController {
             SessionImplementor session = (SessionImpl) sessionFactory.getCurrentSession();
             return session.connection();
         }
-
         @Override
         public void closeConnection() {
-
         }
     }
 
@@ -368,7 +428,6 @@ public class AdminImportController extends BaseRestController {
             else
                 return HTTP_PROTOCOL;
         }
-
         if(referer != null) {
             if(referer.startsWith(HTTPS_PROTOCOL))
                 return HTTPS_PROTOCOL;
@@ -377,5 +436,31 @@ public class AdminImportController extends BaseRestController {
         }
 
         return HTTPS_PROTOCOL;
+    }
+
+    private static ResponseEntity<Serializable> insufficientUserPrivilegeResponse() {
+        return new ResponseEntity<>(String.format(INSUFFICIENT_USER_PRIVILEGE, Context.getAuthenticatedUser().getId()), HttpStatus.FORBIDDEN);
+    }
+
+    private boolean hasRequiredPrivilege() {
+        if (!Context.getUserContext().hasPrivilege(PrivilegeConstants.IMPORT_CSV_FILE_PRIVILEGE)) {
+            String errorMessage = String.format(INSUFFICIENT_USER_PRIVILEGE, getAuthenticatedUserId());
+            logger.error(errorMessage);
+            return false;
+        }
+        return true;
+    }
+
+    private Integer getAuthenticatedUserId() {
+        User authenticatedUser = Context.getUserContext().getAuthenticatedUser();
+        if (authenticatedUser == null) {
+            return null;
+        }
+        return Integer.valueOf(authenticatedUser.getUserId());
+    }
+
+    private String createRandomFileName(String fileType) {
+        String dateString = new SimpleDateFormat(FILE_NAME_DATE_PART_FORMAT).format(new Date());
+        return String.format("%s-%s-%s.csv", fileType, dateString, UUID.randomUUID());
     }
 }
