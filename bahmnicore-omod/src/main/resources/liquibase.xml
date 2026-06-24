@@ -3293,6 +3293,20 @@
             INSERT IGNORE INTO `user_role` VALUES (@id,'Provider'),(@id,'System Developer'), (@id, 'SuperAdmin');
         </sql>
     </changeSet>
+    <changeSet id="Reports-170220160438" author="Hemanth">
+        <comment>Creating a openmrs user for reports</comment>
+        <sql>
+            SET @puuid = uuid();
+            INSERT INTO person(birthdate_estimated, dead, creator, date_created, uuid) VALUES(0, 0, 1, now(), @puuid);
+
+            SELECT person_id INTO @person_id from person where uuid = @puuid;
+
+            INSERT INTO person_name(person_id, preferred, given_name, family_name, creator, date_created, uuid) VALUES(@person_id, 1, 'Reports', 'User', 1, now(), @puuid);
+
+            INSERT INTO users(system_id, creator, date_created, person_id, uuid, username,password,salt)
+            VALUES ('Reports User', 1, now(),@person_id, uuid(), 'reports-user','29171af2d2cc6b48ab011c6387daa8516960edd0a7fa4e8bc6eaf1aab1d3d15443a82213fb0d11b3071ca73d45f719d885b2fdabcfef03b54b3102af450cd771','6bc56cf15a664f951134af3451ac806e746215fa3e482b72f08a911e848962bee8b124e672f3cbe8dc7040dc6d8e35960e24a1ffa6150af63d12ba1ce8c07fad');
+        </sql>
+    </changeSet>
     <changeSet id="bahmni-core-201906170327" author="Samuel34">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="1">
