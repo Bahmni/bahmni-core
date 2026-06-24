@@ -160,11 +160,6 @@
             <version>${providermanagementVersion}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.openmrs.module</groupId>
-            <artifactId>appframework-api</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <!--Core webservices dependency-->
         <dependency>
