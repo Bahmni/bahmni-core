@@ -93,6 +93,15 @@
         <description>Ability to delete any patient document</description>
     </privilege>
 
+    <privilege>
+        <name>Get Patient Program Attribute Types</name>
+        <description>Ability to get program attribute types</description>
+    </privilege>
+    <privilege>
+        <name>Import CSV Files</name>
+        <description>Ability to import data from CSV Files</description>
+    </privilege>
+
     <advice>
         <point>org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService</point>
         <class>org.openmrs.module.bahmniemrapi.encountertransaction.advisor.BahmniEncounterServiceAdvisor</class>
