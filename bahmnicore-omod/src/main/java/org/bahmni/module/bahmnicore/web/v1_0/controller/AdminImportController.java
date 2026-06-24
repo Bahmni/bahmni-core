@@ -179,7 +179,7 @@ public class AdminImportController extends BaseRestController {
             if (configuredExactPatientIdMatch != null)
                 shouldMatchExactPatientId = Boolean.parseBoolean(configuredExactPatientIdMatch);
 
-            encounterPersister.init(Context.getUserContext(), patientMatchingAlgorithm, shouldMatchExactPatientId, loginUuid, performForm2Validations);
+            encounterPersister.init(Context.getUserContext(), patientMatchingAlgorithm, shouldMatchExactPatientId, loginUuid);
             String randomNameForUploadedFile = createRandomFileName("encounter");
             boolean imported = importCsv(ENCOUNTER_FILES_DIRECTORY, file, encounterPersister, 5, true, MultipleEncounterRow.class, randomNameForUploadedFile);
             return new ResponseEntity<>(imported, HttpStatus.OK);
