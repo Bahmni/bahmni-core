@@ -49,8 +49,8 @@ public class SqlQueryHelperTest {
     }
 
     @Test
-    public void shouldParseAdditionalParams(){
-        String queryString ="SELECT *\n" +
+    public void shouldParseAdditionalParams() {
+        String queryString = "SELECT *\n" +
                 "FROM person p\n" +
                 "  INNER JOIN person_name pn ON pn.person_id = p.person_id\n" +
                 "  INNER join (SELECT * FROM obs\n" +
@@ -59,18 +59,19 @@ public class SqlQueryHelperTest {
                 "                                    FROM concept_name cn cn.name in (${testName}))  as tests on tests.person_id = p.person_id";
         String additionalParams = "{\"tests\": \"'HIV (Blood)','Gram Stain (Sputum)'\"}";
 
-        when(administrationService.getGlobalProperty("emrapi.sqlSearch.additionalSearchHandler")).thenReturn(" cn.name = '${testName}'");
+        Map<String, String[]> params = new HashMap<>();
+        String result = sqlQueryHelper.parseAdditionalParams(additionalParams, queryString, params);
 
-        String expectedQueryString ="SELECT *\n" +
+        String expectedQueryString = "SELECT *\n" +
                 "FROM person p\n" +
                 "  INNER JOIN person_name pn ON pn.person_id = p.person_id\n" +
                 "  INNER join (SELECT * FROM obs\n" +
                 "              WHERE concept_id IN\n" +
                 "                                   (SELECT concept_id\n" +
-                "                                    FROM concept_name cn cn.name in ('HIV (Blood)','Gram Stain (Sputum)'))  as tests on tests.person_id = p.person_id";
-        String result = sqlQueryHelper.parseAdditionalParams(additionalParams, queryString);
-
-        assertEquals(expectedQueryString,result);
+                "                                    FROM concept_name cn cn.name in (${testName_0},${testName_1}))  as tests on tests.person_id = p.person_id";
+        assertEquals(expectedQueryString, result);
+        assertEquals("HIV (Blood)", params.get("testName_0")[0]);
+        assertEquals("Gram Stain (Sputum)", params.get("testName_1")[0]);
     }
 
     @Test
