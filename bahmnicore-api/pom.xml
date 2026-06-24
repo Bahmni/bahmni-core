@@ -219,6 +219,18 @@
             <testResource>
                 <directory>src/test/resources</directory>
                 <filtering>true</filtering>
+                <excludes>
+                    <exclude>**/*.mkv</exclude>
+                    <exclude>**/*.mov</exclude>
+                </excludes>
+            </testResource>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.mkv</include>
+                    <include>**/*.mov</include>
+                </includes>
             </testResource>
         </testResources>
         <plugins>
