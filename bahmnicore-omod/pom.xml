@@ -105,12 +105,6 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.ict4h.openmrs</groupId>
-            <artifactId>openmrs-atomfeed-api</artifactId>
-            <version>${openmrsAtomfeedVersion}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.openmrs.api</groupId>
             <artifactId>openmrs-api</artifactId>
             <type>test-jar</type>

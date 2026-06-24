@@ -13,7 +13,7 @@
     <require_version>${openMRSRuntimeVersion}</require_version>
     <!-- Required Modules -->
     <require_modules>
-        <require_module>org.ict4h.openmrs.openmrs-atomfeed</require_module>
+        <require_module>org.bahmni.module.eventoutbox</require_module>
         <require_module>org.openmrs.module.webservices.rest</require_module>
         <require_module>org.openmrs.module.emrapi</require_module>
         <require_module>org.openmrs.module.addresshierarchy</require_module>
@@ -31,4 +31,3 @@
     <!-- Internationalization -->
     <!-- All message codes should start with ${project.parent.artifactId}. -->
 </module>
-

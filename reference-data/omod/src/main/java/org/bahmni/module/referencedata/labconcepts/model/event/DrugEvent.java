@@ -1,12 +1,9 @@
 package org.bahmni.module.referencedata.labconcepts.model.event;
 
-import org.ict4h.atomfeed.server.service.Event;
-import java.time.LocalDateTime;
+import org.bahmni.module.eventoutbox.EMREvent;
 import org.openmrs.Drug;
 
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.UUID;
 
 import static java.util.Arrays.asList;
 
@@ -24,7 +21,6 @@ public class DrugEvent implements ConceptServiceOperationEvent {
     public DrugEvent() {
     }
 
-
     List<String> operations() {
         return asList("saveDrug", "purgeDrug");
     }
@@ -39,10 +35,9 @@ public class DrugEvent implements ConceptServiceOperationEvent {
     }
 
     @Override
-    public Event asAtomFeedEvent(Object[] arguments) throws URISyntaxException {
+    public EMREvent<Drug> asEMREvent(Object[] arguments) {
         Drug drug = (Drug) arguments[0];
-        String url = String.format(this.url, title, drug.getUuid());
-        return new Event(UUID.randomUUID().toString(), title, LocalDateTime.now(), url, url, category);
+        String restUrl = String.format(this.url, title, drug.getUuid());
+        return new EMREvent<>(drug, category, title, null, restUrl);
     }
-
 }

@@ -1,16 +1,10 @@
 package org.bahmni.module.referencedata.labconcepts.advice;
 
+import org.bahmni.module.eventoutbox.EMREvent;
+import org.bahmni.module.referencedata.events.ReferenceDataEventPublisher;
 import org.bahmni.module.referencedata.labconcepts.model.Operation;
-import org.ict4h.atomfeed.server.repository.AllEventRecordsQueue;
-import org.ict4h.atomfeed.server.repository.jdbc.AllEventRecordsQueueJdbcImpl;
-import org.ict4h.atomfeed.server.service.Event;
-import org.ict4h.atomfeed.server.service.EventService;
-import org.ict4h.atomfeed.server.service.EventServiceImpl;
-import org.ict4h.atomfeed.transaction.AFTransactionWorkWithoutResult;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.atomfeed.transaction.support.AtomFeedSpringTransactionManager;
+import org.openmrs.api.context.ServiceContext;
 import org.springframework.aop.AfterReturningAdvice;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -18,54 +12,35 @@ import java.util.List;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 public class ConceptServiceEventInterceptor implements AfterReturningAdvice {
-    private AtomFeedSpringTransactionManager atomFeedSpringTransactionManager;
-    private EventService eventService;
+
+    private ReferenceDataEventPublisher eventPublisher;
 
     public ConceptServiceEventInterceptor() {
-        atomFeedSpringTransactionManager = createTransactionManager();
-        this.eventService = createService(atomFeedSpringTransactionManager);
     }
 
-    public ConceptServiceEventInterceptor(AtomFeedSpringTransactionManager atomFeedSpringTransactionManager, EventService eventService) {
-        this.atomFeedSpringTransactionManager = atomFeedSpringTransactionManager;
-        this.eventService = eventService;
+    public ConceptServiceEventInterceptor(ReferenceDataEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
     }
 
-    private AtomFeedSpringTransactionManager createTransactionManager() {
-        PlatformTransactionManager platformTransactionManager = getSpringPlatformTransactionManager();
-        return new AtomFeedSpringTransactionManager(platformTransactionManager);
-    }
-
-    private EventServiceImpl createService(AtomFeedSpringTransactionManager atomFeedSpringTransactionManager) {
-        AllEventRecordsQueue allEventRecordsQueue = new AllEventRecordsQueueJdbcImpl(atomFeedSpringTransactionManager);
-        return new EventServiceImpl(allEventRecordsQueue);
+    public void setEventPublisher(ReferenceDataEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
-    public void afterReturning(Object returnValue, Method method, Object[] arguments, Object conceptService) throws Throwable {
+    public void afterReturning(Object returnValue, Method method, Object[] arguments, Object conceptService) {
         Operation operation = new Operation(method);
-        final List<Event> events = operation.apply(arguments);
+        List<EMREvent<?>> events = operation.apply(arguments);
         if (isNotEmpty(events)) {
-            atomFeedSpringTransactionManager.executeWithTransaction(
-                    new AFTransactionWorkWithoutResult() {
-                        @Override
-                        protected void doInTransaction() {
-                            for (Event event : events) {
-                                eventService.notify(event);
-                            }
-                        }
-
-                        @Override
-                        public PropagationDefinition getTxPropagationDefinition() {
-                            return PropagationDefinition.PROPAGATION_REQUIRED;
-                        }
-                    }
-            );
+            for (EMREvent<?> event : events) {
+                getEventPublisher().publishEvent(event);
+            }
         }
     }
 
-    private PlatformTransactionManager getSpringPlatformTransactionManager() {
-        List<PlatformTransactionManager> platformTransactionManagers = Context.getRegisteredComponents(PlatformTransactionManager.class);
-        return platformTransactionManagers.get(0);
+    private ReferenceDataEventPublisher getEventPublisher() {
+        if (eventPublisher == null) {
+            eventPublisher = ServiceContext.getInstance().getApplicationContext().getBean(ReferenceDataEventPublisher.class);
+        }
+        return eventPublisher;
     }
 }
