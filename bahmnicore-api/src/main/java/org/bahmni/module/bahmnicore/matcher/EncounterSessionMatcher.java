@@ -111,7 +111,7 @@ public class EncounterSessionMatcher implements BaseEncounterMatcher {
         matchingEncounters = encounterParameters.getLocation() != null ? checkEncounterIsInCurrentVisitLocation(matchingEncounters, encounterParameters.getLocation()) : new ArrayList<Encounter>();
 
         if (matchingEncounters.size() > 1) {
-            throw new RuntimeException("More than one encounter matches the criteria");
+            throw new IllegalStateException("More than one encounter matches the criteria");
         }
 
         if (!matchingEncounters.isEmpty()) {

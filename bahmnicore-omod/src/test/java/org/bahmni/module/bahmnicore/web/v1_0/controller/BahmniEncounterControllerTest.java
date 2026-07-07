@@ -46,7 +46,7 @@ public class BahmniEncounterControllerTest {
     }
 
     @Test
-    public void returnsMultipleEncounterTransactionsIfExists() throws Exception {
+    public void returnsMultipleEncounterTransactionsIfExists() {
         EncounterTransaction et1 = new EncounterTransaction();
         et1.setEncounterUuid("et1");
 
@@ -64,7 +64,7 @@ public class BahmniEncounterControllerTest {
     }
 
     @Test
-    public void shouldReturnEmptyEncounterTransactionIfThereAreNoEncountersExists() throws Exception {
+    public void shouldReturnEmptyEncounterTransactionIfThereAreNoEncountersExists() {
         BahmniEncounterSearchParameters encounterSearchParameters = new BahmniEncounterSearchParameters();
         encounterSearchParameters.setIncludeAll(false);
 
