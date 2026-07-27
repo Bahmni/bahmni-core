@@ -45,41 +45,54 @@ public class SqlQueryHelper {
     }
 
     public PreparedStatement constructPreparedStatement(String queryString, Map<String, String[]> params, Connection conn) throws SQLException {
-       String finalQueryString = queryString;
-        if (params.get("additionalParams") != null && params.get("additionalParams") != null) {
-            finalQueryString = parseAdditionalParams(params.get("additionalParams")[0], queryString);
+        String finalQueryString = queryString;
+        if (params.get("additionalParams") != null) {
+            finalQueryString = parseAdditionalParams(params.get("additionalParams")[0], queryString, params);
         }
 
         List<String> paramNamesFromPlaceHolders = getParamNamesFromPlaceHolders(finalQueryString);
         String statement = transformIntoPreparedStatementFormat(finalQueryString);
+
         PreparedStatement preparedStatement = conn.prepareStatement(statement);
-        if(params != null ){
-            int i=1;
-            for (String paramName : paramNamesFromPlaceHolders) {
-                String[] paramValues = params.get(paramName);
-                if (paramValues == null) {
-                    String error = String.format("Required Parameter [%s] is missing for the query", paramName);
-                    log.error(error);
-                    throw new RuntimeException(error);
-                }
-                String paramValue = paramValues[0];
-                preparedStatement.setObject(i++,paramValue);
+        int i = 1;
+        for (String paramName : paramNamesFromPlaceHolders) {
+            String[] paramValues = params.get(paramName);
+            if (paramValues == null) {
+                String error = String.format("Required Parameter [%s] is missing for the query", paramName);
+                log.error(error);
+                throw new RuntimeException(error);
             }
+            String paramValue = paramValues[0];
+            preparedStatement.setObject(i++, paramValue);
         }
         return preparedStatement;
     }
-
-    String parseAdditionalParams(String additionalParams, String queryString) {
-        String queryWithAdditionalParams = queryString;
+    
+    String parseAdditionalParams(String additionalParams, String queryString, Map<String, String[]> params) {
+        AdditionalSearchParam additionalSearchParams;
         try {
-            AdditionalSearchParam additionalSearchParams = new ObjectMapper().readValue(additionalParams, AdditionalSearchParam.class);
-            String test = additionalSearchParams.getTests();
-            queryWithAdditionalParams = queryString.replaceAll("\\$\\{testName\\}", test);
+            additionalSearchParams = new ObjectMapper().readValue(additionalParams, AdditionalSearchParam.class);
         } catch (IOException e) {
-            log.error("Failed to parse Additional Search Parameters.");
-            e.printStackTrace();
+            log.error("Failed to parse Additional Search Parameters: {}", additionalParams, e);
+            throw new RuntimeException("Failed to parse Additional Search Parameters", e);
         }
-        return queryWithAdditionalParams;
+        String tests = additionalSearchParams.getTests();
+        if (tests == null) {
+            return queryString;
+        }
+        String[] testValues = tests.split(",");
+        StringBuilder placeholders = new StringBuilder();
+        for (int idx = 0; idx < testValues.length; idx++) {
+            String key = "testName_" + idx;
+            String trimmedValue = testValues[idx].trim();
+            if (trimmedValue.startsWith("'") && trimmedValue.endsWith("'") && trimmedValue.length() > 1) {
+                trimmedValue = trimmedValue.substring(1, trimmedValue.length() - 1);
+            }
+            params.put(key, new String[]{trimmedValue});
+            if (idx > 0) placeholders.append(",");
+            placeholders.append("${").append(key).append("}");
+        }
+        return queryString.replace("${testName}", placeholders.toString());
     }
 
     public static String escapeSQL(String str, boolean escapeDoubleQuotes, Character escapeChar) {
