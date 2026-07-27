@@ -50,4 +50,10 @@ public class FhirDosingInstructionsTest {
         fhirDosingInstructions.validate(order, errors);
         assertFalse(errors.hasErrors());
     }
+
+    @Test
+    public void getAutoExpireDate_shouldReturnNullWhenDurationIsNull() {
+        DrugOrder order = new DrugOrder();
+        assertNull(fhirDosingInstructions.getAutoExpireDate(order));
+    }
 }
