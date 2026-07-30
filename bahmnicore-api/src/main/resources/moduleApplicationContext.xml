@@ -139,7 +139,6 @@
             <list>
                 <ref bean="bahmniObservationSaveCommandImpl"/>
                 <ref bean="episodeEncounterCreateCommand"/>
-                <ref bean="surgeryOrderPostSaveCommandImpl"/>
             </list>
         </constructor-arg>
         <constructor-arg ref="bahmniEncounterTransactionMapper" />
