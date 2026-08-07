@@ -26,10 +26,10 @@ jobs:
     - name: Build with Maven
       run: |
         ./mvnw verify -U -Dmaven.javadoc.skip=true -V -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
-    - name: Set up JDK 17 for SonarCloud
+    - name: Set up JDK 21 for SonarCloud
       uses: actions/setup-java@v3
       with:
-        java-version: 17
+        java-version: 21
         distribution: temurin
     - name: SonarCloud Analysis
       run: |
