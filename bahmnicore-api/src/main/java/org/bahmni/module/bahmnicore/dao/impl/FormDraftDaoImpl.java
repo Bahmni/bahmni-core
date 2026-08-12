@@ -9,6 +9,7 @@ import org.openmrs.api.db.DAOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -97,6 +98,25 @@ public class FormDraftDaoImpl implements FormDraftDAO {
         } catch (Exception e) {
             log.error("Error retrieving all form drafts for user: " + userId, e);
             throw new DAOException("Failed to retrieve form drafts for user", e);
+        }
+    }
+
+    @Override
+    public Integer deleteDraftsOlderThanDays(Integer retentionDays) throws DAOException {
+        try {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH, -retentionDays);
+            Date cutoffDate = calendar.getTime();
+
+            Integer deletedCount = sessionFactory.getCurrentSession()
+                    .createQuery("DELETE FROM FormDraft WHERE dateCreated < :cutoffDate")
+                    .setParameter("cutoffDate", cutoffDate)
+                    .executeUpdate();
+            log.info("Deleted {} form drafts older than {} days", deletedCount, retentionDays);
+            return deletedCount;
+        } catch (Exception e) {
+            log.error("Error deleting form drafts older than {} days", retentionDays, e);
+            throw new DAOException("Failed to delete form drafts", e);
         }
     }
 }

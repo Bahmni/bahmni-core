@@ -38,6 +38,7 @@ public class FormDraftServiceImpl implements FormDraftService {
     private static final Logger log = LoggerFactory.getLogger(FormDraftServiceImpl.class);
     private static final String FORM_DRAFTS_SUBDIRECTORY = "form_draft";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final String VOIDED_RETENTION_DAYS_PROPERTY = "bahmni.formDraft.voidedRetentionDays";
 
     private FormDraftDAO formDraftDAO;
     private PatientService patientService;
@@ -448,6 +449,23 @@ public class FormDraftServiceImpl implements FormDraftService {
         } catch (Exception e) {
             log.error("Error marking form draft as saved", e);
             throw new RuntimeException("Failed to mark form draft as saved: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void deleteDraftsOlderThanRetentionPeriod() {
+        try {
+            String retentionDaysStr = Context.getAdministrationService()
+                    .getGlobalProperty(VOIDED_RETENTION_DAYS_PROPERTY);
+            if (retentionDaysStr == null) {
+                throw new IllegalStateException("Global property '" + VOIDED_RETENTION_DAYS_PROPERTY + "' is not set");
+            }
+            Integer retentionDays = Integer.parseInt(retentionDaysStr);
+            Integer deletedCount = formDraftDAO.deleteDraftsOlderThanDays(retentionDays);
+            log.info("Deleted {} form drafts older than {} days", deletedCount, retentionDays);
+        } catch (Exception e) {
+            log.error("Error deleting form drafts by retention period", e);
+            throw new RuntimeException("Failed to delete form drafts: " + e.getMessage(), e);
         }
     }
 }

@@ -1,8 +1,8 @@
 package org.bahmni.module.bahmnicore.dao;
 
-import org.bahmni.module.bahmnicore.model.FormDraft;
-
 import java.util.List;
+
+import org.bahmni.module.bahmnicore.model.FormDraft;
 
 public interface FormDraftDAO {
 
@@ -47,4 +47,12 @@ public interface FormDraftDAO {
      * @return list of FormDraft objects, ordered by COALESCE(dateChanged, dateCreated) DESC
      */
     List<FormDraft> getAllByUserOrderedByDateDesc(Integer userId);
+
+    /**
+     * Permanently delete (hard delete) all form drafts older than the specified number of days.
+     *
+     * @param retentionDays the number of days to retain drafts
+     * @return the number of draft records deleted
+     */
+    Integer deleteDraftsOlderThanDays(Integer retentionDays);
 }

@@ -4814,4 +4814,17 @@
         </delete>
     </changeSet>
 
+    <changeSet id="add-form-draft-voided-retention-days-property" author="Bahmni">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM global_property WHERE property = 'bahmni.formDraft.voidedRetentionDays'
+            </sqlCheck>
+        </preConditions>
+        <comment>Add global property for form draft retention period (days to retain before permanent deletion)</comment>
+        <sql>
+            insert into global_property (`property`, `property_value`, `description`, `uuid`)
+            values ('bahmni.formDraft.voidedRetentionDays', '15', 'Number of days to retain form drafts before permanent deletion. Default is 15 days.', uuid());
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>

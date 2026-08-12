@@ -66,4 +66,12 @@ public interface FormDraftService {
      * @return list of FormDraftSummaryResponse, ordered newest first; empty list if provider not found
      */
     List<FormDraftSummaryResponse> getDraftsByProvider(String providerUuid);
+
+    /**
+     * Delete all form drafts older than the configured retention period, regardless of voided status.
+     * The retention period is read from global property 'bahmni.formDraft.voidedRetentionDays'.
+     * The property is initialized to 15 days by the Liquibase changeset during module deployment.
+     * Intended to be called by a scheduled task at midnight.
+     */
+    void deleteDraftsOlderThanRetentionPeriod();
 }
