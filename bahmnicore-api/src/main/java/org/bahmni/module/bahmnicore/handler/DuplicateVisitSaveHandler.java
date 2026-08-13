@@ -28,7 +28,7 @@ public class DuplicateVisitSaveHandler implements SaveHandler<Visit> {
         }
 
         List<Visit> activeVisits = visitService.getActiveVisitsByPatient(visit.getPatient());
-        long now = new Date().getTime();
+        long now = currentDate.getTime();
         for (Visit activeVisit : activeVisits) {
             if (isRecentDuplicate(visit, activeVisit, now)) {
                 throw new DuplicateVisitException("A visit has already just been started for this patient at this location.");
