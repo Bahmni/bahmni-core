@@ -301,7 +301,7 @@ public class ObsDaoImpl implements ObsDao {
                 "JOIN encounter ON encounter.encounter_id = obs.encounter_id AND encounter.voided = 0 " +
                 encounterFilter +
                 "JOIN visit ON visit.visit_id = encounter.visit_id AND visit.visit_id IN :visitIds ");
-        queryString.append(String.format("where obs.form_namespace_and_path REGEXP '%s' ", commaSeparatedFormNamesPattern(formNames)));
+        queryString.append("where obs.form_namespace_and_path REGEXP :formNamesPattern ");
         if (startDate != null) queryString.append("and obs.obs_datetime >= :startDate ");
         if (startDate != null && endDate != null) queryString.append("and obs.obs_datetime <= :endDate ");
         queryString.append("order by obs_datetime asc ");
@@ -309,6 +309,7 @@ public class ObsDaoImpl implements ObsDao {
                 .createSQLQuery(queryString.toString()).addEntity(Obs.class);
         queryToGetObs.setParameter("patientUuid", patientUuid);
         queryToGetObs.setParameterList("visitIds", listOfVisitIds);
+        queryToGetObs.setParameter("formNamesPattern", commaSeparatedFormNamesPattern(formNames));
         if (nonNull(startDate))
             queryToGetObs.setParameter("startDate", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(startDate));
         if (nonNull(endDate))
@@ -319,7 +320,7 @@ public class ObsDaoImpl implements ObsDao {
 
     private String commaSeparatedFormNamesPattern(List<String> formNames) {
         ArrayList<String> formPatterns = new ArrayList<>();
-        formNames.forEach(form -> formPatterns.add("\\\\^" + form + "\\\\."));
+        formNames.forEach(form -> formPatterns.add("\\^" + form + "\\."));
         return StringUtils.join(formPatterns, OR);
     }
 
@@ -362,10 +363,10 @@ public class ObsDaoImpl implements ObsDao {
                 "AND cn.concept_name_type='FULLY_SPECIFIED' " +
                 "AND cn.name IN (:conceptNames) " +
                 "AND cn.locale = :locale");
-        if(null != startDate) {
+        if (null != startDate) {
             queryString.append(" AND o.obs_datetime >= STR_TO_DATE(:startDate, '%Y-%m-%d')");
         }
-        if(null != endDate) {
+        if (null != endDate) {
             queryString.append(" AND o.obs_datetime <= STR_TO_DATE(:endDate, '%Y-%m-%d')");
         }
         if (sortOrder == OrderBy.ASC) {
@@ -380,10 +381,10 @@ public class ObsDaoImpl implements ObsDao {
         queryToGetObs.setParameterList("conceptNames", conceptNames);
         queryToGetObs.setString("patientProgramUuid", patientProgramUuid);
         queryToGetObs.setString("locale", Context.getLocale().getLanguage());
-        if(null != startDate) {
+        if (null != startDate) {
             queryToGetObs.setString("startDate", dateFormat.format(startDate));
         }
-        if(null != endDate) {
+        if (null != endDate) {
             queryToGetObs.setString("endDate", dateFormat.format(endDate));
         }
 
