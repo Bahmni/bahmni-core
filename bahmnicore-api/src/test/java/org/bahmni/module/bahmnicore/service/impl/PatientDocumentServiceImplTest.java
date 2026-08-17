@@ -104,6 +104,26 @@ public class PatientDocumentServiceImplTest {
     }
 
     @Test
+    public void shouldNotReadFileOutsideImagesDirectoryViaPathTraversal() throws Exception {
+        File imagesDir = temporaryFolder.newFolder("images");
+        File outsideDir = temporaryFolder.newFolder("outside");
+        File secretFile = new File(outsideDir, "secret.jpeg");
+        byte[] secretBytes = "TOP-SECRET-CONTENT-NOT-A-PATIENT-PHOTO".getBytes();
+        FileUtils.writeByteArrayToFile(secretFile, secretBytes);
+
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).thenReturn(imagesDir.getAbsolutePath());
+        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory.defaultImage")).thenReturn("");
+
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        String traversalPayload = "../outside/secret";
+        ResponseEntity<Object> responseEntity = patientDocumentService.retriveImageWithoutDefault(traversalPayload);
+
+        assertEquals(404, responseEntity.getStatusCode().value());
+    }
+
+    @Test
     public void shouldThrowExceptionWhenVideoFormatIsNotSupported() throws Exception {
         PowerMockito.mockStatic(BahmniCoreProperties.class);
         when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("");
