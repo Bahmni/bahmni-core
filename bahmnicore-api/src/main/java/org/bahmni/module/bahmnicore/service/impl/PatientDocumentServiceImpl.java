@@ -78,12 +78,21 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
             String relativeFilePath = createFilePath(basePath, patientId, encounterTypeName, format, fileName);
 
             File outputFile = new File(String.format("%s/%s", basePath, relativeFilePath));
+            validateOutputFileIsContained(basePath, outputFile);
             saveDocumentInFile(content, format, outputFile, fileType);
 
             return relativeFilePath;
 
         } catch (IOException e) {
             throw new BahmniCoreException("[%s] : Could not save patient Document ", e);
+        }
+    }
+
+    private void validateOutputFileIsContained(String basePath, File outputFile) {
+        Path base = Paths.get(basePath).normalize();
+        Path resolved = outputFile.toPath().normalize();
+        if (!resolved.startsWith(base)) {
+            throw new BahmniCoreException("Invalid file path");
         }
     }
 
@@ -101,12 +110,19 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
         return BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory");
     }
 
+    private String sanitizePathComponent(String value) {
+        if (value == null) return null;
+        return value.replaceAll("[/\\\\]", "").replace("..", "");
+    }
+
     private String createFileName(Integer patientId, String encounterTypeName, Object format, String originalFileName) {
         String uuid = UUID.randomUUID().toString();
+        String safeEncounterTypeName = sanitizePathComponent(encounterTypeName);
+        String safeFormat = sanitizePathComponent(String.valueOf(format));
         if (StringUtils.isNotBlank(originalFileName)) {
             originalFileName = "__" + originalFileName;
         }
-        return String.format("%s-%s-%s%s.%s", patientId, encounterTypeName, uuid, originalFileName, format);
+        return String.format("%s-%s-%s%s.%s", patientId, safeEncounterTypeName, uuid, originalFileName, safeFormat);
     }
 
     protected String createFilePath(String basePath, Integer patientId, String encounterTypeName, String format, String originalFileName) {
