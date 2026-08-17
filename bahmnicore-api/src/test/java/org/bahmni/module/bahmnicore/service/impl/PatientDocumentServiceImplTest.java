@@ -2,6 +2,7 @@ package org.bahmni.module.bahmnicore.service.impl;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.xerces.impl.dv.util.Base64;
+import org.bahmni.module.bahmnicore.BahmniCoreException;
 import org.bahmni.module.bahmnicore.bahmniexceptions.FileTypeNotSupportedException;
 import org.bahmni.module.bahmnicore.bahmniexceptions.VideoFormatNotSupportedException;
 import org.bahmni.module.bahmnicore.model.VideoFormats;
@@ -126,7 +127,7 @@ public class PatientDocumentServiceImplTest {
     @Test
     public void shouldThrowExceptionWhenVideoFormatIsNotSupported() throws Exception {
         PowerMockito.mockStatic(BahmniCoreProperties.class);
-        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("");
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
         PowerMockito.mockStatic(FileUtils.class);
 
         Patient patient = new Patient();
@@ -144,7 +145,7 @@ public class PatientDocumentServiceImplTest {
     @Test
     public void shouldSavePDF() throws Exception {
         PowerMockito.mockStatic(BahmniCoreProperties.class);
-        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("");
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
         PowerMockito.mockStatic(FileUtils.class);
 
         Patient patient = new Patient();
@@ -161,7 +162,7 @@ public class PatientDocumentServiceImplTest {
     public void shouldSaveImage() throws Exception {
         PowerMockito.mockStatic(BahmniCoreProperties.class);
         PowerMockito.mockStatic(ImageIO.class);
-        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("");
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
         BufferedImage bufferedImage = new BufferedImage(1,2, 2);
         when(ImageIO.read(Matchers.any(ByteArrayInputStream.class))).thenReturn(bufferedImage);
         when(ImageIO.write(eq(bufferedImage),eq("jpg"), Matchers.any(File.class))).thenReturn(true);
@@ -177,9 +178,22 @@ public class PatientDocumentServiceImplTest {
     }
 
     @Test
+    public void shouldNotWriteDocumentOutsideBaseDirectoryViaPathTraversal() throws Exception {
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory"))
+                .thenReturn(temporaryFolder.getRoot().getAbsolutePath());
+
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        expectedException.expect(BahmniCoreException.class);
+        patientDocumentService.saveDocument(1, "Consultation", "pdfContent", "pdf", "file",
+                "../../../../pwned_by_bahmni_poc");
+    }
+
+    @Test
     public void shouldThrowExceptionWhenFileTypeIsNotSupported() throws Exception {
         PowerMockito.mockStatic(BahmniCoreProperties.class);
-        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("");
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
         PowerMockito.mockStatic(FileUtils.class);
 
         Patient patient = new Patient();
@@ -196,7 +210,7 @@ public class PatientDocumentServiceImplTest {
     @Test
     public void shouldThrowExceptionWhenImageTypeOtherThanPngJpegGif() throws Exception {
         PowerMockito.mockStatic(BahmniCoreProperties.class);
-        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("");
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
         PowerMockito.mockStatic(FileUtils.class);
         PowerMockito.mockStatic(ImageIO.class);
         BufferedImage bufferedImage = new BufferedImage(1,2, 2);
