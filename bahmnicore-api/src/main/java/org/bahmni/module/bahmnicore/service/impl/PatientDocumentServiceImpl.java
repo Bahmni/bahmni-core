@@ -257,8 +257,8 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
     }
 
     private File getPatientImageFile(String patientUuid) {
-        File file = new File(String.format("%s/%s.%s", BahmniCoreProperties.getProperty("bahmnicore.images.directory"), patientUuid, patientImagesFormat));
-        if (file.exists() && file.isFile()) {
+        File file = resolveContainedImageFile(patientUuid);
+        if (file != null && file.exists() && file.isFile()) {
             return file;
         }
         return new File(BahmniCoreProperties.getProperty("bahmnicore.images.directory.defaultImage"));
