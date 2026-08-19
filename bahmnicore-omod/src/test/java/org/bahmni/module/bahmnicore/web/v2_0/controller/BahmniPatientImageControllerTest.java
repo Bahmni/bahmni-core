@@ -1,5 +1,6 @@
 package org.bahmni.module.bahmnicore.web.v2_0.controller;
 
+import org.bahmni.module.bahmnicore.security.PrivilegeConstants;
 import org.bahmni.module.bahmnicore.service.PatientDocumentService;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,8 +42,9 @@ public class BahmniPatientImageControllerTest {
     }
 
     @Test
-    public void shouldRetrieveImageWithoutDefaultWhenUserIsAuthenticated() {
+    public void shouldRetrieveImageWithoutDefaultWhenUserIsAuthenticatedAndHasPrivilege() {
         Mockito.when(userContext.isAuthenticated()).thenReturn(true);
+        Mockito.when(userContext.hasPrivilege(PrivilegeConstants.GET_PATIENT_PHOTO)).thenReturn(true);
         when(patientDocumentService.retriveImageWithoutDefault(anyString())).thenReturn(new ResponseEntity<Object>(new Object(), HttpStatus.OK));
         String patientUuid = "patientUuid";
 
@@ -65,8 +67,21 @@ public class BahmniPatientImageControllerTest {
     }
 
     @Test
+    public void shouldReturnForbiddenWhenUserIsAuthenticatedButLacksPrivilege() {
+        Mockito.when(userContext.isAuthenticated()).thenReturn(true);
+        Mockito.when(userContext.hasPrivilege(PrivilegeConstants.GET_PATIENT_PHOTO)).thenReturn(false);
+        String patientUuid = "patientUuid";
+
+        ResponseEntity<Object> responseEntity = bahmniPatientImageController.getImage(patientUuid);
+
+        verify(patientDocumentService, never()).retriveImageWithoutDefault(patientUuid);
+        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+    }
+
+    @Test
     public void shouldReturnNotFoundWhenPatientImageDoesNotExist() {
         Mockito.when(userContext.isAuthenticated()).thenReturn(true);
+        Mockito.when(userContext.hasPrivilege(PrivilegeConstants.GET_PATIENT_PHOTO)).thenReturn(true);
         when(patientDocumentService.retriveImageWithoutDefault(anyString())).thenReturn(new ResponseEntity<Object>(new Object(), HttpStatus.NOT_FOUND));
         String patientUuid = "patientUuid";
 

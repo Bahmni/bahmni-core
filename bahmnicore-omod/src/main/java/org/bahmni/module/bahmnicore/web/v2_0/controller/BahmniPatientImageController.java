@@ -1,5 +1,6 @@
 package org.bahmni.module.bahmnicore.web.v2_0.controller;
 
+import org.bahmni.module.bahmnicore.security.PrivilegeConstants;
 import org.bahmni.module.bahmnicore.service.PatientDocumentService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.context.UserContext;
@@ -31,6 +32,9 @@ public class BahmniPatientImageController extends BaseRestController {
     public ResponseEntity<Object> getImage(@RequestParam(value = "patientUuid", required = true) String patientUuid) {
         UserContext userContext = Context.getUserContext();
         if (userContext.isAuthenticated()) {
+            if (!userContext.hasPrivilege(PrivilegeConstants.GET_PATIENT_PHOTO)) {
+                return new ResponseEntity<Object>(new Object(), HttpStatus.FORBIDDEN);
+            }
             return patientDocumentService.retriveImageWithoutDefault(patientUuid);
         }
         return new ResponseEntity<Object>(new Object(), HttpStatus.UNAUTHORIZED);
