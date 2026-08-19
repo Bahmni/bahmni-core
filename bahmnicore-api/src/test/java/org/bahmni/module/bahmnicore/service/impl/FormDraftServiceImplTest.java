@@ -20,7 +20,6 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.Person;
@@ -28,7 +27,6 @@ import org.openmrs.PersonName;
 import org.openmrs.Provider;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
-import org.openmrs.api.EncounterService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.ProviderService;
 import org.openmrs.api.UserService;
@@ -60,9 +58,6 @@ public class FormDraftServiceImplTest {
     @Mock
     private ProviderService providerService;
 
-    @Mock
-    private EncounterService encounterService;
-
     private FormDraftServiceImpl formDraftService;
     private Person person;
 
@@ -70,7 +65,6 @@ public class FormDraftServiceImplTest {
     private static final int PATIENT_ID = 1;
     private static final String PROVIDER_UUID = "provider-uuid-456";
     private static final int PROVIDER_ID = 2;
-    private static final String ENCOUNTER_UUID = "encounter-uuid-789";
 
     @Before
     public void setUp() throws Exception {
@@ -84,7 +78,6 @@ public class FormDraftServiceImplTest {
         formDraftService.setPatientService(patientService);
         formDraftService.setUserService(userService);
         formDraftService.setProviderService(providerService);
-        formDraftService.setEncounterService(encounterService);
 
         // Set authenticated user for testing
         User mockUser = new User();
@@ -102,7 +95,7 @@ public class FormDraftServiceImplTest {
 
     @Test
     public void saveDraft_shouldCreateNewDraftWhenNoneExists() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, null, "{\"form\":\"data\"}");
+        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, "{\"form\":\"data\"}");
         Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
@@ -125,7 +118,7 @@ public class FormDraftServiceImplTest {
 
     @Test
     public void saveDraft_shouldUpdateExistingDraftForSamePatientProvider() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, null, "{\"updated\":\"data\"}");
+        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, "{\"updated\":\"data\"}");
         Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
@@ -146,63 +139,27 @@ public class FormDraftServiceImplTest {
         verify(formDraftDAO).saveOrUpdate(existingDraft);
     }
 
-    @Test
-    public void saveDraft_shouldSetEncounterWhenEncounterUuidIsProvided() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, ENCOUNTER_UUID, "{\"form\":\"data\"}");
-        Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
-        User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
-        Encounter encounter = new Encounter();
-        encounter.setUuid(ENCOUNTER_UUID);
-
-        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
-        mockProviderResolution(user);
-        when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(null);
-        when(encounterService.getEncounterByUuid(ENCOUNTER_UUID)).thenReturn(encounter);
-        when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
-
-        FormDraft result = formDraftService.saveDraft(request);
-
-        assertEquals(encounter, result.getEncounter());
-    }
-
-    @Test
-    public void saveDraft_shouldNotFailWhenEncounterUuidNotFound() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, "nonexistent-encounter", "{\"form\":\"data\"}");
-        Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
-        User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
-
-        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
-        mockProviderResolution(user);
-        when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(null);
-        when(encounterService.getEncounterByUuid("nonexistent-encounter")).thenReturn(null);
-        when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
-
-        FormDraft result = formDraftService.saveDraft(request);
-
-        assertNull(result.getEncounter());
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void saveDraft_shouldThrowWhenPatientUuidIsNull() {
-        FormDraftRequest request = buildRequest(null, PROVIDER_UUID, null, "{\"form\":\"data\"}");
+        FormDraftRequest request = buildRequest(null, PROVIDER_UUID, "{\"form\":\"data\"}");
         formDraftService.saveDraft(request);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void saveDraft_shouldThrowWhenProviderUuidIsEmpty() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, "", null, "{\"form\":\"data\"}");
+        FormDraftRequest request = buildRequest(PATIENT_UUID, "", "{\"form\":\"data\"}");
         formDraftService.saveDraft(request);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void saveDraft_shouldThrowWhenFormDataIsNull() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, null, null);
+        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, null);
         formDraftService.saveDraft(request);
     }
 
     @Test
     public void saveDraft_shouldPersistFormDataPath() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, null, "{\"form\":\"data\"}");
+        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, "{\"form\":\"data\"}");
         Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
@@ -370,7 +327,7 @@ public class FormDraftServiceImplTest {
 
     @Test
     public void saveDraft_shouldResolveUserViaProvider() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, null, "{\"form\":\"data\"}");
+        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, "{\"form\":\"data\"}");
         Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
         User user = buildUser("user-uuid-999", PROVIDER_ID);
 
@@ -387,7 +344,7 @@ public class FormDraftServiceImplTest {
 
     @Test
     public void saveDraft_shouldCreateNewDraftWhenExistingDraftIsMarkedAsSaved() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, null, "{\"updated\":\"data\"}");
+        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, "{\"updated\":\"data\"}");
         Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
@@ -413,7 +370,7 @@ public class FormDraftServiceImplTest {
 
     @Test
     public void saveDraft_shouldInitializeMarkedAsSavedAsFalseForNewDraft() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, null, "{\"form\":\"data\"}");
+        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, "{\"form\":\"data\"}");
         Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
@@ -437,8 +394,6 @@ public class FormDraftServiceImplTest {
         mockProviderResolution(user);
 
         Patient patient = buildPatientWithDetails(PATIENT_UUID, PATIENT_ID, "John Doe", "ET001");
-        Encounter encounter = new Encounter();
-        encounter.setUuid(ENCOUNTER_UUID);
 
         // formData is a serialized observations array; formName is derived from formFieldPath prefix
         File formDataFile = temporaryFolder.newFile("draft-form-identity.json");
@@ -447,14 +402,12 @@ public class FormDraftServiceImplTest {
         FormDraft draftOlder = new FormDraft();
         draftOlder.setUuid("draft-uuid-older");
         draftOlder.setPatient(patient);
-        draftOlder.setEncounter(encounter);
         draftOlder.setFormDataPath(formDataFile.getAbsolutePath());
         draftOlder.setDateCreated(new java.util.Date(1000L));
 
         FormDraft draftNewer = new FormDraft();
         draftNewer.setUuid("draft-uuid-newer");
         draftNewer.setPatient(patient);
-        draftNewer.setEncounter(null);
         draftNewer.setFormDataPath(formDataFile.getAbsolutePath());
         draftNewer.setDateCreated(new java.util.Date(2000L));
         draftNewer.setDateChanged(new java.util.Date(3000L));
@@ -466,11 +419,9 @@ public class FormDraftServiceImplTest {
         assertEquals(2, results.size());
         assertEquals("draft-uuid-newer", results.get(0).getDraftUuid());
         assertEquals(3000L, (long) results.get(0).getTimestamp());
-        assertNull(results.get(0).getEncounterUuid());
         assertEquals("Vitals", results.get(0).getFormName());
         assertEquals("draft-uuid-older", results.get(1).getDraftUuid());
         assertEquals(1000L, (long) results.get(1).getTimestamp());
-        assertEquals(ENCOUNTER_UUID, results.get(1).getEncounterUuid());
     }
 
     @Test
@@ -576,11 +527,10 @@ public class FormDraftServiceImplTest {
         when(userService.getUsersByPerson(person, false)).thenReturn(Collections.singletonList(user));
     }
 
-    private FormDraftRequest buildRequest(String patientUuid, String providerUuid, String encounterUuid, String formData) {
+    private FormDraftRequest buildRequest(String patientUuid, String providerUuid, String formData) {
         FormDraftRequest request = new FormDraftRequest();
         request.setPatientUuid(patientUuid);
         request.setProviderUuid(providerUuid);
-        request.setEncounterUuid(encounterUuid);
         request.setFormData(formData);
         return request;
     }

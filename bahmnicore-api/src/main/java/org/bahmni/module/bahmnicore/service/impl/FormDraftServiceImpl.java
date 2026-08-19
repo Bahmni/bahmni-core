@@ -19,12 +19,10 @@ import org.bahmni.module.bahmnicore.contract.FormDraftSummaryResponse;
 import org.bahmni.module.bahmnicore.dao.FormDraftDAO;
 import org.bahmni.module.bahmnicore.model.FormDraft;
 import org.bahmni.module.bahmnicore.service.FormDraftService;
-import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.Provider;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
-import org.openmrs.api.EncounterService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.ProviderService;
 import org.openmrs.api.UserService;
@@ -45,7 +43,6 @@ public class FormDraftServiceImpl implements FormDraftService {
     private PatientService patientService;
     private UserService userService;
     private ProviderService providerService;
-    private EncounterService encounterService;
     private User authenticatedUser;
 
     private String formDraftsBasePath;
@@ -76,11 +73,6 @@ public class FormDraftServiceImpl implements FormDraftService {
     @Autowired(required = false)
     public void setProviderService(ProviderService providerService) {
         this.providerService = providerService;
-    }
-
-    @Autowired(required = false)
-    public void setEncounterService(EncounterService encounterService) {
-        this.encounterService = encounterService;
     }
 
     protected void setFormDraftsBasePath(String basePath) {
@@ -152,16 +144,6 @@ public class FormDraftServiceImpl implements FormDraftService {
 
             draft.setPatient(patient);
             draft.setUser(user);
-
-            if (request.getEncounterUuid() != null && !request.getEncounterUuid().isEmpty()) {
-                EncounterService es = encounterService != null ? encounterService : Context.getEncounterService();
-                Encounter encounter = es.getEncounterByUuid(request.getEncounterUuid());
-                if (encounter != null) {
-                    draft.setEncounter(encounter);
-                } else {
-                    log.warn("Encounter UUID provided but not found: " + request.getEncounterUuid());
-                }
-            }
 
             String filePath = generateFilePath(draft.getUuid());
             if (isNewDraft || contentChanged) {
@@ -390,7 +372,6 @@ public class FormDraftServiceImpl implements FormDraftService {
         String patientIdentifier = patient.getPatientIdentifier() != null
                 ? patient.getPatientIdentifier().getIdentifier()
                 : null;
-        String encounterUuid = draft.getEncounter() != null ? draft.getEncounter().getUuid() : null;
         long timestamp = draft.getDateChanged() != null
                 ? draft.getDateChanged().getTime()
                 : draft.getDateCreated().getTime();
@@ -402,7 +383,6 @@ public class FormDraftServiceImpl implements FormDraftService {
         response.setPatientUuid(patient.getUuid());
         response.setPatientName(patientName);
         response.setPatientIdentifier(patientIdentifier);
-        response.setEncounterUuid(encounterUuid);
         response.setFormName(formName);
         response.setTimestamp(timestamp);
         return response;

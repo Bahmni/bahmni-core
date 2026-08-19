@@ -15,8 +15,6 @@
                   not-null="true" length="38" unique="true"/>
         <many-to-one name="patient" class="org.openmrs.Patient"
                      column="patient_id" not-null="true"/>
-        <many-to-one name="encounter" class="org.openmrs.Encounter"
-                     column="encounter_id" not-null="false"/>
         <many-to-one name="user" class="org.openmrs.User"
                      column="user_id" not-null="true"/>
         <property name="formDataPath" type="java.lang.String" column="form_data_path"

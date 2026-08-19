@@ -19,9 +19,6 @@ public class FormDraftSummaryResponse {
     private String patientIdentifier;
 
     @JsonProperty
-    private String encounterUuid;
-
-    @JsonProperty
     private String formName;
 
     @JsonProperty
@@ -60,14 +57,6 @@ public class FormDraftSummaryResponse {
 
     public void setPatientIdentifier(String patientIdentifier) {
         this.patientIdentifier = patientIdentifier;
-    }
-
-    public String getEncounterUuid() {
-        return encounterUuid;
-    }
-
-    public void setEncounterUuid(String encounterUuid) {
-        this.encounterUuid = encounterUuid;
     }
 
     public String getFormName() {

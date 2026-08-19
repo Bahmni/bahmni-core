@@ -11,9 +11,6 @@ public class FormDraftRequest {
     private String providerUuid;
 
     @JsonProperty
-    private String encounterUuid; //optional
-
-    @JsonProperty
     private String formData;
 
     public FormDraftRequest() {
@@ -33,14 +30,6 @@ public class FormDraftRequest {
 
     public void setProviderUuid(String providerUuid) {
         this.providerUuid = providerUuid;
-    }
-
-    public String getEncounterUuid() {
-        return encounterUuid;
-    }
-
-    public void setEncounterUuid(String encounterUuid) {
-        this.encounterUuid = encounterUuid;
     }
 
     public String getFormData() {

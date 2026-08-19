@@ -4730,9 +4730,6 @@
             <column name="patient_id" type="int">
                 <constraints nullable="false"/>
             </column>
-            <column name="encounter_id" type="int">
-                <constraints nullable="true"/>
-            </column>
             <column name="user_id" type="int">
                 <constraints nullable="false"/>
             </column>
@@ -4770,9 +4767,6 @@
         <addForeignKeyConstraint baseTableName="form_draft" baseColumnNames="patient_id"
                                  referencedTableName="patient" referencedColumnNames="patient_id"
                                  constraintName="fk_form_draft_patient"/>
-        <addForeignKeyConstraint baseTableName="form_draft" baseColumnNames="encounter_id"
-                                 referencedTableName="encounter" referencedColumnNames="encounter_id"
-                                 constraintName="fk_form_draft_encounter"/>
         <addForeignKeyConstraint baseTableName="form_draft" baseColumnNames="user_id"
                                  referencedTableName="users" referencedColumnNames="user_id"
                                  constraintName="fk_form_draft_user"/>

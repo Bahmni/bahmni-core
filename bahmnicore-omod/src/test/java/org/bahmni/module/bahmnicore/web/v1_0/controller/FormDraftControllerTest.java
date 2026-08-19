@@ -65,7 +65,7 @@ public class FormDraftControllerTest {
 
     @Test
     public void saveDraft_shouldReturnBadRequestWhenValidationFails() {
-        FormDraftRequest request = buildFormDraftRequest(null, PROVIDER_UUID, null, "{\"form\":\"data\"}");
+        FormDraftRequest request = buildFormDraftRequest(null, PROVIDER_UUID, "{\"form\":\"data\"}");
         doThrow(new IllegalArgumentException("Patient UUID is required")).when(formDraftService).saveDraft(any(FormDraftRequest.class));
 
         ResponseEntity<?> response = controller.saveDraft(request);
@@ -75,7 +75,7 @@ public class FormDraftControllerTest {
 
     @Test
     public void saveDraft_shouldReturnBadRequestWhenServiceThrowsException() {
-        FormDraftRequest request = buildFormDraftRequest(PATIENT_UUID, PROVIDER_UUID, null, "{\"form\":\"data\"}");
+        FormDraftRequest request = buildFormDraftRequest(PATIENT_UUID, PROVIDER_UUID, "{\"form\":\"data\"}");
         doThrow(new RuntimeException("Unexpected error")).when(formDraftService).saveDraft(any(FormDraftRequest.class));
 
         ResponseEntity<?> response = controller.saveDraft(request);
@@ -156,11 +156,10 @@ public class FormDraftControllerTest {
 
     // --- Helpers ---
 
-    private FormDraftRequest buildFormDraftRequest(String patientUuid, String providerUuid, String encounterUuid, String formData) {
+    private FormDraftRequest buildFormDraftRequest(String patientUuid, String providerUuid, String formData) {
         FormDraftRequest request = new FormDraftRequest();
         request.setPatientUuid(patientUuid);
         request.setProviderUuid(providerUuid);
-        request.setEncounterUuid(encounterUuid);
         request.setFormData(formData);
         return request;
     }

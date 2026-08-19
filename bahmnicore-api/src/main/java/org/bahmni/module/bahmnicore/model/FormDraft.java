@@ -1,7 +1,6 @@
 package org.bahmni.module.bahmnicore.model;
 
 import org.openmrs.BaseChangeableOpenmrsData;
-import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.User;
 
@@ -12,8 +11,6 @@ public class FormDraft extends BaseChangeableOpenmrsData {
     private String uuid;
 
     private Patient patient;
-
-    private Encounter encounter;  // nullable — populated once encounter is created
 
     private User user;
 
@@ -48,14 +45,6 @@ public class FormDraft extends BaseChangeableOpenmrsData {
 
     public void setPatient(Patient patient) {
         this.patient = patient;
-    }
-
-    public Encounter getEncounter() {
-        return encounter;
-    }
-
-    public void setEncounter(Encounter encounter) {
-        this.encounter = encounter;
     }
 
     public User getUser() {
