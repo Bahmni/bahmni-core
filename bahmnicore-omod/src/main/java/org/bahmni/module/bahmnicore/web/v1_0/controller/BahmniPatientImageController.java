@@ -17,6 +17,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 
+/**
+ * @deprecated This API is deprecated because it returns a default image when patient image doesn't exist.
+ *             If you don't want a default image, use V2: /openmrs/ws/rest/v2/patientImage
+ */
+@Deprecated
 @Controller
 @RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/patientImage")
 public class BahmniPatientImageController extends BaseRestController {
