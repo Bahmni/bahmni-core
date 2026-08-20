@@ -33,10 +33,10 @@ public class BahmniPatientImageController extends BaseRestController {
         UserContext userContext = Context.getUserContext();
         if (userContext.isAuthenticated()) {
             if (!userContext.hasPrivilege(PrivilegeConstants.GET_PATIENT_PHOTO)) {
-                return new ResponseEntity<Object>(new Object(), HttpStatus.FORBIDDEN);
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
             return patientDocumentService.retriveImageWithoutDefault(patientUuid);
         }
-        return new ResponseEntity<Object>(new Object(), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 }
