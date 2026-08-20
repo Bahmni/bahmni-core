@@ -2,6 +2,7 @@ package org.bahmni.module.bahmnicore.web.v2_0.controller;
 
 import org.bahmni.module.bahmnicore.security.PrivilegeConstants;
 import org.bahmni.module.bahmnicore.service.PatientDocumentService;
+import org.bahmni.module.bahmnicore.util.WebUtils;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.context.UserContext;
 import org.openmrs.module.webservices.rest.web.RestConstants;
@@ -33,7 +34,7 @@ public class BahmniPatientImageController extends BaseRestController {
         UserContext userContext = Context.getUserContext();
         if (userContext.isAuthenticated()) {
             if (!userContext.hasPrivilege(PrivilegeConstants.GET_PATIENT_PHOTO)) {
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                return new ResponseEntity<>(WebUtils.wrapErrorResponse(null, "Insufficient privilege"), HttpStatus.FORBIDDEN);
             }
             return patientDocumentService.retriveImageWithoutDefault(patientUuid);
         }
