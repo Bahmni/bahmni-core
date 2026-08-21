@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -76,6 +77,7 @@ public class BahmniPatientImageControllerTest {
 
         verify(patientDocumentService, never()).retriveImageWithoutDefault(patientUuid);
         assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+        assertTrue(responseEntity.getBody().toString().contains("User doesn't have Get Patient Photo privilege"));
     }
 
     @Test
