@@ -27,7 +27,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.Paths;
 import java.util.HashMap;
 
 @Controller
@@ -74,7 +73,6 @@ public class VisitDocumentController extends BaseRestController {
                 encounterTypeName = administrationService.getGlobalProperty("bahmni.encounterType.default");
             }
             String fileName = sanitizeFileName(document.getFileName());
-            Paths.get(fileName);
 
             if (!StringUtils.isEmpty(maxDocumentSize)) {
                 Long maxDocumentSizeMb = Long.parseLong(maxDocumentSize);
@@ -121,7 +119,9 @@ public class VisitDocumentController extends BaseRestController {
 
     private String sanitizeFileName(String fileName) {
         if (fileName == null) return "";
-        return fileName.trim().replaceAll(" ", "-").replaceAll("__", "_");
+        // Whitelist: only allow alphanumerics, dot, dash, underscore.
+        // This blocks path-traversal characters (/, \, ..) and null bytes.
+        return fileName.trim().replaceAll("[^a-zA-Z0-9._-]", "-").replaceAll("__", "_");
     }
 
 }

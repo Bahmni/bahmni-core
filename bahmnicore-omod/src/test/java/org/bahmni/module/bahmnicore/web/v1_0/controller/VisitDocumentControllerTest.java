@@ -31,6 +31,8 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -173,7 +175,7 @@ public class VisitDocumentControllerTest {
     }
 
     @Test
-    public void shouldFailIfFileNameWithSpecialCharsOtherThanDashAndUnderscoreIsPassedInRequest() throws Exception {
+    public void shouldSanitizeSlashInFileName() throws Exception {
         PowerMockito.mockStatic(Context.class);
         PowerMockito.when(Context.getPatientService()).thenReturn(patientService);
         Patient patient = new Patient();
@@ -184,6 +186,31 @@ public class VisitDocumentControllerTest {
         Document document = new Document("abcd", "jpeg", "consultation", "patient-uuid", "image", "file/name");
 
         visitDocumentController.saveDocument(document);
+
+        verify(patientDocumentService).saveDocument(
+                eq(1), eq("consultation"), eq("abcd"), eq("jpeg"), eq("image"),
+                argThat(name -> !name.contains("/"))
+        );
+    }
+
+    @Test
+    public void shouldSanitizePathTraversalSequenceInFileName() throws Exception {
+        PowerMockito.mockStatic(Context.class);
+        PowerMockito.when(Context.getPatientService()).thenReturn(patientService);
+        Patient patient = new Patient();
+        patient.setId(1);
+        patient.setUuid("patient-uuid");
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+
+        Document document = new Document("abcd", "jpeg", "consultation", "patient-uuid", "image", "../../etc/passwd");
+
+        visitDocumentController.saveDocument(document);
+
+        // slashes are replaced so the sanitized name contains no path traversal sequences
+        verify(patientDocumentService).saveDocument(
+                eq(1), eq("consultation"), eq("abcd"), eq("jpeg"), eq("image"),
+                argThat(name -> !name.contains("/") && !name.contains("\\"))
+        );
     }
 
     @Test

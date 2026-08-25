@@ -117,7 +117,16 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
         if (!absoluteFileDirectory.exists()) {
             absoluteFileDirectory.mkdirs();
         }
-        return String.format("%s/%s", documentDirectory, fileName);
+        return buildAndValidateRelativePath(basePath, documentDirectory, fileName);
+    }
+
+    private String buildAndValidateRelativePath(String basePath, String directory, String fileName) {
+        String relativePath = String.format("%s/%s", directory, fileName);
+        Path base = Paths.get(basePath).toAbsolutePath().normalize();
+        if (!base.resolve(relativePath).normalize().startsWith(base)) {
+            throw new BahmniCoreException("Invalid document file path - potential path traversal detected");
+        }
+        return relativePath;
     }
 
     private String findDirectoryForDocumentsByPatientId(Integer patientId) {
@@ -219,9 +228,9 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
         }
         String docLocation = getBasePath();
         log.debug(String.format("Document path: %s", docLocation));
-        Path docLocationPath = Paths.get(docLocation);
-        Path filePath = Paths.get(docLocation, fileName).normalize();
-        if (!filePath.startsWith(docLocationPath) || !filePath.toFile().exists()) {
+        Path base = Paths.get(docLocation).toAbsolutePath().normalize();
+        Path filePath = base.resolve(fileName).normalize();
+        if (!filePath.startsWith(base) || !filePath.toFile().exists()) {
             String invalidFileError = String.format(INVALID_FILE_SPECIFIED.concat(": %s"), fileName);
             log.error(invalidFileError);
             throw new RuntimeException(invalidFileError);
