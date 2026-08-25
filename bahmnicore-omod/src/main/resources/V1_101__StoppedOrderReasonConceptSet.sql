@@ -17,7 +17,10 @@ FROM concept_datatype dt, concept_class cc
 WHERE dt.name = 'N/A' AND cc.name = 'Misc'
   AND @refusedToTakeConceptId IS NULL;
 
-SET @refusedToTakeConceptId := IFNULL(@refusedToTakeConceptId, (SELECT MAX(concept_id) FROM concept));
+SET @refusedToTakeConceptId := IFNULL(
+    @refusedToTakeConceptId,
+    IF(ROW_COUNT() > 0, LAST_INSERT_ID(), NULL)
+);
 
 INSERT INTO concept_name (concept_id, name, locale, locale_preferred, creator, date_created, concept_name_type, uuid)
 SELECT @refusedToTakeConceptId, 'Refused To Take', 'en', 1, 1, now(), 'FULLY_SPECIFIED', uuid()
