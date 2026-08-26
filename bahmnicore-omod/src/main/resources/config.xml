@@ -106,6 +106,10 @@
         <name>Import CSV Files</name>
         <description>Ability to import data from CSV Files</description>
     </privilege>
+    <privilege>
+        <name>Get Patient Photo</name>
+        <description>Ability to view patient photo</description>
+    </privilege>
 
     <advice>
         <point>org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService</point>
