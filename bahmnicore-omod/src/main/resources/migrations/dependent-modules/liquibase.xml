@@ -11,22 +11,318 @@
 
     <changeSet id="bahmni-setup-1" author="tw" context="rel2">
         <comment>rel2</comment>
-        <sqlFile path="migrations/dependent-modules/V1_07__AddOnStartupRolesPrivileges.sql"/>
+        <sql><![CDATA[
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Add Allergies','Add allergies',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Add HL7 Inbound Archive','Able to add an HL7 archive item',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Add HL7 Inbound Exception','Able to add an HL7 error item',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Add HL7 Inbound Queue','Able to add an HL7 Queue item',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Add HL7 Source','Able to add an HL7 Source',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Add Problems','Add problems',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Add Visits','Able to add visits',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Configure Visits','Able to choose encounter visit handler and enable/disable encounter visits',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Delete HL7 Inbound Archive','Able to delete/retire an HL7 archive item',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Delete HL7 Inbound Exception','Able to delete an HL7 archive item',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Delete HL7 Inbound Queue','Able to delete an HL7 Queue item',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Delete Visits','Able to delete visits',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Edit Allergies','Able to edit allergies',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Edit Problems','Able to edit problems',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Edit Visits','Able to edit visits',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage Address Hierarchy','Able to add/edit/delete address hierarchies',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage Address Templates','Able to add/edit/delete address templates',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage Concept Map Types','Able to add/edit/retire concept map types',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage Concept Name tags','Able to add/edit/delete concept name tags',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage Concept Reference Terms','Able to add/edit/retire reference terms',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage Concept Stop Words','Able to view/add/remove the concept stop words',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage Encounter Roles','Able to add/edit/retire encounter roles',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage HL7 Messages','Able to add/edit/delete HL7 messages',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage Implementation Id','Able to view/add/edit the implementation id for the system',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage Location Attribute Types','Able to add/edit/retire location attribute types',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage Location Tags','Able to add/edit/delete location tags',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage Providers','Able to edit Provider',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage Rule Definitions','Allows creation and editing of user-defined rules',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage Tokens','Allows registering and removal of tokens',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage Visit Attribute Types','Able to add/edit/retire visit attribute types',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Manage Visit Types','Able to add/edit/delete visit types',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Patient Dashboard - View Visits Section','Able to view the \'Visits\' tab on the patient dashboard',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Remove Allergies','Remove allergies',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Remove Problems','Remove problems',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Update HL7 Inbound Archive','Able to update an HL7 archive item',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Update HL7 Inbound Exception','Able to update an HL7 archive item',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Update HL7 Inbound Queue','Able to update an HL7 Queue item',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('Update HL7 Source','Able to update an HL7 Source',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('View Concept Map Types','Able to view concept map types',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('View Concept Reference Terms','Able to view concept reference terms',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('View Database Changes','Able to view database changes from the admin screen',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('View Encounter Roles','Able to view encounter roles',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('View HL7 Inbound Archive','Able to view an HL7 archive item',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('View HL7 Inbound Exception','Able to view an HL7 archive item',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('View HL7 Inbound Queue','Able to view an HL7 Queue item',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('View HL7 Source','Able to view an HL7 Source',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('View Location Attribute Types','Able to view location attribute types',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('View Providers','Able to view Provider',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('View Rule Definitions','Allows viewing of user-defined rules. (This privilege is not necessary to run rules under normal usage.)',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('View Visit Attribute Types','Able to view visit attribute types',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('View Visit Types','Able to view visit types',uuid());
+INSERT INTO `privilege` (`privilege`,`description`,`uuid`) VALUES ('View Visits','Able to view visits',uuid());
+]]></sql>
     </changeSet>
 
     <changeSet id="bahmni-setup-2" author="tw" context="rel2">
         <comment>rel2</comment>
-        <sqlFile path="migrations/dependent-modules/V1_08__AddressHierarchy.sql"/>
+        <sql><![CDATA[
+CREATE TABLE IF NOT EXISTS address_hierarchy_type
+(
+    location_attribute_type_id int(11) NOT NULL auto_increment,
+    name varchar(160) NOT NULL,
+    PRIMARY KEY (location_attribute_type_id)
+);
+
+CREATE TABLE IF NOT EXISTS address_hierarchy
+(
+    location_attribute_type_value_id int(11) NOT NULL auto_increment,
+    name varchar(160) NOT NULL,
+    type_id int(11) NOT NULL,
+    parent_location_attribute_type_value_id int(11),
+    PRIMARY KEY (`location_attribute_type_value_id`),
+    KEY `parent_location_id` (`parent_location_attribute_type_value_id`),
+    KEY `location_type_id` (`type_id`),
+    CONSTRAINT `parent_location_id` FOREIGN KEY (`parent_location_attribute_type_value_id`) REFERENCES `address_hierarchy` (`location_attribute_type_value_id`),
+    CONSTRAINT `location_type_id` FOREIGN KEY (`type_id`) REFERENCES `address_hierarchy_type` (`location_attribute_type_id`)
+);
+
+ALTER TABLE address_hierarchy ADD COLUMN user_generated_id varchar(11);
+ALTER TABLE address_hierarchy DROP FOREIGN KEY location_type_id;
+ALTER TABLE address_hierarchy DROP KEY location_type_id;
+ALTER TABLE address_hierarchy DROP FOREIGN KEY parent_location_id;
+ALTER TABLE address_hierarchy DROP KEY parent_location_id;
+
+ALTER TABLE address_hierarchy CHANGE COLUMN location_attribute_type_value_id `address_hierarchy_id` int(11) NOT NULL auto_increment;
+ALTER TABLE address_hierarchy CHANGE COLUMN parent_location_attribute_type_value_id `parent_id` int(11);
+
+ALTER TABLE address_hierarchy ADD KEY `parent_location_id` (`parent_id`);
+ALTER TABLE address_hierarchy ADD CONSTRAINT `parent_location_id` FOREIGN KEY (`parent_id`) REFERENCES `address_hierarchy` (`address_hierarchy_id`);
+ALTER TABLE address_hierarchy ADD KEY `location_type_id` (`type_id`);
+ALTER TABLE address_hierarchy ADD CONSTRAINT `location_type_id` FOREIGN KEY (`type_id`) REFERENCES `address_hierarchy_type` (`location_attribute_type_id`);
+
+ALTER TABLE address_hierarchy_type ADD COLUMN `parent_type_id` int(11) default NULL;
+ALTER TABLE address_hierarchy_type ADD COLUMN `child_type_id` int(11) default NULL;
+
+DROP TABLE IF EXISTS unstructured_address;
+ALTER TABLE address_hierarchy add column latitude double, add column longitude double, add column elevation double;
+
+create index name_ah on address_hierarchy(name);
+
+ALTER TABLE address_hierarchy DROP FOREIGN KEY location_type_id;
+ALTER TABLE address_hierarchy_type CHANGE COLUMN `location_attribute_type_id` `address_hierarchy_type_id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE address_hierarchy_type ADD COLUMN `address_field` varchar(50) NOT NULL;
+
+ALTER TABLE address_hierarchy
+ADD COLUMN `uuid` char(38)
+NOT NULL;
+
+ALTER TABLE address_hierarchy_type
+ADD COLUMN `uuid` char(38)
+NOT NULL;
+
+UPDATE address_hierarchy SET uuid = UUID();
+UPDATE address_hierarchy_type SET uuid = UUID();
+
+ALTER TABLE address_hierarchy_type DROP COLUMN child_type_id;
+
+ALTER TABLE address_hierarchy RENAME address_hierarchy_entry;
+
+ALTER TABLE address_hierarchy_entry DROP FOREIGN KEY parent_location_id;
+ALTER TABLE address_hierarchy_entry CHANGE COLUMN `address_hierarchy_id` `address_hierarchy_entry_id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE address_hierarchy_type RENAME address_hierarchy_level;
+
+ALTER TABLE address_hierarchy_level CHANGE COLUMN `address_hierarchy_type_id` `address_hierarchy_level_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE address_hierarchy_level CHANGE COLUMN `parent_type_id` `parent_level_id` int(11);
+
+ALTER TABLE address_hierarchy_entry CHANGE COLUMN `type_id` `level_id` int(11);
+
+ALTER TABLE address_hierarchy_level CHANGE COLUMN `name` `name` varchar(160);
+
+ALTER TABLE address_hierarchy_level CHANGE COLUMN `address_field` `address_field` varchar(50);
+
+ALTER TABLE address_hierarchy_level ADD COLUMN `required` tinyint(1) NOT NULL default '0';
+
+ALTER TABLE address_hierarchy_entry CHANGE COLUMN `level_id` `level_id` int(11) NOT NULL;
+
+ALTER TABLE address_hierarchy_level ADD INDEX address_field_unique (address_field);
+ALTER TABLE address_hierarchy_level ADD UNIQUE parent_level_id_unique (parent_level_id);
+
+DROP INDEX parent_location_id ON address_hierarchy_entry;
+DROP INDEX location_type_id ON address_hierarchy_entry;
+DROP INDEX name_ah ON address_hierarchy_entry;
+ALTER TABLE address_hierarchy_entry ADD INDEX parent_name (parent_id,name(20));
+ALTER TABLE address_hierarchy_entry ADD INDEX level_name (level_id,name(20));
+
+ALTER TABLE address_hierarchy_entry ADD CONSTRAINT parent_to_parent FOREIGN KEY (parent_id) REFERENCES address_hierarchy_entry (address_hierarchy_entry_id);
+ALTER TABLE address_hierarchy_entry ADD CONSTRAINT level_to_level FOREIGN KEY (level_id) REFERENCES address_hierarchy_level (address_hierarchy_level_id);
+ALTER TABLE address_hierarchy_level ADD CONSTRAINT parent_level FOREIGN KEY (parent_level_id) REFERENCES address_hierarchy_level (address_hierarchy_level_id);
+
+ALTER TABLE address_hierarchy_entry DROP FOREIGN KEY parent_to_parent;
+ALTER TABLE address_hierarchy_entry ADD CONSTRAINT `parent-to-parent` FOREIGN KEY (`parent_id`) REFERENCES `address_hierarchy_entry` (`address_hierarchy_entry_id`) ON DELETE CASCADE;
+
+CREATE TABLE IF NOT EXISTS address_hierarchy_address_to_entry_map
+(
+    address_to_entry_map_id int(11) NOT NULL auto_increment,
+    address_id int(11) NOT NULL,
+    entry_id int(11) NOT NULL,
+    uuid char(38) NOT NULL,
+    PRIMARY KEY (address_to_entry_map_id),
+    CONSTRAINT address_id_to_person_address_table FOREIGN KEY person_address_index (address_id) REFERENCES person_address (person_address_id),
+    CONSTRAINT entry_id_to_address_hierarchy_table FOREIGN KEY address_hierarchy_index (entry_id) REFERENCES address_hierarchy_entry (address_hierarchy_entry_id)
+);
+
+-- Insert global properties
+insert into global_property (`property`, `property_value`, `description`, `uuid`)
+values ('addresshierarchy.addressToEntryMapUpdaterLastStartTime', NULL, 'The module uses this field to store when the AddressToEntryMapUpdater task was last started; DO NOT MODIFY', uuid());
+
+insert into global_property (`property`, `property_value`, `description`, `uuid`)
+values ('addresshierarchy.allowFreetext', 'true', 'Valid values: true/false. When overriding the address portlet, allow the entry of free text for address fields associated with the address hierarchy by providing an "Other" option', uuid());
+
+insert into global_property (`property`, `property_value`, `description`, `uuid`)
+values ('addresshierarchy.database_version', '2.8.0', 'DO NOT MODIFY.  Current database version number for the addresshierarchy module.', uuid());
+
+insert into global_property (`property`, `property_value`, `description`, `uuid`)
+values ('addresshierarchy.enableOverrideOfAddressPortlet', 'true', 'Valid values: true/false. When enabled, the existing "edit" component of the address portlet is overridden by the new functionality provided by the address hierarchy module', uuid());
+
+insert into global_property (`property`, `property_value`, `description`, `uuid`)
+values ('addresshierarchy.initializeAddressHierarchyCacheOnStartup', 'true', 'Sets whether to initialize the address hierarchy in-memory cache (which is used to speed up address hierarchy searches. Generally, you want to set this to "true", though developers may want to set it to false during development to speed module start-up.', uuid());
+
+insert into global_property (`property`, `property_value`, `description`, `uuid`)
+values ('addresshierarchy.mandatory', 'false', 'true/false whether or not the addresshierarchy module MUST start when openmrs starts.  This is used to make sure that mission critical modules are always running if openmrs is running.', uuid());
+
+insert into global_property (`property`, `property_value`, `description`, `uuid`)
+values ('addresshierarchy.soundexProcessor', NULL, 'If the Name Phonetics module is installed, this defines the name of a soundex algorithm used by the getPossibleFullAddresses service method.', uuid());
+]]></sql>
     </changeSet>
 
     <changeSet id="bahmni-setup-3" author="tw" context="rel2">
         <comment>rel2</comment>
-        <sqlFile path="migrations/dependent-modules/V1_09__Idgen.sql"/>
+        <sql><![CDATA[
+CREATE TABLE `idgen_identifier_source` (
+  `id` int(11) NOT NULL auto_increment,
+  `uuid` char(38) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` varchar(1000),
+  `identifier_type` int(11) NOT NULL default '0',
+  `creator` int(11) NOT NULL default '0',
+  `date_created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `changed_by` int(11) default NULL,
+	  `date_changed` datetime default NULL,
+  `retired` tinyint(1) NOT NULL default 0,
+  `retired_by` int(11) default NULL,
+	  `date_retired` datetime default NULL,
+	  `retire_reason` varchar(255) default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `id for idgen_identifier_source` (`id`),
+  KEY `identifier_type for idgen_identifier_source` (`identifier_type`),
+  KEY `creator for idgen_identifier_source` (`creator`),
+  KEY `changed_by for idgen_identifier_source` (`changed_by`),
+  KEY `retired_by for idgen_identifier_source` (`retired_by`),
+  CONSTRAINT `identifier_type for idgen_identifier_source` FOREIGN KEY (`identifier_type`) REFERENCES `patient_identifier_type` (`patient_identifier_type_id`),
+  CONSTRAINT `creator for idgen_identifier_source` FOREIGN KEY (`creator`) REFERENCES `users` (`user_id`),
+  CONSTRAINT `changed_by for idgen_identifier_source` FOREIGN KEY (`changed_by`) REFERENCES `users` (`user_id`),
+  CONSTRAINT `retired_by for idgen_identifier_source` FOREIGN KEY (`retired_by`) REFERENCES `users` (`user_id`)
+);
+
+CREATE TABLE `idgen_seq_id_gen` (
+  `id` int(11) NOT NULL,
+  `next_sequence_value` int(11) NOT NULL default -1,
+  `base_character_set` varchar(255) NOT NULL,
+  `first_identifier_base` varchar(50) NOT NULL,
+  `prefix` varchar(20),
+  `suffix` varchar(20),
+  `length` int(11),
+  PRIMARY KEY  (`id`),
+  CONSTRAINT `id for idgen_seq_id_gen` FOREIGN KEY (`id`) REFERENCES `idgen_identifier_source` (`id`)
+);
+
+CREATE TABLE `idgen_remote_source` (
+  `id` int(11) NOT NULL,
+  `url` varchar(255) NOT NULL,
+  PRIMARY KEY  (`id`),
+  CONSTRAINT `id for idgen_remote_source` FOREIGN KEY (`id`) REFERENCES `idgen_identifier_source` (`id`)
+);
+
+CREATE TABLE `idgen_id_pool` (
+  `id` int(11) NOT NULL,
+  `source` int(11),
+  `batch_size` int(11),
+  `min_pool_size` int(11),
+  `sequential` tinyint(1) NOT NULL default 0,
+  PRIMARY KEY  (`id`),
+  KEY `source for idgen_id_pool` (`source`),
+  CONSTRAINT `id for idgen_id_pool` FOREIGN KEY (`id`) REFERENCES `idgen_identifier_source` (`id`),
+  CONSTRAINT `source for idgen_id_pool` FOREIGN KEY (`source`) REFERENCES `idgen_identifier_source` (`id`)
+);
+
+CREATE TABLE `idgen_pooled_identifier` (
+  `id` int(11) NOT NULL auto_increment,
+  `uuid` char(38) NOT NULL,
+  `pool_id` int(11) NOT NULL,
+  `identifier` varchar(50) NOT NULL,
+  `date_used` datetime,
+  `comment`  varchar(255),
+  PRIMARY KEY  (`id`),
+  CONSTRAINT `pool_id for idgen_pooled_identifier` FOREIGN KEY (`pool_id`) REFERENCES `idgen_id_pool` (`id`)
+);
+
+CREATE TABLE `idgen_auto_generation_option` (
+  `id` int(11) NOT NULL auto_increment,
+  `identifier_type` int(11) unique NOT NULL,
+  `source` int(11) NOT NULL,
+  `manual_entry_enabled` tinyint(1) NOT NULL default 1,
+  `automatic_generation_enabled` tinyint(1) NOT NULL default 1,
+  PRIMARY KEY  (`id`),
+  CONSTRAINT `identifier_type for idgen_auto_generation_option` FOREIGN KEY (`identifier_type`) REFERENCES `patient_identifier_type` (`patient_identifier_type_id`),
+  CONSTRAINT `source for idgen_auto_generation_option` FOREIGN KEY (`source`) REFERENCES `idgen_identifier_source` (`id`)
+);
+
+CREATE TABLE `idgen_log_entry` (
+  `id` int(11) NOT NULL auto_increment,
+  `source` int(11) NOT NULL,
+  `identifier` varchar(50) NOT NULL,
+  `date_generated` datetime NOT NULL default '0000-00-00 00:00:00',
+  `generated_by` int(11) NOT NULL,
+	  `comment` varchar(255) default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `id for idgen_log` (`id`),
+  KEY `source for idgen_log` (`source`),
+  KEY `generated_by for idgen_log` (`generated_by`),
+  CONSTRAINT `source for idgen_log` FOREIGN KEY (`source`) REFERENCES `idgen_identifier_source` (`id`),
+  CONSTRAINT `generated_by for idgen_log` FOREIGN KEY (`generated_by`) REFERENCES `users` (`user_id`)
+);
+
+CREATE TABLE `idgen_reserved_identifier` (
+  `id` int(11) NOT NULL auto_increment,
+  `source` int(11) NOT NULL,
+  `identifier` varchar(50) NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `id for idgen_reserved_identifier` (`id`),
+  KEY `source for idgen_reserved_identifier` (`source`),
+  CONSTRAINT `source for idgen_reserved_identifier` FOREIGN KEY (`source`) REFERENCES `idgen_identifier_source` (`id`)
+);
+
+ALTER TABLE `idgen_id_pool` ADD COLUMN `refill_with_scheduled_task` tinyint(1) NOT NULL default 1;
+
+ALTER TABLE `idgen_remote_source` ADD COLUMN `user` varchar(50) ;
+ALTER TABLE `idgen_remote_source` ADD COLUMN `password` varchar(20) ;
+
+insert into global_property (`property`, `property_value`, `description`, `uuid`) values ('idgen.database_version', '2.4.1',
+'DO NOT MODIFY.  Current database version number for the idgen module.', uuid());
+]]></sql>
     </changeSet>
 
     <changeSet id="bahmni-setup-4" author="tw" context="rel3">
         <comment>rel3</comment>
-        <sqlFile path="migrations/dependent-modules/V1_73__RemoveNotNullConstraintOnAddressEntryName.sql"/>
+        <sql><![CDATA[
+ALTER TABLE address_hierarchy_entry MODIFY name varchar(160) NULL;
+]]></sql>
     </changeSet>
 
     <changeSet id="bahmni-setup-5-updated" author="tw" context="rel3">
