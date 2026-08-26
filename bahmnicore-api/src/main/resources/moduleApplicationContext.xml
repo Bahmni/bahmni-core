@@ -310,4 +310,40 @@
             <ref bean="transactionAttributeSource"/>
         </property>
     </bean>
+
+    <bean parent="serviceContext">
+        <property name="moduleService">
+            <list merge="true">
+                <value>org.bahmni.module.bahmnicore.service.FormDraftService</value>
+                <ref bean="formDraftService"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="formDraftDao" class="org.bahmni.module.bahmnicore.dao.impl.FormDraftDaoImpl">
+        <property name="sessionFactory">
+            <ref bean="sessionFactory"/>
+        </property>
+    </bean>
+
+    <bean id="formDraftServiceTarget" class="org.bahmni.module.bahmnicore.service.impl.FormDraftServiceImpl">
+        <property name="formDraftDAO">
+            <ref bean="formDraftDao"/>
+        </property>
+    </bean>
+
+    <bean id="formDraftService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="transactionManager"/>
+        </property>
+        <property name="target">
+            <ref bean="formDraftServiceTarget"/>
+        </property>
+        <property name="preInterceptors">
+            <ref bean="serviceInterceptors"/>
+        </property>
+        <property name="transactionAttributeSource">
+            <ref bean="transactionAttributeSource"/>
+        </property>
+    </bean>
 </beans>
