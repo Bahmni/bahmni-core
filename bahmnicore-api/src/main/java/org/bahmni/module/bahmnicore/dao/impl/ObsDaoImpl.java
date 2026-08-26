@@ -320,8 +320,12 @@ public class ObsDaoImpl implements ObsDao {
 
     private String commaSeparatedFormNamesPattern(List<String> formNames) {
         ArrayList<String> formPatterns = new ArrayList<>();
-        formNames.forEach(form -> formPatterns.add("\\^" + form + "\\."));
+        formNames.forEach(form -> formPatterns.add("\\^" + escapeRegexMetacharacters(form) + "\\."));
         return StringUtils.join(formPatterns, OR);
+    }
+
+    private String escapeRegexMetacharacters(String value) {
+        return value.replaceAll("([\\\\^$.|?*+()\\[\\]{}])", "\\\\$1");
     }
 
     private String commaSeparatedEncounterIds(Collection<Encounter> encounters) {
