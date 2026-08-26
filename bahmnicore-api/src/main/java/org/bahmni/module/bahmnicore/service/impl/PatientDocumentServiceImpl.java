@@ -78,21 +78,12 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
             String relativeFilePath = createFilePath(basePath, patientId, encounterTypeName, format, fileName);
 
             File outputFile = new File(String.format("%s/%s", basePath, relativeFilePath));
-            validateOutputFileIsContained(basePath, outputFile);
             saveDocumentInFile(content, format, outputFile, fileType);
 
             return relativeFilePath;
 
         } catch (IOException e) {
             throw new BahmniCoreException("[%s] : Could not save patient Document ", e);
-        }
-    }
-
-    private void validateOutputFileIsContained(String basePath, File outputFile) {
-        Path base = Paths.get(basePath).normalize();
-        Path resolved = outputFile.toPath().normalize();
-        if (!resolved.startsWith(base)) {
-            throw new BahmniCoreException("Invalid file path");
         }
     }
 
