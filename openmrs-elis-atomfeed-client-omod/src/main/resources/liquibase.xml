@@ -5,23 +5,40 @@
 
     <changeSet id="elis-atomfeed-1" author="tw" context="rel2">
         <comment>rel2</comment>
-        <sqlFile path="V1_44__AddingSchedulerTaskToProcessOpenElisPatientFeed.sql"/>
+        <sql><![CDATA[
+INSERT INTO scheduler_task_config(name, schedulable_class, start_time, start_time_pattern, repeat_interval, start_on_startup, started, created_by, date_created, uuid)
+VALUES ('OpenElis Atom Feed Client', 'org.bahmni.module.elisatomfeedclient.api.task.OpenElisAtomFeedTask', now(), 'MM/dd/yyyy HH:mm:ss', 60, 1, 1, 1,  curdate(), uuid());
+]]></sql>
     </changeSet>
     <changeSet id="elis-atomfeed-2" author="tw" context="rel2">
         <comment>rel2</comment>
-        <sqlFile path="V1_45__UpdatingOpenElisAtomFeedSchedulerTaskToNotStartUpAutomatically.sql"/>
+        <sql><![CDATA[
+UPDATE scheduler_task_config SET start_on_startup = 0 WHERE name = 'OpenElis Atom Feed Client';
+]]></sql>
     </changeSet>
     <changeSet id="elis-atomfeed-3" author="tw" context="rel2">
         <comment>rel2</comment>
-        <sqlFile path="V1_50__UpdatingOpenElisAtomFeedSchedulerTaskToRunEvery15Seconds.sql"/>
+        <sql><![CDATA[
+UPDATE scheduler_task_config SET repeat_interval = 15 WHERE name = 'OpenElis Atom Feed Client';
+]]></sql>
     </changeSet>
     <changeSet id="elis-atomfeed-4" author="tw" context="rel2">
         <comment>rel2</comment>
-        <sqlFile path="V1_52__StartOpenElisAtomFeedSchedulerTaskToStartAutomatically.sql"/>
+        <sql><![CDATA[
+UPDATE scheduler_task_config SET start_on_startup = 1 WHERE name = 'OpenElis Atom Feed Client';
+]]></sql>
     </changeSet>
     <changeSet id="elis-atomfeed-5" author="tw" context="rel3">
         <comment>rel3</comment>
-        <sqlFile path="V1_64__AddLabResultFeedScheduler.sql"/>
+        <sql><![CDATA[
+UPDATE scheduler_task_config SET 
+    schedulable_class="org.bahmni.module.elisatomfeedclient.api.task.OpenElisPatientFeedTask",
+    name = "OpenElis Patient Atom Feed Task" 
+where schedulable_class = "org.bahmni.module.elisatomfeedclient.api.task.OpenElisAtomFeedTask";
+
+INSERT INTO scheduler_task_config(name, schedulable_class, start_time, start_time_pattern, repeat_interval, start_on_startup, started, created_by, date_created, uuid)
+VALUES ('OpenElis Lab Result Atom Feed Task', 'org.bahmni.module.elisatomfeedclient.api.task.OpenElisLabResultFeedTask', now(), 'MM/dd/yyyy HH:mm:ss', 15, 1, 1, 1,  curdate(), uuid());
+]]></sql>
     </changeSet>
     <changeSet id="elis-atomfeed-6" author="tw" context="rel3">
         <comment>Add failed events job for Openelis lab result processing</comment>
