@@ -4713,4 +4713,9 @@
         </sql>
     </changeSet>
 
+    <changeSet id="bahmni-core-202608121300" author="Rohit V">
+        <comment>BAH-4689: Migrate "Stopped Order Reason" concept to a set and add "Refused To Take" as a member</comment>
+        <sqlFile path="V1_101__StoppedOrderReasonConceptSet.sql"/>
+    </changeSet>
+
 </databaseChangeLog>
