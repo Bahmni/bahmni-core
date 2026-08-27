@@ -36,6 +36,7 @@ public class ObsDaoImplIT extends BaseIntegrationTest {
     public void setUp() throws Exception {
         executeDataSet("obsTestData.xml");
         executeDataSet("patientProgramTestData.xml");
+        executeDataSet("formBuilderFormNamesTestData.xml");
 
         conceptToObsMap.put(9012, 5);
         conceptToObsMap.put(9011, 4);
@@ -177,5 +178,47 @@ public class ObsDaoImplIT extends BaseIntegrationTest {
         assertEquals(2, observations.size());
         assertEquals("2015-08-18 15:09:05.0", observations.get(0).getObsDatetime().toString());
         assertEquals("2016-08-18 15:09:05.0", observations.get(1).getObsDatetime().toString());
+    }
+
+    @Test
+    public void shouldReturnObsMatchingBenignFormNamesFilter() throws Exception {
+        String patientUuid = "86526ed5-3c11-11de-a0ba-001e378eb67a";
+        List<Integer> listOfVisitIds = Collections.singletonList(902);
+
+        List<Obs> observations = obsDao.getObsForFormBuilderForms(
+                patientUuid, Arrays.asList("Vitals"), listOfVisitIds,
+                Collections.EMPTY_LIST, null, null);
+
+        assertEquals(1, observations.size());
+        assertEquals("Bahmni^Vitals.1/5-0", observations.get(0).getFormNamespaceAndPath());
+
+        List<Obs> bloodSampleObs = obsDao.getObsForFormBuilderForms(
+                patientUuid, Arrays.asList("BloodSample"), listOfVisitIds,
+                Collections.EMPTY_LIST, null, null);
+        assertEquals(1, bloodSampleObs.size());
+        assertEquals("Bahmni^BloodSample.2/1-0", bloodSampleObs.get(0).getFormNamespaceAndPath());
+
+        List<Obs> bothForms = obsDao.getObsForFormBuilderForms(
+                patientUuid, Arrays.asList("Vitals", "BloodSample"), listOfVisitIds,
+                Collections.EMPTY_LIST, null, null);
+        assertEquals(2, bothForms.size());
+    }
+
+    @Test
+    public void shouldTreatMaliciousFormNamesPayloadAsInertDataNotSql() throws Exception {
+        String patientUuid = "86526ed5-3c11-11de-a0ba-001e378eb67a";
+        List<Integer> listOfVisitIds = Collections.singletonList(902);
+
+        String maliciousPayload = "x' OR '1'='1' -- ";
+        List<Obs> observations = obsDao.getObsForFormBuilderForms(
+                patientUuid, Arrays.asList(maliciousPayload), listOfVisitIds,
+                Collections.EMPTY_LIST, null, null);
+        assertEquals(0, observations.size());
+
+        String unionPayload = "x' UNION SELECT username, password, salt FROM users -- ";
+        List<Obs> unionAttempt = obsDao.getObsForFormBuilderForms(
+                patientUuid, Arrays.asList(unionPayload), listOfVisitIds,
+                Collections.EMPTY_LIST, null, null);
+        assertEquals(0, unionAttempt.size());
     }
 }

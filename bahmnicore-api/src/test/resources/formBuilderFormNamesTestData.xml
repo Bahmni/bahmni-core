@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+    <!-- Reuses patient 1024 (uuid 86526ed5-3c11-11de-a0ba-001e378eb67a), visit 902, encounter 40 -->
+    <!-- from obsTestData.xml. Adds obs rows carrying form_namespace_and_path so that -->
+    <!-- getObsForFormBuilderForms' REGEXP filter has real data to match against. -->
+    <obs obs_id="9101" concept_id="9011" person_id="1024" encounter_id="40"
+         obs_datetime="2008-08-18 15:09:06.0" date_created="2008-08-18 15:09:06.0"
+         uuid="a1b2c3d4-1111-11e3-bb80-f18addb6f001" creator="1" voided="0" status="FINAL"
+         form_namespace_and_path="Bahmni^Vitals.1/5-0"/>
+    <obs obs_id="9102" concept_id="9012" person_id="1024" encounter_id="40"
+         obs_datetime="2008-08-18 15:09:07.0" date_created="2008-08-18 15:09:07.0"
+         uuid="a1b2c3d4-1111-11e3-bb80-f18addb6f002" creator="1" voided="0" status="FINAL"
+         form_namespace_and_path="Bahmni^BloodSample.2/1-0"/>
+</dataset>
