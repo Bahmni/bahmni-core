@@ -232,4 +232,166 @@ public class LabOrderResult {
     public void setPreferredPanelName(String preferredPanelName) {
         this.preferredPanelName = preferredPanelName;
     }
+
+    public static class Builder {
+
+        private String orderUuid;
+        private String action;
+        private String accessionUuid;
+        private String testName;
+        private String testUnitOfMeasurement;
+        private Double minNormal;
+        private Double maxNormal;
+        private Date accessionDateTime;
+        private List<AccessionNote> accessionNotes;
+        private String uploadedFileName;
+        private Boolean referredOut;
+        private Boolean abnormal;
+        private String result;
+        private String preferredTestName;
+        private String notes;
+        private Date resultDateTime;
+        private String testUuid;
+        private String providerName;
+        private Date vsiitStartTime;
+        private String panelName;
+        private String panelUuid;
+        private String preferredPanelName;
+
+        public Builder order(String orderUuid) {
+            this.orderUuid = orderUuid;
+            return this;
+        }
+
+        public Builder action(String action) {
+            this.action = action;
+            return this;
+        }
+        public Builder accession(String accessionUuid) {
+            this.accessionUuid = accessionUuid;
+            return this;
+        }
+
+        public Builder testName(String testName) {
+            this.testName = testName;
+            return this;
+        }
+
+        public Builder uom(String uom) {
+            this.testUnitOfMeasurement = uom;
+            return this;
+        }
+
+        public Builder minNormal(Double minNormal) {
+            this.minNormal = minNormal;
+            return this;
+        }
+
+        public Builder maxNormal(Double maxNormal) {
+            this.maxNormal = maxNormal;
+            return this;
+        }
+
+        public Builder accessionDateTime(Date accessionDateTime) {
+            this.accessionDateTime = accessionDateTime;
+            return this;
+        }
+
+        public Builder result(String result) {
+            this.result = result;
+            return this;
+        }
+
+        public Builder abnormal(Boolean abnormal) {
+            this.abnormal = abnormal;
+            return this;
+        }
+
+        public Builder referredOut(Boolean referredOut) {
+            this.referredOut = referredOut;
+            return this;
+        }
+
+        public Builder uploadedFileName(String uploadedFileName) {
+            this.uploadedFileName = uploadedFileName;
+            return this;
+        }
+
+        public Builder accessionNotes(List<AccessionNote> accessionNotes) {
+            this.accessionNotes = accessionNotes;
+            return this;
+        }
+
+        public LabOrderResult build() {
+            LabOrderResult labOrderResult = new LabOrderResult();
+            labOrderResult.setOrderUuid(orderUuid);
+            labOrderResult.setAction(action);
+            labOrderResult.setTestName(testName);
+            labOrderResult.setTestUuid(testUuid);
+            labOrderResult.setResult(result);
+            labOrderResult.setTestUnitOfMeasurement(testUnitOfMeasurement);
+            labOrderResult.setAccessionUuid(accessionUuid);
+            labOrderResult.setAccessionDateTime(accessionDateTime);
+            labOrderResult.setAccessionNotes(accessionNotes);
+            labOrderResult.setMinNormal(minNormal);
+            labOrderResult.setMaxNormal(maxNormal);
+            labOrderResult.setAbnormal(abnormal);
+            labOrderResult.setReferredOut(referredOut);
+            labOrderResult.setUploadedFileName(uploadedFileName);
+            labOrderResult.setPreferredTestName(preferredTestName);
+            labOrderResult.setNotes(notes);
+            labOrderResult.setResultDateTime(resultDateTime);
+            labOrderResult.setProvider(providerName);
+            labOrderResult.setVisitStartTime(vsiitStartTime);
+            labOrderResult.setPanelName(panelName);
+            labOrderResult.setPreferredPanelName(preferredPanelName);
+            labOrderResult.setPanelUuid(panelUuid);
+            return labOrderResult;
+        }
+
+        public Builder preferredTestName(String preferredTestName) {
+            this.preferredTestName = preferredTestName;
+            return this;
+        }
+
+        public Builder notes(String notes) {
+            this.notes = notes;
+            return this;
+        }
+
+        public Builder resultDateTime(Date resultDateTime) {
+            this.resultDateTime = resultDateTime;
+            return this;
+        }
+
+        public Builder testUuid(String testUuid) {
+            this.testUuid = testUuid;
+            return this;
+        }
+
+        public Builder provider(String providerName) {
+            this.providerName = providerName;
+            return this;
+        }
+
+        public Builder visitStartTime(Date vsiitStartTime) {
+            this.vsiitStartTime = vsiitStartTime;
+            return this;
+        }
+
+        public Builder panelName(String panelName) {
+            this.panelName = panelName;
+            return this;
+        }
+
+        public Builder panelUuid(String panelUuid) {
+            this.panelUuid = panelUuid;
+            return this;
+        }
+
+        public Builder preferredPanelName(String preferredPanelName) {
+            this.preferredPanelName = preferredPanelName;
+            return this;
+        }
+    }
 }
