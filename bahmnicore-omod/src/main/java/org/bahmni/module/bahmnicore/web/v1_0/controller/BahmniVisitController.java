@@ -26,7 +26,7 @@ import java.util.List;
 import static org.bahmni.module.bahmnicore.util.MiscUtils.setUuidsForObservations;
 
 @Controller
-@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/bahmnicore/visit")
+@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/bahmnicore")
 public class BahmniVisitController extends BaseRestController {
 
     private static final String VISIT_STATUS_ATTRIBUTE_TYPE = "Visit Status";
@@ -47,7 +47,7 @@ public class BahmniVisitController extends BaseRestController {
         this.bahmniVisitSummaryMapper = new BahmniVisitSummaryMapper();
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "endVisit")
+    @RequestMapping(method = RequestMethod.POST, value = "/visit/endVisit")
     @ResponseBody
     public VisitSummary endVisitNow(@RequestParam(value = "visitUuid") String visitUuid) {
         Visit visit = endVisit(visitUuid);
@@ -59,7 +59,7 @@ public class BahmniVisitController extends BaseRestController {
         return visitService.endVisit(visit, null);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "summary")
+    @RequestMapping(method = RequestMethod.GET, value = "/visit/summary")
     @ResponseBody
     public VisitSummary getVisitInfo(@RequestParam(value = "visitUuid") String visitUuid) {
         Visit visit = bahmniVisitService.getVisitSummary(visitUuid);
@@ -75,7 +75,7 @@ public class BahmniVisitController extends BaseRestController {
         return null;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "endVisitAndCreateEncounter")
+    @RequestMapping(method = RequestMethod.POST, value = "/visit/endVisitAndCreateEncounter")
     @ResponseBody
     @Transactional
     public BahmniEncounterTransaction endVisitAndCreateNewEncounter(@RequestParam(value = "visitUuid") String visitUuid, @RequestBody BahmniEncounterTransaction bahmniEncounterTransaction) {
