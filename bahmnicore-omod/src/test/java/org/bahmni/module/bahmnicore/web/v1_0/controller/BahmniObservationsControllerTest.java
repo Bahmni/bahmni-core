@@ -2,6 +2,8 @@ package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.bahmni.module.bahmnicore.extensions.BahmniExtensions;
 import org.bahmni.module.bahmnicore.service.BahmniObsService;
+import org.bahmni.module.bahmnicore.web.contract.BahmniObservationsBatchRequest;
+import org.bahmni.module.bahmnicore.web.contract.VisitObservationsResponse;
 import org.bahmni.module.bahmnicore.web.v1_0.controller.display.controls.BahmniObservationsController;
 import org.bahmni.test.builder.VisitBuilder;
 import org.junit.Before;
@@ -172,6 +174,120 @@ public class BahmniObservationsControllerTest {
         verify(bahmniObsService, times(1)).getBahmniObservationByUuid("observationUuid");
         assertNotNull("BahmniObservation should not be null", actualBahmniObservation);
         assertEquals(expectedBahmniObservation, actualBahmniObservation);
+    }
+
+    @Test
+    public void getBatch_shouldReturnObservationsGroupedByVisit() throws Exception {
+        String visitUuid2 = "visitId2";
+        Visit visit2 = new VisitBuilder().build();
+        when(visitService.getVisitByUuid(visitUuid2)).thenReturn(visit2);
+
+        BahmniObservation obs1 = new BahmniObservationBuilder().withUuid("obs1").build();
+        BahmniObservation obs2 = new BahmniObservationBuilder().withUuid("obs2").build();
+        ArrayList<Concept> emptyConceptList = new ArrayList<>();
+        when(bahmniObsService.getObservationForVisit("visitId", null, emptyConceptList, true, null)).thenReturn(Arrays.asList(obs1));
+        when(bahmniObsService.getObservationForVisit(visitUuid2, null, emptyConceptList, true, null)).thenReturn(Arrays.asList(obs2));
+
+        BahmniObservationsBatchRequest request = new BahmniObservationsBatchRequest();
+        request.setVisitUuids(Arrays.asList("visitId", visitUuid2));
+
+        List<VisitObservationsResponse> responses = bahmniObservationsController.getBatch(request);
+
+        assertEquals(2, responses.size());
+        assertEquals("visitId", responses.get(0).getVisitUuid());
+        assertEquals(1, responses.get(0).getObservations().size());
+        assertEquals(visitUuid2, responses.get(1).getVisitUuid());
+        assertEquals(1, responses.get(1).getObservations().size());
+    }
+
+    @Test
+    public void getBatch_shouldCallGetLatestObsByVisitWhenScopeIsLatest() throws Exception {
+        BahmniObservation latestObs = new BahmniObservationBuilder().withUuid("latestObs").build();
+        when(conceptService.getConceptByName("Weight")).thenReturn(concept);
+        when(bahmniObsService.getLatestObsByVisit(visit, Arrays.asList(concept), null, true)).thenReturn(Arrays.asList(latestObs));
+
+        BahmniObservationsBatchRequest request = new BahmniObservationsBatchRequest();
+        request.setVisitUuids(Arrays.asList("visitId"));
+        request.setConcept(Arrays.asList("Weight"));
+        request.setScope("latest");
+
+        List<VisitObservationsResponse> responses = bahmniObservationsController.getBatch(request);
+
+        assertEquals(1, responses.size());
+        assertEquals("visitId", responses.get(0).getVisitUuid());
+        assertEquals(1, responses.get(0).getObservations().size());
+        verify(bahmniObsService, times(1)).getLatestObsByVisit(visit, Arrays.asList(concept), null, true);
+    }
+
+    @Test
+    public void getBatch_shouldCallGetInitialObsByVisitWhenScopeIsInitial() throws Exception {
+        BahmniObservation initialObs = new BahmniObservationBuilder().withUuid("initialObs").build();
+        when(conceptService.getConceptByName("Weight")).thenReturn(concept);
+        when(bahmniObsService.getInitialObsByVisit(visit, Arrays.asList(concept), null, true)).thenReturn(Arrays.asList(initialObs));
+
+        BahmniObservationsBatchRequest request = new BahmniObservationsBatchRequest();
+        request.setVisitUuids(Arrays.asList("visitId"));
+        request.setConcept(Arrays.asList("Weight"));
+        request.setScope("initial");
+
+        List<VisitObservationsResponse> responses = bahmniObservationsController.getBatch(request);
+
+        assertEquals(1, responses.size());
+        assertEquals("visitId", responses.get(0).getVisitUuid());
+        assertEquals(1, responses.get(0).getObservations().size());
+        verify(bahmniObsService, times(1)).getInitialObsByVisit(visit, Arrays.asList(concept), null, true);
+    }
+
+    @Test
+    public void getBatch_shouldHandleUpperCaseScopeInitial() throws Exception {
+        BahmniObservation initialObs = new BahmniObservationBuilder().withUuid("initialObs").build();
+        when(conceptService.getConceptByName("Weight")).thenReturn(concept);
+        when(bahmniObsService.getInitialObsByVisit(visit, Arrays.asList(concept), null, true)).thenReturn(Arrays.asList(initialObs));
+
+        BahmniObservationsBatchRequest request = new BahmniObservationsBatchRequest();
+        request.setVisitUuids(Arrays.asList("visitId"));
+        request.setConcept(Arrays.asList("Weight"));
+        request.setScope("INITIAL");
+
+        List<VisitObservationsResponse> responses = bahmniObservationsController.getBatch(request);
+
+        assertEquals(1, responses.size());
+        verify(bahmniObsService, times(1)).getInitialObsByVisit(visit, Arrays.asList(concept), null, true);
+    }
+
+    @Test
+    public void getBatch_shouldDefaultFilterObsWithOrdersToTrueWhenNotSet() throws Exception {
+        ArrayList<Concept> emptyConceptList = new ArrayList<>();
+        when(bahmniObsService.getObservationForVisit("visitId", null, emptyConceptList, true, null)).thenReturn(new ArrayList<>());
+
+        BahmniObservationsBatchRequest request = new BahmniObservationsBatchRequest();
+        request.setVisitUuids(Arrays.asList("visitId"));
+
+        bahmniObservationsController.getBatch(request);
+
+        verify(bahmniObsService, times(1)).getObservationForVisit("visitId", null, emptyConceptList, true, null);
+    }
+
+    @Test
+    public void getBatch_shouldReturnEmptyListWhenVisitUuidsIsNull() throws Exception {
+        BahmniObservationsBatchRequest request = new BahmniObservationsBatchRequest();
+        request.setVisitUuids(null);
+
+        List<VisitObservationsResponse> responses = bahmniObservationsController.getBatch(request);
+
+        assertEquals(0, responses.size());
+        verify(bahmniObsService, never()).getObservationForVisit("visitId", null, new ArrayList<>(), true, null);
+    }
+
+    @Test
+    public void getBatch_shouldReturnEmptyListWhenVisitUuidsIsEmpty() throws Exception {
+        BahmniObservationsBatchRequest request = new BahmniObservationsBatchRequest();
+        request.setVisitUuids(new ArrayList<>());
+
+        List<VisitObservationsResponse> responses = bahmniObservationsController.getBatch(request);
+
+        assertEquals(0, responses.size());
+        verify(bahmniObsService, never()).getObservationForVisit("visitId", null, new ArrayList<>(), true, null);
     }
 
 }
