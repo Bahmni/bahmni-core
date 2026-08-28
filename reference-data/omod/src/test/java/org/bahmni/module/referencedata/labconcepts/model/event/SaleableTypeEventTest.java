@@ -1,6 +1,6 @@
 package org.bahmni.module.referencedata.labconcepts.model.event;
 
-import org.ict4h.atomfeed.server.service.Event;
+import org.bahmni.module.eventoutbox.EMREvent;
 import org.junit.Assert;
 import org.openmrs.Concept;
 import org.junit.Test;
@@ -33,10 +33,10 @@ public class SaleableTypeEventTest {
         SaleableTypeEvent saleableTypeEvent = new SaleableTypeEvent(CONCEPT_URL, SALEABLE);
         Assert.assertEquals(true, saleableTypeEvent.isApplicable("saveConcept", new Object[]{procedureConcept}));
 
-        Event event = saleableTypeEvent.asAtomFeedEvent(new Object[]{procedureConcept});
+        EMREvent<?> event = saleableTypeEvent.asEMREvent(new Object[]{procedureConcept});
         Assert.assertNotNull(event);
         Assert.assertEquals(SALEABLE, event.getCategory());
-        Assert.assertEquals("/openmrs/ws/rest/v1/reference-data/resources/9d583329-5fb1-4e50-9420-dcbbf6991fbc", event.getContents());
+        Assert.assertEquals("/openmrs/ws/rest/v1/reference-data/resources/9d583329-5fb1-4e50-9420-dcbbf6991fbc", event.getContent());
     }
 
     @Test

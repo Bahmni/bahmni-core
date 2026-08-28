@@ -1,10 +1,8 @@
 package org.bahmni.module.referencedata.labconcepts.model.event;
 
-import org.ict4h.atomfeed.server.service.Event;
-
-import java.net.URISyntaxException;
+import org.bahmni.module.eventoutbox.EMREvent;
 
 public interface ConceptServiceOperationEvent {
-    public Event asAtomFeedEvent(Object[] arguments) throws URISyntaxException;
-    public Boolean isApplicable(String operation, Object[] arguments);
+    EMREvent<?> asEMREvent(Object[] arguments);
+    Boolean isApplicable(String operation, Object[] arguments);
 }

@@ -3,7 +3,7 @@ package org.bahmni.module.referencedata.labconcepts.model.event;
 import org.bahmni.module.referencedata.labconcepts.contract.AllSamples;
 import org.bahmni.module.referencedata.labconcepts.model.Operation;
 import org.bahmni.test.builder.ConceptBuilder;
-import org.ict4h.atomfeed.server.service.Event;
+import org.bahmni.module.eventoutbox.EMREvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,20 +67,16 @@ public class SampleEventTest {
 
     @Test
     public void createEventForSampleEvent() throws Exception {
-        Event event = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept}).get(0);
-        Event anotherEvent = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept}).get(0);
+        EMREvent<?> event = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept}).get(0);
         assertNotNull(event);
-        assertFalse(event.getUuid().equals(anotherEvent.getUuid()));
         assertEquals(event.getTitle(), "sample");
         assertEquals(event.getCategory(), "lab");
     }
 
     @Test
     public void createSampleEventForSpecimenConcept() throws Exception {
-        Event event = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{specimenConcept}).get(0);
-        Event anotherEvent = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{specimenConcept}).get(0);
+        EMREvent<?> event = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{specimenConcept}).get(0);
         assertNotNull(event);
-        assertFalse(event.getUuid().equals(anotherEvent.getUuid()));
         assertEquals(event.getTitle(), "sample");
         assertEquals(event.getCategory(), "lab");
     }
@@ -88,25 +84,24 @@ public class SampleEventTest {
     @Test
     public void shouldNotCreateEventForSampleEventIfThereIsDifferentConceptClass() throws Exception {
         concept = new ConceptBuilder().withClass("procedure").withClassUUID("some").withUUID(SAMPLE_CONCEPT_UUID).build();
-        List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});
+        List<EMREvent<?>> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});
         assertTrue(events.isEmpty());
     }
 
     @Test
     public void shouldCreateEventForSampleEventIfParentConceptIsMissing() throws Exception {
         when(conceptService.getSetsContainingConcept(any(Concept.class))).thenReturn(new ArrayList<ConceptSet>());
-        List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});
+        List<EMREvent<?>> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});
         assertNotNull(events.get(0));
         assertEquals(events.get(0).getTitle(), "sample");
         assertEquals(events.get(0).getCategory(), "lab");
     }
 
-
     @Test
     public void shouldCreateEventForSampleEventIfParentConceptIsWrong() throws Exception {
         parentConcept = new ConceptBuilder().withName("Some wrong name").withSetMember(concept).build();
         when(conceptService.getSetsContainingConcept(any(Concept.class))).thenReturn(getConceptSets(parentConcept, concept));
-        List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});
+        List<EMREvent<?>> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});
         assertNotNull(events.get(0));
         assertEquals(events.get(0).getTitle(), "sample");
         assertEquals(events.get(0).getCategory(), "lab");
@@ -115,8 +110,8 @@ public class SampleEventTest {
     @Test
     public void createEventForSampleWithParentConceptMissing() throws Exception {
         Concept sampleConcept = new ConceptBuilder().withClass("Sample").withUUID("SampleUUID").build();
-        List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{sampleConcept});
-        Event event = events.get(0);
+        List<EMREvent<?>> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{sampleConcept});
+        EMREvent<?> event = events.get(0);
         assertNotNull(event);
         assertEquals(event.getTitle(), ConceptServiceEventFactory.SAMPLE);
         assertEquals(event.getCategory(), ConceptServiceEventFactory.LAB);

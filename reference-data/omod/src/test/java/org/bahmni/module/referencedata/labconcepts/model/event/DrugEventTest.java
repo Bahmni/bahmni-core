@@ -1,7 +1,7 @@
 package org.bahmni.module.referencedata.labconcepts.model.event;
 
 import org.bahmni.test.builder.ConceptBuilder;
-import org.ict4h.atomfeed.server.service.Event;
+import org.bahmni.module.eventoutbox.EMREvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Concept;
@@ -71,10 +71,10 @@ public class DrugEventTest {
     }
 
     @Test
-    public void publishEventForDrugs() throws Exception {
-        Event event = drugEvent.asAtomFeedEvent(drugs);
+    public void publishEventForDrugs() {
+        EMREvent<?> event = drugEvent.asEMREvent(drugs);
         assertEquals(ConceptServiceEventFactory.DRUG, event.getCategory());
         assertEquals(ConceptServiceEventFactory.DRUG, event.getTitle());
-        assertEquals(String.format(ConceptServiceEventFactory.CONCEPT_URL, event.getCategory(), drug.getUuid()), event.getUri().toString());
+        assertEquals(String.format(ConceptServiceEventFactory.CONCEPT_URL, event.getCategory(), drug.getUuid()), event.getContent());
     }
 }

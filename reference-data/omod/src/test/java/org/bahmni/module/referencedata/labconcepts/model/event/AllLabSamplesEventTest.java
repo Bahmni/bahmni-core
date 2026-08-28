@@ -3,7 +3,7 @@ package org.bahmni.module.referencedata.labconcepts.model.event;
 import org.bahmni.module.referencedata.labconcepts.contract.AllSamples;
 import org.bahmni.module.referencedata.labconcepts.model.Operation;
 import org.bahmni.test.builder.ConceptBuilder;
-import org.ict4h.atomfeed.server.service.Event;
+import org.bahmni.module.eventoutbox.EMREvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,10 +52,10 @@ public class AllLabSamplesEventTest {
     @Test
     public void shouldCreateOneEventForAllLabSamplesAndSetMembers() throws Exception {
 
-        List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{parentConcept});
+        List<EMREvent<?>> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{parentConcept});
         assertEquals(events.size(), 1);
-        Event event = events.get(0);
-        assertThat(event.getUri().toString(), containsString(parentConcept.getUuid()));
+        EMREvent<?> event = events.get(0);
+        assertThat(event.getContent(), containsString(parentConcept.getUuid()));
         assertEquals(event.getTitle(), ConceptServiceEventFactory.LAB_SAMPLE);
         assertEquals(event.getCategory(), "lab");
 
