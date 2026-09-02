@@ -4827,7 +4827,7 @@
         </sql>
     </changeSet>
 
-    <changeSet id="add-form-draft-discard-on-save-property" author="Bahmni">
+    <changeSet id="add-form-draft-discard-on-save-property-toggle" author="Bahmni">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
                 SELECT COUNT(*) FROM global_property WHERE property = 'bahmni.formDraft.discardOnSave'
@@ -4836,7 +4836,7 @@
         <comment>Add global property to control whether saving a consultation discards the draft instead of marking it as saved</comment>
         <sql>
             insert into global_property (`property`, `property_value`, `description`, `uuid`)
-            values ('bahmni.formDraft.discardOnSave', 'false', 'When true, saving a consultation discards the auto-saved draft (DELETE) instead of marking it as saved (PATCH). Default is false.', uuid());
+            values ('bahmni.formDraft.discardOnSave', 'true', 'When true, saving a consultation discards the auto-saved draft (DELETE) instead of marking it as saved (PATCH). Default is false.', uuid());
         </sql>
     </changeSet>
 
