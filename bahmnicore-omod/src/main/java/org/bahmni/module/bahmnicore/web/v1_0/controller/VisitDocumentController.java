@@ -77,7 +77,9 @@ public class VisitDocumentController extends BaseRestController {
             if (!StringUtils.isEmpty(maxDocumentSize)) {
                 Long maxDocumentSizeMb = Long.parseLong(maxDocumentSize);
                 Long maxDocumentSizeBytes = maxDocumentSizeMb * 1024 * 1024;
-                if (document.getContent().length() > maxDocumentSizeBytes) {
+                // getContent() is base64, which is 4/3 the size of the file it encodes.
+                // Convert back to decoded bytes so the limit means what it says.
+                if (document.getContent().length() * 3L / 4 > maxDocumentSizeBytes) {
                     logger.warn("Uploaded document size is greater than the maximum size " + maxDocumentSizeMb + "MB");
                     savedDocument.put("maxDocumentSizeMB", maxDocumentSizeMb);
                     return new ResponseEntity<>(savedDocument, HttpStatus.PAYLOAD_TOO_LARGE);

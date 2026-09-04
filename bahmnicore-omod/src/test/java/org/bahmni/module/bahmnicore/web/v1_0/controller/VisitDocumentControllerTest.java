@@ -286,4 +286,29 @@ public class VisitDocumentControllerTest {
 
         verify(patientDocumentService, times(1)).saveDocument(1, "consultation", base64Content, "jpeg", document.getFileType(), document.getFileName());
     }
+
+    @Test
+    public void shouldSaveDocumentWhoseDecodedSizeIsUnderLimitEvenIfBase64PayloadExceedsIt() throws Exception {
+        PowerMockito.mockStatic(Context.class);
+        when(Context.getPatientService()).thenReturn(patientService);
+
+        Patient patient = new Patient();
+        patient.setId(1);
+        patient.setUuid("patient-uuid");
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+
+        when(administrationService.getGlobalProperty("bahmni.encounterType.default")).thenReturn("consultation");
+
+        Document document = new Document("abcd", "jpeg", null, "patient-uuid", "image", "file-name");
+
+        byte[] content = new byte[6 * 1024 * 1024];
+        String base64Content = Base64.getEncoder().encodeToString(content);
+        document.setContent(base64Content);
+
+        ResponseEntity<HashMap<String, Object>> responseEntity = visitDocumentController.saveDocument(document);
+
+        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+        verify(patientDocumentService, times(1)).saveDocument(1, "consultation", base64Content, "jpeg", document.getFileType(), document.getFileName());
+    }
 }
