@@ -1,8 +1,7 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.bahmni.module.bahmnicore.service.BahmniEncounterMatchDecisionService;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.bahmni.module.bahmnicore.web.v1_0.VisitClosedException;
 import org.openmrs.Encounter;
 import org.openmrs.Visit;
@@ -10,8 +9,6 @@ import org.openmrs.api.EncounterService;
 import org.openmrs.api.OrderEntryException;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterSearchParameters;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
-import org.openmrs.module.bahmniemrapi.encountertransaction.contract.EncounterMatchRequest;
-import org.openmrs.module.bahmniemrapi.encountertransaction.contract.EncounterMatchResponse;
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.BahmniEncounterTransactionMapper;
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService;
 import org.openmrs.module.emrapi.encounter.EmrEncounterService;
@@ -20,7 +17,6 @@ import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.v1_0.controller.BaseRestController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -41,7 +37,6 @@ public class BahmniEncounterController extends BaseRestController {
     private EncounterTransactionMapper encounterTransactionMapper;
     private BahmniEncounterTransactionService bahmniEncounterTransactionService;
     private BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper;
-    private BahmniEncounterMatchDecisionService encounterMatchDecisionService;
     private static Logger logger = LogManager.getLogger(BahmniEncounterController.class);
 
     public BahmniEncounterController() {
@@ -51,20 +46,12 @@ public class BahmniEncounterController extends BaseRestController {
     public BahmniEncounterController(EncounterService encounterService,
                                      EmrEncounterService emrEncounterService, EncounterTransactionMapper encounterTransactionMapper,
                                      BahmniEncounterTransactionService bahmniEncounterTransactionService,
-                                     BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper,
-                                     BahmniEncounterMatchDecisionService encounterMatchDecisionService) {
+                                     BahmniEncounterTransactionMapper bahmniEncounterTransactionMapper) {
         this.encounterService = encounterService;
         this.emrEncounterService = emrEncounterService;
         this.encounterTransactionMapper = encounterTransactionMapper;
         this.bahmniEncounterTransactionService = bahmniEncounterTransactionService;
         this.bahmniEncounterTransactionMapper = bahmniEncounterTransactionMapper;
-        this.encounterMatchDecisionService = encounterMatchDecisionService;
-    }
-
-    @RequestMapping(method = RequestMethod.POST, value = "/match-decision")
-    @ResponseBody
-    public EncounterMatchResponse matchDecision(@RequestBody EncounterMatchRequest request) {
-        return encounterMatchDecisionService.decideMatch(request);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{uuid}")
