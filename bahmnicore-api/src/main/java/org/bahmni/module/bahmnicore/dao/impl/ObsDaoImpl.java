@@ -389,4 +389,14 @@ public class ObsDaoImpl implements ObsDao {
 
         return queryToGetObs.list();
     }
+
+    @Override
+    public List<Obs> getObsForOrders(List<Order> orders) {
+        org.hibernate.query.Query query = sessionFactory.getCurrentSession().createQuery(
+                "select obs from Obs obs where obs.voided = false and obs.order in (:orders) and obs.obsGroup is null order by obs.obsDatetime desc");
+        query.setParameter("orders", orders);
+        return query.list();
+    }
+
+
 }
