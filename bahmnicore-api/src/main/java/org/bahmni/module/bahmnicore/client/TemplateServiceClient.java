@@ -1,23 +1,20 @@
-package org.bahmni.module.bahmnicore.web.v1_0.client;
+package org.bahmni.module.bahmnicore.client;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bahmni.module.bahmnicore.properties.BahmniCoreProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-@Component
 public class TemplateServiceClient {
 
     private static final Log log = LogFactory.getLog(TemplateServiceClient.class);
@@ -32,7 +29,6 @@ public class TemplateServiceClient {
     private final RestTemplate restTemplate;
     private final String baseUrl;
 
-    @Autowired
     public TemplateServiceClient() {
         this.baseUrl = BahmniCoreProperties.getProperty(URL_KEY);
         this.restTemplate = buildRestTemplate();

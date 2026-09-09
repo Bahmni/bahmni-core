@@ -1,4 +1,4 @@
-package org.bahmni.module.bahmnicore.web.v1_0.client;
+package org.bahmni.module.bahmnicore.client;
 
 import org.junit.Before;
 import org.junit.Test;

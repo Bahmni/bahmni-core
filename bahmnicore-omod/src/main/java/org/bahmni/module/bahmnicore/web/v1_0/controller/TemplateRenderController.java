@@ -1,6 +1,6 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
-import org.bahmni.module.bahmnicore.web.v1_0.client.TemplateServiceClient;
+import org.bahmni.module.bahmnicore.service.TemplateService;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.v1_0.controller.BaseRestController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,17 +23,17 @@ public class TemplateRenderController extends BaseRestController {
     static final String SESSION_ID_HEADER = "X-OpenMRS-Session-Id";
     static final String AUTH_HEADER = "X-OpenMRS-Authorization";
 
-    private final TemplateServiceClient templateServiceClient;
+    private final TemplateService templateService;
 
     @Autowired
-    public TemplateRenderController(TemplateServiceClient templateServiceClient) {
-        this.templateServiceClient = templateServiceClient;
+    public TemplateRenderController(TemplateService templateService) {
+        this.templateService = templateService;
     }
 
     @ResponseBody
     @PostMapping("/render")
     public ResponseEntity<String> render(HttpServletRequest request, @RequestBody String body) {
-        ResponseEntity<String> serviceResponse = templateServiceClient.render(buildSessionHeaders(request), body);
+        ResponseEntity<String> serviceResponse = templateService.render(buildSessionHeaders(request), body);
         return buildResponse(serviceResponse);
     }
 

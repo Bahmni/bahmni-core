@@ -279,6 +279,15 @@
         <constructor-arg ref="bahmniOdooClient"/>
     </bean>
 
+    <!-- Template Service Integration: Bean Definitions -->
+    <bean id="templateServiceClient"
+          class="org.bahmni.module.bahmnicore.client.TemplateServiceClient"/>
+
+    <bean id="templateService"
+          class="org.bahmni.module.bahmnicore.service.impl.TemplateServiceImpl">
+        <constructor-arg ref="templateServiceClient"/>
+    </bean>
+
     <bean parent="serviceContext">
         <property name="moduleService">
             <list merge="true">
