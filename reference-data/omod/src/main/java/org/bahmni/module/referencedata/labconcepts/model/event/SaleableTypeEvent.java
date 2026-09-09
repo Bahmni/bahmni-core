@@ -1,14 +1,11 @@
 package org.bahmni.module.referencedata.labconcepts.model.event;
 
-import org.ict4h.atomfeed.server.service.Event;
-import java.time.LocalDateTime;
+import org.bahmni.module.eventoutbox.EMREvent;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAttribute;
 import org.openmrs.ConceptName;
 import org.openmrs.api.context.Context;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 
 import static org.bahmni.module.referencedata.labconcepts.contract.AllSamples.ALL_SAMPLES;
@@ -42,10 +39,10 @@ public class SaleableTypeEvent implements ConceptServiceOperationEvent {
     }
 
     @Override
-    public Event asAtomFeedEvent(Object[] arguments) throws URISyntaxException {
+    public EMREvent<Concept> asEMREvent(Object[] arguments) {
         Concept concept = (Concept) arguments[0];
-        String url = String.format(this.url, RESOURCES, concept.getUuid());
-        return new Event(UUID.randomUUID().toString(), RESOURCE_TITLE, LocalDateTime.now(), new URI(url), url, this.category);
+        String restUrl = String.format(this.url, RESOURCES, concept.getUuid());
+        return new EMREvent<>(concept, this.category, RESOURCE_TITLE, null, restUrl);
     }
 
     @Override

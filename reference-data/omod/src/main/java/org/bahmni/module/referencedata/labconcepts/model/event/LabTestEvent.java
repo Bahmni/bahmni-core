@@ -1,14 +1,11 @@
 package org.bahmni.module.referencedata.labconcepts.model.event;
 
+import org.bahmni.module.eventoutbox.EMREvent;
 import org.bahmni.module.referencedata.helper.ConceptHelper;
-import org.ict4h.atomfeed.server.service.Event;
-import java.time.LocalDateTime;
 import org.openmrs.Concept;
 import org.openmrs.api.context.Context;
 
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.UUID;
 
 import static org.bahmni.module.referencedata.labconcepts.contract.LabTest.LAB_TEST_CONCEPT_CLASSES;
 import static org.bahmni.module.referencedata.labconcepts.mapper.ConceptExtension.isOfAnyConceptClass;
@@ -35,14 +32,12 @@ public class LabTestEvent extends ConceptOperationEvent {
     }
 
     @Override
-    public Event asAtomFeedEvent(Object[] arguments) throws URISyntaxException {
+    public EMREvent<Concept> asEMREvent(Object[] arguments) {
         Concept concept = (Concept) arguments[0];
         if (!isOfAnyConceptClass(concept, LAB_TEST_CONCEPT_CLASSES)) {
             concept = getParentOfTypeLabTest(concept);
         }
-        String url = String.format(this.url, title, concept.getUuid());
-        return new Event(UUID.randomUUID().toString(), title, LocalDateTime.now(), url, url, category);
+        String restUrl = String.format(this.url, title, concept.getUuid());
+        return new EMREvent<>(concept, category, title, null, restUrl);
     }
-
-
 }

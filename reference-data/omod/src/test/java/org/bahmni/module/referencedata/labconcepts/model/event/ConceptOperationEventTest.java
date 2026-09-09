@@ -1,7 +1,7 @@
 package org.bahmni.module.referencedata.labconcepts.model.event;
 
 import org.bahmni.test.builder.ConceptBuilder;
-import org.ict4h.atomfeed.server.service.Event;
+import org.bahmni.module.eventoutbox.EMREvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,11 +59,11 @@ public class ConceptOperationEventTest {
 
 
     @Test
-    public void triggerAtomfeedEvent() throws Exception {
-        Event event = conceptOperationEvent.asAtomFeedEvent(arguments);
+    public void triggerEMREvent() {
+        EMREvent<?> event = conceptOperationEvent.asEMREvent(arguments);
         assertEquals(CATEGORY, event.getCategory());
         assertEquals(TITLE, event.getTitle());
-        assertEquals(URL, event.getUri().toString());
+        assertEquals(URL, event.getContent());
     }
 
     @Test

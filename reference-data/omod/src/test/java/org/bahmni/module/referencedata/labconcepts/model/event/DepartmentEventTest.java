@@ -3,7 +3,7 @@ package org.bahmni.module.referencedata.labconcepts.model.event;
 import org.bahmni.module.referencedata.labconcepts.contract.Department;
 import org.bahmni.module.referencedata.labconcepts.model.Operation;
 import org.bahmni.test.builder.ConceptBuilder;
-import org.ict4h.atomfeed.server.service.Event;
+import org.bahmni.module.eventoutbox.EMREvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +23,6 @@ import java.util.Locale;
 
 import static org.bahmni.module.referencedata.labconcepts.advice.ConceptServiceEventInterceptorTest.getConceptSets;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -61,10 +60,8 @@ public class DepartmentEventTest {
 
     @Test
     public void createEventForDepartmentEvent() throws Exception {
-        Event event = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept}).get(0);
-        Event anotherEvent = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept}).get(0);
+        EMREvent<?> event = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept}).get(0);
         assertNotNull(event);
-        assertFalse(event.getUuid().equals(anotherEvent.getUuid()));
         assertEquals(event.getTitle(), ConceptServiceEventFactory.DEPARTMENT);
         assertEquals(event.getCategory(), ConceptServiceEventFactory.LAB);
     }
@@ -72,27 +69,26 @@ public class DepartmentEventTest {
     @Test
     public void shouldNotCreateEventForDepartmentEventIfThereIsDifferentConceptClass() throws Exception {
         concept = new ConceptBuilder().withClassUUID("some").withClass("some").withUUID(DEPARTMENT_CONCEPT_UUID).build();
-        List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});
+        List<EMREvent<?>> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});
         assertTrue(events.isEmpty());
     }
 
     @Test
     public void shouldCreateEventForDepartmentEventIfParentConceptIsMissing() throws Exception {
         when(conceptService.getSetsContainingConcept(any(Concept.class))).thenReturn(new ArrayList<ConceptSet>());
-        List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});
-        Event event = events.get(0);
+        List<EMREvent<?>> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});
+        EMREvent<?> event = events.get(0);
         assertNotNull(event);
         assertEquals(event.getTitle(), ConceptServiceEventFactory.DEPARTMENT);
         assertEquals(event.getCategory(), ConceptServiceEventFactory.LAB);
     }
 
-
     @Test
     public void shouldCreateEventForDepartmentEventIfParentConceptIsWrong() throws Exception {
         parentConcept = new ConceptBuilder().withName("Some wrong name").withSetMember(concept).build();
         when(conceptService.getSetsContainingConcept(any(Concept.class))).thenReturn(getConceptSets(parentConcept, concept));
-        List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});
-        Event event = events.get(0);
+        List<EMREvent<?>> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{concept});
+        EMREvent<?> event = events.get(0);
         assertNotNull(event);
         assertEquals(event.getTitle(), ConceptServiceEventFactory.DEPARTMENT);
         assertEquals(event.getCategory(), ConceptServiceEventFactory.LAB);
@@ -101,8 +97,8 @@ public class DepartmentEventTest {
     @Test
     public void createEventForDepartmentWithParentConceptMissing() throws Exception {
         Concept departmentConcept = new ConceptBuilder().withClass("Department").withUUID("departmentUUID").build();
-        List<Event> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{departmentConcept});
-        Event event = events.get(0);
+        List<EMREvent<?>> events = new Operation(ConceptService.class.getMethod("saveConcept", Concept.class)).apply(new Object[]{departmentConcept});
+        EMREvent<?> event = events.get(0);
         assertNotNull(event);
         assertEquals(event.getTitle(), ConceptServiceEventFactory.DEPARTMENT);
         assertEquals(event.getCategory(), ConceptServiceEventFactory.LAB);
