@@ -90,6 +90,17 @@ public class PatientDocumentServiceImplTest {
     }
 
     @Test
+    public void shouldReturn404WhenPathTraversalAttemptedViaPatientUuidOnV2() {
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).thenReturn("/bahmni_data/patient_images");
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        ResponseEntity<Object> responseEntity = patientDocumentService.retriveImageWithoutDefault("../../../../tmp/secret");
+
+        assertEquals(404, responseEntity.getStatusCode().value());
+    }
+
+    @Test
     public void shouldGetImageNotFoundForIfNoImageCapturedForPatientAndNoDefaultImageNotPresent() throws Exception {
         final FileInputStream fileInputStreamMock = PowerMockito.mock(FileInputStream.class);
         PowerMockito.whenNew(FileInputStream.class).withArguments(Matchers.anyString()).thenReturn(fileInputStreamMock);
