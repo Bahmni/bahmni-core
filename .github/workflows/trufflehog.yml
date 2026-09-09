@@ -1,0 +1,30 @@
+name: TruffleHog Secret Scan
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trufflehog:
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+        with:
+          # TruffleHog diffs commit ranges, so the full history must be present.
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Secret scan
+        uses: trufflesecurity/trufflehog@20652fbbdefffcdaa493a5bf57ab2ac6b1db715b  # v3.97.1
+        with:
+          # ghcr.io/trufflesecurity/trufflehog image tag; bump with the action pin above.
+          version: 3.97.1
+          # Only credentials TruffleHog confirmed live against the provider's API
+          # fail the job. Unverified matches (vendored test fixtures, .env
+          # placeholders, strings inside .jar/.zip/.omod archives) are ignored.
+          extra_args: --results=verified
