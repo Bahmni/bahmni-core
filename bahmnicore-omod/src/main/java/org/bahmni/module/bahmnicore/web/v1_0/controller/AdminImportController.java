@@ -67,6 +67,7 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -341,10 +342,14 @@ public class AdminImportController extends BaseRestController {
 
     @RequestMapping(value = baseUrl + "/status", method = RequestMethod.GET)
     @ResponseBody
-    public List<ImportStatus> status(@RequestParam(required = false) Integer numberOfDays) throws SQLException {
+    public ResponseEntity<Serializable> status(@RequestParam(required = false) Integer numberOfDays) throws SQLException {
+        if (!hasRequiredPrivilege()) {
+            return insufficientUserPrivilegeResponse();
+        }
         numberOfDays = numberOfDays == null ? DEFAULT_NUMBER_OF_DAYS : numberOfDays;
         ImportStatusDao importStatusDao = new ImportStatusDao(new CurrentThreadConnectionProvider());
-        return importStatusDao.getImportStatusFromDate(DateUtils.addDays(new Date(), (numberOfDays * -1)));
+        List<ImportStatus> result = importStatusDao.getImportStatusFromDate(DateUtils.addDays(new Date(), (numberOfDays * -1)));
+        return new ResponseEntity<>(new ArrayList<>(result), HttpStatus.OK);
     }
 
     private <T extends org.bahmni.csv.CSVEntity> boolean importCsv(String filesDirectory, MultipartFile file, EntityPersister<T> persister,
