@@ -256,7 +256,7 @@ public class BahmniObservationsControllerTest {
     }
 
     @Test
-    public void getBatch_shouldDefaultFilterObsWithOrdersToTrueWhenNotSet() throws Exception {
+    public void getBatch_shouldDefaultFilterObsWithOrdersToTrueWhenNotSet() {
         ArrayList<Concept> emptyConceptList = new ArrayList<>();
         when(bahmniObsService.getObservationForVisit("visitId", null, emptyConceptList, true, null)).thenReturn(new ArrayList<>());
 
@@ -269,7 +269,7 @@ public class BahmniObservationsControllerTest {
     }
 
     @Test
-    public void getBatch_shouldReturnEmptyListWhenVisitUuidsIsNull() throws Exception {
+    public void getBatch_shouldReturnEmptyListWhenVisitUuidsIsNull() {
         BahmniObservationsBatchRequest request = new BahmniObservationsBatchRequest();
         request.setVisitUuids(null);
 
@@ -280,7 +280,7 @@ public class BahmniObservationsControllerTest {
     }
 
     @Test
-    public void getBatch_shouldReturnEmptyListWhenVisitUuidsIsEmpty() throws Exception {
+    public void getBatch_shouldReturnEmptyListWhenVisitUuidsIsEmpty() {
         BahmniObservationsBatchRequest request = new BahmniObservationsBatchRequest();
         request.setVisitUuids(new ArrayList<>());
 

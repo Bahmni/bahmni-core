@@ -14,6 +14,7 @@ public class BahmniObservationsBatchRequest {
     private Boolean filterObsWithOrders;
 
     public BahmniObservationsBatchRequest() {
+        // default constructor for JSON deserialization
     }
 
     public List<String> getVisitUuids() {
@@ -49,7 +50,7 @@ public class BahmniObservationsBatchRequest {
     }
 
     public Boolean getFilterObsWithOrders() {
-        return filterObsWithOrders == null ? true : filterObsWithOrders;
+        return filterObsWithOrders == null || filterObsWithOrders;
     }
 
     public void setFilterObsWithOrders(Boolean filterObsWithOrders) {
