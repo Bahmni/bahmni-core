@@ -44,6 +44,7 @@ public class BahmniObservation implements Comparable<BahmniObservation>{
     private String status;
     private String encounterTypeName;
     private String conceptFSN;
+    private String previousVersionUuid;
 
     @JsonIgnore
     private Serializable complexData;
@@ -439,5 +440,14 @@ public class BahmniObservation implements Comparable<BahmniObservation>{
 
     public String getConceptFSN() {
         return this.conceptFSN;
+    }
+
+    public String getPreviousVersionUuid() {
+        return previousVersionUuid;
+    }
+
+    public BahmniObservation setPreviousVersionUuid(String previousVersionUuid) {
+        this.previousVersionUuid = previousVersionUuid;
+        return this;
     }
 }

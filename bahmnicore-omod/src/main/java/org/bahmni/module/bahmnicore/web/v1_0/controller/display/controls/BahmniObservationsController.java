@@ -6,19 +6,20 @@ import org.bahmni.module.bahmnicore.extensions.BahmniExtensions;
 import org.bahmni.module.bahmnicore.obs.ObservationsAdder;
 import org.bahmni.module.bahmnicore.service.BahmniObsService;
 import org.bahmni.module.bahmnicore.util.MiscUtils;
-import org.bahmni.module.bahmnicore.web.v1_0.LocaleResolver;
+import org.bahmni.module.bahmnicore.web.contract.BahmniObservationsBatchRequest;
+import org.bahmni.module.bahmnicore.web.contract.VisitObservationsResponse;
 import org.openmrs.Concept;
 import org.openmrs.ConceptSearchResult;
 import org.openmrs.Visit;
-import org.openmrs.api.APIException;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.VisitService;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObservation;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.v1_0.controller.BaseRestController;
-import org.openmrs.util.LocaleUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,13 +27,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -80,6 +79,34 @@ public class BahmniObservationsController extends BaseRestController {
         sendObsToGroovyScript(getConceptNames(conceptList), observations);
 
         return observations;
+    }
+
+    @PostMapping(value = "/batch")
+    @ResponseBody
+    public List<VisitObservationsResponse> getBatch(@RequestBody BahmniObservationsBatchRequest request) {
+        List<VisitObservationsResponse> responses = new ArrayList<>();
+        List<String> conceptNames = request.getConcept();
+        List<String> obsIgnoreList = request.getObsIgnoreList();
+        boolean filterObsWithOrders = request.getFilterObsWithOrders();
+        String scope = request.getScope();
+
+        if (request.getVisitUuids() == null || request.getVisitUuids().isEmpty()) {
+            return responses;
+        }
+
+        for (String visitUuid : request.getVisitUuids()) {
+            Visit visit = visitService.getVisitByUuid(visitUuid);
+            Collection<BahmniObservation> observations;
+            if (INITIAL.equalsIgnoreCase(scope)) {
+                observations = bahmniObsService.getInitialObsByVisit(visit, MiscUtils.getConceptsForNames(conceptNames, conceptService), obsIgnoreList, filterObsWithOrders);
+            } else if (LATEST.equalsIgnoreCase(scope)) {
+                observations = bahmniObsService.getLatestObsByVisit(visit, MiscUtils.getConceptsForNames(conceptNames, conceptService), obsIgnoreList, filterObsWithOrders);
+            } else {
+                observations = bahmniObsService.getObservationForVisit(visitUuid, conceptNames, MiscUtils.getConceptsForNames(obsIgnoreList, conceptService), filterObsWithOrders, null);
+            }
+            responses.add(new VisitObservationsResponse(visitUuid, observations));
+        }
+        return responses;
     }
 
     private List<Concept> searchConceptsByName(List<String> conceptNames, Locale searchLocale) {
