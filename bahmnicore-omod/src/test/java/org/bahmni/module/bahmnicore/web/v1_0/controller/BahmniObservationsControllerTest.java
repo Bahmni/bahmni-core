@@ -57,7 +57,7 @@ public class BahmniObservationsControllerTest {
     }
 
     @Test
-    public void returnLatestObservations() throws Exception {
+    public void returnLatestObservations() {
         BahmniObservation latestObs = new BahmniObservation();
         latestObs.setUuid("initialId");
         when(bahmniObsService.getLatestObsByVisit(visit, Arrays.asList(concept), null, true)).thenReturn(Arrays.asList(latestObs));
@@ -69,7 +69,7 @@ public class BahmniObservationsControllerTest {
     }
 
     @Test
-    public void returnInitialObservation() throws Exception {
+    public void returnInitialObservation() {
         EncounterTransaction.Concept cpt = new EncounterTransaction.Concept();
         cpt.setShortName("Concept1");
 
@@ -85,7 +85,7 @@ public class BahmniObservationsControllerTest {
     }
 
     @Test
-    public void returnAllObservations() throws Exception {
+    public void returnAllObservations() {
         BahmniObservation obs = new BahmniObservation();
         List<String> conceptNames = Arrays.asList("Weight");
         ArrayList<Concept> obsIgnoreList = new ArrayList<>();
@@ -101,7 +101,7 @@ public class BahmniObservationsControllerTest {
     }
 
     @Test
-    public void shouldMakeACallToGetObsForEncounterAndConceptsSpecified() throws Exception {
+    public void shouldMakeACallToGetObsForEncounterAndConceptsSpecified() {
         ArrayList<String> conceptNames = new ArrayList<>();
         String encounterUuid = "encounterUuid";
         String obsUuid = "ObsUuid";
@@ -164,7 +164,7 @@ public class BahmniObservationsControllerTest {
     }
 
     @Test
-    public void shouldGetBahmniObservationWithTheGivenObservationUuid() throws Exception {
+    public void shouldGetBahmniObservationWithTheGivenObservationUuid() {
         String observationUuid = "observationUuid";
         BahmniObservation expectedBahmniObservation = new BahmniObservation();
         when(bahmniObsService.getBahmniObservationByUuid(observationUuid)).thenReturn(expectedBahmniObservation);
