@@ -96,6 +96,9 @@ public class BahmniObservationsController extends BaseRestController {
 
         for (String visitUuid : request.getVisitUuids()) {
             Visit visit = visitService.getVisitByUuid(visitUuid);
+            if (visit == null) {
+                continue;
+            }
             Collection<BahmniObservation> observations;
             if (INITIAL.equalsIgnoreCase(scope)) {
                 observations = bahmniObsService.getInitialObsByVisit(visit, MiscUtils.getConceptsForNames(conceptNames, conceptService), obsIgnoreList, filterObsWithOrders);

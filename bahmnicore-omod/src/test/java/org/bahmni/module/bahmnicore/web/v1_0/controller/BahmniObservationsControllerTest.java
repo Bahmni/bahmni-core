@@ -25,6 +25,8 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -277,6 +279,19 @@ public class BahmniObservationsControllerTest {
 
         assertEquals(0, responses.size());
         verify(bahmniObsService, never()).getObservationForVisit("visitId", null, new ArrayList<>(), true, null);
+    }
+
+    @Test
+    public void getBatch_shouldSkipInvalidVisitUuid() {
+        when(visitService.getVisitByUuid("invalid-uuid")).thenReturn(null);
+
+        BahmniObservationsBatchRequest request = new BahmniObservationsBatchRequest();
+        request.setVisitUuids(Arrays.asList("invalid-uuid"));
+
+        List<VisitObservationsResponse> responses = bahmniObservationsController.getBatch(request);
+
+        assertEquals(0, responses.size());
+        verify(bahmniObsService, never()).getObservationForVisit(any(), any(), any(), anyBoolean(), any());
     }
 
     @Test

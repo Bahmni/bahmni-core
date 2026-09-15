@@ -1,6 +1,8 @@
 package org.openmrs.module.bahmniemrapi.encountertransaction.command.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.module.bahmniemrapi.encountertransaction.command.EncounterDataPreSaveCommand;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
@@ -20,6 +22,8 @@ public class SurgeryObsOrderLinkPreSaveCommandImpl implements EncounterDataPreSa
 
     static final String SURGERY_SELECTION_CONCEPT_UUID_GP = "bahmnicore.order.surgerySelectionConceptUuid";
 
+    private static final Log log = LogFactory.getLog(SurgeryObsOrderLinkPreSaveCommandImpl.class);
+
     private final AdministrationService adminService;
 
     @Autowired
@@ -31,6 +35,7 @@ public class SurgeryObsOrderLinkPreSaveCommandImpl implements EncounterDataPreSa
     public BahmniEncounterTransaction update(BahmniEncounterTransaction bahmniEncounterTransaction) {
         String surgerySelectionConceptUuid = adminService.getGlobalProperty(SURGERY_SELECTION_CONCEPT_UUID_GP, "");
         if (StringUtils.isBlank(surgerySelectionConceptUuid)) {
+            log.warn("Global property '" + SURGERY_SELECTION_CONCEPT_UUID_GP + "' is not configured. Surgery order linking will be skipped.");
             return bahmniEncounterTransaction;
         }
 
