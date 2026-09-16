@@ -4718,4 +4718,36 @@
         <sqlFile path="V1_101__StoppedOrderReasonConceptSet.sql"/>
     </changeSet>
 
+    <changeSet id="provider-attribute-license-number-20260917" author="Rohit V">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM provider_attribute_type where name = 'License Number';
+            </sqlCheck>
+        </preConditions>
+        <comment>BAH-5116: Adding provider attribute type - License Number</comment>
+        <insert tableName="provider_attribute_type">
+            <column name="name" value="License Number"/>
+            <column name="description" value="License number for the provider"/>
+            <column name="datatype" value="org.openmrs.customdatatype.datatype.FreeTextDatatype"/>
+            <column name="min_occurs" valueNumeric="0"/>
+            <column name="creator" valueNumeric="1"/>
+            <column name="date_created" valueComputed="NOW()"/>
+            <column name="retired" valueNumeric="0"/>
+            <column name="uuid" valueComputed="UUID()"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="bahmni-core-202609171300" author="Rohit V">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM global_property where property = 'fhir2Extension.practitionerAttributeIdentifierSystemMap';
+            </sqlCheck>
+        </preConditions>
+        <comment>BAH-5116: Seed fhir2Extension.practitionerAttributeIdentifierSystemMap global property so License Number is exposed as a Practitioner.identifier</comment>
+        <sql>
+            insert into global_property (property, property_value, description, uuid)
+            values ('fhir2Extension.practitionerAttributeIdentifierSystemMap', 'License Number:http://fhir.bahmni.org/identifier/provider-license', 'Maps provider attribute types to FHIR Practitioner.identifier system URIs', uuid());
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
