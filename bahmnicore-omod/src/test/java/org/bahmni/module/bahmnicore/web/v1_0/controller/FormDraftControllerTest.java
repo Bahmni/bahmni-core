@@ -18,7 +18,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -74,13 +74,13 @@ public class FormDraftControllerTest {
     }
 
     @Test
-    public void saveDraft_shouldReturnBadRequestWhenServiceThrowsException() {
+    public void saveDraft_shouldReturnInternalServerErrorWhenServiceThrowsException() {
         FormDraftRequest request = buildFormDraftRequest(PATIENT_UUID, PROVIDER_UUID, "{\"form\":\"data\"}");
         doThrow(new RuntimeException("Unexpected error")).when(formDraftService).saveDraft(any(FormDraftRequest.class));
 
         ResponseEntity<?> response = controller.saveDraft(request);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
 
     @Test
@@ -104,13 +104,13 @@ public class FormDraftControllerTest {
     }
 
     @Test
-    public void markDraftAsSaved_shouldReturnBadRequestWhenServiceThrows() {
+    public void markDraftAsSaved_shouldReturnInternalServerErrorWhenServiceThrows() {
         doThrow(new RuntimeException("Service error")).when(formDraftService)
                 .markDraftAsSaved(PATIENT_UUID, PROVIDER_UUID);
 
         ResponseEntity<Object> response = controller.markDraftAsSaved(PATIENT_UUID, PROVIDER_UUID);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
 
     

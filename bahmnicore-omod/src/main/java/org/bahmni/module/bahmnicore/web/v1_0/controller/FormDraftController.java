@@ -47,7 +47,7 @@ public class FormDraftController extends BaseRestController {
             log.warn("Invalid request for draft list", e);
             return new ResponseEntity<>(WebUtils.wrapErrorResponse(null, e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            log.error("Error retrieving draft list for provider: " + providerUuid, e);
+            log.error("Error retrieving draft list for provider: {}", providerUuid.replaceAll("[\\r\\n]", ""), e);
             return new ResponseEntity<>(WebUtils.wrapErrorResponse(null, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -77,7 +77,7 @@ public class FormDraftController extends BaseRestController {
             log.error("Error saving form draft", e);
             return new ResponseEntity<>(
                     WebUtils.wrapErrorResponse(null, e.getMessage()),
-                    HttpStatus.BAD_REQUEST);
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -113,7 +113,7 @@ public class FormDraftController extends BaseRestController {
             log.error("Error retrieving form draft", e);
             return new ResponseEntity<>(
                     WebUtils.wrapErrorResponse(null, e.getMessage()),
-                    HttpStatus.BAD_REQUEST);
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -132,7 +132,7 @@ public class FormDraftController extends BaseRestController {
             @RequestParam(value = "providerUuid", required = true) String providerUuid) {
         try {
             formDraftService.markDraftAsSaved(patientUuid, providerUuid);
-            log.info("Draft marked as saved for patient: " + patientUuid + " and provider: " + providerUuid);
+            log.info("Draft marked as saved for patient: {} and provider: {}", patientUuid.replaceAll("[\\r\\n]", ""), providerUuid.replaceAll("[\\r\\n]", ""));
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             log.warn("Invalid form draft request", e);
@@ -143,7 +143,7 @@ public class FormDraftController extends BaseRestController {
             log.error("Error marking draft as saved", e);
             return new ResponseEntity<>(
                     WebUtils.wrapErrorResponse(null, e.getMessage()),
-                    HttpStatus.BAD_REQUEST);
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -172,7 +172,7 @@ public class FormDraftController extends BaseRestController {
             log.error("Error discarding form draft", e);
             return new ResponseEntity<>(
                     WebUtils.wrapErrorResponse(null, e.getMessage()),
-                    HttpStatus.BAD_REQUEST);
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

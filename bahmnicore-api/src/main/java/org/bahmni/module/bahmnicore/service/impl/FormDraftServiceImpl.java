@@ -23,6 +23,7 @@ import org.openmrs.Patient;
 import org.openmrs.Provider;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
+import org.openmrs.api.AdministrationService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.ProviderService;
 import org.openmrs.api.UserService;
@@ -44,6 +45,7 @@ public class FormDraftServiceImpl implements FormDraftService {
     private PatientService patientService;
     private UserService userService;
     private ProviderService providerService;
+    private AdministrationService administrationService;
     private User authenticatedUser;
 
     private String formDraftsBasePath;
@@ -53,7 +55,7 @@ public class FormDraftServiceImpl implements FormDraftService {
         if (appDataDir == null || appDataDir.isEmpty()) {
             throw new IllegalStateException("OPENMRS_APPLICATION_DATA_DIRECTORY system property not set");
         }
-        this.formDraftsBasePath = appDataDir + FORM_DRAFTS_SUBDIRECTORY;
+        this.formDraftsBasePath = appDataDir + File.separator + FORM_DRAFTS_SUBDIRECTORY;
     }
 
     @Autowired
@@ -74,6 +76,11 @@ public class FormDraftServiceImpl implements FormDraftService {
     @Autowired(required = false)
     public void setProviderService(ProviderService providerService) {
         this.providerService = providerService;
+    }
+
+    @Autowired(required = false)
+    public void setAdministrationService(AdministrationService administrationService) {
+        this.administrationService = administrationService;
     }
 
     protected void setFormDraftsBasePath(String basePath) {
@@ -316,7 +323,11 @@ public class FormDraftServiceImpl implements FormDraftService {
 
     @Override
     public void discardAllDrafts() {
+        List<String> filePaths = formDraftDAO.getAllNonVoidedFilePaths();
         formDraftDAO.deleteAllDrafts();
+        for (String path : filePaths) {
+            new File(path).delete();
+        }
     }
 
     @Override
@@ -345,7 +356,7 @@ public class FormDraftServiceImpl implements FormDraftService {
 
         User user = resolveUser(providerUuid);
         if (user == null) {
-            log.warn("getDraftsByProvider: no user found for providerUuid={}", providerUuid);
+            log.warn("getDraftsByProvider: no user found for providerUuid={}", providerUuid.replaceAll("[\\r\\n]", ""));
             return new ArrayList<>();
         }
 
@@ -455,12 +466,15 @@ public class FormDraftServiceImpl implements FormDraftService {
     @Override
     public void deleteDraftsOlderThanRetentionPeriod() {
         try {
-            String retentionDaysStr = Context.getAdministrationService()
-                    .getGlobalProperty(VOIDED_RETENTION_DAYS_PROPERTY);
+            AdministrationService adminService = administrationService != null ? administrationService : Context.getAdministrationService();
+            String retentionDaysStr = adminService.getGlobalProperty(VOIDED_RETENTION_DAYS_PROPERTY);
             if (retentionDaysStr == null) {
                 throw new IllegalStateException("Global property '" + VOIDED_RETENTION_DAYS_PROPERTY + "' is not set");
             }
             Integer retentionDays = Integer.parseInt(retentionDaysStr);
+            if (retentionDays < 0) {
+                throw new IllegalArgumentException("Global property '" + VOIDED_RETENTION_DAYS_PROPERTY + "' must not be negative");
+            }
             Integer deletedCount = formDraftDAO.deleteDraftsOlderThanDays(retentionDays);
             log.info("Deleted {} form drafts older than {} days", deletedCount, retentionDays);
         } catch (Exception e) {

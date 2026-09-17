@@ -27,6 +27,7 @@ import org.openmrs.PersonName;
 import org.openmrs.Provider;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
+import org.openmrs.api.AdministrationService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.ProviderService;
 import org.openmrs.api.UserService;
@@ -38,7 +39,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotEquals;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
@@ -58,6 +59,9 @@ public class FormDraftServiceImplTest {
 
     @Mock
     private ProviderService providerService;
+
+    @Mock
+    private AdministrationService administrationService;
 
     private FormDraftServiceImpl formDraftService;
     private Person person;
@@ -79,6 +83,7 @@ public class FormDraftServiceImplTest {
         formDraftService.setPatientService(patientService);
         formDraftService.setUserService(userService);
         formDraftService.setProviderService(providerService);
+        formDraftService.setAdministrationService(administrationService);
 
         // Set authenticated user for testing
         User mockUser = new User();
@@ -224,7 +229,9 @@ public class FormDraftServiceImplTest {
 
     @Test
     public void discardAllDrafts_shouldCallDaoDeleteAllDrafts() {
+        when(formDraftDAO.getAllNonVoidedFilePaths()).thenReturn(Collections.emptyList());
         formDraftService.discardAllDrafts();
+        verify(formDraftDAO).getAllNonVoidedFilePaths();
         verify(formDraftDAO).deleteAllDrafts();
     }
 
@@ -517,6 +524,18 @@ public class FormDraftServiceImplTest {
 
         assertEquals(1, results.size());
         assertNull(results.get(0).getFormName());
+    }
+
+    @Test
+    public void deleteDraftsOlderThanRetentionPeriod_shouldNotCallDaoWhenRetentionDaysIsNegative() {
+        when(administrationService.getGlobalProperty("bahmni.formDraft.voidedRetentionDays")).thenReturn("-1");
+
+        try {
+            formDraftService.deleteDraftsOlderThanRetentionPeriod();
+        } catch (RuntimeException ignored) {
+        }
+
+        verify(formDraftDAO, org.mockito.Mockito.never()).deleteDraftsOlderThanDays(org.mockito.ArgumentMatchers.anyInt());
     }
 
     // --- Helpers ---

@@ -86,6 +86,18 @@ public class FormDraftDaoImpl implements FormDraftDAO {
     }
 
     @Override
+    public List<String> getAllNonVoidedFilePaths() throws DAOException {
+        try {
+            return sessionFactory.getCurrentSession()
+                    .createQuery("SELECT formDataPath FROM FormDraft WHERE voided = false AND formDataPath IS NOT NULL", String.class)
+                    .getResultList();
+        } catch (Exception e) {
+            log.error("Error retrieving non-voided form draft file paths", e);
+            throw new DAOException("Failed to retrieve form draft file paths", e);
+        }
+    }
+
+    @Override
     public List<FormDraft> getAllByUserOrderedByDateDesc(Integer userId) throws DAOException {
         try {
             Query<FormDraft> query = sessionFactory.getCurrentSession()

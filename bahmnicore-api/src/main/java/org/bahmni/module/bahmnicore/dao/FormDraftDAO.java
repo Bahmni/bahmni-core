@@ -40,6 +40,13 @@ public interface FormDraftDAO {
     void deleteAllDrafts();
 
     /**
+     * Retrieve the file paths of all non-voided form drafts.
+     *
+     * @return list of formDataPath strings for all non-voided drafts
+     */
+    List<String> getAllNonVoidedFilePaths();
+
+    /**
      * Retrieve all non-voided, unsaved drafts for a user, ordered newest first.
      * Drafts where markedAsSaved is true are excluded.
      *
