@@ -53,6 +53,10 @@
                     <key><value>ProviderObsHandler</value></key>
                     <bean class="org.bahmni.module.bahmnicore.obs.handler.ProviderObsHandler"/>
                 </entry>
+                <entry>
+                    <key><value>SurgicalBlockObsHandler</value></key>
+                    <bean class="org.bahmni.module.bahmnicore.obs.handler.SurgicalBlockObsHandler"/>
+                </entry>
             </map>
         </property>
     </bean>

@@ -69,6 +69,9 @@ public class OMRSObsToBahmniObsMapper {
         }
         BahmniObservation bahmniObservation = etObsToBahmniObsMapper.map(observationMapper.map(obs), additionalBahmniObservationFields, Collections.singletonList(obs.getConcept()), true);
         bahmniObservation.setConceptFSN(getConceptFSNInDefaultLocale(obs, implementationLocale));
+        if (obs.getPreviousVersion() != null) {
+            bahmniObservation.setPreviousVersionUuid(obs.getPreviousVersion().getUuid());
+        }
         return bahmniObservation;
     }
 
