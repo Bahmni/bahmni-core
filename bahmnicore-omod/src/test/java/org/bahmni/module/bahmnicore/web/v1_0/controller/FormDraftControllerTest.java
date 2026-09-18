@@ -7,6 +7,10 @@ import org.bahmni.module.bahmnicore.model.FormDraft;
 import org.bahmni.module.bahmnicore.service.FormDraftService;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Person;
+import org.openmrs.Provider;
+import org.openmrs.User;
+import org.openmrs.api.ProviderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -26,8 +30,10 @@ import static org.mockito.Mockito.when;
 
 public class FormDraftControllerTest {
 
-    private FormDraftController controller;
+    private TestableFormDraftController controller;
     private FormDraftService formDraftService;
+    private ProviderService providerService;
+    private Person authenticatedPerson;
 
     private static final String PATIENT_UUID = "patient-uuid-123";
     private static final String PROVIDER_UUID = "provider-uuid-456";
@@ -37,18 +43,47 @@ public class FormDraftControllerTest {
     @Before
     public void setUp() throws Exception {
         formDraftService = mock(FormDraftService.class);
-        controller = new FormDraftController();
-        // Use reflection to inject the mock service since there's no public setter
-        java.lang.reflect.Field field = controller.getClass().getDeclaredField("formDraftService");
-        field.setAccessible(true);
-        field.set(controller, formDraftService);
+        providerService = mock(ProviderService.class);
+
+        controller = new TestableFormDraftController();
+
+        java.lang.reflect.Field serviceField = FormDraftController.class.getDeclaredField("formDraftService");
+        serviceField.setAccessible(true);
+        serviceField.set(controller, formDraftService);
+
+        java.lang.reflect.Field providerServiceField = FormDraftController.class.getDeclaredField("providerService");
+        providerServiceField.setAccessible(true);
+        providerServiceField.set(controller, providerService);
+
+        authenticatedPerson = new Person();
+        User mockUser = new User();
+        mockUser.setPerson(authenticatedPerson);
+        controller.setAuthenticatedUser(mockUser);
+
+        Provider provider = new Provider();
+        provider.setUuid(PROVIDER_UUID);
+        when(providerService.getProvidersByPerson(authenticatedPerson, false))
+                .thenReturn(Collections.singletonList(provider));
+    }
+
+    private static class TestableFormDraftController extends FormDraftController {
+        private User authenticatedUser;
+
+        @Override
+        protected User getAuthenticatedUser() {
+            return authenticatedUser;
+        }
+
+        void setAuthenticatedUser(User user) {
+            this.authenticatedUser = user;
+        }
     }
 
     @Test
     public void getDraft_shouldReturnEmptyResponseWhenNoDraftExists() {
         when(formDraftService.getDraft(PATIENT_UUID, PROVIDER_UUID)).thenReturn(null);
 
-        ResponseEntity<?> response = controller.getDraft(PATIENT_UUID, PROVIDER_UUID);
+        ResponseEntity<?> response = controller.getDraft(PATIENT_UUID);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody() instanceof FormDraftResponse);
@@ -58,15 +93,15 @@ public class FormDraftControllerTest {
     public void getDraft_shouldReturnBadRequestWhenServiceThrowsException() {
         doThrow(new IllegalArgumentException("Invalid UUID")).when(formDraftService).getDraft(PATIENT_UUID, PROVIDER_UUID);
 
-        ResponseEntity<?> response = controller.getDraft(PATIENT_UUID, PROVIDER_UUID);
+        ResponseEntity<?> response = controller.getDraft(PATIENT_UUID);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
     public void saveDraft_shouldReturnBadRequestWhenValidationFails() {
-        FormDraftRequest request = buildFormDraftRequest(null, PROVIDER_UUID, "{\"form\":\"data\"}");
-        doThrow(new IllegalArgumentException("Patient UUID is required")).when(formDraftService).saveDraft(any(FormDraftRequest.class));
+        FormDraftRequest request = buildFormDraftRequest(null, "{\"form\":\"data\"}");
+        doThrow(new IllegalArgumentException("Patient UUID is required")).when(formDraftService).saveDraft(any(FormDraftRequest.class), any(String.class));
 
         ResponseEntity<?> response = controller.saveDraft(request);
 
@@ -75,8 +110,8 @@ public class FormDraftControllerTest {
 
     @Test
     public void saveDraft_shouldReturnInternalServerErrorWhenServiceThrowsException() {
-        FormDraftRequest request = buildFormDraftRequest(PATIENT_UUID, PROVIDER_UUID, "{\"form\":\"data\"}");
-        doThrow(new RuntimeException("Unexpected error")).when(formDraftService).saveDraft(any(FormDraftRequest.class));
+        FormDraftRequest request = buildFormDraftRequest(PATIENT_UUID, "{\"form\":\"data\"}");
+        doThrow(new RuntimeException("Unexpected error")).when(formDraftService).saveDraft(any(FormDraftRequest.class), any(String.class));
 
         ResponseEntity<?> response = controller.saveDraft(request);
 
@@ -88,17 +123,7 @@ public class FormDraftControllerTest {
         doThrow(new IllegalArgumentException("Patient UUID is required")).when(formDraftService)
                 .markDraftAsSaved(null, PROVIDER_UUID);
 
-        ResponseEntity<Object> response = controller.markDraftAsSaved(null, PROVIDER_UUID);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    public void markDraftAsSaved_shouldReturnBadRequestWhenProviderUuidIsEmpty() {
-        doThrow(new IllegalArgumentException("Provider UUID is required")).when(formDraftService)
-                .markDraftAsSaved(PATIENT_UUID, "");
-
-        ResponseEntity<Object> response = controller.markDraftAsSaved(PATIENT_UUID, "");
+        ResponseEntity<Object> response = controller.markDraftAsSaved(null);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -108,7 +133,7 @@ public class FormDraftControllerTest {
         doThrow(new RuntimeException("Service error")).when(formDraftService)
                 .markDraftAsSaved(PATIENT_UUID, PROVIDER_UUID);
 
-        ResponseEntity<Object> response = controller.markDraftAsSaved(PATIENT_UUID, PROVIDER_UUID);
+        ResponseEntity<Object> response = controller.markDraftAsSaved(PATIENT_UUID);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
@@ -124,7 +149,7 @@ public class FormDraftControllerTest {
         summary.setTimestamp(1000L);
         when(formDraftService.getDraftsByProvider(PROVIDER_UUID)).thenReturn(Collections.singletonList(summary));
 
-        ResponseEntity<Object> response = controller.getDraftsByProvider(PROVIDER_UUID);
+        ResponseEntity<Object> response = controller.getDraftsByProvider();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<?> body = (List<?>) response.getBody();
@@ -136,7 +161,7 @@ public class FormDraftControllerTest {
     public void getDraftsByProvider_returns200WithEmptyList() {
         when(formDraftService.getDraftsByProvider(PROVIDER_UUID)).thenReturn(Collections.emptyList());
 
-        ResponseEntity<Object> response = controller.getDraftsByProvider(PROVIDER_UUID);
+        ResponseEntity<Object> response = controller.getDraftsByProvider();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<?> body = (List<?>) response.getBody();
@@ -145,21 +170,74 @@ public class FormDraftControllerTest {
     }
 
     @Test
-    public void getDraftsByProvider_returns400_whenProviderUuidIsInvalid() {
+    public void getDraftsByProvider_returns400_whenServiceThrowsIllegalArgument() {
         doThrow(new IllegalArgumentException("Provider UUID is required")).when(formDraftService)
-                .getDraftsByProvider("   ");
+                .getDraftsByProvider(PROVIDER_UUID);
 
-        ResponseEntity<Object> response = controller.getDraftsByProvider("   ");
+        ResponseEntity<Object> response = controller.getDraftsByProvider();
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
+    @Test
+    public void discardDraft_shouldReturnNoContentOnSuccess() {
+        ResponseEntity<Object> response = controller.discardDraft(PATIENT_UUID);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(formDraftService).discardDraft(PATIENT_UUID, PROVIDER_UUID);
+    }
+
+    @Test
+    public void getDraftsByProvider_shouldReturn403WhenAuthenticatedUserHasNoProvider() {
+        when(providerService.getProvidersByPerson(authenticatedPerson, false)).thenReturn(Collections.emptyList());
+
+        ResponseEntity<Object> response = controller.getDraftsByProvider();
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    public void saveDraft_shouldReturn403WhenAuthenticatedUserHasNoProvider() {
+        when(providerService.getProvidersByPerson(authenticatedPerson, false)).thenReturn(Collections.emptyList());
+        FormDraftRequest request = buildFormDraftRequest(PATIENT_UUID, "{\"form\":\"data\"}");
+
+        ResponseEntity<?> response = controller.saveDraft(request);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    public void getDraft_shouldReturn403WhenAuthenticatedUserHasNoProvider() {
+        when(providerService.getProvidersByPerson(authenticatedPerson, false)).thenReturn(Collections.emptyList());
+
+        ResponseEntity<?> response = controller.getDraft(PATIENT_UUID);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    public void markDraftAsSaved_shouldReturn403WhenAuthenticatedUserHasNoProvider() {
+        when(providerService.getProvidersByPerson(authenticatedPerson, false)).thenReturn(Collections.emptyList());
+
+        ResponseEntity<Object> response = controller.markDraftAsSaved(PATIENT_UUID);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    public void discardDraft_shouldReturn403WhenAuthenticatedUserHasNoProvider() {
+        when(providerService.getProvidersByPerson(authenticatedPerson, false)).thenReturn(Collections.emptyList());
+
+        ResponseEntity<Object> response = controller.discardDraft(PATIENT_UUID);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
     // --- Helpers ---
 
-    private FormDraftRequest buildFormDraftRequest(String patientUuid, String providerUuid, String formData) {
+    private FormDraftRequest buildFormDraftRequest(String patientUuid, String formData) {
         FormDraftRequest request = new FormDraftRequest();
         request.setPatientUuid(patientUuid);
-        request.setProviderUuid(providerUuid);
         request.setFormData(formData);
         return request;
     }

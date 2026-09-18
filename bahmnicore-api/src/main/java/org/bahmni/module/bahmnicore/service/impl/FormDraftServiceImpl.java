@@ -45,7 +45,6 @@ public class FormDraftServiceImpl implements FormDraftService {
     private PatientService patientService;
     private UserService userService;
     private ProviderService providerService;
-    private AdministrationService administrationService;
     private User authenticatedUser;
 
     private String formDraftsBasePath;
@@ -78,8 +77,10 @@ public class FormDraftServiceImpl implements FormDraftService {
         this.providerService = providerService;
     }
 
-    @Autowired(required = false)
-    public void setAdministrationService(AdministrationService administrationService) {
+
+    private AdministrationService administrationService;
+
+    void setAdministrationService(AdministrationService administrationService) {
         this.administrationService = administrationService;
     }
 
@@ -112,7 +113,7 @@ public class FormDraftServiceImpl implements FormDraftService {
     }
 
     @Override
-    public FormDraft saveDraft(FormDraftRequest request) {
+    public FormDraft saveDraft(FormDraftRequest request, String providerUuid) {
         try {
             validateRequest(request);
 
@@ -122,9 +123,9 @@ public class FormDraftServiceImpl implements FormDraftService {
                 throw new APIException("Patient not found with UUID: " + request.getPatientUuid());
             }
 
-            User user = resolveUser(request.getProviderUuid());
+            User user = resolveUser(providerUuid);
             if (user == null) {
-                throw new APIException("User/Provider not found with UUID: " + request.getProviderUuid());
+                throw new APIException("User/Provider not found with UUID: " + providerUuid);
             }
 
             FormDraft draft = formDraftDAO.getLatestByPatientAndUser(patient.getPatientId(), user.getUserId());
@@ -203,9 +204,6 @@ public class FormDraftServiceImpl implements FormDraftService {
     private void validateRequest(FormDraftRequest request) {
         if (request.getPatientUuid() == null || request.getPatientUuid().isEmpty()) {
             throw new IllegalArgumentException("Patient UUID is required");
-        }
-        if (request.getProviderUuid() == null || request.getProviderUuid().isEmpty()) {
-            throw new IllegalArgumentException("Provider UUID is required");
         }
         if (request.getFormData() == null || request.getFormData().isEmpty()) {
             throw new IllegalArgumentException("Form data is required");

@@ -8,9 +8,6 @@ public class FormDraftRequest {
     private String patientUuid;
 
     @JsonProperty
-    private String providerUuid;
-
-    @JsonProperty
     private String formData;
 
     public FormDraftRequest() {
@@ -22,14 +19,6 @@ public class FormDraftRequest {
 
     public void setPatientUuid(String patientUuid) {
         this.patientUuid = patientUuid;
-    }
-
-    public String getProviderUuid() {
-        return providerUuid;
-    }
-
-    public void setProviderUuid(String providerUuid) {
-        this.providerUuid = providerUuid;
     }
 
     public String getFormData() {

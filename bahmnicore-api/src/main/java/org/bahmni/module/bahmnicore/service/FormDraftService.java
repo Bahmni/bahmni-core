@@ -11,10 +11,11 @@ public interface FormDraftService {
     /**
      * Create a new form draft. Each draft gets a unique UUID.
      *
-     * @param request FormDraftRequest containing patient, provider, and form data
+     * @param request FormDraftRequest containing patient and form data
+     * @param providerUuid the UUID of the provider resolved from the authenticated session
      * @return the created FormDraft object with generated UUID
      */
-    FormDraft saveDraft(FormDraftRequest request);
+    FormDraft saveDraft(FormDraftRequest request, String providerUuid);
 
     /**
      * Retrieve the latest non-voided form draft for a patient and provider.

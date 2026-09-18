@@ -101,7 +101,7 @@ public class FormDraftServiceImplTest {
 
     @Test
     public void saveDraft_shouldCreateNewDraftWhenNoneExists() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, "{\"form\":\"data\"}");
+        FormDraftRequest request = buildRequest(PATIENT_UUID, "{\"form\":\"data\"}");
         Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
@@ -110,7 +110,7 @@ public class FormDraftServiceImplTest {
         when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(null);
         when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
 
-        FormDraft result = formDraftService.saveDraft(request);
+        FormDraft result = formDraftService.saveDraft(request, PROVIDER_UUID);
 
         assertNotNull(result);
         assertNotNull(result.getUuid());
@@ -124,7 +124,7 @@ public class FormDraftServiceImplTest {
 
     @Test
     public void saveDraft_shouldUpdateExistingDraftForSamePatientProvider() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, "{\"updated\":\"data\"}");
+        FormDraftRequest request = buildRequest(PATIENT_UUID, "{\"updated\":\"data\"}");
         Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
@@ -138,7 +138,7 @@ public class FormDraftServiceImplTest {
         when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(existingDraft);
         when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
 
-        FormDraft result = formDraftService.saveDraft(request);
+        FormDraft result = formDraftService.saveDraft(request, PROVIDER_UUID);
 
         assertEquals("existing-uuid", result.getUuid());
         assertNotNull(result.getDateChanged());
@@ -147,25 +147,19 @@ public class FormDraftServiceImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void saveDraft_shouldThrowWhenPatientUuidIsNull() {
-        FormDraftRequest request = buildRequest(null, PROVIDER_UUID, "{\"form\":\"data\"}");
-        formDraftService.saveDraft(request);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void saveDraft_shouldThrowWhenProviderUuidIsEmpty() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, "", "{\"form\":\"data\"}");
-        formDraftService.saveDraft(request);
+        FormDraftRequest request = buildRequest(null, "{\"form\":\"data\"}");
+        formDraftService.saveDraft(request, PROVIDER_UUID);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void saveDraft_shouldThrowWhenFormDataIsNull() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, null);
-        formDraftService.saveDraft(request);
+        FormDraftRequest request = buildRequest(PATIENT_UUID, null);
+        formDraftService.saveDraft(request, PROVIDER_UUID);
     }
 
     @Test
     public void saveDraft_shouldPersistFormDataPath() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, "{\"form\":\"data\"}");
+        FormDraftRequest request = buildRequest(PATIENT_UUID, "{\"form\":\"data\"}");
         Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
@@ -176,7 +170,7 @@ public class FormDraftServiceImplTest {
         ArgumentCaptor<FormDraft> captor = ArgumentCaptor.forClass(FormDraft.class);
         when(formDraftDAO.saveOrUpdate(captor.capture())).thenAnswer(inv -> inv.getArguments()[0]);
 
-        formDraftService.saveDraft(request);
+        formDraftService.saveDraft(request, PROVIDER_UUID);
 
         FormDraft saved = captor.getValue();
         assertNotNull(saved.getFormDataPath());
@@ -335,7 +329,7 @@ public class FormDraftServiceImplTest {
 
     @Test
     public void saveDraft_shouldResolveUserViaProvider() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, "{\"form\":\"data\"}");
+        FormDraftRequest request = buildRequest(PATIENT_UUID, "{\"form\":\"data\"}");
         Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
         User user = buildUser("user-uuid-999", PROVIDER_ID);
 
@@ -344,7 +338,7 @@ public class FormDraftServiceImplTest {
         when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(null);
         when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
 
-        FormDraft result = formDraftService.saveDraft(request);
+        FormDraft result = formDraftService.saveDraft(request, PROVIDER_UUID);
 
         assertNotNull(result);
         assertEquals(user, result.getUser());
@@ -352,7 +346,7 @@ public class FormDraftServiceImplTest {
 
     @Test
     public void saveDraft_shouldCreateNewDraftWhenExistingDraftIsMarkedAsSaved() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, "{\"updated\":\"data\"}");
+        FormDraftRequest request = buildRequest(PATIENT_UUID, "{\"updated\":\"data\"}");
         Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
@@ -367,7 +361,7 @@ public class FormDraftServiceImplTest {
         when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(markedDraft);
         when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
 
-        FormDraft result = formDraftService.saveDraft(request);
+        FormDraft result = formDraftService.saveDraft(request, PROVIDER_UUID);
 
         // Should create a new draft instead of updating the marked one
         assertNotNull(result.getUuid());
@@ -378,7 +372,7 @@ public class FormDraftServiceImplTest {
 
     @Test
     public void saveDraft_shouldInitializeMarkedAsSavedAsFalseForNewDraft() {
-        FormDraftRequest request = buildRequest(PATIENT_UUID, PROVIDER_UUID, "{\"form\":\"data\"}");
+        FormDraftRequest request = buildRequest(PATIENT_UUID, "{\"form\":\"data\"}");
         Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
         User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
 
@@ -389,7 +383,7 @@ public class FormDraftServiceImplTest {
         ArgumentCaptor<FormDraft> captor = ArgumentCaptor.forClass(FormDraft.class);
         when(formDraftDAO.saveOrUpdate(captor.capture())).thenAnswer(inv -> inv.getArguments()[0]);
 
-        formDraftService.saveDraft(request);
+        formDraftService.saveDraft(request, PROVIDER_UUID);
 
         FormDraft saved = captor.getValue();
         assertFalse(saved.getMarkedAsSaved());
@@ -547,10 +541,9 @@ public class FormDraftServiceImplTest {
         when(userService.getUsersByPerson(person, false)).thenReturn(Collections.singletonList(user));
     }
 
-    private FormDraftRequest buildRequest(String patientUuid, String providerUuid, String formData) {
+    private FormDraftRequest buildRequest(String patientUuid, String formData) {
         FormDraftRequest request = new FormDraftRequest();
         request.setPatientUuid(patientUuid);
-        request.setProviderUuid(providerUuid);
         request.setFormData(formData);
         return request;
     }
