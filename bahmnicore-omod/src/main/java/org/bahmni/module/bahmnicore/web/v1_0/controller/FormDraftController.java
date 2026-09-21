@@ -139,7 +139,8 @@ public class FormDraftController extends BaseRestController {
         String resolvedProviderUuid = resolveAuthenticatedProviderUuid();
         try {
             formDraftService.markDraftAsSaved(patientUuid, resolvedProviderUuid);
-            log.info("Draft marked as saved for patient: {} and provider: {}", patientUuid, resolvedProviderUuid);
+            log.info("Draft marked as saved for patient: {} and provider: {}",
+                    patientUuid.replaceAll("[\r\n]", ""), resolvedProviderUuid.replaceAll("[\r\n]", ""));
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             log.warn("Invalid form draft request", e);

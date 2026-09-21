@@ -71,4 +71,18 @@ public class FormDraft extends BaseChangeableOpenmrsData {
     public void setMarkedAsSaved(Boolean markedAsSaved) {
         this.markedAsSaved = markedAsSaved;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FormDraft)) return false;
+        FormDraft other = (FormDraft) o;
+        if (uuid != null) return uuid.equals(other.uuid);
+        return id != null && id.equals(other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return uuid != null ? uuid.hashCode() : (id != null ? id.hashCode() : 0);
+    }
 }
