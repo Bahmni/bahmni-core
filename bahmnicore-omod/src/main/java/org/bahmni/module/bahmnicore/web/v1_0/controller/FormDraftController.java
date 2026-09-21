@@ -18,18 +18,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/bahmnicore/formdraft")
 public class FormDraftController extends BaseRestController {
 
@@ -45,7 +47,6 @@ public class FormDraftController extends BaseRestController {
     }
 
     @ExceptionHandler(APIAuthenticationException.class)
-    @ResponseBody
     public ResponseEntity<Object> handleAuthenticationException(APIAuthenticationException e) {
         return new ResponseEntity<>(WebUtils.wrapErrorResponse(null, e.getMessage()), HttpStatus.FORBIDDEN);
     }
@@ -70,12 +71,7 @@ public class FormDraftController extends BaseRestController {
         return provider.getUuid();
     }
 
-    /**
-     * List all unsaved drafts for the authenticated provider.
-     * GET /rest/v1/bahmnicore/formdraft/list
-     */
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping(value = "/list")
     public ResponseEntity<Object> getDraftsByProvider() {
         String resolvedProviderUuid = resolveAuthenticatedProviderUuid();
         try {
@@ -90,15 +86,7 @@ public class FormDraftController extends BaseRestController {
         }
     }
 
-    /**
-     * Auto-save a form draft. Upserts by patient and provider UUID.
-     * POST /rest/v1/bahmnicore/formdraft
-     *
-     * @param request FormDraftRequest with patientUuid and formData
-     * @return FormDraftResponse with uuid, formData, markedAsSaved flag, and timestamp
-     */
-    @RequestMapping(method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping
     public ResponseEntity<Object> saveDraft(@RequestBody FormDraftRequest request) {
         String resolvedProviderUuid = resolveAuthenticatedProviderUuid();
         try {
@@ -120,17 +108,8 @@ public class FormDraftController extends BaseRestController {
         }
     }
 
-    /**
-     * Retrieve a form draft by patient UUID for the authenticated provider.
-     * GET /rest/v1/bahmnicore/formdraft?patientUuid=xxx
-     *
-     * @param patientUuid the UUID of the patient
-     * @return FormDraftResponse with uuid, formData, and timestamp
-     */
-    @RequestMapping(method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Object> getDraft(
-            @RequestParam(value = "patientUuid", required = true) String patientUuid) {
+    @GetMapping
+    public ResponseEntity<Object> getDraft(@RequestParam(value = "patientUuid") String patientUuid) {
         String resolvedProviderUuid = resolveAuthenticatedProviderUuid();
         try {
             FormDraft draft = formDraftService.getDraft(patientUuid, resolvedProviderUuid);
@@ -155,21 +134,12 @@ public class FormDraftController extends BaseRestController {
         }
     }
 
-    /**
-     * Mark a form draft as saved (finalized).
-     * PATCH /rest/v1/bahmnicore/formdraft?patientUuid=xxx
-     *
-     * @param patientUuid the UUID of the patient
-     * @return 200 OK on success
-     */
-    @RequestMapping(method = RequestMethod.PATCH)
-    @ResponseBody
-    public ResponseEntity<Object> markDraftAsSaved(
-            @RequestParam(value = "patientUuid", required = true) String patientUuid) {
+    @PatchMapping
+    public ResponseEntity<Object> markDraftAsSaved(@RequestParam(value = "patientUuid") String patientUuid) {
         String resolvedProviderUuid = resolveAuthenticatedProviderUuid();
         try {
             formDraftService.markDraftAsSaved(patientUuid, resolvedProviderUuid);
-            log.info("Draft marked as saved for patient: {} and provider: {}", patientUuid.replaceAll("[\\r\\n]", ""), resolvedProviderUuid.replaceAll("[\\r\\n]", ""));
+            log.info("Draft marked as saved for patient: {} and provider: {}", patientUuid, resolvedProviderUuid);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             log.warn("Invalid form draft request", e);
@@ -184,17 +154,8 @@ public class FormDraftController extends BaseRestController {
         }
     }
 
-    /**
-     * Discard (void) a form draft by patient UUID for the authenticated provider.
-     * DELETE /rest/v1/bahmnicore/formdraft?patientUuid=xxx
-     *
-     * @param patientUuid the UUID of the patient
-     * @return 204 No Content on success
-     */
-    @RequestMapping(method = RequestMethod.DELETE)
-    @ResponseBody
-    public ResponseEntity<Object> discardDraft(
-            @RequestParam(value = "patientUuid", required = true) String patientUuid) {
+    @DeleteMapping
+    public ResponseEntity<Object> discardDraft(@RequestParam(value = "patientUuid") String patientUuid) {
         String resolvedProviderUuid = resolveAuthenticatedProviderUuid();
         try {
             formDraftService.discardDraft(patientUuid, resolvedProviderUuid);

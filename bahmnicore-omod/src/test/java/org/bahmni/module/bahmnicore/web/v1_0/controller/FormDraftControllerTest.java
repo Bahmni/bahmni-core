@@ -43,7 +43,7 @@ public class FormDraftControllerTest {
     private static final String FORM_DATA_PATH = "/path/to/draft.json";
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         formDraftService = mock(FormDraftService.class);
         providerService = mock(ProviderService.class);
 

@@ -31,8 +31,6 @@ import org.openmrs.api.AdministrationService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.ProviderService;
 import org.openmrs.api.UserService;
-import org.openmrs.api.context.Context;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -40,6 +38,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
@@ -72,7 +72,7 @@ public class FormDraftServiceImplTest {
     private static final int PROVIDER_ID = 2;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
 
         // Set OPENMRS_APPLICATION_DATA_DIRECTORY for test environment
@@ -287,7 +287,7 @@ public class FormDraftServiceImplTest {
 
         formDraftService.markDraftAsSaved(PATIENT_UUID, PROVIDER_UUID);
 
-        verify(formDraftDAO, org.mockito.Mockito.never()).saveOrUpdate(any(FormDraft.class));
+        verify(formDraftDAO, never()).saveOrUpdate(any(FormDraft.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -526,10 +526,11 @@ public class FormDraftServiceImplTest {
 
         try {
             formDraftService.deleteDraftsOlderThanRetentionPeriod();
-        } catch (RuntimeException ignored) {
+        } catch (RuntimeException e) {
+            // Expected exception for negative retention days — verifying DAO is not called
         }
 
-        verify(formDraftDAO, org.mockito.Mockito.never()).deleteDraftsOlderThanDays(org.mockito.ArgumentMatchers.anyInt());
+        verify(formDraftDAO, never()).deleteDraftsOlderThanDays(anyInt());
     }
 
     @Test

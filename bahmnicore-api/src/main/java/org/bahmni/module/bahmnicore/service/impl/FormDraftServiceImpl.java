@@ -132,7 +132,7 @@ public class FormDraftServiceImpl implements FormDraftService {
             boolean isNewDraft = (draft == null);
             boolean contentChanged = true;
 
-            if (draft != null && draft.getMarkedAsSaved() != null && draft.getMarkedAsSaved()) {
+            if (draft != null && Boolean.TRUE.equals(draft.getMarkedAsSaved())) {
                 isNewDraft = true;
                 draft = null;
             }
@@ -162,9 +162,7 @@ public class FormDraftServiceImpl implements FormDraftService {
 
             return formDraftDAO.saveOrUpdate(draft);
 
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (APIException e) {
+        } catch (IllegalArgumentException | APIException e) {
             throw e;
         } catch (IOException e) {
             log.error("Error writing form draft file", e);
@@ -229,10 +227,8 @@ public class FormDraftServiceImpl implements FormDraftService {
         File targetFile = new File(filePath);
         File parentDir = targetFile.getParentFile();
 
-        if (!parentDir.exists()) {
-            if (!parentDir.mkdirs()) {
-                throw new IOException("Failed to create directory: " + parentDir.getAbsolutePath());
-            }
+        if (!parentDir.exists() && !parentDir.mkdirs()) {
+            throw new IOException("Failed to create directory: " + parentDir.getAbsolutePath());
         }
 
         String tempPath = filePath + ".tmp";
@@ -242,12 +238,12 @@ public class FormDraftServiceImpl implements FormDraftService {
             writer.write(formData);
             writer.flush();
         } catch (IOException e) {
-            tempFile.delete();
+            Files.delete(tempFile.toPath());
             throw e;
         }
 
         if (!tempFile.renameTo(targetFile)) {
-            tempFile.delete();
+            Files.delete(tempFile.toPath());
             throw new IOException("Failed to finalize form data file: " + filePath);
         }
     }
@@ -309,9 +305,7 @@ public class FormDraftServiceImpl implements FormDraftService {
 
             formDraftDAO.deleteLatestDraft(patient.getPatientId(), user.getUserId());
 
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (APIException e) {
+        } catch (IllegalArgumentException | APIException e) {
             throw e;
         } catch (Exception e) {
             log.error("Error discarding form draft", e);
@@ -324,7 +318,11 @@ public class FormDraftServiceImpl implements FormDraftService {
         List<String> filePaths = formDraftDAO.getAllNonVoidedFilePaths();
         formDraftDAO.deleteAllDrafts();
         for (String path : filePaths) {
-            new File(path).delete();
+            try {
+                Files.delete(new File(path).toPath());
+            } catch (IOException e) {
+                log.warn("Failed to delete form draft file: {}", path, e);
+            }
         }
     }
 
@@ -354,7 +352,7 @@ public class FormDraftServiceImpl implements FormDraftService {
 
         User user = resolveUser(providerUuid);
         if (user == null) {
-            log.warn("getDraftsByProvider: no user found for providerUuid={}", providerUuid.replaceAll("[\\r\\n]", ""));
+            log.warn("getDraftsByProvider: no user found for providerUuid={}", providerUuid);
             return new ArrayList<>();
         }
 
@@ -451,9 +449,7 @@ public class FormDraftServiceImpl implements FormDraftService {
                 formDraftDAO.saveOrUpdate(draft);
             }
 
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (APIException e) {
+        } catch (IllegalArgumentException | APIException e) {
             throw e;
         } catch (Exception e) {
             log.error("Error marking form draft as saved", e);
@@ -469,7 +465,7 @@ public class FormDraftServiceImpl implements FormDraftService {
             if (retentionDaysStr == null) {
                 throw new IllegalStateException("Global property '" + VOIDED_RETENTION_DAYS_PROPERTY + "' is not set");
             }
-            Integer retentionDays = Integer.parseInt(retentionDaysStr);
+            int retentionDays = Integer.parseInt(retentionDaysStr);
             if (retentionDays < 0) {
                 throw new IllegalArgumentException("Global property '" + VOIDED_RETENTION_DAYS_PROPERTY + "' must not be negative");
             }

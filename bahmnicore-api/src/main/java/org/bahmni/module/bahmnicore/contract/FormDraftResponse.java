@@ -1,7 +1,6 @@
 package org.bahmni.module.bahmnicore.contract;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Date;
 
 public class FormDraftResponse {
 
