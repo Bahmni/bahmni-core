@@ -35,11 +35,14 @@ public class FormDraftController extends BaseRestController {
 
     private static final Logger log = LoggerFactory.getLogger(FormDraftController.class);
 
-    @Autowired
-    private FormDraftService formDraftService;
+    private final FormDraftService formDraftService;
+    private final ProviderService providerService;
 
     @Autowired
-    private ProviderService providerService;
+    public FormDraftController(FormDraftService formDraftService, ProviderService providerService) {
+        this.formDraftService = formDraftService;
+        this.providerService = providerService;
+    }
 
     @ExceptionHandler(APIAuthenticationException.class)
     @ResponseBody

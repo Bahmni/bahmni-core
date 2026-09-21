@@ -47,15 +47,7 @@ public class FormDraftControllerTest {
         formDraftService = mock(FormDraftService.class);
         providerService = mock(ProviderService.class);
 
-        controller = new TestableFormDraftController();
-
-        java.lang.reflect.Field serviceField = FormDraftController.class.getDeclaredField("formDraftService");
-        serviceField.setAccessible(true);
-        serviceField.set(controller, formDraftService);
-
-        java.lang.reflect.Field providerServiceField = FormDraftController.class.getDeclaredField("providerService");
-        providerServiceField.setAccessible(true);
-        providerServiceField.set(controller, providerService);
+        controller = new TestableFormDraftController(formDraftService, providerService);
 
         authenticatedPerson = new Person();
         User mockUser = new User();
@@ -70,6 +62,10 @@ public class FormDraftControllerTest {
 
     private static class TestableFormDraftController extends FormDraftController {
         private User authenticatedUser;
+
+        TestableFormDraftController(FormDraftService formDraftService, ProviderService providerService) {
+            super(formDraftService, providerService);
+        }
 
         @Override
         protected User getAuthenticatedUser() {
