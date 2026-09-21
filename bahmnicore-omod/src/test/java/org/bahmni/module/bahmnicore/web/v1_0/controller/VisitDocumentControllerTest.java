@@ -31,6 +31,8 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -173,7 +175,7 @@ public class VisitDocumentControllerTest {
     }
 
     @Test
-    public void shouldFailIfFileNameWithSpecialCharsOtherThanDashAndUnderscoreIsPassedInRequest() throws Exception {
+    public void shouldSanitizeSlashInFileName() throws Exception {
         PowerMockito.mockStatic(Context.class);
         PowerMockito.when(Context.getPatientService()).thenReturn(patientService);
         Patient patient = new Patient();
@@ -184,6 +186,31 @@ public class VisitDocumentControllerTest {
         Document document = new Document("abcd", "jpeg", "consultation", "patient-uuid", "image", "file/name");
 
         visitDocumentController.saveDocument(document);
+
+        verify(patientDocumentService).saveDocument(
+                eq(1), eq("consultation"), eq("abcd"), eq("jpeg"), eq("image"),
+                argThat(name -> !name.contains("/"))
+        );
+    }
+
+    @Test
+    public void shouldSanitizePathTraversalSequenceInFileName() throws Exception {
+        PowerMockito.mockStatic(Context.class);
+        PowerMockito.when(Context.getPatientService()).thenReturn(patientService);
+        Patient patient = new Patient();
+        patient.setId(1);
+        patient.setUuid("patient-uuid");
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+
+        Document document = new Document("abcd", "jpeg", "consultation", "patient-uuid", "image", "../../etc/passwd");
+
+        visitDocumentController.saveDocument(document);
+
+        // slashes are replaced so the sanitized name contains no path traversal sequences
+        verify(patientDocumentService).saveDocument(
+                eq(1), eq("consultation"), eq("abcd"), eq("jpeg"), eq("image"),
+                argThat(name -> !name.contains("/") && !name.contains("\\"))
+        );
     }
 
     @Test
@@ -251,6 +278,31 @@ public class VisitDocumentControllerTest {
 
         byte[] largeContent = new byte[2 * 1024 * 1024];
         String base64Content = Base64.getEncoder().encodeToString(largeContent);
+        document.setContent(base64Content);
+
+        ResponseEntity<HashMap<String, Object>> responseEntity = visitDocumentController.saveDocument(document);
+
+        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+        verify(patientDocumentService, times(1)).saveDocument(1, "consultation", base64Content, "jpeg", document.getFileType(), document.getFileName());
+    }
+
+    @Test
+    public void shouldSaveDocumentWhoseDecodedSizeIsUnderLimitEvenIfBase64PayloadExceedsIt() throws Exception {
+        PowerMockito.mockStatic(Context.class);
+        when(Context.getPatientService()).thenReturn(patientService);
+
+        Patient patient = new Patient();
+        patient.setId(1);
+        patient.setUuid("patient-uuid");
+        when(patientService.getPatientByUuid("patient-uuid")).thenReturn(patient);
+
+        when(administrationService.getGlobalProperty("bahmni.encounterType.default")).thenReturn("consultation");
+
+        Document document = new Document("abcd", "jpeg", null, "patient-uuid", "image", "file-name");
+
+        byte[] content = new byte[6 * 1024 * 1024];
+        String base64Content = Base64.getEncoder().encodeToString(content);
         document.setContent(base64Content);
 
         ResponseEntity<HashMap<String, Object>> responseEntity = visitDocumentController.saveDocument(document);

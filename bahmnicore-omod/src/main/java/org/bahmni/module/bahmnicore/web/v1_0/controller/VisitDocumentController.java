@@ -27,7 +27,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.Paths;
 import java.util.HashMap;
 
 @Controller
@@ -74,12 +73,13 @@ public class VisitDocumentController extends BaseRestController {
                 encounterTypeName = administrationService.getGlobalProperty("bahmni.encounterType.default");
             }
             String fileName = sanitizeFileName(document.getFileName());
-            Paths.get(fileName);
 
             if (!StringUtils.isEmpty(maxDocumentSize)) {
                 Long maxDocumentSizeMb = Long.parseLong(maxDocumentSize);
                 Long maxDocumentSizeBytes = maxDocumentSizeMb * 1024 * 1024;
-                if (document.getContent().length() > maxDocumentSizeBytes) {
+                // getContent() is base64, which is 4/3 the size of the file it encodes.
+                // Convert back to decoded bytes so the limit means what it says.
+                if (document.getContent().length() * 3L / 4 > maxDocumentSizeBytes) {
                     logger.warn("Uploaded document size is greater than the maximum size " + maxDocumentSizeMb + "MB");
                     savedDocument.put("maxDocumentSizeMB", maxDocumentSizeMb);
                     return new ResponseEntity<>(savedDocument, HttpStatus.PAYLOAD_TOO_LARGE);
@@ -121,7 +121,9 @@ public class VisitDocumentController extends BaseRestController {
 
     private String sanitizeFileName(String fileName) {
         if (fileName == null) return "";
-        return fileName.trim().replaceAll(" ", "-").replaceAll("__", "_");
+        // Whitelist: only allow alphanumerics, dot, dash, underscore.
+        // This blocks path-traversal characters (/, \, ..) and null bytes.
+        return fileName.trim().replaceAll("[^a-zA-Z0-9._-]", "-").replaceAll("__", "_");
     }
 
 }

@@ -1,5 +1,6 @@
 package org.bahmni.module.bahmnicore.web.v2_0.controller;
 
+import org.bahmni.module.bahmnicore.security.PrivilegeConstants;
 import org.bahmni.module.bahmnicore.service.PatientDocumentService;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -41,8 +43,9 @@ public class BahmniPatientImageControllerTest {
     }
 
     @Test
-    public void shouldRetrieveImageWithoutDefaultWhenUserIsAuthenticated() {
+    public void shouldRetrieveImageWithoutDefaultWhenUserIsAuthenticatedAndHasPrivilege() {
         Mockito.when(userContext.isAuthenticated()).thenReturn(true);
+        Mockito.when(userContext.hasPrivilege(PrivilegeConstants.GET_PATIENT_PHOTO)).thenReturn(true);
         when(patientDocumentService.retriveImageWithoutDefault(anyString())).thenReturn(new ResponseEntity<Object>(new Object(), HttpStatus.OK));
         String patientUuid = "patientUuid";
 
@@ -65,8 +68,22 @@ public class BahmniPatientImageControllerTest {
     }
 
     @Test
+    public void shouldReturnForbiddenWhenUserIsAuthenticatedButLacksPrivilege() {
+        Mockito.when(userContext.isAuthenticated()).thenReturn(true);
+        Mockito.when(userContext.hasPrivilege(PrivilegeConstants.GET_PATIENT_PHOTO)).thenReturn(false);
+        String patientUuid = "patientUuid";
+
+        ResponseEntity<Object> responseEntity = bahmniPatientImageController.getImage(patientUuid);
+
+        verify(patientDocumentService, never()).retriveImageWithoutDefault(patientUuid);
+        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+        assertTrue(responseEntity.getBody().toString().contains("User doesn't have Get Patient Photo privilege"));
+    }
+
+    @Test
     public void shouldReturnNotFoundWhenPatientImageDoesNotExist() {
         Mockito.when(userContext.isAuthenticated()).thenReturn(true);
+        Mockito.when(userContext.hasPrivilege(PrivilegeConstants.GET_PATIENT_PHOTO)).thenReturn(true);
         when(patientDocumentService.retriveImageWithoutDefault(anyString())).thenReturn(new ResponseEntity<Object>(new Object(), HttpStatus.NOT_FOUND));
         String patientUuid = "patientUuid";
 
