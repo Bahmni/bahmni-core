@@ -11,6 +11,7 @@ public class FormDraftRequest {
     private String formData;
 
     public FormDraftRequest() {
+        // Required for JSON deserialization
     }
 
     public String getPatientUuid() {

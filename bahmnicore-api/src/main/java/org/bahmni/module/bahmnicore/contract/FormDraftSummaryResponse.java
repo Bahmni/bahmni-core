@@ -25,6 +25,7 @@ public class FormDraftSummaryResponse {
     private Long timestamp;
 
     public FormDraftSummaryResponse() {
+        // Required for JSON deserialization
     }
 
     public String getDraftUuid() {

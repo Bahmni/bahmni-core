@@ -19,6 +19,7 @@ public class FormDraft extends BaseChangeableOpenmrsData {
     private Boolean markedAsSaved;  // Track if draft has been submitted/saved
 
     public FormDraft() {
+        // Required for Hibernate instantiation
     }
 
     public Integer getId() {

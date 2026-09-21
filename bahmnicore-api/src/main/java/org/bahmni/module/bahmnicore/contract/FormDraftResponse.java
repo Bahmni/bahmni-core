@@ -18,6 +18,7 @@ public class FormDraftResponse {
     private Long timestamp;
 
     public FormDraftResponse() {
+        // Required for JSON deserialization
     }
 
     public FormDraftResponse(String uuid) {
