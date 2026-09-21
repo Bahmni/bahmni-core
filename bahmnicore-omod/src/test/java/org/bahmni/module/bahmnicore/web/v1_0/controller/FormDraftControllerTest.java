@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.openmrs.api.APIAuthenticationException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -119,6 +121,23 @@ public class FormDraftControllerTest {
     }
 
     @Test
+    public void markDraftAsSaved_shouldReturnOkOnSuccess() {
+        ResponseEntity<Object> response = controller.markDraftAsSaved(PATIENT_UUID);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(formDraftService).markDraftAsSaved(PATIENT_UUID, PROVIDER_UUID);
+    }
+
+    @Test
+    public void getDraftsByProvider_shouldReturnInternalServerErrorWhenServiceThrows() {
+        doThrow(new RuntimeException("Unexpected error")).when(formDraftService).getDraftsByProvider(PROVIDER_UUID);
+
+        ResponseEntity<Object> response = controller.getDraftsByProvider();
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    }
+
+    @Test
     public void markDraftAsSaved_shouldReturnBadRequestWhenPatientUuidIsNull() {
         doThrow(new IllegalArgumentException("Patient UUID is required")).when(formDraftService)
                 .markDraftAsSaved(null, PROVIDER_UUID);
@@ -187,49 +206,84 @@ public class FormDraftControllerTest {
         verify(formDraftService).discardDraft(PATIENT_UUID, PROVIDER_UUID);
     }
 
-    @Test
-    public void getDraftsByProvider_shouldReturn403WhenAuthenticatedUserHasNoProvider() {
+    @Test(expected = APIAuthenticationException.class)
+    public void getDraftsByProvider_shouldThrowWhenAuthenticatedUserHasNoProvider() {
         when(providerService.getProvidersByPerson(authenticatedPerson, false)).thenReturn(Collections.emptyList());
+        controller.getDraftsByProvider();
+    }
 
-        ResponseEntity<Object> response = controller.getDraftsByProvider();
+    @Test(expected = APIAuthenticationException.class)
+    public void saveDraft_shouldThrowWhenAuthenticatedUserHasNoProvider() {
+        when(providerService.getProvidersByPerson(authenticatedPerson, false)).thenReturn(Collections.emptyList());
+        controller.saveDraft(buildFormDraftRequest(PATIENT_UUID, "{\"form\":\"data\"}"));
+    }
 
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    @Test(expected = APIAuthenticationException.class)
+    public void getDraft_shouldThrowWhenAuthenticatedUserHasNoProvider() {
+        when(providerService.getProvidersByPerson(authenticatedPerson, false)).thenReturn(Collections.emptyList());
+        controller.getDraft(PATIENT_UUID);
+    }
+
+    @Test(expected = APIAuthenticationException.class)
+    public void markDraftAsSaved_shouldThrowWhenAuthenticatedUserHasNoProvider() {
+        when(providerService.getProvidersByPerson(authenticatedPerson, false)).thenReturn(Collections.emptyList());
+        controller.markDraftAsSaved(PATIENT_UUID);
+    }
+
+    @Test(expected = APIAuthenticationException.class)
+    public void discardDraft_shouldThrowWhenAuthenticatedUserHasNoProvider() {
+        when(providerService.getProvidersByPerson(authenticatedPerson, false)).thenReturn(Collections.emptyList());
+        controller.discardDraft(PATIENT_UUID);
+    }
+
+    @Test(expected = APIAuthenticationException.class)
+    public void getDraft_shouldThrowWhenAuthenticatedUserIsNull() {
+        controller.setAuthenticatedUser(null);
+        controller.getDraft(PATIENT_UUID);
+    }
+
+    @Test(expected = APIAuthenticationException.class)
+    public void getDraft_shouldThrowWhenAuthenticatedUserHasNoPerson() {
+        User userWithNoPerson = new User();
+        userWithNoPerson.setPerson(null);
+        controller.setAuthenticatedUser(userWithNoPerson);
+        controller.getDraft(PATIENT_UUID);
+    }
+
+    @Test(expected = APIAuthenticationException.class)
+    public void getDraftsByProvider_shouldThrowWhenAuthenticatedUserIsNull() {
+        controller.setAuthenticatedUser(null);
+        controller.getDraftsByProvider();
+    }
+
+    @Test(expected = APIAuthenticationException.class)
+    public void saveDraft_shouldThrowWhenAuthenticatedUserIsNull() {
+        controller.setAuthenticatedUser(null);
+        controller.saveDraft(buildFormDraftRequest(PATIENT_UUID, "{\"form\":\"data\"}"));
+    }
+
+    @Test(expected = APIAuthenticationException.class)
+    public void markDraftAsSaved_shouldThrowWhenAuthenticatedUserIsNull() {
+        controller.setAuthenticatedUser(null);
+        controller.markDraftAsSaved(PATIENT_UUID);
+    }
+
+    @Test(expected = APIAuthenticationException.class)
+    public void discardDraft_shouldThrowWhenAuthenticatedUserIsNull() {
+        controller.setAuthenticatedUser(null);
+        controller.discardDraft(PATIENT_UUID);
+    }
+
+    @Test(expected = APIAuthenticationException.class)
+    public void getDraftsByProvider_shouldThrowWhenProvidersListIsNull() {
+        when(providerService.getProvidersByPerson(authenticatedPerson, false)).thenReturn(null);
+        controller.getDraftsByProvider();
     }
 
     @Test
-    public void saveDraft_shouldReturn403WhenAuthenticatedUserHasNoProvider() {
-        when(providerService.getProvidersByPerson(authenticatedPerson, false)).thenReturn(Collections.emptyList());
-        FormDraftRequest request = buildFormDraftRequest(PATIENT_UUID, "{\"form\":\"data\"}");
-
-        ResponseEntity<?> response = controller.saveDraft(request);
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-    }
-
-    @Test
-    public void getDraft_shouldReturn403WhenAuthenticatedUserHasNoProvider() {
-        when(providerService.getProvidersByPerson(authenticatedPerson, false)).thenReturn(Collections.emptyList());
-
-        ResponseEntity<?> response = controller.getDraft(PATIENT_UUID);
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-    }
-
-    @Test
-    public void markDraftAsSaved_shouldReturn403WhenAuthenticatedUserHasNoProvider() {
-        when(providerService.getProvidersByPerson(authenticatedPerson, false)).thenReturn(Collections.emptyList());
-
-        ResponseEntity<Object> response = controller.markDraftAsSaved(PATIENT_UUID);
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-    }
-
-    @Test
-    public void discardDraft_shouldReturn403WhenAuthenticatedUserHasNoProvider() {
-        when(providerService.getProvidersByPerson(authenticatedPerson, false)).thenReturn(Collections.emptyList());
-
-        ResponseEntity<Object> response = controller.discardDraft(PATIENT_UUID);
-
+    public void handleAuthenticationException_shouldReturn403() {
+        APIAuthenticationException exception = new APIAuthenticationException("No provider");
+        ResponseEntity<Object> response = controller.handleAuthenticationException(exception);
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }
 
