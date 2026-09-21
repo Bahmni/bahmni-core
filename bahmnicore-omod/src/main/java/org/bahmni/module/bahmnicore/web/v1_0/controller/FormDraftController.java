@@ -36,7 +36,7 @@ public class FormDraftController extends BaseRestController {
     @Autowired
     private FormDraftService formDraftService;
 
-    @Autowired(required = false)
+    @Autowired
     private ProviderService providerService;
 
     protected User getAuthenticatedUser() {
@@ -48,8 +48,7 @@ public class FormDraftController extends BaseRestController {
         if (user == null || user.getPerson() == null) {
             return null;
         }
-        ProviderService ps = providerService != null ? providerService : Context.getProviderService();
-        Collection<Provider> providers = ps.getProvidersByPerson(user.getPerson(), false);
+        Collection<Provider> providers = providerService.getProvidersByPerson(user.getPerson(), false);
         if (providers == null || providers.isEmpty()) {
             return null;
         }
