@@ -287,6 +287,121 @@ public class FormDraftControllerTest {
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }
 
+    @Test
+    public void saveDraft_shouldReturnOkWithFormDraftResponse() {
+        FormDraftRequest request = buildFormDraftRequest(PATIENT_UUID, "{\"form\":\"data\"}");
+        FormDraft draft = buildFormDraft(DRAFT_UUID, FORM_DATA_PATH);
+        draft.setMarkedAsSaved(false);
+
+        when(formDraftService.saveDraft(any(FormDraftRequest.class), any(String.class))).thenReturn(draft);
+        when(formDraftService.getFormData(FORM_DATA_PATH)).thenReturn("{\"form\":\"data\"}");
+
+        ResponseEntity<?> response = controller.saveDraft(request);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof FormDraftResponse);
+        FormDraftResponse body = (FormDraftResponse) response.getBody();
+        assertEquals(DRAFT_UUID, body.getUuid());
+        assertEquals("{\"form\":\"data\"}", body.getFormData());
+    }
+
+    @Test
+    public void saveDraft_shouldUseChangedDateForTimestampWhenPresent() {
+        FormDraftRequest request = buildFormDraftRequest(PATIENT_UUID, "{\"form\":\"data\"}");
+        FormDraft draft = buildFormDraft(DRAFT_UUID, FORM_DATA_PATH);
+        draft.setDateChanged(new Date(5000L));
+        draft.setMarkedAsSaved(false);
+
+        when(formDraftService.saveDraft(any(FormDraftRequest.class), any(String.class))).thenReturn(draft);
+        when(formDraftService.getFormData(FORM_DATA_PATH)).thenReturn("{\"form\":\"data\"}");
+
+        ResponseEntity<?> response = controller.saveDraft(request);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        FormDraftResponse body = (FormDraftResponse) response.getBody();
+        assertEquals(Long.valueOf(5000L), body.getTimestamp());
+    }
+
+    @Test
+    public void getDraft_shouldReturnOkWithPopulatedResponseWhenDraftExists() {
+        FormDraft draft = buildFormDraft(DRAFT_UUID, FORM_DATA_PATH);
+        draft.setMarkedAsSaved(true);
+
+        when(formDraftService.getDraft(PATIENT_UUID, PROVIDER_UUID)).thenReturn(draft);
+        when(formDraftService.getFormData(FORM_DATA_PATH)).thenReturn("{\"existing\":\"data\"}");
+
+        ResponseEntity<?> response = controller.getDraft(PATIENT_UUID);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof FormDraftResponse);
+        FormDraftResponse body = (FormDraftResponse) response.getBody();
+        assertEquals(DRAFT_UUID, body.getUuid());
+        assertEquals("{\"existing\":\"data\"}", body.getFormData());
+        assertTrue(body.getMarkedAsSaved());
+    }
+
+    @Test
+    public void getDraft_shouldUseChangedDateForTimestampWhenPresent() {
+        FormDraft draft = buildFormDraft(DRAFT_UUID, FORM_DATA_PATH);
+        draft.setDateChanged(new Date(7000L));
+        draft.setMarkedAsSaved(false);
+
+        when(formDraftService.getDraft(PATIENT_UUID, PROVIDER_UUID)).thenReturn(draft);
+        when(formDraftService.getFormData(FORM_DATA_PATH)).thenReturn("{\"data\":\"value\"}");
+
+        ResponseEntity<?> response = controller.getDraft(PATIENT_UUID);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        FormDraftResponse body = (FormDraftResponse) response.getBody();
+        assertEquals(Long.valueOf(7000L), body.getTimestamp());
+    }
+
+    @Test
+    public void getDraft_shouldReturnInternalServerErrorWhenServiceThrowsRuntimeException() {
+        doThrow(new RuntimeException("Unexpected failure")).when(formDraftService).getDraft(PATIENT_UUID, PROVIDER_UUID);
+
+        ResponseEntity<?> response = controller.getDraft(PATIENT_UUID);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    }
+
+    @Test
+    public void discardDraft_shouldReturnBadRequestWhenServiceThrowsIllegalArgument() {
+        doThrow(new IllegalArgumentException("Patient UUID is required")).when(formDraftService)
+                .discardDraft(PATIENT_UUID, PROVIDER_UUID);
+
+        ResponseEntity<Object> response = controller.discardDraft(PATIENT_UUID);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    public void discardDraft_shouldReturnInternalServerErrorWhenServiceThrowsRuntimeException() {
+        doThrow(new RuntimeException("Unexpected error")).when(formDraftService)
+                .discardDraft(PATIENT_UUID, PROVIDER_UUID);
+
+        ResponseEntity<Object> response = controller.discardDraft(PATIENT_UUID);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    }
+
+    @Test(expected = APIAuthenticationException.class)
+    public void resolveAuthenticatedProviderUuid_shouldThrowWhenProviderIsNull() {
+        Provider nullProvider = null;
+        when(providerService.getProvidersByPerson(authenticatedPerson, false))
+                .thenReturn(Collections.singletonList(nullProvider));
+        controller.getDraft(PATIENT_UUID);
+    }
+
+    @Test(expected = APIAuthenticationException.class)
+    public void resolveAuthenticatedProviderUuid_shouldThrowWhenProviderUuidIsNull() {
+        Provider providerWithNullUuid = new Provider();
+        providerWithNullUuid.setUuid(null);
+        when(providerService.getProvidersByPerson(authenticatedPerson, false))
+                .thenReturn(Collections.singletonList(providerWithNullUuid));
+        controller.getDraft(PATIENT_UUID);
+    }
+
     // --- Helpers ---
 
     private FormDraftRequest buildFormDraftRequest(String patientUuid, String formData) {

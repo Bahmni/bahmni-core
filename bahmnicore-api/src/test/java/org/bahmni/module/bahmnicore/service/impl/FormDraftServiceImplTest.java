@@ -532,6 +532,338 @@ public class FormDraftServiceImplTest {
         verify(formDraftDAO, org.mockito.Mockito.never()).deleteDraftsOlderThanDays(org.mockito.ArgumentMatchers.anyInt());
     }
 
+    @Test
+    public void deleteDraftsOlderThanRetentionPeriod_shouldCallDaoWithValidRetentionDays() {
+        when(administrationService.getGlobalProperty("bahmni.formDraft.voidedRetentionDays")).thenReturn("30");
+        when(formDraftDAO.deleteDraftsOlderThanDays(30)).thenReturn(5);
+
+        formDraftService.deleteDraftsOlderThanRetentionPeriod();
+
+        verify(formDraftDAO).deleteDraftsOlderThanDays(30);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void deleteDraftsOlderThanRetentionPeriod_shouldThrowWhenPropertyIsNull() {
+        when(administrationService.getGlobalProperty("bahmni.formDraft.voidedRetentionDays")).thenReturn(null);
+        formDraftService.deleteDraftsOlderThanRetentionPeriod();
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void deleteDraftsOlderThanRetentionPeriod_shouldThrowWhenPropertyIsNotANumber() {
+        when(administrationService.getGlobalProperty("bahmni.formDraft.voidedRetentionDays")).thenReturn("not-a-number");
+        formDraftService.deleteDraftsOlderThanRetentionPeriod();
+    }
+
+    @Test
+    public void deleteDraftsOlderThanRetentionPeriod_shouldAcceptZeroRetentionDays() {
+        when(administrationService.getGlobalProperty("bahmni.formDraft.voidedRetentionDays")).thenReturn("0");
+        when(formDraftDAO.deleteDraftsOlderThanDays(0)).thenReturn(0);
+
+        formDraftService.deleteDraftsOlderThanRetentionPeriod();
+
+        verify(formDraftDAO).deleteDraftsOlderThanDays(0);
+    }
+
+    @Test(expected = APIException.class)
+    public void saveDraft_shouldThrowWhenPatientNotFound() {
+        FormDraftRequest request = buildRequest(PATIENT_UUID, "{\"form\":\"data\"}");
+        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(null);
+
+        formDraftService.saveDraft(request, PROVIDER_UUID);
+    }
+
+    @Test(expected = APIException.class)
+    public void saveDraft_shouldThrowWhenUserNotFound() {
+        FormDraftRequest request = buildRequest(PATIENT_UUID, "{\"form\":\"data\"}");
+        Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
+        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
+        when(providerService.getProviderByUuid(PROVIDER_UUID)).thenReturn(null);
+
+        formDraftService.saveDraft(request, PROVIDER_UUID);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void saveDraft_shouldThrowWhenPatientUuidIsEmpty() {
+        FormDraftRequest request = buildRequest("", "{\"form\":\"data\"}");
+        formDraftService.saveDraft(request, PROVIDER_UUID);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void saveDraft_shouldThrowWhenFormDataIsEmpty() {
+        FormDraftRequest request = buildRequest(PATIENT_UUID, "");
+        formDraftService.saveDraft(request, PROVIDER_UUID);
+    }
+
+    @Test
+    public void saveDraft_shouldNotRewriteFileWhenContentUnchanged() throws Exception {
+        FormDraftRequest request = buildRequest(PATIENT_UUID, "{\"same\":\"data\"}");
+        Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
+        User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
+
+        // Create an existing draft with a file that has the same content
+        FormDraft existingDraft = new FormDraft();
+        existingDraft.setUuid("existing-uuid");
+        existingDraft.setPatient(patient);
+        existingDraft.setUser(user);
+        existingDraft.setMarkedAsSaved(false);
+
+        File existingFile = temporaryFolder.newFile("existing-uuid.json");
+        writeFile(existingFile, "{\"same\":\"data\"}");
+        existingDraft.setFormDataPath(existingFile.getAbsolutePath());
+
+        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
+        mockProviderResolution(user);
+        when(formDraftDAO.getLatestByPatientAndUser(PATIENT_ID, PROVIDER_ID)).thenReturn(existingDraft);
+        when(formDraftDAO.saveOrUpdate(any(FormDraft.class))).thenAnswer(inv -> inv.getArguments()[0]);
+
+        FormDraft result = formDraftService.saveDraft(request, PROVIDER_UUID);
+
+        // dateChanged should not be set when content hasn't changed
+        assertNull(result.getDateChanged());
+    }
+
+    @Test
+    public void getFormData_shouldReturnNullWhenPathIsNull() {
+        assertNull(formDraftService.getFormData(null));
+    }
+
+    @Test
+    public void getFormData_shouldReturnNullWhenFileDoesNotExist() {
+        assertNull(formDraftService.getFormData("/nonexistent/path/file.json"));
+    }
+
+    @Test
+    public void getFormData_shouldReturnFileContent() throws Exception {
+        File file = temporaryFolder.newFile("test-form-data.json");
+        writeFile(file, "{\"test\":\"content\"}");
+
+        String result = formDraftService.getFormData(file.getAbsolutePath());
+        assertEquals("{\"test\":\"content\"}", result);
+    }
+
+    @Test
+    public void getDraft_shouldReturnNullWhenPatientNotFound() {
+        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(null);
+
+        FormDraft result = formDraftService.getDraft(PATIENT_UUID, PROVIDER_UUID);
+
+        assertNull(result);
+    }
+
+    @Test
+    public void getDraft_shouldReturnNullWhenUserNotFound() {
+        Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
+        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
+        when(providerService.getProviderByUuid(PROVIDER_UUID)).thenReturn(null);
+
+        FormDraft result = formDraftService.getDraft(PATIENT_UUID, PROVIDER_UUID);
+
+        assertNull(result);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getDraft_shouldThrowWhenPatientUuidIsEmpty() {
+        formDraftService.getDraft("", PROVIDER_UUID);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getDraft_shouldThrowWhenProviderUuidIsNull() {
+        formDraftService.getDraft(PATIENT_UUID, null);
+    }
+
+    @Test(expected = APIException.class)
+    public void discardDraft_shouldThrowWhenPatientNotFound() {
+        Patient patient = null;
+        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
+
+        formDraftService.discardDraft(PATIENT_UUID, PROVIDER_UUID);
+    }
+
+    @Test(expected = APIException.class)
+    public void discardDraft_shouldThrowWhenUserNotFound() {
+        Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
+        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
+        when(providerService.getProviderByUuid(PROVIDER_UUID)).thenReturn(null);
+
+        formDraftService.discardDraft(PATIENT_UUID, PROVIDER_UUID);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void discardDraft_shouldThrowWhenProviderUuidIsNull() {
+        formDraftService.discardDraft(PATIENT_UUID, null);
+    }
+
+    @Test
+    public void discardAllDrafts_shouldDeleteFilesAndCallDao() throws Exception {
+        File file1 = temporaryFolder.newFile("draft1.json");
+        File file2 = temporaryFolder.newFile("draft2.json");
+        writeFile(file1, "data1");
+        writeFile(file2, "data2");
+
+        when(formDraftDAO.getAllNonVoidedFilePaths()).thenReturn(
+                Arrays.asList(file1.getAbsolutePath(), file2.getAbsolutePath()));
+
+        formDraftService.discardAllDrafts();
+
+        verify(formDraftDAO).deleteAllDrafts();
+        assertFalse(file1.exists());
+        assertFalse(file2.exists());
+    }
+
+    @Test
+    public void getDraftsByProvider_shouldSetEmptyNameWhenPersonNameIsNull() {
+        User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
+        mockProviderResolution(user);
+
+        Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
+        // Patient with no PersonName set
+
+        FormDraft draft = new FormDraft();
+        draft.setUuid("draft-no-name");
+        draft.setPatient(patient);
+        draft.setDateCreated(new java.util.Date());
+
+        when(formDraftDAO.getAllByUserOrderedByDateDesc(PROVIDER_ID)).thenReturn(Collections.singletonList(draft));
+
+        List<FormDraftSummaryResponse> results = formDraftService.getDraftsByProvider(PROVIDER_UUID);
+
+        assertEquals(1, results.size());
+        assertEquals("", results.get(0).getPatientName());
+        assertNull(results.get(0).getPatientIdentifier());
+    }
+
+    @Test
+    public void getDraftsByProvider_shouldExtractFormNameFromJsonObjectNotArray() throws Exception {
+        User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
+        mockProviderResolution(user);
+
+        Patient patient = buildPatientWithDetails(PATIENT_UUID, PATIENT_ID, "Test Patient", "ID001");
+
+        File jsonObjectFile = temporaryFolder.newFile("object-draft.json");
+        writeFile(jsonObjectFile, "{\"formFieldPath\":\"SomeForm.1/1-0\"}");
+
+        FormDraft draft = new FormDraft();
+        draft.setUuid("draft-obj");
+        draft.setPatient(patient);
+        draft.setFormDataPath(jsonObjectFile.getAbsolutePath());
+        draft.setDateCreated(new java.util.Date());
+
+        when(formDraftDAO.getAllByUserOrderedByDateDesc(PROVIDER_ID)).thenReturn(Collections.singletonList(draft));
+
+        List<FormDraftSummaryResponse> results = formDraftService.getDraftsByProvider(PROVIDER_UUID);
+
+        assertEquals(1, results.size());
+        // JSON is not an array, so formName should be null
+        assertNull(results.get(0).getFormName());
+    }
+
+    @Test
+    public void getDraftsByProvider_shouldReturnNullFormNameWhenArrayHasNoFormFieldPath() throws Exception {
+        User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
+        mockProviderResolution(user);
+
+        Patient patient = buildPatientWithDetails(PATIENT_UUID, PATIENT_ID, "Test Patient", "ID001");
+
+        File noFieldPathFile = temporaryFolder.newFile("no-field-path.json");
+        writeFile(noFieldPathFile, "[{\"concept\":{\"name\":\"Weight\"},\"value\":70}]");
+
+        FormDraft draft = new FormDraft();
+        draft.setUuid("draft-no-field-path");
+        draft.setPatient(patient);
+        draft.setFormDataPath(noFieldPathFile.getAbsolutePath());
+        draft.setDateCreated(new java.util.Date());
+
+        when(formDraftDAO.getAllByUserOrderedByDateDesc(PROVIDER_ID)).thenReturn(Collections.singletonList(draft));
+
+        List<FormDraftSummaryResponse> results = formDraftService.getDraftsByProvider(PROVIDER_UUID);
+
+        assertEquals(1, results.size());
+        assertNull(results.get(0).getFormName());
+    }
+
+    @Test
+    public void getDraftsByProvider_shouldReturnNullFormNameWhenFormDataIsEmpty() throws Exception {
+        User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
+        mockProviderResolution(user);
+
+        Patient patient = buildPatientWithDetails(PATIENT_UUID, PATIENT_ID, "Test Patient", "ID001");
+
+        File emptyFile = temporaryFolder.newFile("empty-draft.json");
+        writeFile(emptyFile, "");
+
+        FormDraft draft = new FormDraft();
+        draft.setUuid("draft-empty-data");
+        draft.setPatient(patient);
+        draft.setFormDataPath(emptyFile.getAbsolutePath());
+        draft.setDateCreated(new java.util.Date());
+
+        when(formDraftDAO.getAllByUserOrderedByDateDesc(PROVIDER_ID)).thenReturn(Collections.singletonList(draft));
+
+        List<FormDraftSummaryResponse> results = formDraftService.getDraftsByProvider(PROVIDER_UUID);
+
+        assertEquals(1, results.size());
+        assertNull(results.get(0).getFormName());
+    }
+
+    @Test(expected = APIException.class)
+    public void markDraftAsSaved_shouldThrowWhenUserNotFoundViaProvider() {
+        Patient patient = buildPatient(PATIENT_UUID, PATIENT_ID);
+        when(patientService.getPatientByUuid(PATIENT_UUID)).thenReturn(patient);
+
+        Provider provider = new Provider();
+        provider.setPerson(person);
+        when(providerService.getProviderByUuid(PROVIDER_UUID)).thenReturn(provider);
+        when(userService.getUsersByPerson(person, false)).thenReturn(Collections.emptyList());
+
+        formDraftService.markDraftAsSaved(PATIENT_UUID, PROVIDER_UUID);
+    }
+
+    @Test
+    public void getDraftsByProvider_shouldReturnNullFormNameWhenFormDataPathIsNull() {
+        User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
+        mockProviderResolution(user);
+
+        Patient patient = buildPatientWithDetails(PATIENT_UUID, PATIENT_ID, "Test Patient", "ID001");
+
+        FormDraft draft = new FormDraft();
+        draft.setUuid("draft-null-path");
+        draft.setPatient(patient);
+        draft.setFormDataPath(null);
+        draft.setDateCreated(new java.util.Date());
+
+        when(formDraftDAO.getAllByUserOrderedByDateDesc(PROVIDER_ID)).thenReturn(Collections.singletonList(draft));
+
+        List<FormDraftSummaryResponse> results = formDraftService.getDraftsByProvider(PROVIDER_UUID);
+
+        assertEquals(1, results.size());
+        assertNull(results.get(0).getFormName());
+    }
+
+    @Test
+    public void getDraftsByProvider_shouldUseEmptyFormFieldPathArrayElement() throws Exception {
+        User user = buildUser(PROVIDER_UUID, PROVIDER_ID);
+        mockProviderResolution(user);
+
+        Patient patient = buildPatientWithDetails(PATIENT_UUID, PATIENT_ID, "Test Patient", "ID001");
+
+        File emptyFieldPath = temporaryFolder.newFile("empty-field-path.json");
+        writeFile(emptyFieldPath, "[{\"formFieldPath\":\"\",\"concept\":{\"name\":\"Weight\"}}]");
+
+        FormDraft draft = new FormDraft();
+        draft.setUuid("draft-empty-field-path");
+        draft.setPatient(patient);
+        draft.setFormDataPath(emptyFieldPath.getAbsolutePath());
+        draft.setDateCreated(new java.util.Date());
+
+        when(formDraftDAO.getAllByUserOrderedByDateDesc(PROVIDER_ID)).thenReturn(Collections.singletonList(draft));
+
+        List<FormDraftSummaryResponse> results = formDraftService.getDraftsByProvider(PROVIDER_UUID);
+
+        assertEquals(1, results.size());
+        // Empty formFieldPath should be skipped, resulting in null formName
+        assertNull(results.get(0).getFormName());
+    }
+
     // --- Helpers ---
 
     private void mockProviderResolution(User user) {
