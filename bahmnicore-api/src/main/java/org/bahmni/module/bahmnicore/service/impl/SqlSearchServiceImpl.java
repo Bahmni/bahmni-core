@@ -42,14 +42,16 @@ public class SqlSearchServiceImpl implements SqlSearchService {
         SqlQueryHelper sqlQueryHelper = new SqlQueryHelper();
         String query = getSql(queryId);
         debugPrintQueryParams(queryId, mergedParams);
-        try( Connection conn = DatabaseUpdater.getConnection();
-            PreparedStatement statement = sqlQueryHelper.constructPreparedStatement(query,mergedParams,conn);
-            ResultSet resultSet = statement.executeQuery()) {
-            RowMapper rowMapper = new RowMapper();
-            while (resultSet.next()) {
-                results.add(rowMapper.mapRow(resultSet));
+        try (Connection conn = DatabaseUpdater.getConnection()) {
+            conn.setReadOnly(true);
+            try (PreparedStatement statement = sqlQueryHelper.constructPreparedStatement(query, mergedParams, conn);
+                ResultSet resultSet = statement.executeQuery()) {
+                RowMapper rowMapper = new RowMapper();
+                while (resultSet.next()) {
+                    results.add(rowMapper.mapRow(resultSet));
+                }
+                return results;
             }
-            return results;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
