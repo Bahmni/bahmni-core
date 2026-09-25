@@ -27,6 +27,7 @@
             <list>
                 <value>AddressHierarchyEntry.hbm.xml</value>
                 <value>AddressHierarchyLevel.hbm.xml</value>
+                <value>FormDraft.hbm.xml</value>
             </list>
         </property>
         <!--  default properties must be set in the hibernate.default.properties -->
