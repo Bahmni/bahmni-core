@@ -90,12 +90,14 @@ public class PatientDocumentServiceImplTest {
     }
 
     @Test
-    public void shouldReturn404WhenPathTraversalAttemptedViaPatientUuidOnV2() {
+    public void shouldReturn404WhenPathTraversalAttemptedViaPatientUuidOnV2() throws Exception {
+        File imagesDirectory = temporaryFolder.newFolder("patient_images");
+        temporaryFolder.newFile("secret.jpeg");
         PowerMockito.mockStatic(BahmniCoreProperties.class);
-        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).thenReturn("/bahmni_data/patient_images");
+        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).thenReturn(imagesDirectory.getAbsolutePath());
         patientDocumentService = new PatientDocumentServiceImpl();
 
-        ResponseEntity<Object> responseEntity = patientDocumentService.retriveImageWithoutDefault("../../../../tmp/secret");
+        ResponseEntity<Object> responseEntity = patientDocumentService.retriveImageWithoutDefault("../secret");
 
         assertEquals(404, responseEntity.getStatusCode().value());
     }
@@ -103,7 +105,7 @@ public class PatientDocumentServiceImplTest {
     @Test
     public void shouldReturn404WhenValidPatientUuidButNoImageExists() {
         PowerMockito.mockStatic(BahmniCoreProperties.class);
-        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).thenReturn("/bahmni_data/patient_images");
+        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
         patientDocumentService = new PatientDocumentServiceImpl();
 
         ResponseEntity<Object> responseEntity = patientDocumentService.retriveImageWithoutDefault("valid-patient-uuid");
