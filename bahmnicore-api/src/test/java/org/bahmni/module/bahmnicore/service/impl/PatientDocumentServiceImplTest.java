@@ -90,6 +90,92 @@ public class PatientDocumentServiceImplTest {
     }
 
     @Test
+    public void shouldReturn404WhenPathTraversalAttemptedViaPatientUuidOnV2() throws Exception {
+        File imagesDirectory = temporaryFolder.newFolder("patient_images");
+        temporaryFolder.newFile("secret.jpeg");
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).thenReturn(imagesDirectory.getAbsolutePath());
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        ResponseEntity<Object> responseEntity = patientDocumentService.retriveImageWithoutDefault("../secret");
+
+        assertEquals(404, responseEntity.getStatusCode().value());
+    }
+
+    @Test
+    public void shouldReturn404WhenValidPatientUuidButNoImageExists() {
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        ResponseEntity<Object> responseEntity = patientDocumentService.retriveImageWithoutDefault("valid-patient-uuid");
+
+        assertEquals(404, responseEntity.getStatusCode().value());
+    }
+
+    @Test
+    public void shouldReturnImageWhenPatientImageExists() throws Exception {
+        File tempFile = temporaryFolder.newFile("patient-uuid.jpeg");
+        Files.write(tempFile.toPath(), new byte[]{1, 2, 3});
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        ResponseEntity<Object> responseEntity = patientDocumentService.retriveImage("patient-uuid");
+
+        assertEquals(200, responseEntity.getStatusCode().value());
+    }
+
+    @Test
+    public void shouldNotSaveImageWhenImageIsNull() {
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).thenReturn("/bahmni_data/patient_images");
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        patientDocumentService.saveImage("patient-uuid", null);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenBlankFileNameOnDelete() {
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("/bahmni_data");
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        try {
+            patientDocumentService.delete("");
+            fail("Expected RuntimeException");
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains("Required String parameter"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenPathTraversalAttemptedOnDelete() {
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("/bahmni_data");
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        try {
+            patientDocumentService.delete("../../etc/passwd.jpeg");
+            fail("Expected RuntimeException");
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains("Invalid file specified"));
+        }
+    }
+
+    @Test
+    public void shouldDeleteFileSuccessfully() throws Exception {
+        File tempFile = temporaryFolder.newFile("patient-doc.jpeg");
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        patientDocumentService.delete("patient-doc.jpeg");
+
+        assertFalse(tempFile.exists());
+    }
+
+    @Test
     public void shouldGetImageNotFoundForIfNoImageCapturedForPatientAndNoDefaultImageNotPresent() throws Exception {
         final FileInputStream fileInputStreamMock = PowerMockito.mock(FileInputStream.class);
         PowerMockito.whenNew(FileInputStream.class).withArguments(Matchers.anyString()).thenReturn(fileInputStreamMock);

@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -209,6 +210,9 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
     @Override
     public ResponseEntity<Object> retriveImageWithoutDefault(String patientUuid) {
         File file = getPatientImageFileWithoutDefault(patientUuid);
+        if (file == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return readImage(file);
     }
 
@@ -261,7 +265,12 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
     }
 
     private File getPatientImageFileWithoutDefault(String patientUuid) {
-        return new File(String.format("%s/%s.%s", BahmniCoreProperties.getProperty("bahmnicore.images.directory"), patientUuid, patientImagesFormat));
+        Path base = Paths.get(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).toAbsolutePath().normalize();
+        Path resolved = base.resolve(patientUuid + "." + patientImagesFormat).normalize();
+        if (!resolved.startsWith(base) || Files.isSymbolicLink(resolved)) {
+            return null;
+        }
+        return resolved.toFile();
     }
 
     private ResponseEntity<Object> readImage(File file) {
