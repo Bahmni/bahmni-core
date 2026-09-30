@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,8 +58,16 @@ public class BahmniEncounterModifierServiceImpl implements BahmniEncounterModifi
         return (EncounterModifier) clazz.newInstance();
     }
 
-    private String getEncounterModifierClassPath(String encounterModifierClassName) {
-        return OpenmrsUtil.getApplicationDataDirectory() + ENCOUNTER_MODIFIER_ALGORITHM_DIRECTORY + encounterModifierClassName ;
+    private String getEncounterModifierClassPath(String encounterModifierClassName) throws IOException {
+        Path encounterModifierDirectory = new File(OpenmrsUtil.getApplicationDataDirectory() + ENCOUNTER_MODIFIER_ALGORITHM_DIRECTORY)
+                .toPath().normalize();
+        Path encounterModifierClassFile = new File(OpenmrsUtil.getApplicationDataDirectory() + ENCOUNTER_MODIFIER_ALGORITHM_DIRECTORY + encounterModifierClassName)
+                .toPath().normalize();
+
+        if (!encounterModifierClassFile.startsWith(encounterModifierDirectory)) {
+            throw new IOException("Rejected encounter modifier class name resolving outside of the allowed directory: " + encounterModifierClassName);
+        }
+        return encounterModifierClassFile.toString();
     }
 
     private boolean isGroovyCachingAllowed(){
