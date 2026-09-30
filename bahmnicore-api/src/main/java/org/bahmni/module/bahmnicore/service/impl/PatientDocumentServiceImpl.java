@@ -264,7 +264,7 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
     }
 
     private File getPatientImageFile(String patientUuid) {
-        File file = resolveContainedImageFile(patientUuid);
+        File file = getPatientImageFileWithoutDefault(patientUuid);
         if (file != null && file.exists() && file.isFile()) {
             return file;
         }
