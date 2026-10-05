@@ -4845,7 +4845,7 @@
         </sql>
     </changeSet>
 
-    <changeSet id="provider-attribute-license-number-20260917" author="Rohit V">
+    <changeSet id="bahmni-core-202609171200" author="Rohit V">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
                 SELECT COUNT(*) FROM provider_attribute_type where name = 'License Number';
@@ -4858,9 +4858,9 @@
             <column name="datatype" value="org.openmrs.customdatatype.datatype.FreeTextDatatype"/>
             <column name="min_occurs" valueNumeric="0"/>
             <column name="creator" valueNumeric="1"/>
-            <column name="date_created" valueComputed="NOW()"/>
+            <column name="date_created" valueComputed="now()"/>
             <column name="retired" valueNumeric="0"/>
-            <column name="uuid" valueComputed="UUID()"/>
+            <column name="uuid" valueComputed="uuid()"/>
         </insert>
     </changeSet>
 
@@ -4874,6 +4874,19 @@
         <sql>
             insert into global_property (property, property_value, description, uuid)
             values ('fhir2Extension.practitionerAttributeIdentifierSystemMap', 'License Number:http://fhir.bahmni.org/identifier/provider-license', 'Maps provider attribute types to FHIR Practitioner.identifier system URIs', uuid());
+        </sql>
+    </changeSet>
+
+    <changeSet id="bahmni-core-202609171301" author="Rohit V">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+                SELECT COUNT(*) FROM global_property where property = 'fhir2Extension.practitionerAttributeIdentifierSystemMap' and property_value NOT LIKE '%License Number%';
+            </sqlCheck>
+        </preConditions>
+        <comment>BAH-5116: Append License Number mapping to an already-existing fhir2Extension.practitionerAttributeIdentifierSystemMap global property</comment>
+        <sql>
+            update global_property set property_value = CONCAT(property_value, ',License Number:http://fhir.bahmni.org/identifier/provider-license')
+            where property = 'fhir2Extension.practitionerAttributeIdentifierSystemMap' and property_value NOT LIKE '%License Number%';
         </sql>
     </changeSet>
 
