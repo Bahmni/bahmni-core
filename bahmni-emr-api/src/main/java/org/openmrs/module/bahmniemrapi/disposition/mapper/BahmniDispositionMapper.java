@@ -32,7 +32,7 @@ public class BahmniDispositionMapper {
         bahmniDisposition.setProviders(providers);
         bahmniDisposition.setCreatorName(user.getPersonName().toString());
         Concept concept = conceptService.getConcept(disposition.getConceptName());
-        if(concept.getPreferredName(locale) != null) {
+        if(concept != null && concept.getPreferredName(locale) != null) {
             bahmniDisposition.setPreferredName(concept.getPreferredName(locale).getName());
         }
         return bahmniDisposition;
