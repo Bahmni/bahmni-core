@@ -4880,13 +4880,15 @@
     <changeSet id="bahmni-core-202609171301" author="Rohit V">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="1">
-                SELECT COUNT(*) FROM global_property where property = 'fhir2Extension.practitionerAttributeIdentifierSystemMap' and property_value NOT LIKE '%License Number%';
+                SELECT COUNT(*) FROM global_property where property = 'fhir2Extension.practitionerAttributeIdentifierSystemMap'
+                and property_value NOT LIKE 'License Number:%' and property_value NOT LIKE '%,License Number:%';
             </sqlCheck>
         </preConditions>
         <comment>BAH-5116: Append License Number mapping to an already-existing fhir2Extension.practitionerAttributeIdentifierSystemMap global property</comment>
         <sql>
             update global_property set property_value = CONCAT(property_value, ',License Number:http://fhir.bahmni.org/identifier/provider-license')
-            where property = 'fhir2Extension.practitionerAttributeIdentifierSystemMap' and property_value NOT LIKE '%License Number%';
+            where property = 'fhir2Extension.practitionerAttributeIdentifierSystemMap'
+            and property_value NOT LIKE 'License Number:%' and property_value NOT LIKE '%,License Number:%';
         </sql>
     </changeSet>
 
