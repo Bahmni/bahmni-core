@@ -133,6 +133,50 @@ public class OMRSObsToBahmniObsMapperTest {
         assertEquals(TestUtil.createDateTime("2010-01-02"), parentObservation.getVisitStartDateTime());
     }
 
+    @Test
+    public void shouldMapPreviousVersionUuidWhenObsHasPreviousVersion() throws Exception {
+        Mockito.when(authenticatedUser.getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCALE)).thenReturn("en");
+        Mockito.when(LocaleUtility.fromSpecification("en")).thenReturn(Locale.ENGLISH);
+
+        Date date = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH).parse("January 2, 2010");
+        Person person = new PersonBuilder().withUUID("puuid").withPersonName("testPersonName").build();
+        User user = new User(person);
+        Visit visit = new VisitBuilder().withPerson(person).withUUID("vuuid").withStartDatetime(date).build();
+        Encounter encounter = new EncounterBuilder().withVisit(visit).withPatient(person).withUUID("euuid").withDatetime(date).build();
+
+        Concept concept = new ConceptBuilder().withName("testConcept").withDataType("Text", "ST").withUUID("cuuid").withClass("").build();
+
+        Obs previousObs = new ObsBuilder().withPerson(person).withEncounter(encounter).withConcept(concept).withDatetime(date).withCreator(user).build();
+        previousObs.setUuid("prev-uuid-123");
+
+        Obs obs = new ObsBuilder().withPerson(person).withEncounter(encounter).withConcept(concept).withValue("some value").withDatetime(date).withCreator(user).build();
+        obs.setPreviousVersion(previousObs);
+
+        BahmniObservation bahmniObservation = new OMRSObsToBahmniObsMapper(new ETObsToBahmniObsMapper(null, Arrays.asList()), observationTypeMatcher, observationMapper).map(obs, Locale.ENGLISH);
+
+        assertEquals("prev-uuid-123", bahmniObservation.getPreviousVersionUuid());
+    }
+
+    @Test
+    public void shouldNotSetPreviousVersionUuidWhenObsHasNoPreviousVersion() throws Exception {
+        Mockito.when(authenticatedUser.getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCALE)).thenReturn("en");
+        Mockito.when(LocaleUtility.fromSpecification("en")).thenReturn(Locale.ENGLISH);
+
+        Date date = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH).parse("January 2, 2010");
+        Person person = new PersonBuilder().withUUID("puuid").withPersonName("testPersonName").build();
+        User user = new User(person);
+        Visit visit = new VisitBuilder().withPerson(person).withUUID("vuuid").withStartDatetime(date).build();
+        Encounter encounter = new EncounterBuilder().withVisit(visit).withPatient(person).withUUID("euuid").withDatetime(date).build();
+
+        Concept concept = new ConceptBuilder().withName("testConcept").withDataType("Text", "ST").withUUID("cuuid").withClass("").build();
+
+        Obs obs = new ObsBuilder().withPerson(person).withEncounter(encounter).withConcept(concept).withValue("some value").withDatetime(date).withCreator(user).build();
+
+        BahmniObservation bahmniObservation = new OMRSObsToBahmniObsMapper(new ETObsToBahmniObsMapper(null, Arrays.asList()), observationTypeMatcher, observationMapper).map(obs, Locale.ENGLISH);
+
+        assertNull(bahmniObservation.getPreviousVersionUuid());
+    }
+
     private BahmniObservation getObservation(String uuid, Collection<BahmniObservation> childObservations) {
         for (BahmniObservation o : childObservations) {
             if (o.getUuid().equals(uuid)) {

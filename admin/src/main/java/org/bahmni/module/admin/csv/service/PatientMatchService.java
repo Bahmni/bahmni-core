@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +27,7 @@ public class PatientMatchService {
     @Autowired
     private BahmniPatientService patientService;
 
-    private static final String PATIENT_MATCHING_ALGORITHM_DIRECTORY = "/patientMatchingAlgorithm/";
+    private static final String PATIENT_MATCHING_ALGORITHM_DIRECTORY_NAME = "patientMatchingAlgorithm";
     private static final Logger log = LogManager.getLogger(PatientMatchService.class);
 
     // Mujir - an implementation could use multiple patient matching algorithms
@@ -56,7 +58,13 @@ public class PatientMatchService {
     }
 
     private String getAlgorithmClassPath(String matchingAlgorithmClassName) {
-        return OpenmrsUtil.getApplicationDataDirectory() + PATIENT_MATCHING_ALGORITHM_DIRECTORY + matchingAlgorithmClassName;
+        Path baseDir = Paths.get(OpenmrsUtil.getApplicationDataDirectory(), PATIENT_MATCHING_ALGORITHM_DIRECTORY_NAME).normalize();
+        Path resolvedPath = baseDir.resolve(matchingAlgorithmClassName).normalize();
+        if (!resolvedPath.startsWith(baseDir)) {
+            log.error("Rejected unsafe patientMatchingAlgorithm value: " + matchingAlgorithmClassName);
+            throw new IllegalArgumentException("Invalid patientMatchingAlgorithm: " + matchingAlgorithmClassName);
+        }
+        return resolvedPath.toString();
     }
 
 }

@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -101,12 +102,19 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
         return BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory");
     }
 
+    private String sanitizePathComponent(String value) {
+        if (value == null) return null;
+        return value.replaceAll("[/\\\\]", "").replace("..", "");
+    }
+
     private String createFileName(Integer patientId, String encounterTypeName, Object format, String originalFileName) {
         String uuid = UUID.randomUUID().toString();
+        String safeEncounterTypeName = sanitizePathComponent(encounterTypeName);
+        String safeFormat = sanitizePathComponent(String.valueOf(format));
         if (StringUtils.isNotBlank(originalFileName)) {
             originalFileName = "__" + originalFileName;
         }
-        return String.format("%s-%s-%s%s.%s", patientId, encounterTypeName, uuid, originalFileName, format);
+        return String.format("%s-%s-%s%s.%s", patientId, safeEncounterTypeName, uuid, originalFileName, safeFormat);
     }
 
     protected String createFilePath(String basePath, Integer patientId, String encounterTypeName, String format, String originalFileName) {
@@ -209,6 +217,9 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
     @Override
     public ResponseEntity<Object> retriveImageWithoutDefault(String patientUuid) {
         File file = getPatientImageFileWithoutDefault(patientUuid);
+        if (file == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return readImage(file);
     }
 
@@ -253,15 +264,20 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
     }
 
     private File getPatientImageFile(String patientUuid) {
-        File file = new File(String.format("%s/%s.%s", BahmniCoreProperties.getProperty("bahmnicore.images.directory"), patientUuid, patientImagesFormat));
-        if (file.exists() && file.isFile()) {
+        File file = getPatientImageFileWithoutDefault(patientUuid);
+        if (file != null && file.exists() && file.isFile()) {
             return file;
         }
         return new File(BahmniCoreProperties.getProperty("bahmnicore.images.directory.defaultImage"));
     }
 
     private File getPatientImageFileWithoutDefault(String patientUuid) {
-        return new File(String.format("%s/%s.%s", BahmniCoreProperties.getProperty("bahmnicore.images.directory"), patientUuid, patientImagesFormat));
+        Path base = Paths.get(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).toAbsolutePath().normalize();
+        Path resolved = base.resolve(patientUuid + "." + patientImagesFormat).normalize();
+        if (!resolved.startsWith(base) || Files.isSymbolicLink(resolved)) {
+            return null;
+        }
+        return resolved.toFile();
     }
 
     private ResponseEntity<Object> readImage(File file) {

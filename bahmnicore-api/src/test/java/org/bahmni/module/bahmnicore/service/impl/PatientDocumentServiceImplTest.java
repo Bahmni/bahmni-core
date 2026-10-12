@@ -2,6 +2,7 @@ package org.bahmni.module.bahmnicore.service.impl;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.xerces.impl.dv.util.Base64;
+import org.bahmni.module.bahmnicore.BahmniCoreException;
 import org.bahmni.module.bahmnicore.bahmniexceptions.FileTypeNotSupportedException;
 import org.bahmni.module.bahmnicore.bahmniexceptions.VideoFormatNotSupportedException;
 import org.bahmni.module.bahmnicore.model.VideoFormats;
@@ -90,6 +91,92 @@ public class PatientDocumentServiceImplTest {
     }
 
     @Test
+    public void shouldReturn404WhenPathTraversalAttemptedViaPatientUuidOnV2() throws Exception {
+        File imagesDirectory = temporaryFolder.newFolder("patient_images");
+        temporaryFolder.newFile("secret.jpeg");
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).thenReturn(imagesDirectory.getAbsolutePath());
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        ResponseEntity<Object> responseEntity = patientDocumentService.retriveImageWithoutDefault("../secret");
+
+        assertEquals(404, responseEntity.getStatusCode().value());
+    }
+
+    @Test
+    public void shouldReturn404WhenValidPatientUuidButNoImageExists() {
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        ResponseEntity<Object> responseEntity = patientDocumentService.retriveImageWithoutDefault("valid-patient-uuid");
+
+        assertEquals(404, responseEntity.getStatusCode().value());
+    }
+
+    @Test
+    public void shouldReturnImageWhenPatientImageExists() throws Exception {
+        File tempFile = temporaryFolder.newFile("patient-uuid.jpeg");
+        Files.write(tempFile.toPath(), new byte[]{1, 2, 3});
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        ResponseEntity<Object> responseEntity = patientDocumentService.retriveImage("patient-uuid");
+
+        assertEquals(200, responseEntity.getStatusCode().value());
+    }
+
+    @Test
+    public void shouldNotSaveImageWhenImageIsNull() {
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).thenReturn("/bahmni_data/patient_images");
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        patientDocumentService.saveImage("patient-uuid", null);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenBlankFileNameOnDelete() {
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("/bahmni_data");
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        try {
+            patientDocumentService.delete("");
+            fail("Expected RuntimeException");
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains("Required String parameter"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenPathTraversalAttemptedOnDelete() {
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("/bahmni_data");
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        try {
+            patientDocumentService.delete("../../etc/passwd.jpeg");
+            fail("Expected RuntimeException");
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains("Invalid file specified"));
+        }
+    }
+
+    @Test
+    public void shouldDeleteFileSuccessfully() throws Exception {
+        File tempFile = temporaryFolder.newFile("patient-doc.jpeg");
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        patientDocumentService.delete("patient-doc.jpeg");
+
+        assertFalse(tempFile.exists());
+    }
+
+    @Test
     public void shouldGetImageNotFoundForIfNoImageCapturedForPatientAndNoDefaultImageNotPresent() throws Exception {
         final FileInputStream fileInputStreamMock = PowerMockito.mock(FileInputStream.class);
         PowerMockito.whenNew(FileInputStream.class).withArguments(Matchers.anyString()).thenReturn(fileInputStreamMock);
@@ -104,9 +191,29 @@ public class PatientDocumentServiceImplTest {
     }
 
     @Test
+    public void shouldNotReadFileOutsideImagesDirectoryViaPathTraversal() throws Exception {
+        File imagesDir = temporaryFolder.newFolder("images");
+        File outsideDir = temporaryFolder.newFolder("outside");
+        File secretFile = new File(outsideDir, "secret.jpeg");
+        byte[] secretBytes = "TOP-SECRET-CONTENT-NOT-A-PATIENT-PHOTO".getBytes();
+        FileUtils.writeByteArrayToFile(secretFile, secretBytes);
+
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory")).thenReturn(imagesDir.getAbsolutePath());
+        when(BahmniCoreProperties.getProperty("bahmnicore.images.directory.defaultImage")).thenReturn("");
+
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        String traversalPayload = "../outside/secret";
+        ResponseEntity<Object> responseEntity = patientDocumentService.retriveImageWithoutDefault(traversalPayload);
+
+        assertEquals(404, responseEntity.getStatusCode().value());
+    }
+
+    @Test
     public void shouldThrowExceptionWhenVideoFormatIsNotSupported() throws Exception {
         PowerMockito.mockStatic(BahmniCoreProperties.class);
-        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("");
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
         PowerMockito.mockStatic(FileUtils.class);
 
         Patient patient = new Patient();
@@ -124,7 +231,7 @@ public class PatientDocumentServiceImplTest {
     @Test
     public void shouldSavePDF() throws Exception {
         PowerMockito.mockStatic(BahmniCoreProperties.class);
-        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("");
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
         PowerMockito.mockStatic(FileUtils.class);
 
         Patient patient = new Patient();
@@ -141,7 +248,7 @@ public class PatientDocumentServiceImplTest {
     public void shouldSaveImage() throws Exception {
         PowerMockito.mockStatic(BahmniCoreProperties.class);
         PowerMockito.mockStatic(ImageIO.class);
-        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("");
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
         BufferedImage bufferedImage = new BufferedImage(1,2, 2);
         when(ImageIO.read(Matchers.any(ByteArrayInputStream.class))).thenReturn(bufferedImage);
         when(ImageIO.write(eq(bufferedImage),eq("jpg"), Matchers.any(File.class))).thenReturn(true);
@@ -157,9 +264,22 @@ public class PatientDocumentServiceImplTest {
     }
 
     @Test
+    public void shouldNotWriteDocumentOutsideBaseDirectoryViaPathTraversal() throws Exception {
+        PowerMockito.mockStatic(BahmniCoreProperties.class);
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory"))
+                .thenReturn(temporaryFolder.getRoot().getAbsolutePath());
+
+        patientDocumentService = new PatientDocumentServiceImpl();
+
+        expectedException.expect(BahmniCoreException.class);
+        patientDocumentService.saveDocument(1, "Consultation", "pdfContent", "pdf", "file",
+                "../../../../pwned_by_bahmni_poc");
+    }
+
+    @Test
     public void shouldThrowExceptionWhenFileTypeIsNotSupported() throws Exception {
         PowerMockito.mockStatic(BahmniCoreProperties.class);
-        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("");
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
         PowerMockito.mockStatic(FileUtils.class);
 
         Patient patient = new Patient();
@@ -176,7 +296,7 @@ public class PatientDocumentServiceImplTest {
     @Test
     public void shouldThrowExceptionWhenImageTypeOtherThanPngJpegGif() throws Exception {
         PowerMockito.mockStatic(BahmniCoreProperties.class);
-        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("");
+        when(BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
         PowerMockito.mockStatic(FileUtils.class);
         PowerMockito.mockStatic(ImageIO.class);
         BufferedImage bufferedImage = new BufferedImage(1,2, 2);

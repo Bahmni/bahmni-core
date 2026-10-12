@@ -4,6 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.bahmni.fileimport.FileImporter;
 import org.bahmni.module.admin.csv.persister.PatientPersister;
 import org.bahmni.module.bahmnicore.security.PrivilegeConstants;
+import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,9 +31,12 @@ import static org.bahmni.module.bahmnicore.web.v1_0.controller.AdminImportContro
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -128,5 +132,29 @@ public class AdminImportControllerTest {
         File[] uploadedFiles = patientDir.listFiles((dir, name) -> name.startsWith("patient-"+fileNameDatePart) && name.endsWith(".csv"));
         assertTrue("a randomly named patient CSV should exist in the upload directory",
                 uploadedFiles != null && uploadedFiles.length > 0);
+    }
+
+    @Test
+    public void shouldReturn403WhenFetchingStatusWithoutRequiredPrivilege() throws Exception {
+        when(mockUserContext.hasPrivilege(PrivilegeConstants.IMPORT_CSV_FILE_PRIVILEGE)).thenReturn(false);
+
+        ResponseEntity<Serializable> response = controller.status(30);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        verifyNoInteractions(sessionFactory);
+    }
+
+    @Test
+    public void shouldReachDaoLayerWhenFetchingStatusWithRequiredPrivilege() throws Exception {
+        when(sessionFactory.getCurrentSession()).thenThrow(new HibernateException("DAO layer reached"));
+
+        try {
+            controller.status(30);
+            fail("Expected the DAO layer to be reached and throw");
+        } catch (HibernateException e) {
+            assertEquals("DAO layer reached", e.getMessage());
+        }
+
+        verify(mockUserContext).hasPrivilege(PrivilegeConstants.IMPORT_CSV_FILE_PRIVILEGE);
     }
 }

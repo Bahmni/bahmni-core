@@ -431,6 +431,58 @@ public class OpenElisAccessionEventWorkerTest {
     }
 
     @Test
+    public void shouldNotResetFulfillerStatusToInProgressWhenOrderIsAlreadyCompleted() throws Exception {
+        Encounter orderEncounter = getEncounterWithTests("test1", "test2");
+        orderEncounter.getOrders().forEach(o -> o.setFulfillerStatus(Order.FulfillerStatus.COMPLETED));
+        final Visit visit = new Visit();
+        visit.setId(1);
+        orderEncounter.setVisit(visit);
+        visit.setEncounters(new HashSet<>(Arrays.asList(orderEncounter)));
+        OpenElisTestDetail test1 = new OpenElisTestDetailBuilder().withTestUuid("test1").build();
+        OpenElisTestDetail test2 = new OpenElisTestDetailBuilder().withTestUuid("test2").build();
+        test1.setStatus("Finalized");
+        test2.setStatus("Finalized");
+        OpenElisAccession openElisAccession = new OpenElisAccessionBuilder().withTestDetails(new HashSet<>(Arrays.asList(test1, test2))).build();
+
+        stubAccession(openElisAccession);
+        when(encounterService.getEncounterByUuid(openElisAccession.getAccessionUuid())).thenReturn(orderEncounter);
+        accessionEventWorker.associateTestResultsToOrder(openElisAccession);
+
+        List<Order.FulfillerStatus> fulfillerStatuses = orderEncounter.getOrders().stream()
+                .map(Order::getFulfillerStatus)
+                .collect(Collectors.toList());
+
+        assertEquals(Order.FulfillerStatus.COMPLETED, fulfillerStatuses.get(0));
+        assertEquals(Order.FulfillerStatus.COMPLETED, fulfillerStatuses.get(1));
+    }
+
+    @Test
+    public void shouldNotChangeFulfillerStatusWhenOrderIsAlreadyInProgress() throws Exception {
+        Encounter orderEncounter = getEncounterWithTests("test1", "test2");
+        orderEncounter.getOrders().forEach(o -> o.setFulfillerStatus(Order.FulfillerStatus.IN_PROGRESS));
+        final Visit visit = new Visit();
+        visit.setId(1);
+        orderEncounter.setVisit(visit);
+        visit.setEncounters(new HashSet<>(Arrays.asList(orderEncounter)));
+        OpenElisTestDetail test1 = new OpenElisTestDetailBuilder().withTestUuid("test1").build();
+        OpenElisTestDetail test2 = new OpenElisTestDetailBuilder().withTestUuid("test2").build();
+        test1.setStatus("Not started");
+        test2.setStatus("Not started");
+        OpenElisAccession openElisAccession = new OpenElisAccessionBuilder().withTestDetails(new HashSet<>(Arrays.asList(test1, test2))).build();
+
+        stubAccession(openElisAccession);
+        when(encounterService.getEncounterByUuid(openElisAccession.getAccessionUuid())).thenReturn(orderEncounter);
+        accessionEventWorker.associateTestResultsToOrder(openElisAccession);
+
+        List<Order.FulfillerStatus> fulfillerStatuses = orderEncounter.getOrders().stream()
+                .map(Order::getFulfillerStatus)
+                .collect(Collectors.toList());
+
+        assertEquals(Order.FulfillerStatus.IN_PROGRESS, fulfillerStatuses.get(0));
+        assertEquals(Order.FulfillerStatus.IN_PROGRESS, fulfillerStatuses.get(1));
+    }
+
+    @Test
     public void shouldNotFailWhenResultPostSaveCommandListIsEmpty() throws Exception {
         OpenElisAccession openElisAccession = new OpenElisAccessionBuilder().build();
         Encounter encounter = getEncounterWithTests("test1");
