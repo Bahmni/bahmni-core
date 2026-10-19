@@ -3,19 +3,17 @@ package org.bahmni.module.referencedata.web.contract.mapper;
 import org.bahmni.module.referencedata.labconcepts.contract.RadiologyTest;
 import org.bahmni.module.referencedata.labconcepts.mapper.RadiologyTestMapper;
 import org.bahmni.test.builder.ConceptBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.openmrs.Concept;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.context.UserContext;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Date;
 import java.util.Locale;
@@ -23,9 +21,6 @@ import java.util.Locale;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
-@PowerMockIgnore("javax.management.*")
-@PrepareForTest(Context.class)
-@RunWith(PowerMockRunner.class)
 public class RadiologyTestMapperTest {
     private RadiologyTestMapper testMapper;
     private Concept radiologyConcept;
@@ -36,6 +31,8 @@ public class RadiologyTestMapperTest {
     @Mock
     private UserContext userContext;
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -43,13 +40,18 @@ public class RadiologyTestMapperTest {
         dateCreated = new Date();
         dateChanged = new Date();
         Locale defaultLocale = new Locale("en", "GB");
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getLocale()).thenReturn(defaultLocale);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getLocale).thenReturn(defaultLocale);
 
        radiologyConcept = new ConceptBuilder().withUUID("RadiologyUUID").withDateCreated(dateCreated).withClass(RadiologyTest.RADIOLOGY_TEST_CONCEPT_CLASSES.get(0)).
                 withDateChanged(dateChanged).withShortName("clavicle - right, 2 views (x-ray)").withName("Clavicle - Right, 2 views (X-ray)").build();
 
-        when(Context.getConceptService()).thenReturn(conceptService);
+        contextMockedStatic.when(Context::getConceptService).thenReturn(conceptService);
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test

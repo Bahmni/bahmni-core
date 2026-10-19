@@ -5,20 +5,18 @@ import org.bahmni.module.referencedata.labconcepts.contract.Sample;
 import org.bahmni.module.referencedata.labconcepts.mapper.ResourceMapper;
 import org.bahmni.module.referencedata.labconcepts.mapper.SampleMapper;
 import org.bahmni.test.builder.ConceptBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.openmrs.Concept;
 import org.openmrs.ConceptSet;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.context.UserContext;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.List;
 import java.util.Locale;
@@ -31,9 +29,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-@PowerMockIgnore("javax.management.*")
-@PrepareForTest(Context.class)
-@RunWith(PowerMockRunner.class)
 public class SampleMapperTest {
 
     private SampleMapper sampleMapper;
@@ -45,14 +40,16 @@ public class SampleMapperTest {
     @Mock
     private UserContext userContext;
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
         sampleMapper = new SampleMapper();
         Locale defaultLocale = new Locale("en", "GB");
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getLocale()).thenReturn(defaultLocale);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getLocale).thenReturn(defaultLocale);
         sampleConcept = new ConceptBuilder().forSample().withShortName("ShortName").build();
         allSamplesConcept = new ConceptBuilder().withUUID("Laboratory UUID")
                 .withName(AllSamples.ALL_SAMPLES).withClass(Sample.SAMPLE_CONCEPT_CLASSES.get(0))
@@ -62,7 +59,12 @@ public class SampleMapperTest {
         conceptSet.setSortWeight(sortOrder);
         List<ConceptSet> conceptSets = getConceptSets(conceptSet);
         when(conceptService.getSetsContainingConcept(any(Concept.class))).thenReturn(conceptSets);
-        when(Context.getConceptService()).thenReturn(conceptService);
+        contextMockedStatic.when(Context::getConceptService).thenReturn(conceptService);
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test
@@ -96,7 +98,7 @@ public class SampleMapperTest {
         ConceptSet conceptSet = createConceptSet(allSamplesConcept, sampleConcept);
         List<ConceptSet> conceptSets = getConceptSets(conceptSet);
         when(conceptService.getSetsContainingConcept(any(Concept.class))).thenReturn(conceptSets);
-        when(Context.getConceptService()).thenReturn(conceptService);
+        contextMockedStatic.when(Context::getConceptService).thenReturn(conceptService);
         Sample sampleData = sampleMapper.map(sampleConcept);
         assertTrue(sampleData.getSortOrder().equals(ResourceMapper.DEFAULT_SORT_ORDER));
     }

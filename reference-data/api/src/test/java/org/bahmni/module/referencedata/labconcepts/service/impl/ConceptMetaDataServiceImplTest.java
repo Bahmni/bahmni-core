@@ -2,21 +2,20 @@ package org.bahmni.module.referencedata.labconcepts.service.impl;
 
 import org.bahmni.module.referencedata.labconcepts.contract.ConceptCommon;
 import org.bahmni.module.referencedata.labconcepts.model.ConceptMetaData;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.ConceptName;
 import org.openmrs.ConceptSearchResult;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +24,6 @@ import java.util.Locale;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({org.openmrs.util.LocaleUtility.class, Context.class})
 public class ConceptMetaDataServiceImplTest {
 
     @Mock
@@ -47,14 +44,23 @@ public class ConceptMetaDataServiceImplTest {
     @InjectMocks
     ConceptMetaDataServiceImpl conceptMetaDataService;
 
+    private MockedStatic<org.openmrs.util.LocaleUtility> localeUtilityMockedStatic;
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setup(){
         initMocks(this);
-        PowerMockito.mockStatic(org.openmrs.util.LocaleUtility.class);
-        PowerMockito.mockStatic(Context.class);
+        localeUtilityMockedStatic = Mockito.mockStatic(org.openmrs.util.LocaleUtility.class);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
         ConceptName conceptName = new ConceptName();
         conceptName.setName("ConceptA");
         when(concept.getName()).thenReturn(conceptName);
+    }
+
+    @After
+    public void tearDown() {
+        localeUtilityMockedStatic.close();
+        contextMockedStatic.close();
     }
 
     @Test
@@ -70,8 +76,8 @@ public class ConceptMetaDataServiceImplTest {
         when(conceptService.getConceptDatatypeByName("N/A")).thenReturn(conceptDataType);
         when(conceptService.getConceptByUuid("123")).thenReturn(concept);
         Locale locale = new Locale("en");
-        when(org.openmrs.util.LocaleUtility.fromSpecification("en")).thenReturn(locale);
-        when(org.openmrs.util.LocaleUtility.isValid(locale)).thenReturn(true);
+        localeUtilityMockedStatic.when(() -> org.openmrs.util.LocaleUtility.fromSpecification("en")).thenReturn(locale);
+        localeUtilityMockedStatic.when(() -> org.openmrs.util.LocaleUtility.isValid(locale)).thenReturn(true);
 
         ConceptMetaData conceptMetadata = conceptMetaDataService.getConceptMetaData(conceptCommon);
 
@@ -92,13 +98,13 @@ public class ConceptMetaDataServiceImplTest {
 
         List<Locale> locales =  new ArrayList<>();
 
-        when(Context.getAdministrationService()).thenReturn(administrationService);
+        contextMockedStatic.when(Context::getAdministrationService).thenReturn(administrationService);
         when(conceptService.getConceptClassByName("ConceptClass")).thenReturn(conceptClass);
         when(conceptService.getConceptDatatypeByName("N/A")).thenReturn(conceptDataType);
         when(administrationService.getAllowedLocales()).thenReturn(locales);
         Locale locale = new Locale("en");
-        when(org.openmrs.util.LocaleUtility.fromSpecification("en")).thenReturn(locale);
-        when(org.openmrs.util.LocaleUtility.isValid(locale)).thenReturn(true);
+        localeUtilityMockedStatic.when(() -> org.openmrs.util.LocaleUtility.fromSpecification("en")).thenReturn(locale);
+        localeUtilityMockedStatic.when(() -> org.openmrs.util.LocaleUtility.isValid(locale)).thenReturn(true);
 
         ConceptMetaData conceptMetadata = conceptMetaDataService.getConceptMetaData(conceptCommon);
 
@@ -120,7 +126,7 @@ public class ConceptMetaDataServiceImplTest {
         conceptSearchResult.setConcept(concept);
         conceptSearchResults.add(conceptSearchResult);
 
-        when(Context.getAdministrationService()).thenReturn(administrationService);
+        contextMockedStatic.when(Context::getAdministrationService).thenReturn(administrationService);
         when(conceptService.getConceptClassByName("ConceptClass")).thenReturn(conceptClass);
         when(conceptService.getConceptDatatypeByName("N/A")).thenReturn(conceptDataType);
         when(administrationService.getAllowedLocales()).thenReturn(locales);
@@ -147,9 +153,9 @@ public class ConceptMetaDataServiceImplTest {
         conceptSearchResults.add(conceptSearchResult);
 
         Locale locale = new Locale("en");
-        when(Context.getAdministrationService()).thenReturn(administrationService);
-        when(org.openmrs.util.LocaleUtility.fromSpecification("en")).thenReturn(locale);
-        when(org.openmrs.util.LocaleUtility.isValid(locale)).thenReturn(false);
+        contextMockedStatic.when(Context::getAdministrationService).thenReturn(administrationService);
+        localeUtilityMockedStatic.when(() -> org.openmrs.util.LocaleUtility.fromSpecification("en")).thenReturn(locale);
+        localeUtilityMockedStatic.when(() -> org.openmrs.util.LocaleUtility.isValid(locale)).thenReturn(false);
         when(administrationService.getAllowedLocales()).thenReturn(locales);
         when(conceptService.getConcepts("ConceptA", locales, false, null, null, null, null, null, null, null)).thenReturn(conceptSearchResults);
 
@@ -171,9 +177,9 @@ public class ConceptMetaDataServiceImplTest {
         List<Locale> locales =  new ArrayList<>();
         Locale locale = new Locale("en");
 
-        when(Context.getAdministrationService()).thenReturn(administrationService);
-        when(org.openmrs.util.LocaleUtility.fromSpecification("en")).thenReturn(locale);
-        when(org.openmrs.util.LocaleUtility.isValid(locale)).thenReturn(true);
+        contextMockedStatic.when(Context::getAdministrationService).thenReturn(administrationService);
+        localeUtilityMockedStatic.when(() -> org.openmrs.util.LocaleUtility.fromSpecification("en")).thenReturn(locale);
+        localeUtilityMockedStatic.when(() -> org.openmrs.util.LocaleUtility.isValid(locale)).thenReturn(true);
         when(administrationService.getAllowedLocales()).thenReturn(locales);
         when(conceptService.getConcepts("ConceptA", locales, false, null, null, null, null, null, null, null)).thenReturn(conceptSearchResults);
 

@@ -6,20 +6,19 @@ import org.bahmni.module.referencedata.labconcepts.contract.Sample;
 import org.bahmni.module.referencedata.labconcepts.mapper.AllSamplesMapper;
 import org.bahmni.module.referencedata.labconcepts.mapper.SampleMapper;
 import org.bahmni.test.builder.ConceptBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.context.UserContext;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Date;
 import java.util.List;
@@ -28,9 +27,6 @@ import java.util.Locale;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
-@PowerMockIgnore("javax.management.*")
-@PrepareForTest(Context.class)
-@RunWith(PowerMockRunner.class)
 public class AllSamplesMapperTest {
 
     private AllSamplesMapper allSamplesMapper;
@@ -48,15 +44,18 @@ public class AllSamplesMapperTest {
     @Mock
     private UserContext userContext;
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
         allSamplesMapper = new AllSamplesMapper();
         sampleMapper = new SampleMapper();
         dateCreated = new Date();
         dateChanged = new Date();
         Locale defaultLocale = new Locale("en", "GB");
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getLocale()).thenReturn(defaultLocale);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getLocale).thenReturn(defaultLocale);
         Concept testConcept = new ConceptBuilder().withUUID("Test UUID").withDateCreated(dateCreated).withClass(LabTest.LAB_TEST_CONCEPT_CLASSES.get(0)).withDescription("SomeDescription")
                 .withDateChanged(dateChanged).withShortName("ShortName").withName("Test concept").withDataType(ConceptDatatype.NUMERIC).build();
 
@@ -72,7 +71,12 @@ public class AllSamplesMapperTest {
                 .withSetMember(specimenConcept)
                 .build();
 
-        when(Context.getConceptService()).thenReturn(conceptService);
+        contextMockedStatic.when(Context::getConceptService).thenReturn(conceptService);
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test

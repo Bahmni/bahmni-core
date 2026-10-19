@@ -7,10 +7,12 @@ import org.bahmni.module.referencedata.labconcepts.contract.LabTest;
 import org.bahmni.module.referencedata.labconcepts.contract.Sample;
 import org.bahmni.module.referencedata.labconcepts.mapper.LabTestMapper;
 import org.bahmni.test.builder.ConceptBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -22,10 +24,6 @@ import org.openmrs.ConceptSet;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.context.UserContext;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Date;
 import java.util.List;
@@ -39,9 +37,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-@PowerMockIgnore("javax.management.*")
-@PrepareForTest(Context.class)
-@RunWith(PowerMockRunner.class)
 public class LabTestMapperTest {
     private LabTestMapper testMapper;
     private Date dateCreated;
@@ -55,6 +50,8 @@ public class LabTestMapperTest {
     @Mock
     private UserContext userContext;
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -63,8 +60,8 @@ public class LabTestMapperTest {
         dateCreated = new Date();
         dateChanged = new Date();
         Locale defaultLocale = new Locale("en", "GB");
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getLocale()).thenReturn(defaultLocale);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getLocale).thenReturn(defaultLocale);
         testConcept = new ConceptBuilder().withUUID("Test UUID").withDateCreated(dateCreated).withClass(LabTest.LAB_TEST_CONCEPT_CLASSES.get(0)).withDescription("SomeDescription")
                 .withDateChanged(dateChanged).withShortName("ShortName").withName("Test Name Here").withDataType(ConceptDatatype.NUMERIC).build();
         Concept testAndPanelsConcept = new ConceptBuilder().withUUID("Test and Panels UUID").withDateCreated(dateCreated).withClassUUID(ConceptClass.CONVSET_UUID)
@@ -108,7 +105,12 @@ public class LabTestMapperTest {
             }
         });
         when(conceptService.getConceptNumeric(eq(null))).thenReturn(conceptNumeric);
-        when(Context.getConceptService()).thenReturn(conceptService);
+        contextMockedStatic.when(Context::getConceptService).thenReturn(conceptService);
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test
