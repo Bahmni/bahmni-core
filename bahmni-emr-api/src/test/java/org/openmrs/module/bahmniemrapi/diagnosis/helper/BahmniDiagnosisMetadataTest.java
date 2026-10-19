@@ -1,14 +1,16 @@
 package org.openmrs.module.bahmniemrapi.diagnosis.helper;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
@@ -27,9 +29,6 @@ import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.emrapi.encounter.EncounterTransactionMapper;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.util.LocaleUtility;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,10 +41,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-@PrepareForTest({Context.class,LocaleUtility.class})
-@RunWith(PowerMockRunner.class)
 public class BahmniDiagnosisMetadataTest {
     @Mock
     private ObsService obsService;
@@ -61,15 +57,24 @@ public class BahmniDiagnosisMetadataTest {
     private static final String BAHMNI_DIAGNOSIS_REVISED = "Bahmni Diagnosis Revised";
     private static final String BAHMNI_INITIAL_DIAGNOSIS = "Bahmni Initial Diagnosis";
 
+    private MockedStatic<LocaleUtility> localeUtilityMockedStatic;
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        mockStatic(LocaleUtility.class);
-        mockStatic(Context.class);
-        PowerMockito.when(Context.getLocale()).thenReturn(Locale.ENGLISH);
-        PowerMockito.when(LocaleUtility.getDefaultLocale()).thenReturn(Locale.ENGLISH);
-        PowerMockito.when(Context.getConceptService()).thenReturn(conceptService);
+        localeUtilityMockedStatic = Mockito.mockStatic(LocaleUtility.class);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getLocale).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic.when(LocaleUtility::getDefaultLocale).thenReturn(Locale.ENGLISH);
+        contextMockedStatic.when(Context::getConceptService).thenReturn(conceptService);
 
+    }
+
+    @After
+    public void tearDown() {
+        localeUtilityMockedStatic.close();
+        contextMockedStatic.close();
     }
 
 

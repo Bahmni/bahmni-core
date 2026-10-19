@@ -1,29 +1,31 @@
 package org.openmrs.module.bahmniemrapi.encountertransaction.mapper;
 
 import junit.framework.Assert;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.module.bahmniemrapi.builder.ConceptBuilder;
 import org.openmrs.util.LocaleUtility;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
 import java.util.Locale;
 
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(LocaleUtility.class)
 public class ConceptSortWeightUtilTest {
+
+    private MockedStatic<LocaleUtility> localeUtilityMockedStatic;
 
     @Before
     public void setUp() throws Exception {
-        mockStatic(LocaleUtility.class);
-        when(LocaleUtility.getDefaultLocale()).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic = Mockito.mockStatic(LocaleUtility.class);
+        localeUtilityMockedStatic.when(LocaleUtility::getDefaultLocale).thenReturn(Locale.ENGLISH);
+    }
+
+    @After
+    public void tearDown() {
+        localeUtilityMockedStatic.close();
     }
 
     @Test
