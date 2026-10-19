@@ -19,7 +19,7 @@
         <gem.home>${basedir}/.rubygems</gem.home>
         <gem.path>${basedir}/.rubygems</gem.path>
         <uiframeworkVersion>3.3.1</uiframeworkVersion>
-        <bedManagementVersion>5.13.0</bedManagementVersion>
+        <bedManagementVersion>7.3.0-SNAPSHOT</bedManagementVersion>
     </properties>
 
     <dependencies>
@@ -315,7 +315,23 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
-    </dependencies>
+    		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-junit4</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-api-mockito2</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-inline</artifactId>
+			<version>${mockitoVersion}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
     <build>
         <finalName>${project.artifactId}-${project.version}</finalName>
