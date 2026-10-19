@@ -10,8 +10,9 @@ import org.bahmni.module.elisatomfeedclient.api.domain.OpenElisTestDetail;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterRole;
@@ -35,9 +36,6 @@ import org.openmrs.api.UserService;
 import org.openmrs.api.VisitService;
 import org.openmrs.api.context.Context;
 import org.bahmni.module.bahmnicommons.api.visitlocation.BahmniVisitLocationService;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,9 +59,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-
-@PrepareForTest(Context.class)
-@RunWith(PowerMockRunner.class)
 
 public class AccessionHelperTest {
     @Mock
@@ -129,21 +124,22 @@ public class AccessionHelperTest {
         when(providerService.getProvidersByPerson(eq(null))).thenReturn(Arrays.asList(new Provider()));
         when(encounterService.getEncounterRoleByUuid(EncounterRole.UNKNOWN_ENCOUNTER_ROLE_UUID)).thenReturn(new EncounterRole());
         when(orderService.getOrderTypes(true)).thenReturn(Arrays.asList(getOrderType()));
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getAuthenticatedUser()).thenReturn(provider);
-        when(Context.getLocationService()).thenReturn(locationService);
-        when(locationService.getLocationByUuid(anyString())).thenReturn(null);
+        try (MockedStatic<Context> contextMockedStatic = Mockito.mockStatic(Context.class)) {
+            contextMockedStatic.when(Context::getAuthenticatedUser).thenReturn(provider);
+            contextMockedStatic.when(Context::getLocationService).thenReturn(locationService);
+            when(locationService.getLocationByUuid(anyString())).thenReturn(null);
 
-        OpenElisAccession openElisAccession = new OpenElisAccessionBuilder().withTestDetails(testDetails).build();
-        openElisAccession.setDateTime(ENCOUNTER_START_DATE);
-        Encounter encounter = accessionHelper.mapToNewEncounter(openElisAccession, "LAB_RESULTS");
+            OpenElisAccession openElisAccession = new OpenElisAccessionBuilder().withTestDetails(testDetails).build();
+            openElisAccession.setDateTime(ENCOUNTER_START_DATE);
+            Encounter encounter = accessionHelper.mapToNewEncounter(openElisAccession, "LAB_RESULTS");
 
-        Set<Order> orders = encounter.getOrders();
-        Assert.assertEquals(2, orders.size());
-        verify(conceptService, never()).getConceptByUuid("test1");
+            Set<Order> orders = encounter.getOrders();
+            Assert.assertEquals(2, orders.size());
+            verify(conceptService, never()).getConceptByUuid("test1");
 
-        for (Order order : orders) {
-            Assert.assertTrue(order.getConcept().getUuid().equals("panel1") || order.getConcept().getUuid().equals("test2"));
+            for (Order order : orders) {
+                Assert.assertTrue(order.getConcept().getUuid().equals("panel1") || order.getConcept().getUuid().equals("test2"));
+            }
         }
     }
 
@@ -169,23 +165,24 @@ public class AccessionHelperTest {
         when(encounterService.getEncounterRoleByUuid(EncounterRole.UNKNOWN_ENCOUNTER_ROLE_UUID)).thenReturn(new EncounterRole());
         when(orderService.getOrderTypes(true)).thenReturn(Arrays.asList(getOrderType()));
         when(visitService.saveVisit(any(Visit.class))).thenReturn(visits.get(0));
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getAuthenticatedUser()).thenReturn(provider);
-        when(Context.getLocationService()).thenReturn(locationService);
-        when(locationService.getLocationByUuid(anyString())).thenReturn(null);
+        try (MockedStatic<Context> contextMockedStatic = Mockito.mockStatic(Context.class)) {
+            contextMockedStatic.when(Context::getAuthenticatedUser).thenReturn(provider);
+            contextMockedStatic.when(Context::getLocationService).thenReturn(locationService);
+            when(locationService.getLocationByUuid(anyString())).thenReturn(null);
 
-        OpenElisAccession openElisAccession = new OpenElisAccessionBuilder().withTestDetails(testDetails).build();
-        openElisAccession.setDateTime(ENCOUNTER_START_DATE);
-        Encounter encounter = accessionHelper.mapToNewEncounter(openElisAccession, "LAB_RESULTS");
+            OpenElisAccession openElisAccession = new OpenElisAccessionBuilder().withTestDetails(testDetails).build();
+            openElisAccession.setDateTime(ENCOUNTER_START_DATE);
+            Encounter encounter = accessionHelper.mapToNewEncounter(openElisAccession, "LAB_RESULTS");
 
-        Date startDatetime = encounter.getVisit().getStartDatetime();
-        Assert.assertTrue("Encounter should be before or after visit start", encounter.getEncounterDatetime().compareTo(startDatetime) >= 0);
-        Set<Order> orders = encounter.getOrders();
-        Assert.assertEquals(2, orders.size());
-        verify(conceptService, never()).getConceptByUuid("test1");
+            Date startDatetime = encounter.getVisit().getStartDatetime();
+            Assert.assertTrue("Encounter should be before or after visit start", encounter.getEncounterDatetime().compareTo(startDatetime) >= 0);
+            Set<Order> orders = encounter.getOrders();
+            Assert.assertEquals(2, orders.size());
+            verify(conceptService, never()).getConceptByUuid("test1");
 
-        for (Order order : orders) {
-            Assert.assertTrue(order.getConcept().getUuid().equals("panel1") || order.getConcept().getUuid().equals("test2"));
+            for (Order order : orders) {
+                Assert.assertTrue(order.getConcept().getUuid().equals("panel1") || order.getConcept().getUuid().equals("test2"));
+            }
         }
     }
 

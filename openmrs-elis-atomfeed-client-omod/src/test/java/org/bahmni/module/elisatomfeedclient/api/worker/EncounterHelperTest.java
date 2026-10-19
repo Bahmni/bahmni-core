@@ -1,9 +1,11 @@
 package org.bahmni.module.elisatomfeedclient.api.worker;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -19,9 +21,6 @@ import org.openmrs.VisitType;
 import org.openmrs.api.EncounterService;
 import org.openmrs.api.VisitService;
 import org.openmrs.api.context.Context;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -38,8 +37,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 
-@PrepareForTest(Context.class)
-@RunWith(PowerMockRunner.class)
 public class EncounterHelperTest {
     private EncounterType encounterType;
     @Mock
@@ -49,6 +46,7 @@ public class EncounterHelperTest {
     private EncounterHelper encounterHelper;
     private Provider provider;
     private Patient patient;
+    private MockedStatic<Context> contextMockedStatic;
 
     @Before
     public void setUp() throws ParseException {
@@ -60,8 +58,13 @@ public class EncounterHelperTest {
         encounterHelper = new EncounterHelper(encounterService);
         provider = new Provider(333);
         patient = new Patient(444);
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getAuthenticatedUser()).thenReturn(new User());
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getAuthenticatedUser).thenReturn(new User());
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test

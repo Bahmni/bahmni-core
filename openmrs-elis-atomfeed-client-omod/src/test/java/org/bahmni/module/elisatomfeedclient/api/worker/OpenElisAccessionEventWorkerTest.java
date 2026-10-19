@@ -11,10 +11,12 @@ import org.bahmni.module.elisatomfeedclient.api.domain.OpenElisTestDetail;
 import org.bahmni.module.elisatomfeedclient.api.mapper.AccessionHelper;
 import org.bahmni.webclients.HttpClient;
 import org.ict4h.atomfeed.client.domain.Event;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -52,14 +54,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import org.openmrs.util.OpenmrsUtil;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@PowerMockIgnore("javax.management.*")
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Context.class, OpenmrsUtil.class})
 public class OpenElisAccessionEventWorkerTest {
     @Mock
     private HttpClient httpClient;
@@ -85,20 +80,28 @@ public class OpenElisAccessionEventWorkerTest {
     private OpenElisAccessionEventWorker accessionEventWorker;
     private String openElisUrl;
     private Event event;
+    private MockedStatic<Context> contextMockedStatic;
+    private MockedStatic<OpenmrsUtil> openmrsUtilMockedStatic;
 
     @Before
     public void setUp() {
         initMocks(this);
-        PowerMockito.mockStatic(Context.class);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
         accessionEventWorker = new OpenElisAccessionEventWorker(feedProperties, httpClient, encounterService,
                 conceptService, accessionMapper, providerService, bahmniVisitAttributeSaveCommand, auditLogService);
         openElisUrl = "http://localhost:8080";
         event = new Event("id", "/openelis/accession/12-34-56-78", "title", "feedUri", new Date());
         when(feedProperties.getOpenElisUri()).thenReturn(openElisUrl);
         when(administrationService.getGlobalProperty("bahmni.enableAuditLog")).thenReturn("true");
-        when(Context.getAdministrationService()).thenReturn(administrationService);
-        PowerMockito.mockStatic(OpenmrsUtil.class);
-        PowerMockito.when(OpenmrsUtil.getApplicationDataDirectory()).thenReturn(getClass().getClassLoader().getResource("").getPath());
+        contextMockedStatic.when(Context::getAdministrationService).thenReturn(administrationService);
+        openmrsUtilMockedStatic = Mockito.mockStatic(OpenmrsUtil.class);
+        openmrsUtilMockedStatic.when(OpenmrsUtil::getApplicationDataDirectory).thenReturn(getClass().getClassLoader().getResource("").getPath());
+    }
+
+    @After
+    public void tearDown() {
+        openmrsUtilMockedStatic.close();
+        contextMockedStatic.close();
     }
 
     @Test
@@ -343,7 +346,7 @@ public class OpenElisAccessionEventWorkerTest {
         encounter.setVisit(visit);
         visit.setEncounters(new HashSet<>(Collections.singletonList(encounter)));
 
-        ELISResultPostSaveCommand mockCommand = PowerMockito.mock(ELISResultPostSaveCommand.class);
+        ELISResultPostSaveCommand mockCommand = Mockito.mock(ELISResultPostSaveCommand.class);
         when(Context.getRegisteredComponents(ELISResultPostSaveCommand.class))
                 .thenReturn(Collections.singletonList(mockCommand));
 
@@ -388,7 +391,7 @@ public class OpenElisAccessionEventWorkerTest {
         encounter.setVisit(visit);
         visit.setEncounters(new HashSet<>(Collections.singletonList(encounter)));
 
-        ELISResultPostSaveCommand mockCommand = PowerMockito.mock(ELISResultPostSaveCommand.class);
+        ELISResultPostSaveCommand mockCommand = Mockito.mock(ELISResultPostSaveCommand.class);
         doThrow(new RuntimeException("Command execution failed")).when(mockCommand).onResult(anyList());
 
         when(Context.getRegisteredComponents(ELISResultPostSaveCommand.class))
@@ -414,8 +417,8 @@ public class OpenElisAccessionEventWorkerTest {
         encounter.setVisit(visit);
         visit.setEncounters(new HashSet<>(Collections.singletonList(encounter)));
 
-        ELISResultPostSaveCommand mockCommand1 = PowerMockito.mock(ELISResultPostSaveCommand.class);
-        ELISResultPostSaveCommand mockCommand2 = PowerMockito.mock(ELISResultPostSaveCommand.class);
+        ELISResultPostSaveCommand mockCommand1 = Mockito.mock(ELISResultPostSaveCommand.class);
+        ELISResultPostSaveCommand mockCommand2 = Mockito.mock(ELISResultPostSaveCommand.class);
         when(Context.getRegisteredComponents(ELISResultPostSaveCommand.class))
                 .thenReturn(Arrays.asList(mockCommand1, mockCommand2));
 
