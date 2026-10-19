@@ -2,12 +2,13 @@ package org.bahmni.module.bahmnicore.matcher;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.BDDMockito;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterProvider;
 import org.openmrs.EncounterType;
@@ -26,10 +27,6 @@ import org.bahmni.module.bahmnicommons.api.visitlocation.BahmniVisitLocationServ
 import org.openmrs.module.emrapi.encounter.EncounterParameters;
 import org.openmrs.module.episodes.Episode;
 import org.openmrs.module.episodes.service.EpisodeService;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,9 +58,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Context.class)
-@PowerMockIgnore( {"javax.management.*"} )
 public class EncounterSessionMatcherTest {
     @Mock
     private AdministrationService administrationService;
@@ -92,6 +86,13 @@ public class EncounterSessionMatcherTest {
 
     @Mock
     private EpisodeService episodeService;
+
+    private MockedStatic<Context> contextMockedStatic;
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
+    }
 
     @Before
     public void setUp(){
@@ -143,8 +144,8 @@ public class EncounterSessionMatcherTest {
         when(encounter.getCreator()).thenReturn(creator);
         when(encounter.getEncounterDatetime()).thenReturn(new Date());
 
-        PowerMockito.mockStatic(Context.class);
-        BDDMockito.given(Context.getUserContext()).willReturn(userContext);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getUserContext).thenReturn(userContext);
 
         when(userContext.getAuthenticatedUser()).thenReturn(creator);
 

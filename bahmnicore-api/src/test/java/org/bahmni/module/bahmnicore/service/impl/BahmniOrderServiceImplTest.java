@@ -3,11 +3,13 @@ package org.bahmni.module.bahmnicore.service.impl;
 import org.bahmni.module.bahmnicore.service.BahmniObsService;
 import org.bahmni.module.bahmnicore.service.BahmniOrderService;
 import org.bahmni.module.bahmnicore.service.OrderService;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.Order;
@@ -20,8 +22,6 @@ import org.openmrs.module.bahmniemrapi.order.contract.BahmniOrder;
 import org.openmrs.module.emrapi.encounter.ConceptMapper;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.util.LocaleUtility;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,12 +31,9 @@ import java.util.Locale;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(LocaleUtility.class)
 public class BahmniOrderServiceImplTest {
 
     private BahmniOrderService bahmniOrderService;
@@ -55,13 +52,19 @@ public class BahmniOrderServiceImplTest {
     @Mock
     private ConceptMapper conceptMapper;
 
+    private MockedStatic<LocaleUtility> localeUtilityMockedStatic;
+
+    @After
+    public void tearDown() {
+        localeUtilityMockedStatic.close();
+    }
 
     @Before
     public void setUp() {
         initMocks(this);
 
-        mockStatic(LocaleUtility.class);
-        when(LocaleUtility.getDefaultLocale()).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic = Mockito.mockStatic(LocaleUtility.class);
+        localeUtilityMockedStatic.when(LocaleUtility::getDefaultLocale).thenReturn(Locale.ENGLISH);
         concept= new org.bahmni.test.builder.ConceptBuilder().withUUID("otUUID").build();
         EncounterTransaction.Concept encounterTransactionconcept = new EncounterTransaction.Concept();
         encounterTransactionconcept.setName("Concept for order");
