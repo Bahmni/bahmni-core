@@ -1,11 +1,13 @@
 package org.openmrs.module.bahmnicore.web.v1_0.resource;
 
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.Program;
@@ -13,9 +15,6 @@ import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.webservices.rest.web.RequestContext;
 import org.openmrs.module.webservices.rest.web.resource.api.PageableResult;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -33,12 +32,10 @@ import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.when;
 @Ignore
 @org.springframework.test.context.ContextConfiguration(locations = {"classpath:TestingApplicationContext.xml"}, inheritLocations = true)
-@PrepareForTest(Context.class)
-@RunWith(PowerMockRunner.class)
 public class BahmniProgramEnrollmentResourceTest {
 
     private BahmniProgramEnrollmentResource bahmniProgramEnrollmentResource;
@@ -51,11 +48,18 @@ public class BahmniProgramEnrollmentResourceTest {
     @Mock
     private PatientService patientService;
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void before() throws Exception {
         initMocks(this);
-        PowerMockito.mockStatic(Context.class);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
         bahmniProgramEnrollmentResource = new BahmniProgramEnrollmentResource();
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test
@@ -64,8 +68,8 @@ public class BahmniProgramEnrollmentResourceTest {
         when(requestContext.getRequest()).thenReturn(httpServletRequest);
         when(requestContext.getIncludeAll()).thenReturn(true);
         when(httpServletRequest.getParameter("patient")).thenReturn(patientUuid);
-        when(Context.getPatientService()).thenReturn(patientService);
-        when(Context.getService(BahmniProgramWorkflowService.class)).thenReturn(bahmniProgramWorkflowService);
+        contextMockedStatic.when(Context::getPatientService).thenReturn(patientService);
+        contextMockedStatic.when(() -> Context.getService(BahmniProgramWorkflowService.class)).thenReturn(bahmniProgramWorkflowService);
         Patient patient = new Patient();
         when(patientService.getPatientByUuid(patientUuid)).thenReturn(patient);
         ArrayList<PatientProgram> expected = new ArrayList<>();
@@ -89,8 +93,8 @@ public class BahmniProgramEnrollmentResourceTest {
         when(requestContext.getRequest()).thenReturn(httpServletRequest);
         when(requestContext.getIncludeAll()).thenReturn(true);
         when(httpServletRequest.getParameter("patient")).thenReturn(patientUuid);
-        when(Context.getPatientService()).thenReturn(patientService);
-        when(Context.getService(BahmniProgramWorkflowService.class)).thenReturn(bahmniProgramWorkflowService);
+        contextMockedStatic.when(Context::getPatientService).thenReturn(patientService);
+        contextMockedStatic.when(() -> Context.getService(BahmniProgramWorkflowService.class)).thenReturn(bahmniProgramWorkflowService);
         when(patientService.getPatientByUuid(patientUuid)).thenReturn(null);
         ArrayList<PatientProgram> expected = new ArrayList<>();
         when(bahmniProgramWorkflowService.getPatientPrograms(any(Patient.class), any(Program.class), any(Date.class), any(Date.class), any(Date.class), any(Date.class), anyBoolean())).thenReturn(expected);
@@ -113,8 +117,8 @@ public class BahmniProgramEnrollmentResourceTest {
         when(requestContext.getRequest()).thenReturn(httpServletRequest);
         when(requestContext.getIncludeAll()).thenReturn(true);
         when(httpServletRequest.getParameter("patientProgramUuid")).thenReturn(patientProgramUuid);
-        when(Context.getPatientService()).thenReturn(patientService);
-        when(Context.getService(BahmniProgramWorkflowService.class)).thenReturn(bahmniProgramWorkflowService);
+        contextMockedStatic.when(Context::getPatientService).thenReturn(patientService);
+        contextMockedStatic.when(() -> Context.getService(BahmniProgramWorkflowService.class)).thenReturn(bahmniProgramWorkflowService);
         PatientProgram patientProgram = new PatientProgram();
         when(bahmniProgramWorkflowService.getPatientProgramByUuid(patientProgramUuid)).thenReturn(patientProgram);
 
@@ -136,8 +140,8 @@ public class BahmniProgramEnrollmentResourceTest {
         when(requestContext.getRequest()).thenReturn(httpServletRequest);
         when(requestContext.getIncludeAll()).thenReturn(true);
         when(httpServletRequest.getParameter("patientProgramUuid")).thenReturn(patientProgramUuid);
-        when(Context.getPatientService()).thenReturn(patientService);
-        when(Context.getService(BahmniProgramWorkflowService.class)).thenReturn(bahmniProgramWorkflowService);
+        contextMockedStatic.when(Context::getPatientService).thenReturn(patientService);
+        contextMockedStatic.when(() -> Context.getService(BahmniProgramWorkflowService.class)).thenReturn(bahmniProgramWorkflowService);
         when(bahmniProgramWorkflowService.getPatientProgramByUuid(patientProgramUuid)).thenReturn(null);
 
         PageableResult pageableResult = bahmniProgramEnrollmentResource.doSearch(requestContext);

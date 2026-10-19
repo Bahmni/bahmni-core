@@ -1,22 +1,21 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller.display.controls;
 
-import org.bahmni.module.admin.retrospectiveEncounter.domain.DuplicateObservationsMatcher;
 import org.bahmni.module.bahmnicore.extensions.BahmniExtensions;
 import org.bahmni.module.bahmnicore.service.BahmniConceptService;
 import org.bahmni.module.bahmnicore.service.BahmniObsService;
 import org.bahmni.module.bahmnicore.web.v1_0.mapper.BahmniFormBuilderObsToTabularViewMapper;
 import org.bahmni.module.bahmnicore.web.v1_0.mapper.BahmniObservationsToTabularViewMapper;
 import org.bahmni.test.builder.ConceptBuilder;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.ConceptNumeric;
@@ -31,8 +30,6 @@ import org.openmrs.module.bahmniemrapi.pivottable.contract.PivotTable;
 import org.openmrs.module.emrapi.encounter.ConceptMapper;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.util.LocaleUtility;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -58,17 +55,13 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.doReturn;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
-import static org.powermock.api.mockito.PowerMockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ObsToObsTabularFlowSheetController.class, DuplicateObservationsMatcher.class, LocaleUtility.class})
 public class ObsToObsTabularFlowSheetControllerTest {
 
     @Rule
@@ -92,57 +85,78 @@ public class ObsToObsTabularFlowSheetControllerTest {
     private ObsToObsTabularFlowSheetController obsToObsPivotTableController;
     private ConceptMapper conceptMapper = new ConceptMapper();
 
+    private MockedStatic<LocaleUtility> localeUtilityMockedStatic;
+
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        mockStatic(LocaleUtility.class);
-        when(LocaleUtility.getDefaultLocale()).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic = Mockito.mockStatic(LocaleUtility.class);
+        localeUtilityMockedStatic.when(LocaleUtility::getDefaultLocale).thenReturn(Locale.ENGLISH);
         Context.setUserContext(new UserContext(new TestUsernameAuthenticationScheme()));
         obsToObsPivotTableController = new ObsToObsTabularFlowSheetController(bahmniObsService, conceptService,
                 bahmniObservationsToTabularViewMapper, bahmniExtensions, bahmniConceptService,
                 bahmniFormBuilderObsToTabularViewMapper);
     }
 
+    @After
+    public void tearDown() {
+        localeUtilityMockedStatic.close();
+    }
+
+    // NOTE: The two tests below used to stub/verify the PRIVATE methods getPivotTableByConceptSet/getPivotTableByFormNames
+    // directly via PowerMockito's spy()/doReturn()/verifyPrivate(...), which has no vanilla Mockito equivalent (private methods
+    // cannot be stubbed/verified without PowerMock's bytecode instrumentation). Since constructPivotTableFor's dispatch between
+    // these two private methods is a simple if/else on `conceptSet != null`, and each private method is uniquely characterized by
+    // which collaborator it calls (getPivotTableByConceptSet -> bahmniObservationsToTabularViewMapper; getPivotTableByFormNames ->
+    // bahmniFormBuilderObsToTabularViewMapper/bahmniObsService.getObsForFormBuilderForms), we verify the same dispatch behavior
+    // observably through those collaborator interactions instead - an equivalent, behavior-level substitute for verifyPrivate.
     @Test
     public void shouldCallGetPivotTableByConceptSetMethodWhenConceptSetIsGiven() throws Exception {
-        ObsToObsTabularFlowSheetController obsToObsTabularFlowSheetController = spy(obsToObsPivotTableController);
-        String getPivotTableByConceptSet = "getPivotTableByConceptSet";
-        String getPivotTableByFormNames = "getPivotTableByFormNames";
         String conceptSetName = "ConceptSetName";
-        doReturn(new PivotTable()).when(obsToObsTabularFlowSheetController, getPivotTableByConceptSet,  any(), any(),
-                eq(conceptSetName), any(), any(), any(), any(), any(), any(), any());
+        String groupByConceptName = "GroupByConcept";
+        Concept groupByConcept = new ConceptBuilder().withName(groupByConceptName).withDataType("Numeric").withSet(false).build();
+        Concept rootConcept = new ConceptBuilder().withName(conceptSetName).withSetMember(groupByConcept).withDataType("Numeric").withSet(true).withClass("ConvSet").build();
+        when(conceptService.getConceptByName(conceptSetName)).thenReturn(rootConcept);
+        when(conceptService.getConceptByName(groupByConceptName)).thenReturn(groupByConcept);
+        ArrayList<BahmniObservation> bahmniObservations = new ArrayList<>();
+        when(bahmniObsService.observationsFor(any(), any(Concept.class), any(Concept.class), any(), any(), any(), any())).thenReturn(bahmniObservations);
+        when(bahmniObservationsToTabularViewMapper.constructTable(Matchers.<Set<EncounterTransaction.Concept>>any(), eq(bahmniObservations), anyString())).thenReturn(new PivotTable());
 
-        obsToObsTabularFlowSheetController.constructPivotTableFor(null, null,
-                conceptSetName, null, null, null,
+        obsToObsPivotTableController.constructPivotTableFor(null, null,
+                conceptSetName, groupByConceptName, null, null,
                 null, null, null, null, null,
                 null, null);
 
-        verifyPrivate(obsToObsTabularFlowSheetController).invoke(getPivotTableByConceptSet,  any(), any(),
-                eq(conceptSetName), any(), any(), any(), any(), any(), any(), any());
-        verifyPrivate(obsToObsTabularFlowSheetController, never()).invoke(getPivotTableByFormNames, any(), any(),
-                any(), any(), any(), any(), any(), any(), any(), any());
+        verify(bahmniObservationsToTabularViewMapper, times(1)).constructTable(Matchers.<Set<EncounterTransaction.Concept>>any(), eq(bahmniObservations), eq(groupByConceptName));
+        verify(bahmniObsService, never()).getObsForFormBuilderForms(any(), any(), any(), any(), any(), any());
+        verifyZeroInteractions(bahmniFormBuilderObsToTabularViewMapper);
     }
 
     @Test
     public void shouldCallGetPivotTableByFormNamesSetMethodWhenConceptNamesAndFormNamesGiven() throws Exception {
-        ObsToObsTabularFlowSheetController obsToObsTabularFlowSheetController = spy(obsToObsPivotTableController);
-        String getPivotTableByFormNames = "getPivotTableByFormNames";
-        String getPivotTableByConceptSet = "getPivotTableByConceptSet";
-        List<String> conceptNames = Arrays.asList("conceptOne", "conceptTwo");
+        String groupByConceptName = "GroupByConcept";
+        List<String> conceptNames = new ArrayList<>(Arrays.asList("conceptOne", "conceptTwo"));
         List<String> formNames = Arrays.asList("FormOne", "FormTwo");
-        doReturn(new PivotTable()).when(obsToObsTabularFlowSheetController, getPivotTableByFormNames,  any(), any(),
-                any(), eq(conceptNames), any(), any(), any(), any(), any(), eq(formNames));
 
-        obsToObsTabularFlowSheetController.constructPivotTableFor(null, null,
-                null, null, null, conceptNames,
+        ArrayList<BahmniObservation> bahmniObservations = new ArrayList<>();
+        when(bahmniObsService.getObsForFormBuilderForms(any(), any(), any(), any(), any(), any())).thenReturn(bahmniObservations);
+        List<Concept> concepts = Arrays.asList(
+                new ConceptBuilder().withName("conceptOne").withSet(false).withDataType("Numeric").build(),
+                new ConceptBuilder().withName("conceptTwo").withSet(false).withDataType("Numeric").build(),
+                new ConceptBuilder().withName(groupByConceptName).withSet(false).withDataType("Numeric").build());
+        when(bahmniConceptService.getConceptsByFullySpecifiedName(any())).thenReturn(concepts);
+        PivotTable pivotTable = new PivotTable();
+        when(bahmniFormBuilderObsToTabularViewMapper.constructTable(Matchers.<Set<EncounterTransaction.Concept>>any(), eq(bahmniObservations), eq(groupByConceptName))).thenReturn(pivotTable);
+        when(bahmniFormBuilderObsToTabularViewMapper.getNonEmptyRows(pivotTable.getRows(), groupByConceptName)).thenReturn(pivotTable.getRows());
+
+        obsToObsPivotTableController.constructPivotTableFor(null, null,
+                null, groupByConceptName, null, conceptNames,
                 null, null, null, null, null,
                 null, formNames);
 
-        verifyPrivate(obsToObsTabularFlowSheetController).invoke(getPivotTableByFormNames, any(), any(),
-                any(), eq(conceptNames), any(), any(), any(), any(), any(), eq(formNames));
-
-        verifyPrivate(obsToObsTabularFlowSheetController, never()).invoke(getPivotTableByConceptSet,  any(), any(),
-                any(), any(), any(), any(), any(), any(), any(), any());
+        verify(bahmniFormBuilderObsToTabularViewMapper, times(1)).constructTable(Matchers.<Set<EncounterTransaction.Concept>>any(), eq(bahmniObservations), eq(groupByConceptName));
+        verify(bahmniObsService, never()).observationsFor(any(), any(Concept.class), any(Concept.class), any(), any(), any(), any());
+        verifyZeroInteractions(bahmniObservationsToTabularViewMapper);
     }
 
     @Test

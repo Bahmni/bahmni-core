@@ -2,11 +2,12 @@ package org.bahmni.module.bahmnicore.web.v1_0.search;
 
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.bahmni.module.bahmnicore.web.v1_0.LocaleResolver;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.ConceptName;
@@ -29,9 +30,6 @@ import org.openmrs.module.webservices.rest.web.resource.api.SearchConfig;
 import org.openmrs.module.webservices.rest.web.resource.impl.NeedsPaging;
 import org.openmrs.module.webservices.rest.web.response.InvalidSearchException;
 import org.openmrs.util.LocaleUtility;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -55,10 +53,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-@PrepareForTest({Context.class, LocaleUtility.class, LocaleResolver.class})
-@RunWith(PowerMockRunner.class)
 public class VisitFormsSearchHandlerTest {
 
     @InjectMocks
@@ -85,13 +80,23 @@ public class VisitFormsSearchHandlerTest {
     private final List<Concept> concepts = new ArrayList<>();
     private final String conceptNames = null;
 
+    private MockedStatic<Context> contextMockedStatic;
+    private MockedStatic<LocaleUtility> localeUtilityMockedStatic;
+    private MockedStatic<LocaleResolver> localeResolverMockedStatic;
 
     @Before
     public void before() throws Exception {
         initMocks(this);
-        mockStatic(LocaleUtility.class);
-        mockStatic(LocaleResolver.class);
+        localeUtilityMockedStatic = Mockito.mockStatic(LocaleUtility.class);
+        localeResolverMockedStatic = Mockito.mockStatic(LocaleResolver.class);
         setUp();
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
+        localeResolverMockedStatic.close();
+        localeUtilityMockedStatic.close();
     }
 
     public Concept createConcept(String conceptName, String locale) {
@@ -116,8 +121,7 @@ public class VisitFormsSearchHandlerTest {
         when(context.getRequest().getParameter("patient")).thenReturn("patientUuid");
         when(context.getRequest().getParameter("numberOfVisits")).thenReturn("10");
         when(context.getRequest().getSession().getAttribute("locale")).thenReturn(Locale.ENGLISH);
-        when(identifyLocale(any())).thenReturn(Locale.ENGLISH);
-        when(LocaleUtility.getDefaultLocale()).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic.when(LocaleUtility::getDefaultLocale).thenReturn(Locale.ENGLISH);
 
         String[] conceptNames = {"Vitals"};
         when(context.getRequest().getParameterValues("conceptNames")).thenReturn(conceptNames);
@@ -125,22 +129,22 @@ public class VisitFormsSearchHandlerTest {
         patient.setId(1);
         patient.setUuid("patient-uuid");
 
-        PowerMockito.mockStatic(Context.class);
-        PowerMockito.when(Context.getPatientService()).thenReturn(patientService);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getPatientService).thenReturn(patientService);
         when(patientService.getPatientByUuid("patientUuid")).thenReturn(patient);
-        PowerMockito.when(Context.getConceptService()).thenReturn(conceptService);
+        contextMockedStatic.when(Context::getConceptService).thenReturn(conceptService);
         concept = createConcept("Vitals", "en");
 
-        PowerMockito.when(identifyLocale(any())).thenReturn(Locale.ENGLISH);
+        localeResolverMockedStatic.when(() -> identifyLocale(any())).thenReturn(Locale.ENGLISH);
 
         Visit visit = new Visit();
-        PowerMockito.when(Context.getVisitService()).thenReturn(visitService);
-        PowerMockito.when(Context.getVisitService().getVisitsByPatient(patient)).thenReturn(Arrays.asList(visit));
+        contextMockedStatic.when(Context::getVisitService).thenReturn(visitService);
+        when(visitService.getVisitsByPatient(patient)).thenReturn(Arrays.asList(visit));
 
-        PowerMockito.when(Context.getEncounterService()).thenReturn(encounterService);
+        contextMockedStatic.when(Context::getEncounterService).thenReturn(encounterService);
         Encounter encounter = mock(Encounter.class);
-        PowerMockito.when(encounterService.getEncounters(any(Patient.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), any(Collection.class), eq(false))).thenReturn(Arrays.asList(encounter));
-        PowerMockito.when(Context.getObsService()).thenReturn(obsService);
+        when(encounterService.getEncounters(any(Patient.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), any(Collection.class), eq(false))).thenReturn(Arrays.asList(encounter));
+        contextMockedStatic.when(Context::getObsService).thenReturn(obsService);
         obs = createObs(concept);
     }
 
@@ -163,14 +167,14 @@ public class VisitFormsSearchHandlerTest {
         when(context.getRequest().getParameterValues("conceptNames")).thenReturn(conceptNames);
         concept = createConcept("Vitals", "en");
 
-        PowerMockito.when(obsService.getObservations(any(List.class), any(List.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(false))).thenReturn(Arrays.asList(obs));
+        when(obsService.getObservations(any(List.class), any(List.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(false))).thenReturn(Arrays.asList(obs));
         NeedsPaging<Obs> searchResults = (NeedsPaging<Obs>) visitFormsSearchHandler.search(context);
         assertThat(searchResults.getPageOfResults().size(), is(equalTo(1)));
     }
 
     @Test
     public void shouldReturnConceptSpecificObsIfConceptNameIsFoundInUserLocale() {
-        PowerMockito.when(identifyLocale(any())).thenReturn(Locale.FRENCH);
+        localeResolverMockedStatic.when(() -> identifyLocale(any())).thenReturn(Locale.FRENCH);
 
         String [] conceptNames = new String[]{"Vitals_fr"};
         when(context.getRequest().getParameterValues("conceptNames")).thenReturn(conceptNames);
@@ -178,14 +182,14 @@ public class VisitFormsSearchHandlerTest {
         Concept obsConcept = createConcept("Vitals_fr", "fr");
         Obs obs = createObs(obsConcept);
 
-        PowerMockito.when(obsService.getObservations(any(List.class), any(List.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(false))).thenReturn(Arrays.asList(obs));
+        when(obsService.getObservations(any(List.class), any(List.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(false))).thenReturn(Arrays.asList(obs));
         NeedsPaging<Obs> searchResults = (NeedsPaging<Obs>) visitFormsSearchHandler.search(context);
         assertThat(searchResults.getPageOfResults().size(), is(equalTo(1)));
     }
 
     @Test
     public void shouldReturnConceptSpecificObsIfConceptNameIsNullInUserLocaleButFoundInDefaultSearch() {
-        PowerMockito.when(identifyLocale(any())).thenReturn(Locale.FRENCH);
+        localeResolverMockedStatic.when(() -> identifyLocale(any())).thenReturn(Locale.FRENCH);
 
         String [] conceptNames = new String[]{"Vitals"};
         when(context.getRequest().getParameterValues("conceptNames")).thenReturn(conceptNames);
@@ -193,14 +197,14 @@ public class VisitFormsSearchHandlerTest {
         Concept obsConcept = createConcept("Vitals", "en");
         Obs obs = createObs(obsConcept);
 
-        PowerMockito.when(obsService.getObservations(any(List.class), any(List.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(false))).thenReturn(Arrays.asList(obs));
+        when(obsService.getObservations(any(List.class), any(List.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(false))).thenReturn(Arrays.asList(obs));
         NeedsPaging<Obs> searchResults = (NeedsPaging<Obs>) visitFormsSearchHandler.search(context);
         assertThat(searchResults.getPageOfResults().size(), is(equalTo(1)));
     }
 
     @Test
     public void shouldReturnConceptSpecificObsIfConceptNameIsFoundInDefaultLocale() {
-        PowerMockito.when(identifyLocale(any())).thenReturn(Locale.FRENCH);
+        localeResolverMockedStatic.when(() -> identifyLocale(any())).thenReturn(Locale.FRENCH);
 
         when(context.getRequest().getParameterValues("conceptNames")).thenReturn(null);
 
@@ -214,7 +218,7 @@ public class VisitFormsSearchHandlerTest {
         Concept obsConcept = createConcept("History and Examination", "en");
         Obs obs = createObs(obsConcept);
 
-        PowerMockito.when(obsService.getObservations(any(List.class), any(List.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(false))).thenReturn(Arrays.asList(obs));
+        when(obsService.getObservations(any(List.class), any(List.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(false))).thenReturn(Arrays.asList(obs));
         NeedsPaging<Obs> searchResults = (NeedsPaging<Obs>) visitFormsSearchHandler.search(context);
         assertThat(searchResults.getPageOfResults().size(), is(equalTo(1)));
     }
@@ -232,7 +236,7 @@ public class VisitFormsSearchHandlerTest {
 
         Obs obs2 = createObs(historyConcept);
 
-        PowerMockito.when(obsService.getObservations(any(List.class), any(List.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(false))).thenReturn(Arrays.asList(obs, obs2));
+        when(obsService.getObservations(any(List.class), any(List.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(false))).thenReturn(Arrays.asList(obs, obs2));
         NeedsPaging<Obs> searchResults = (NeedsPaging<Obs>) visitFormsSearchHandler.search(context);
         assertThat(searchResults.getPageOfResults().size(), is(equalTo(2)));
     }
@@ -248,11 +252,11 @@ public class VisitFormsSearchHandlerTest {
         Concept historyConcept = createConcept("History and Examination", "en");
         parentConcept.addSetMember(historyConcept);
 
-        PowerMockito.when(Context.getConceptService()).thenReturn(conceptService);
+        contextMockedStatic.when(Context::getConceptService).thenReturn(conceptService);
 
         Obs obs2 = createObs(historyConcept);
 
-        PowerMockito.when(obsService.getObservations(any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(Integer.class), any(Integer.class), any(Date.class), any(Date.class), eq(false))).thenReturn(Arrays.asList(obs, obs2));
+        when(obsService.getObservations(any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(Integer.class), any(Integer.class), any(Date.class), any(Date.class), eq(false))).thenReturn(Arrays.asList(obs, obs2));
         NeedsPaging<Obs> searchResults = (NeedsPaging<Obs>) visitFormsSearchHandler.search(context);
         assertThat(searchResults.getPageOfResults().size(), is(equalTo(0)));
     }
@@ -270,15 +274,15 @@ public class VisitFormsSearchHandlerTest {
         when(conceptService.getConceptsByName("conceptNames",Locale.ENGLISH,null)).thenReturn(concepts);
         String patientProgramUuid = "patient-program-uuid";
         when(context.getRequest().getParameter("patientProgramUuid")).thenReturn(patientProgramUuid);
-        when(Context.getService(BahmniProgramWorkflowService.class)).thenReturn(programWorkflowService);
+        contextMockedStatic.when(() -> Context.getService(BahmniProgramWorkflowService.class)).thenReturn(programWorkflowService);
         PatientProgram patientProgram = new PatientProgram();
         when(programWorkflowService.getPatientProgramByUuid(patientProgramUuid)).thenReturn(patientProgram);
-        when(Context.getService(EpisodeService.class)).thenReturn(episodeService);
+        contextMockedStatic.when(() -> Context.getService(EpisodeService.class)).thenReturn(episodeService);
         Episode episode = new Episode();
         episode.addEncounter(new Encounter());
         when(episodeService.getEpisodeForPatientProgram(patientProgram)).thenReturn(episode);
 
-        PowerMockito.when(obsService.getObservations(any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(Integer.class), any(Integer.class), any(Date.class), any(Date.class), eq(false))).thenReturn(Arrays.asList(obs));
+        when(obsService.getObservations(any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(Integer.class), any(Integer.class), any(Date.class), any(Date.class), eq(false))).thenReturn(Arrays.asList(obs));
 
         visitFormsSearchHandler.search(context);
 
@@ -296,13 +300,13 @@ public class VisitFormsSearchHandlerTest {
         when(conceptService.getConceptsByName("conceptNames",Locale.ENGLISH,  null)).thenReturn(concepts);
         String patientProgramUuid = "patient-program-uuid";
         when(context.getRequest().getParameter("patientProgramUuid")).thenReturn(patientProgramUuid);
-        when(Context.getService(BahmniProgramWorkflowService.class)).thenReturn(programWorkflowService);
+        contextMockedStatic.when(() -> Context.getService(BahmniProgramWorkflowService.class)).thenReturn(programWorkflowService);
         PatientProgram patientProgram = new PatientProgram();
         when(programWorkflowService.getPatientProgramByUuid(patientProgramUuid)).thenReturn(patientProgram);
-        when(Context.getService(EpisodeService.class)).thenReturn(episodeService);
+        contextMockedStatic.when(() -> Context.getService(EpisodeService.class)).thenReturn(episodeService);
         when(episodeService.getEpisodeForPatientProgram(patientProgram)).thenReturn(null);
 
-        PowerMockito.when(obsService.getObservations(any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(Integer.class), any(Integer.class), any(Date.class), any(Date.class), eq(false))).thenReturn(Arrays.asList(obs));
+        when(obsService.getObservations(any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(Integer.class), any(Integer.class), any(Date.class), any(Date.class), eq(false))).thenReturn(Arrays.asList(obs));
 
         visitFormsSearchHandler.search(context);
 
@@ -320,14 +324,14 @@ public class VisitFormsSearchHandlerTest {
         when(context.getRequest().getParameterValues("conceptNames")).thenReturn(null);
         String patientProgramUuid = "patient-program-uuid";
         when(context.getRequest().getParameter("patientProgramUuid")).thenReturn(patientProgramUuid);
-        when(Context.getService(BahmniProgramWorkflowService.class)).thenReturn(programWorkflowService);
+        contextMockedStatic.when(() -> Context.getService(BahmniProgramWorkflowService.class)).thenReturn(programWorkflowService);
         PatientProgram patientProgram = new PatientProgram();
         when(programWorkflowService.getPatientProgramByUuid(patientProgramUuid)).thenReturn(patientProgram);
-        when(Context.getService(EpisodeService.class)).thenReturn(episodeService);
+        contextMockedStatic.when(() -> Context.getService(EpisodeService.class)).thenReturn(episodeService);
         Episode episode = new Episode();
         when(episodeService.getEpisodeForPatientProgram(patientProgram)).thenReturn(episode);
 
-        PowerMockito.when(obsService.getObservations(any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(Integer.class), any(Integer.class), any(Date.class), any(Date.class), eq(false))).thenReturn(Arrays.asList(obs));
+        when(obsService.getObservations(any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(List.class), any(Integer.class), any(Integer.class), any(Date.class), any(Date.class), eq(false))).thenReturn(Arrays.asList(obs));
 
         visitFormsSearchHandler.search(context);
 

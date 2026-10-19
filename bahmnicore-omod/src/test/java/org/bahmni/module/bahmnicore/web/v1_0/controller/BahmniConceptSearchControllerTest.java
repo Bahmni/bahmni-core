@@ -2,11 +2,13 @@ package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
 import org.bahmni.module.bahmnicore.service.BahmniDiagnosisService;
 import org.bahmni.module.bahmnicore.service.TsConceptSearchService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.ConceptName;
 import org.openmrs.ConceptSearchResult;
@@ -15,10 +17,6 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.emrapi.concept.EmrConceptService;
 import org.openmrs.module.webservices.rest.SimpleObject;
 import org.openmrs.util.LocaleUtility;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,9 +28,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@PowerMockIgnore("javax.management.*")
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Context.class)
 public class BahmniConceptSearchControllerTest {
 
     @Mock
@@ -55,12 +50,19 @@ public class BahmniConceptSearchControllerTest {
     String locale = LocaleUtility.getDefaultLocale().toString();
     List<Locale> locales =  Collections.singletonList(LocaleUtility.getDefaultLocale());
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getAdministrationService()).thenReturn(administrationService);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getAdministrationService).thenReturn(administrationService);
         when(administrationService.getAllowedLocales()).thenReturn(locales);
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test
