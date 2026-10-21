@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.openmrs.Concept;
 import org.openmrs.ConceptName;
 import org.openmrs.DrugOrder;
@@ -24,8 +23,7 @@ import org.openmrs.api.PersonService;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObservation;
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.OMRSObsToBahmniObsMapper;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,9 +34,10 @@ import java.util.Locale;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
-@RunWith(PowerMockRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class BahmniBridgeTest {
 
     @Mock
@@ -65,7 +64,6 @@ public class BahmniBridgeTest {
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
         bahmniBridge = new BahmniBridge(obsDao, patientService, personService, conceptService, orderDao, bahmniDrugOrderService, omrsObsToBahmniObsMapper, bahmniConceptService);
         bahmniBridge.forPatient(patientUuid);
     }
@@ -75,7 +73,7 @@ public class BahmniBridgeTest {
         Date futureDate = DateTime.now().plusDays(10).toDate();
         Date autoExpireDate = DateTime.now().plusDays(40).toDate();
         DrugOrder scheduledDrugOrder = new DrugOrderBuilder().withScheduledDate(futureDate).withAutoExpireDate(autoExpireDate).build();
-        PowerMockito.when(bahmniDrugOrderService.getActiveDrugOrders(patientUuid)).thenReturn(Arrays.asList(scheduledDrugOrder));
+        when(bahmniDrugOrderService.getActiveDrugOrders(patientUuid)).thenReturn(Arrays.asList(scheduledDrugOrder));
 
         List<EncounterTransaction.DrugOrder> drugOrders = bahmniBridge.activeDrugOrdersForPatient();
         Assert.assertEquals(0, drugOrders.size());
@@ -84,7 +82,7 @@ public class BahmniBridgeTest {
     @Test
     public void shouldGetActiveOrders() throws Exception {
         DrugOrder activeOrder = new DrugOrderBuilder().withScheduledDate(null).withAutoExpireDate(DateTime.now().plusMonths(2).toDate()).build();
-        PowerMockito.when(bahmniDrugOrderService.getActiveDrugOrders(patientUuid)).thenReturn(Arrays.asList(activeOrder));
+        when(bahmniDrugOrderService.getActiveDrugOrders(patientUuid)).thenReturn(Arrays.asList(activeOrder));
 
         List<EncounterTransaction.DrugOrder> drugOrders = bahmniBridge.activeDrugOrdersForPatient();
         Assert.assertEquals(1, drugOrders.size());
@@ -93,7 +91,7 @@ public class BahmniBridgeTest {
     @Test
     public void shouldGetScheduledOrdersWhichHasBecomeActive() throws Exception {
         DrugOrder scheduledDrugOrder = new DrugOrderBuilder().withScheduledDate(DateTime.now().minusMonths(1).toDate()).build();
-        PowerMockito.when(bahmniDrugOrderService.getActiveDrugOrders(patientUuid)).thenReturn(Arrays.asList(scheduledDrugOrder));
+        when(bahmniDrugOrderService.getActiveDrugOrders(patientUuid)).thenReturn(Arrays.asList(scheduledDrugOrder));
 
         List<EncounterTransaction.DrugOrder> drugOrders = bahmniBridge.activeDrugOrdersForPatient();
         Assert.assertEquals(1, drugOrders.size());
@@ -109,7 +107,7 @@ public class BahmniBridgeTest {
         Order order2 = new Order();
         order2.setDateActivated(now);
         allDrugOrders.add(order2);
-        PowerMockito.when(bahmniDrugOrderService.getAllDrugOrders(patientUuid, null, null, null, null)).thenReturn(allDrugOrders);
+        when(bahmniDrugOrderService.getAllDrugOrders(patientUuid, null, null, null, null)).thenReturn(allDrugOrders);
 
         Assert.assertEquals(now, bahmniBridge.getStartDateOfTreatment());
 
@@ -127,7 +125,7 @@ public class BahmniBridgeTest {
         order2.setDateActivated(now);
         allDrugOrders.add(order2);
 
-        PowerMockito.when(bahmniDrugOrderService.getAllDrugOrders(patientUuid, null, null, null, null)).thenReturn(allDrugOrders);
+        when(bahmniDrugOrderService.getAllDrugOrders(patientUuid, null, null, null, null)).thenReturn(allDrugOrders);
 
         Assert.assertEquals(addDays(now, 2), bahmniBridge.getStartDateOfTreatment());
 
@@ -142,7 +140,7 @@ public class BahmniBridgeTest {
         vitalConceptName.setLocale(locale);
         vitalsConcept.setFullySpecifiedName(vitalConceptName);
 
-        PowerMockito.when(conceptService.getConceptByName("vital concept name")).thenReturn(vitalsConcept);
+        when(conceptService.getConceptByName("vital concept name")).thenReturn(vitalsConcept);
 
         Obs obs = new Obs();
         obs.setUuid("observation uuid");
@@ -150,8 +148,8 @@ public class BahmniBridgeTest {
         BahmniObservation bahmniObs = new BahmniObservation();
         bahmniObs.setUuid("observation uuid");
 
-        PowerMockito.when(obsDao.getChildObsFromParent("parent obs uuid", vitalsConcept)).thenReturn(obs);
-        PowerMockito.when(omrsObsToBahmniObsMapper.map(obs, null)).thenReturn(bahmniObs);
+        when(obsDao.getChildObsFromParent("parent obs uuid", vitalsConcept)).thenReturn(obs);
+        when(omrsObsToBahmniObsMapper.map(obs, null)).thenReturn(bahmniObs);
         Assert.assertEquals("observation uuid", bahmniBridge.getChildObsFromParentObs("parent obs uuid", "vital concept name").getUuid());
 
     }
@@ -165,7 +163,7 @@ public class BahmniBridgeTest {
         vitalConceptName.setLocale(locale);
         vitalsConcept.setFullySpecifiedName(vitalConceptName);
 
-        PowerMockito.when(bahmniConceptService.getConceptByFullySpecifiedName("vital concept name")).thenReturn(vitalsConcept);
+        when(bahmniConceptService.getConceptByFullySpecifiedName("vital concept name")).thenReturn(vitalsConcept);
 
         Assert.assertEquals(vitalsConcept, bahmniBridge.getConceptByFullySpecifiedName("vital concept name"));
     }

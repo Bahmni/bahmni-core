@@ -14,7 +14,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -35,8 +35,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -188,7 +188,7 @@ public class PatientDocumentServiceImplTest {
     @Test
     public void shouldGetImageNotFoundForIfNoImageCapturedForPatientAndNoDefaultImageNotPresent() throws Exception {
         // Note: the original PowerMock version of this test stubbed
-        // whenNew(FileInputStream.class).withArguments(Matchers.anyString())
+        // whenNew(FileInputStream.class).withArguments(ArgumentMatchers.anyString())
         // but the production code constructs FileInputStream from a File (not a String),
         // so that stub never actually matched and had no effect - the 404 below already
         // came from the real FileInputStream(File) constructor throwing FileNotFoundException
@@ -270,8 +270,8 @@ public class PatientDocumentServiceImplTest {
              MockedStatic<ImageIO> imageIOMockedStatic = Mockito.mockStatic(ImageIO.class)) {
             bahmniCorePropertiesMockedStatic.when(() -> BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("");
             BufferedImage bufferedImage = new BufferedImage(1, 2, 2);
-            imageIOMockedStatic.when(() -> ImageIO.read(Matchers.any(ByteArrayInputStream.class))).thenReturn(bufferedImage);
-            imageIOMockedStatic.when(() -> ImageIO.write(eq(bufferedImage), eq("jpg"), Matchers.any(File.class))).thenReturn(true);
+            imageIOMockedStatic.when(() -> ImageIO.read(ArgumentMatchers.any(ByteArrayInputStream.class))).thenReturn(bufferedImage);
+            imageIOMockedStatic.when(() -> ImageIO.write(eq(bufferedImage), eq("jpg"), ArgumentMatchers.any(File.class))).thenReturn(true);
 
             Patient patient = new Patient();
             patient.setId(1);
@@ -323,8 +323,8 @@ public class PatientDocumentServiceImplTest {
              MockedStatic<ImageIO> imageIOMockedStatic = Mockito.mockStatic(ImageIO.class)) {
             bahmniCorePropertiesMockedStatic.when(() -> BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn("");
             BufferedImage bufferedImage = new BufferedImage(1, 2, 2);
-            imageIOMockedStatic.when(() -> ImageIO.read(Matchers.any(ByteArrayInputStream.class))).thenReturn(bufferedImage);
-            imageIOMockedStatic.when(() -> ImageIO.write(eq(bufferedImage), eq("bmp"), Matchers.any(File.class))).thenReturn(false);
+            imageIOMockedStatic.when(() -> ImageIO.read(ArgumentMatchers.any(ByteArrayInputStream.class))).thenReturn(bufferedImage);
+            imageIOMockedStatic.when(() -> ImageIO.write(eq(bufferedImage), eq("bmp"), ArgumentMatchers.any(File.class))).thenReturn(false);
 
             Patient patient = new Patient();
             patient.setId(1);

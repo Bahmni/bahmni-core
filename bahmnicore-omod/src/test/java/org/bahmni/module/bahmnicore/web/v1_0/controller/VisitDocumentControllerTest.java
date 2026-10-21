@@ -34,7 +34,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Base64;
@@ -104,7 +104,7 @@ public class VisitDocumentControllerTest {
             visitDocumentController.saveDocument(document);
 
             verify(patientDocumentService).saveDocument(1, "radiology", "abcd", "jpeg", document.getFileType(), document.getFileName());
-            verifyZeroInteractions(administrationService);
+            verifyNoInteractions(administrationService);
         }
     }
 
@@ -142,7 +142,7 @@ public class VisitDocumentControllerTest {
             contextMockedStatic.when(Context::getUserContext).thenReturn(userContext);
             when(userContext.isAuthenticated()).thenReturn(false);
             visitDocumentController.deleteDocument("testFile.png");
-            verifyZeroInteractions(patientDocumentService);
+            verifyNoInteractions(patientDocumentService);
         }
     }
 

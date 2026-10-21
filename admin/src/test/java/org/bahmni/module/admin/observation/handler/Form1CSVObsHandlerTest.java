@@ -21,7 +21,7 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -92,8 +92,8 @@ public class Form1CSVObsHandlerTest {
         final List<String> conceptNames = asList("Vitals", "Height");
         when(csvObservationHelper.getCSVHeaderParts(form1CSVObservation)).thenReturn(conceptNames);
         doNothing().when(csvObservationHelper).verifyNumericConceptValue(form1CSVObservation, conceptNames);
-        doNothing().when(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                any(Date.class), any(KeyValue.class), anyListOf(String.class));
+        doNothing().when(csvObservationHelper).createObservations(anyList(),
+                any(Date.class), any(KeyValue.class), anyList());
 
         form1CSVObsHandler = new Form1CSVObsHandler(csvObservationHelper);
 
@@ -103,8 +103,8 @@ public class Form1CSVObsHandlerTest {
         verify(csvObservationHelper).isForm1Type(form2CSVObservation);
         verify(csvObservationHelper).getCSVHeaderParts(form1CSVObservation);
         verify(csvObservationHelper).verifyNumericConceptValue(form1CSVObservation, conceptNames);
-        verify(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                any(Date.class), any(KeyValue.class), anyListOf(String.class));
+        verify(csvObservationHelper).createObservations(anyList(),
+                any(Date.class), any(KeyValue.class), anyList());
 
     }
 

@@ -29,9 +29,8 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.anyListOf;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -104,8 +103,8 @@ public class Form2CSVObsHandlerTest {
         final List<String> headerParts = new ArrayList<>(Arrays.asList("form2", "Vitals", "Height"));
         when(csvObservationHelper.getCSVHeaderParts(form2CSVObservation)).thenReturn(headerParts);
         doNothing().when(csvObservationHelper).verifyNumericConceptValue(form2CSVObservation, headerParts);
-        doNothing().when(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                any(Date.class), any(KeyValue.class), anyListOf(String.class));
+        doNothing().when(csvObservationHelper).createObservations(anyList(),
+                any(Date.class), any(KeyValue.class), anyList());
         when(formFieldPathService.getFormFieldPath(asList("Vitals", "Height"))).thenReturn("Vitals.1/1-0");
 
         form2CSVObsHandler = new Form2CSVObsHandler(csvObservationHelper, formFieldPathService, formFieldPathGeneratorService);
@@ -116,8 +115,8 @@ public class Form2CSVObsHandlerTest {
         verify(csvObservationHelper).isForm2Type(form2CSVObservation);
         verify(csvObservationHelper).getCSVHeaderParts(form2CSVObservation);
         verify(csvObservationHelper).verifyNumericConceptValue(form2CSVObservation, headerParts);
-        verify(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                any(Date.class), any(KeyValue.class), anyListOf(String.class));
+        verify(csvObservationHelper).createObservations(anyList(),
+                any(Date.class), any(KeyValue.class), anyList());
     }
 
     @Test
@@ -138,8 +137,8 @@ public class Form2CSVObsHandlerTest {
 
         verify(csvObservationHelper).isForm2Type(form1CSVObservation);
         verify(csvObservationHelper).isForm2Type(form2CSVObservation);
-        verify(csvObservationHelper, never()).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                any(Date.class), any(KeyValue.class), anyListOf(String.class));
+        verify(csvObservationHelper, never()).createObservations(anyList(),
+                any(Date.class), any(KeyValue.class), anyList());
     }
 
     @Test
@@ -176,8 +175,8 @@ public class Form2CSVObsHandlerTest {
         when(csvObservationHelper.getCSVHeaderParts(form2CSVObservation)).thenReturn(headerParts);
         when(csvObservationHelper.getMultiSelectObs(form2CSVObservation)).thenReturn(obsValues);
         doNothing().when(csvObservationHelper).verifyNumericConceptValue(form2CSVObservation, headerParts);
-        doNothing().when(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                any(Date.class), anyListOf(KeyValue.class), anyListOf(String.class));
+        doNothing().when(csvObservationHelper).createObservations(anyList(),
+                any(Date.class), anyList(), anyList());
         when(formFieldPathService.isMultiSelectObs(asList("HIV_History", "PresentConditions"))).thenReturn(true);
         when(formFieldPathService.isValidCSVHeader(asList("HIV_History", "PresentConditions"))).thenReturn(true);
 
@@ -187,8 +186,8 @@ public class Form2CSVObsHandlerTest {
         verify(csvObservationHelper).isForm2Type(form2CSVObservation);
         verify(csvObservationHelper).getCSVHeaderParts(form2CSVObservation);
         verify(csvObservationHelper).verifyNumericConceptValue(form2CSVObservation, headerParts);
-        verify(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                any(Date.class), anyListOf(KeyValue.class), anyListOf(String.class));
+        verify(csvObservationHelper).createObservations(anyList(),
+                any(Date.class), anyList(), anyList());
     }
 
     @Test
@@ -206,8 +205,8 @@ public class Form2CSVObsHandlerTest {
         when(csvObservationHelper.getCSVHeaderParts(form2CSVObservation)).thenReturn(headerParts);
         when(csvObservationHelper.getMultiSelectObs(form2CSVObservation)).thenReturn(obsValues);
         doNothing().when(csvObservationHelper).verifyNumericConceptValue(form2CSVObservation, headerParts);
-        doNothing().when(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                any(Date.class), anyListOf(KeyValue.class), anyListOf(String.class));
+        doNothing().when(csvObservationHelper).createObservations(anyList(),
+                any(Date.class), anyList(), anyList());
         when(formFieldPathService.isAddmore(asList("TB", "Method of confirmation"))).thenReturn(true);
         when(formFieldPathService.isValidCSVHeader(asList("TB", "Method of confirmation"))).thenReturn(true);
 
@@ -217,8 +216,8 @@ public class Form2CSVObsHandlerTest {
         verify(csvObservationHelper).isForm2Type(form2CSVObservation);
         verify(csvObservationHelper).getCSVHeaderParts(form2CSVObservation);
         verify(csvObservationHelper).verifyNumericConceptValue(form2CSVObservation, headerParts);
-        verify(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                any(Date.class), anyListOf(KeyValue.class), anyListOf(String.class));
+        verify(csvObservationHelper).createObservations(anyList(),
+                any(Date.class), anyList(), anyList());
     }
 
     @Test
@@ -262,7 +261,7 @@ public class Form2CSVObsHandlerTest {
         when(formFieldPathService.isValidCSVHeader(asList("TB", "Past Visit Date"))).thenReturn(true);
 
         try (MockedStatic<CSVObservationHelper> csvObservationHelperMockedStatic = Mockito.mockStatic(CSVObservationHelper.class)) {
-            csvObservationHelperMockedStatic.when(() -> CSVObservationHelper.getLastItem(anyListOf(EncounterTransaction.Observation.class))).thenReturn(observation);
+            csvObservationHelperMockedStatic.when(() -> CSVObservationHelper.getLastItem(anyList())).thenReturn(observation);
             csvObservationHelperMockedStatic.when(() -> CSVObservationHelper.getLastItem(eq(asList("TB", "Past Visit Date")))).thenReturn("Past Visit Date");
 
             form2CSVObsHandler = new Form2CSVObsHandler(csvObservationHelper, formFieldPathService, formFieldPathGeneratorService);
@@ -272,8 +271,8 @@ public class Form2CSVObsHandlerTest {
 
             form2CSVObsHandler.handle(encounterRow, true );
 
-            verify(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                    any(Date.class), any(KeyValue.class), anyListOf(String.class));
+            verify(csvObservationHelper).createObservations(anyList(),
+                    any(Date.class), any(KeyValue.class), anyList());
         }
     }
 
@@ -296,7 +295,7 @@ public class Form2CSVObsHandlerTest {
         when(formFieldPathService.isValidCSVHeader(asList("TB", "Past Visit Date"))).thenReturn(false);
 
         try (MockedStatic<CSVObservationHelper> csvObservationHelperMockedStatic = Mockito.mockStatic(CSVObservationHelper.class)) {
-            csvObservationHelperMockedStatic.when(() -> CSVObservationHelper.getLastItem(anyListOf(EncounterTransaction.Observation.class))).thenReturn(observation);
+            csvObservationHelperMockedStatic.when(() -> CSVObservationHelper.getLastItem(anyList())).thenReturn(observation);
             csvObservationHelperMockedStatic.when(() -> CSVObservationHelper.getLastItem(eq(asList("TB", "Past Visit Date")))).thenReturn("Past Visit Date");
 
             form2CSVObsHandler = new Form2CSVObsHandler(csvObservationHelper, formFieldPathService, formFieldPathGeneratorService);
@@ -306,8 +305,8 @@ public class Form2CSVObsHandlerTest {
 
             form2CSVObsHandler.handle(encounterRow, true );
 
-            verify(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                    any(Date.class), any(KeyValue.class), anyListOf(String.class));
+            verify(csvObservationHelper).createObservations(anyList(),
+                    any(Date.class), any(KeyValue.class), anyList());
         }
     }
 
@@ -324,16 +323,16 @@ public class Form2CSVObsHandlerTest {
         when(csvObservationHelper.getCSVHeaderParts(any(KeyValue.class))).thenReturn(headerParts);
         when(formFieldPathService.isValidCSVHeader(anyList())).thenReturn(true);
         doNothing().when(csvObservationHelper).verifyNumericConceptValue(form2CSVObservation, headerParts);
-        doNothing().when(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                any(Date.class), anyListOf(KeyValue.class), anyListOf(String.class));
+        doNothing().when(csvObservationHelper).createObservations(anyList(),
+                any(Date.class), anyList(), anyList());
 
         form2CSVObsHandler = new Form2CSVObsHandler(csvObservationHelper, formFieldPathService, formFieldPathGeneratorService);
 
         form2CSVObsHandler.handle(encounterRow, true);
         verify(csvObservationHelper).isForm2Type(form2CSVObservation);
         verify(csvObservationHelper).getCSVHeaderParts(form2CSVObservation);
-        verify(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                any(Date.class), anyListOf(KeyValue.class), anyListOf(String.class));
+        verify(csvObservationHelper).createObservations(anyList(),
+                any(Date.class), anyList(), anyList());
     }
 
     @Test
@@ -353,16 +352,16 @@ public class Form2CSVObsHandlerTest {
         when(formFieldPathService.isValidCSVHeader(anyList())).thenReturn(true);
         when(formFieldPathService.isMultiSelectObs(anyList())).thenReturn(true);
         doNothing().when(csvObservationHelper).verifyNumericConceptValue(form2CSVObservation, headerParts);
-        doNothing().when(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                any(Date.class), anyListOf(KeyValue.class), anyListOf(String.class));
+        doNothing().when(csvObservationHelper).createObservations(anyList(),
+                any(Date.class), anyList(), anyList());
 
         form2CSVObsHandler = new Form2CSVObsHandler(csvObservationHelper, formFieldPathService, formFieldPathGeneratorService);
 
         form2CSVObsHandler.handle(encounterRow, true);
         verify(csvObservationHelper).isForm2Type(form2CSVObservation);
         verify(csvObservationHelper).getCSVHeaderParts(form2CSVObservation);
-        verify(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                any(Date.class), anyListOf(KeyValue.class), anyListOf(String.class));
+        verify(csvObservationHelper).createObservations(anyList(),
+                any(Date.class), anyList(), anyList());
     }
 
     @Test
@@ -378,8 +377,8 @@ public class Form2CSVObsHandlerTest {
         when(csvObservationHelper.getCSVHeaderParts(any(KeyValue.class))).thenReturn(headerParts);
         when(formFieldPathService.isValidCSVHeader(anyList())).thenReturn(true);
         doNothing().when(csvObservationHelper).verifyNumericConceptValue(form2CSVObservation, headerParts);
-        doNothing().when(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                any(Date.class), anyListOf(KeyValue.class), anyListOf(String.class));
+        doNothing().when(csvObservationHelper).createObservations(anyList(),
+                any(Date.class), anyList(), anyList());
 
         form2CSVObsHandler = new Form2CSVObsHandler(csvObservationHelper, formFieldPathService, formFieldPathGeneratorService);
 
@@ -388,7 +387,7 @@ public class Form2CSVObsHandlerTest {
 
         form2CSVObsHandler.handle(encounterRow, true );
 
-        verify(csvObservationHelper).createObservations(anyListOf(EncounterTransaction.Observation.class),
-                any(Date.class), any(KeyValue.class), anyListOf(String.class));
+        verify(csvObservationHelper).createObservations(anyList(),
+                any(Date.class), any(KeyValue.class), anyList());
     }
 }

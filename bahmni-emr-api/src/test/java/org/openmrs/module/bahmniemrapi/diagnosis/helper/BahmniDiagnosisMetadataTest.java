@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -38,7 +38,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -270,7 +270,7 @@ public class BahmniDiagnosisMetadataTest {
         when(obsService.getObsByUuid(initialDiagnosisUuid)).thenReturn(initialDiagnosisObs);
         EncounterTransaction encounterTransaction = new EncounterTransaction();
         encounterTransaction.addDiagnosis(new EncounterTransaction.Diagnosis().setExistingObs(existingObsUuid));
-        when(eTMapper.map(Matchers.any(Encounter.class),eq(false))).thenReturn(encounterTransaction);
+        when(eTMapper.map(ArgumentMatchers.any(Encounter.class),eq(false))).thenReturn(encounterTransaction);
         Obs diagnosisObs =
                 new ObsBuilder().withConcept(diagnosisSetConcept)
                         .withGroupMembers(

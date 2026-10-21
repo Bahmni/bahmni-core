@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyListOf;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -53,8 +53,8 @@ public class EncounterHelperTest {
         initMocks(this);
         encounterType = new EncounterType("TestEncounter", "Encounter for test");
         when(encounterService.getEncounters(any(Patient.class), any(Location.class), any(Date.class), any(Date.class),
-                anyListOf(Form.class), anyListOf(EncounterType.class), anyListOf(Provider.class),
-                anyListOf(VisitType.class), anyListOf(Visit.class), anyBoolean())).thenReturn(getEncounters());
+                anyList(), anyList(), anyList(),
+                anyList(), anyList(), anyBoolean())).thenReturn(getEncounters());
         encounterHelper = new EncounterHelper(encounterService);
         provider = new Provider(333);
         patient = new Patient(444);

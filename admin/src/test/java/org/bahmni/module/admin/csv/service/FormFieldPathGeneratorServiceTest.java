@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.mockito.Matchers.anyListOf;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
@@ -51,8 +51,8 @@ public class FormFieldPathGeneratorServiceTest {
         final List<String> headerParts = new ArrayList<>(Arrays.asList("form2", "Vitals", "Height"));
 
         try (MockedStatic<CSVObservationHelper> csvObservationHelperMockedStatic = Mockito.mockStatic(CSVObservationHelper.class)) {
-            csvObservationHelperMockedStatic.when(() -> CSVObservationHelper.getLastItem(anyListOf(EncounterTransaction.Observation.class))).thenReturn(observation);
-            when(formFieldPathService.getFormFieldPath(anyListOf(String.class))).thenReturn("Vitals.1/1-0");
+            csvObservationHelperMockedStatic.when(() -> CSVObservationHelper.getLastItem(anyList())).thenReturn(observation);
+            when(formFieldPathService.getFormFieldPath(anyList())).thenReturn("Vitals.1/1-0");
 
             formFieldPathGeneratorService.setFormNamespaceAndFieldPath(form2Observations, headerParts);
 
@@ -80,8 +80,8 @@ public class FormFieldPathGeneratorServiceTest {
         final List<String> headerParts = new ArrayList<>(Arrays.asList("form2", "Covid", "Symptoms"));
 
         try (MockedStatic<CSVObservationHelper> csvObservationHelperMockedStatic = Mockito.mockStatic(CSVObservationHelper.class)) {
-            csvObservationHelperMockedStatic.when(() -> CSVObservationHelper.getLastItem(anyListOf(EncounterTransaction.Observation.class))).thenReturn(observation1);
-            when(formFieldPathService.getFormFieldPath(anyListOf(String.class))).thenReturn("Covid.1/1-0");
+            csvObservationHelperMockedStatic.when(() -> CSVObservationHelper.getLastItem(anyList())).thenReturn(observation1);
+            when(formFieldPathService.getFormFieldPath(anyList())).thenReturn("Covid.1/1-0");
 
             formFieldPathGeneratorService.setFormNamespaceAndFieldPathForMultiSelectObs(form2Observations, headerParts, asList(obs1,obs2));
 
@@ -111,8 +111,8 @@ public class FormFieldPathGeneratorServiceTest {
         final List<String> headerParts = new ArrayList<>(Arrays.asList("form2", "Covid", "Symptoms"));
 
         try (MockedStatic<CSVObservationHelper> csvObservationHelperMockedStatic = Mockito.mockStatic(CSVObservationHelper.class)) {
-            csvObservationHelperMockedStatic.when(() -> CSVObservationHelper.getLastItem(anyListOf(EncounterTransaction.Observation.class))).thenReturn(observation1);
-            when(formFieldPathService.getFormFieldPath(anyListOf(String.class))).thenReturn("Covid.1/1-0");
+            csvObservationHelperMockedStatic.when(() -> CSVObservationHelper.getLastItem(anyList())).thenReturn(observation1);
+            when(formFieldPathService.getFormFieldPath(anyList())).thenReturn("Covid.1/1-0");
 
             formFieldPathGeneratorService.setFormNamespaceAndFieldPathForAddmoreObs(form2Observations, headerParts, asList(obs1,obs2));
 
@@ -146,7 +146,7 @@ public class FormFieldPathGeneratorServiceTest {
         List<KeyValue> csvObservations = asList(csvObs1, csvObs2);
         List<SectionPositionValue> sectionPositionValuesList = asList(sectionPositionValue1, sectionPositionValue2);
 
-        when(formFieldPathService.getFormFieldPath(anyListOf(String.class))).thenReturn("Birth Details.1/1-0/10-0");
+        when(formFieldPathService.getFormFieldPath(anyList())).thenReturn("Birth Details.1/1-0/10-0");
         when(formFieldPathService.isAddmore(headerParts.subList(0,3))).thenReturn(true);
 
         formFieldPathGeneratorService.setFormNamespaceAndFieldPathForJsonValue(form2Observations, headerParts, csvObservations, sectionPositionValuesList);
@@ -185,7 +185,7 @@ public class FormFieldPathGeneratorServiceTest {
         List<KeyValue> csvObservations = asList(csvObs1, csvObs2, csvObs3, csvObs4, csvObs5);
         List<SectionPositionValue> sectionPositionValuesList = asList(sectionPositionValue1, sectionPositionValue2, sectionPositionValue3, sectionPositionValue4, sectionPositionValue5);
 
-        when(formFieldPathService.getFormFieldPath(anyListOf(String.class))).thenReturn("Birth Details.1/17-0/31-0/57-0");
+        when(formFieldPathService.getFormFieldPath(anyList())).thenReturn("Birth Details.1/17-0/31-0/57-0");
         when(formFieldPathService.isAddmore(headerParts.subList(0,2))).thenReturn(true);
         when(formFieldPathService.isAddmore(headerParts.subList(0,3))).thenReturn(true);
 
@@ -231,7 +231,7 @@ public class FormFieldPathGeneratorServiceTest {
         List<KeyValue> csvObservations = asList(csvObs1, csvObs2, csvObs3, csvObs4, csvObs5);
         List<SectionPositionValue> sectionPositionValuesList = asList(sectionPositionValue1, sectionPositionValue2, sectionPositionValue3, sectionPositionValue4, sectionPositionValue5);
 
-        when(formFieldPathService.getFormFieldPath(anyListOf(String.class))).thenReturn("Birth Details.1/17-0/31-0/57-0");
+        when(formFieldPathService.getFormFieldPath(anyList())).thenReturn("Birth Details.1/17-0/31-0/57-0");
         when(formFieldPathService.isAddmore(headerParts.subList(0,2))).thenReturn(true);
         when(formFieldPathService.isAddmore(headerParts.subList(0,3))).thenReturn(true);
 

@@ -149,12 +149,6 @@
             <version>${metadatamapping.version}</version>
             <scope>test</scope>
         </dependency>
-    		<dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
-            <version>${mockitoVersion}</version>
-            <scope>test</scope>
-        </dependency>
 	</dependencies>
 
     <build>
@@ -185,7 +179,6 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.5.201505241946</version>
                 <executions>
                     <execution>
                         <id>check</id>
@@ -233,26 +226,6 @@
                         <goals>
                             <goal>package-module</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>Expand moduleApplicationContext and messages</id>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <includeGroupIds>${project.parent.groupId}</includeGroupIds>
-                            <includeArtifactIds>${project.parent.artifactId}-api</includeArtifactIds>
-                            <excludeTransitive>true</excludeTransitive>
-                            <includes>**/*</includes>
-                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

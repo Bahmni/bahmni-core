@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
@@ -233,7 +233,7 @@ public class CSVObservationHelperTest {
         when(conceptService.getConceptsByName("tall")).thenReturn(asList(valueConcept));
 
         ConceptName valueConceptName = mock(ConceptName.class);
-        when(valueConcept.getFullySpecifiedName(Matchers.any())).thenReturn(valueConceptName);
+        when(valueConcept.getFullySpecifiedName(ArgumentMatchers.any())).thenReturn(valueConceptName);
         when(valueConcept.getName()).thenReturn(valueConceptName);
         when(valueConceptName.getName()).thenReturn("tall");
         when(valueConcept.getUuid()).thenReturn("108abe5c-555e-40d2-ba16-5645a7ad237b");

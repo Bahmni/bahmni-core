@@ -223,12 +223,6 @@
             <version>${metadatamapping.version}</version>
             <scope>test</scope>
         </dependency>
-    		<dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
-            <version>${mockitoVersion}</version>
-            <scope>test</scope>
-        </dependency>
 	</dependencies>
 
     <build>
@@ -250,7 +244,6 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.5.201505241946</version>
                 <executions>
                     <execution>
                         <id>check</id>

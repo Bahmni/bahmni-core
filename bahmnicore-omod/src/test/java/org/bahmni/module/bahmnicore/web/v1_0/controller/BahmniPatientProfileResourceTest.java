@@ -9,7 +9,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.Person;
@@ -27,8 +26,6 @@ import org.openmrs.module.webservices.rest.SimpleObject;
 import org.openmrs.module.webservices.rest.web.api.RestService;
 import org.openmrs.module.webservices.rest.web.resource.impl.DelegatingResourceDescription;
 import org.openmrs.module.webservices.rest.web.v1_0.resource.openmrs1_8.PatientResource1_8;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.ResponseEntity;
 
 import java.io.File;
@@ -39,26 +36,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.doReturn;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.doThrow;
 
 // TODO: 13/09/16 This is wrong way of writing test. We should mock the external dependency in resource but we ended up mocking all internal dependencies. For eg: MessageSourceService
-// NOTE: Context static mocking has been migrated to native Mockito MockedStatic (see contextMockedStatic field below).
-// @RunWith(PowerMockRunner.class)/@PrepareForTest(BahmniPatientProfileResource.class) and the org.powermock.api.mockito.PowerMockito
-// spy()/doReturn()/doThrow() calls below are INTENTIONALLY KEPT: they stub the PRIVATE methods mapForCreatePatient/mapForUpdatePatient
-// on a spy of the class under test via PowerMockito's reflection-based "doReturn(x).when(spy, "methodName", args)" API, which has
-// no vanilla Mockito equivalent (vanilla Mockito.doReturn/when require calling the real method on the spy, which is impossible for
-// a private method from a different class). See final migration report for details/options (e.g. widening method visibility).
-@PrepareForTest({BahmniPatientProfileResource.class})
-@RunWith(PowerMockRunner.class)
+// mapForCreatePatient/mapForUpdatePatient were widened from private to package-private in BahmniPatientProfileResource so vanilla
+// Mockito.spy()/doReturn().when(spy).method(args) can override them directly - this test class is in the same package. PowerMock's
+// reflection-based "doReturn(x).when(spy, "methodName", args)" API is no longer needed.
+@RunWith(org.mockito.junit.MockitoJUnitRunner.Silent.class)
 public class BahmniPatientProfileResourceTest {
 
     @Mock
@@ -91,7 +84,6 @@ public class BahmniPatientProfileResourceTest {
 
     @Before
     public void setUp() throws IOException, java.net.URISyntaxException {
-        MockitoAnnotations.initMocks(this);
         contextMockedStatic = Mockito.mockStatic(Context.class);
         ClassLoader classLoader = getClass().getClassLoader();
         // NOTE: use toURI() rather than the classic `new File(url.getFile())` anti-pattern - the latter breaks here because
@@ -122,7 +114,7 @@ public class BahmniPatientProfileResourceTest {
         BahmniPatientProfileResource bahmniPatientProfileResourceSpy = spy(this.bahmniPatientProfileResource);
         PatientProfile delegate = mock(PatientProfile.class);
         when(identifierSourceServiceWrapper.generateIdentifierUsingIdentifierSourceUuid("dead-cafe", "")).thenReturn("BAH300010");
-        doReturn(delegate).when(bahmniPatientProfileResourceSpy, "mapForCreatePatient", propertiesToCreate);
+        doReturn(delegate).when(bahmniPatientProfileResourceSpy).mapForCreatePatient(propertiesToCreate);
         when(emrPatientProfileService.save(delegate)).thenReturn(delegate);
         contextMockedStatic.when(Context::getPatientService).thenReturn(patientService);
         Patient patient = mock(Patient.class);
@@ -152,7 +144,7 @@ public class BahmniPatientProfileResourceTest {
         bahmniPatientProfileResource = new BahmniPatientProfileResource(emrPatientProfileService, identifierSourceServiceWrapper);
         BahmniPatientProfileResource spy = spy(bahmniPatientProfileResource);
         PatientProfile delegate = mock(PatientProfile.class);
-        doReturn(delegate).when(spy, "mapForUpdatePatient", anyString(), any(SimpleObject.class));
+        doReturn(delegate).when(spy).mapForUpdatePatient(anyString(), any(SimpleObject.class));
         when(emrPatientProfileService.save(delegate)).thenReturn(delegate);
         doNothing().when(spy).setConvertedProperties(any(PatientProfile.class), any(SimpleObject.class), any(DelegatingResourceDescription.class), any(Boolean.class));
         Person person = new Person();
@@ -175,7 +167,7 @@ public class BahmniPatientProfileResourceTest {
     public void shouldThrowExceptionWhenPatientIsNotHavingProperPrivilege() throws Exception {
         bahmniPatientProfileResource = new BahmniPatientProfileResource(emrPatientProfileService, identifierSourceServiceWrapper);
         BahmniPatientProfileResource spy = spy(bahmniPatientProfileResource);
-        doThrow(new APIAuthenticationException()).when(spy, "mapForUpdatePatient", anyString(), any(SimpleObject.class));
+        doThrow(new APIAuthenticationException()).when(spy).mapForUpdatePatient(anyString(), any(SimpleObject.class));
 
         ResponseEntity<Object> response = spy.update("someUuid", propertiesToCreate);
         Assert.assertEquals(403,response.getStatusCode().value());
