@@ -1,9 +1,14 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller.display.controls;
 
 import org.bahmni.module.bahmnicore.dao.OrderDao;
+import org.bahmni.module.bahmnicore.service.OrderService;
+import org.openmrs.Obs;
+import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.Visit;
 import org.openmrs.api.PatientService;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.bahmniemrapi.laborder.contract.LabOrderResult;
 import org.openmrs.module.bahmniemrapi.laborder.contract.LabOrderResults;
 import org.openmrs.module.bahmniemrapi.laborder.service.LabOrderResultsService;
 import org.openmrs.module.webservices.rest.web.RestConstants;
@@ -15,7 +20,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/bahmnicore/labOrderResults")
@@ -56,6 +63,24 @@ public class BahmniLabOrderResultController extends BaseRestController{
             numberOfAccessions = Integer.MAX_VALUE;
 
         return labOrderResultsService.getAll(patient, visits, numberOfAccessions);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, params = {"patient"})
+    @ResponseBody
+    public LabOrderResults getResultsForPatient(
+            @RequestParam(value = "patient", required = true) String patient,
+            @RequestParam(value = "numberOfVisits", required = false) Integer numberOfVisits,
+            @RequestParam(value = "numberOfAccessions", required = false) Integer numberOfAccessions) {
+        return findOrderService().map(orderService -> {
+                    List<Order> orders = orderService.getLabOrdersForPatient(patient, numberOfVisits);
+                    List<Obs> obsList = orderService.getObsForOrders(orders);
+                    List<LabOrderResult> results = labOrderResultsService.resultsForOrders(orders, obsList, Optional.ofNullable(numberOfAccessions).orElse(Integer.MAX_VALUE));
+                    return new LabOrderResults(results);
+                }).orElse(new LabOrderResults(Collections.emptyList()));
+    }
+
+    private Optional<OrderService> findOrderService() {
+        return Context.getRegisteredComponents(OrderService.class).stream().findAny();
     }
 
     private Patient patientFrom(List<Visit> visits) {

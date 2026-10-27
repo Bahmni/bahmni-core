@@ -1,5 +1,7 @@
 package org.openmrs.module.bahmniemrapi.laborder.service;
 
+import org.openmrs.Obs;
+import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.Visit;
 import org.openmrs.module.bahmniemrapi.laborder.contract.LabOrderResult;
@@ -13,4 +15,6 @@ public interface LabOrderResultsService {
     LabOrderResults getAll(Patient patient, List<Visit> visits, int numberOfAccessions);
 
     List<LabOrderResult> getAllForConcepts(Patient patient, Collection<String> concepts, List<Visit> visits, Date startDate, Date endDate);
+
+    List<LabOrderResult> resultsForOrders(List<Order> orders, List<Obs> obsList, Integer numberOfAccessions);
 }
