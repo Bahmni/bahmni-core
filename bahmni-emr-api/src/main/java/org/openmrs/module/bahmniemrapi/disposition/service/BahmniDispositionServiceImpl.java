@@ -2,7 +2,10 @@ package org.openmrs.module.bahmniemrapi.disposition.service;
 
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
+import org.openmrs.Order;
+import org.openmrs.OrderType;
 import org.openmrs.Visit;
+import org.openmrs.api.OrderService;
 import org.openmrs.api.VisitService;
 import org.openmrs.module.bahmniemrapi.disposition.contract.BahmniDisposition;
 import org.openmrs.module.bahmniemrapi.disposition.mapper.BahmniDispositionMapper;
@@ -22,6 +25,8 @@ import java.util.Set;
 @Service
 public class BahmniDispositionServiceImpl implements BahmniDispositionService {
 
+    private static final String ADT_ORDER_TYPE_NAME = "ADT Order";
+
     private VisitService visitService;
 
     private DispositionMapper dispositionMapper;
@@ -32,15 +37,18 @@ public class BahmniDispositionServiceImpl implements BahmniDispositionService {
 
     private BahmniDispositionMapper bahmniDispositionMapper;
 
+    private OrderService orderService;
+
     @Autowired
     public BahmniDispositionServiceImpl(VisitService visitService, DispositionMapper dispositionMapper,
                                         ObservationTypeMatcher observationTypeMatcher, EncounterProviderMapper encounterProviderMapper,
-                                        BahmniDispositionMapper bahmniDispositionMapper){
+                                        BahmniDispositionMapper bahmniDispositionMapper, OrderService orderService){
         this.visitService = visitService;
         this.dispositionMapper = dispositionMapper;
         this.observationTypeMatcher = observationTypeMatcher;
         this.encounterProviderMapper = encounterProviderMapper;
         this.bahmniDispositionMapper = bahmniDispositionMapper;
+        this.orderService = orderService;
     }
 
     @Override
@@ -92,13 +100,34 @@ public class BahmniDispositionServiceImpl implements BahmniDispositionService {
             Set<Obs> observations = encounter.getObsAtTopLevel(false);
             Set<EncounterTransaction.Provider> eTProvider = encounterProviderMapper.convert(encounter.getEncounterProviders());
 
+            int dispositionsBefore = dispositions.size();
             for (Obs observation : observations) {
                 if(ObservationTypeMatcher.ObservationType.DISPOSITION.equals(observationTypeMatcher.getObservationType(observation))){
                     addBahmniDisposition(dispositions, eTProvider, observation , locale);
                 }
             }
+
+            // Old clinic writes the Disposition Observation; new clinic writes an ADT Order
+            // instead. Only fall back to the order when this encounter has no disposition
+            // observation, so an encounter that still dual-writes both isn't reported twice.
+            if (dispositions.size() == dispositionsBefore) {
+                addBahmniDispositionsFromOrders(dispositions, encounter, eTProvider, locale);
+            }
         }
         return dispositions;
+    }
+
+    private void addBahmniDispositionsFromOrders(List<BahmniDisposition> dispositions, Encounter encounter,
+                                                  Set<EncounterTransaction.Provider> eTProvider, Locale locale) {
+        OrderType adtOrderType = orderService.getOrderTypeByName(ADT_ORDER_TYPE_NAME);
+        if (adtOrderType == null || encounter.getOrders() == null) {
+            return;
+        }
+        for (Order order : encounter.getOrders()) {
+            if (order.getOrderType() != null && order.isType(adtOrderType)) {
+                dispositions.add(bahmniDispositionMapper.mapFromOrder(order, eTProvider, locale));
+            }
+        }
     }
 
     private void addBahmniDisposition(List<BahmniDisposition> dispositions,
