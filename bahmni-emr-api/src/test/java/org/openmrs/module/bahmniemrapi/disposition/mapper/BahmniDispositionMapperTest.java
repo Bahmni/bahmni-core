@@ -92,4 +92,27 @@ public class BahmniDispositionMapperTest {
 
     }
 
+    @Test
+    public void shouldNotThrowWhenConceptCannotBeResolved(){
+        String unresolvableConceptName = "Admit Patient";
+        when(conceptService.getConcept(unresolvableConceptName)).thenReturn(null);
+
+        EncounterTransaction.Disposition disposition = new EncounterTransaction.Disposition();
+        disposition.setConceptName(unresolvableConceptName);
+        disposition.setAdditionalObs(new ArrayList<EncounterTransaction.Observation>());
+
+        Person person = new Person();
+        PersonName personName = new PersonName();
+        personName.setGivenName("testPersonName");
+        Set<PersonName> personNames = new HashSet<>();
+        personNames.add(personName);
+        person.setNames(personNames);
+        User user = new User(person);
+
+        BahmniDisposition bahmniDisposition = bahmniDispositionMapper.map(disposition, new HashSet<EncounterTransaction.Provider>(), user, new Locale("en"));
+
+        Assert.assertEquals(unresolvableConceptName, bahmniDisposition.getConceptName());
+        Assert.assertNull(bahmniDisposition.getPreferredName());
+    }
+
 }
