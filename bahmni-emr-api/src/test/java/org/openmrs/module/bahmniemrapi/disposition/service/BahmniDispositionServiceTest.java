@@ -195,6 +195,38 @@ public class BahmniDispositionServiceTest {
     }
 
     @Test
+    public void shouldSkipVoidedAndDiscontinueAdtOrders() {
+        Set<EncounterTransaction.Provider> eTProvider = new HashSet<>();
+        OrderType adtOrderType = new OrderType();
+        adtOrderType.setName("ADT Order");
+        Concept admitConcept = new ConceptBuilder().withName("Admit Patient").build();
+
+        Order voidedOrder = new Order();
+        voidedOrder.setOrderType(adtOrderType);
+        voidedOrder.setConcept(admitConcept);
+        voidedOrder.setVoided(true);
+
+        Order discontinueOrder = new Order();
+        discontinueOrder.setOrderType(adtOrderType);
+        discontinueOrder.setConcept(admitConcept);
+        discontinueOrder.setAction(Order.Action.DISCONTINUE);
+
+        Encounter encounter = new EncounterBuilder().build();
+        encounter.setObs(new HashSet<Obs>());
+        encounter.addOrder(voidedOrder);
+        encounter.addOrder(discontinueOrder);
+        Visit orderVisit = new VisitBuilder().withEncounter(encounter).build();
+
+        when(visitService.getVisitByUuid("visitUuid")).thenReturn(orderVisit);
+        when(encounterProviderMapper.convert(new HashSet<EncounterProvider>())).thenReturn(eTProvider);
+        when(orderService.getOrderTypeByName("ADT Order")).thenReturn(adtOrderType);
+
+        List<BahmniDisposition> actualDispositions = bahmniDispositionService.getDispositionByVisitUuid("visitUuid", new Locale("en"));
+
+        assertEquals(0, actualDispositions.size());
+    }
+
+    @Test
     public void shouldReturnDispositionForMultipleVisits() {
         Set<EncounterTransaction.Provider> eTProvider = new HashSet<>();
         EncounterTransaction.Provider provider = new EncounterTransaction.Provider();

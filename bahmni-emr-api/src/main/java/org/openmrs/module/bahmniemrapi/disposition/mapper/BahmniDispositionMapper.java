@@ -2,6 +2,7 @@ package org.openmrs.module.bahmniemrapi.disposition.mapper;
 
 import org.openmrs.Concept;
 import org.openmrs.ConceptMap;
+import org.openmrs.ConceptName;
 import org.openmrs.Order;
 import org.openmrs.User;
 import org.openmrs.api.ConceptService;
@@ -34,11 +35,10 @@ public class BahmniDispositionMapper {
         BahmniDisposition bahmniDisposition = new BahmniDisposition();
         Concept concept = order.getConcept();
         bahmniDisposition.setCode(getEmrapiMappingCode(concept));
-        bahmniDisposition.setConceptName(concept.getUuid());
+        bahmniDisposition.setConceptName(getConceptName(concept, locale));
         bahmniDisposition.setDispositionDateTime(order.getEffectiveStartDate());
         bahmniDisposition.setVoided(order.isVoided());
         bahmniDisposition.setVoidReason(order.getVoidReason());
-        bahmniDisposition.setExistingObs(order.getUuid());
         bahmniDisposition.setProviders(providers);
         if (order.getCreator() != null) {
             bahmniDisposition.setCreatorName(order.getCreator().getPersonName().toString());
@@ -47,6 +47,14 @@ public class BahmniDispositionMapper {
             bahmniDisposition.setPreferredName(concept.getPreferredName(locale).getName());
         }
         return bahmniDisposition;
+    }
+
+    private String getConceptName(Concept concept, Locale locale) {
+        ConceptName name = concept.getName(locale);
+        if (name == null && concept.getNames() != null && !concept.getNames().isEmpty()) {
+            name = concept.getNames().iterator().next();
+        }
+        return name != null ? name.getName() : null;
     }
 
     private String getEmrapiMappingCode(Concept concept) {

@@ -124,6 +124,9 @@ public class BahmniDispositionServiceImpl implements BahmniDispositionService {
             return;
         }
         for (Order order : encounter.getOrders()) {
+            if (order.getVoided() || Order.Action.DISCONTINUE.equals(order.getAction())) {
+                continue;
+            }
             if (order.getOrderType() != null && order.isType(adtOrderType)) {
                 dispositions.add(bahmniDispositionMapper.mapFromOrder(order, eTProvider, locale));
             }
