@@ -4894,4 +4894,22 @@
         </sql>
     </changeSet>
 
+    <changeSet id="bah-5197-add-adt-order-type-20261007" author="Rohit V">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM order_type WHERE name = 'ADT Order';
+            </sqlCheck>
+        </preConditions>
+        <comment>BAH-5197: Seed ADT Order type so disposition (Admit/Discharge/Transfer/Undo Discharge) ServiceRequests resolve to a valid Order</comment>
+        <insert tableName="order_type">
+            <column name="name" value="ADT Order"/>
+            <column name="description" value="Order type for ADT (Admit/Discharge/Transfer) disposition requests"/>
+            <column name="java_class_name" value="org.openmrs.Order"/>
+            <column name="creator" valueNumeric="1"/>
+            <column name="date_created" valueComputed="NOW()"/>
+            <column name="retired" valueNumeric="0"/>
+            <column name="uuid" valueComputed="UUID()"/>
+        </insert>
+    </changeSet>
+
 </databaseChangeLog>
