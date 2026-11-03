@@ -34,8 +34,9 @@ public class BahmniDispositionMapper {
     public BahmniDisposition mapFromOrder(Order order, Set<EncounterTransaction.Provider> providers, Locale locale) {
         BahmniDisposition bahmniDisposition = new BahmniDisposition();
         Concept concept = order.getConcept();
+        Locale effectiveLocale = locale != null ? locale : new Locale("en");
         bahmniDisposition.setCode(getEmrapiMappingCode(concept));
-        bahmniDisposition.setConceptName(getConceptName(concept, locale));
+        bahmniDisposition.setConceptName(getConceptName(concept, effectiveLocale));
         bahmniDisposition.setDispositionDateTime(order.getEffectiveStartDate());
         bahmniDisposition.setVoided(order.isVoided());
         bahmniDisposition.setVoidReason(order.getVoidReason());
@@ -43,8 +44,8 @@ public class BahmniDispositionMapper {
         if (order.getCreator() != null) {
             bahmniDisposition.setCreatorName(order.getCreator().getPersonName().toString());
         }
-        if (concept.getPreferredName(locale) != null) {
-            bahmniDisposition.setPreferredName(concept.getPreferredName(locale).getName());
+        if (concept.getPreferredName(effectiveLocale) != null) {
+            bahmniDisposition.setPreferredName(concept.getPreferredName(effectiveLocale).getName());
         }
         return bahmniDisposition;
     }

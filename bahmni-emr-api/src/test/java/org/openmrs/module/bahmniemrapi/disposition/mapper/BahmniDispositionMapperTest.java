@@ -219,4 +219,14 @@ public class BahmniDispositionMapperTest {
         Assert.assertNull(result.getConceptName());
     }
 
+    @Test
+    public void shouldDefaultToEnglishWhenLocaleIsNull() {
+        Order order = adtOrder(dispositionConcept("ADMIT", "Admit Patient", new Locale("en")));
+
+        BahmniDisposition result = bahmniDispositionMapper.mapFromOrder(order, new HashSet<EncounterTransaction.Provider>(), null);
+
+        Assert.assertEquals("Admit Patient", result.getConceptName());
+        Assert.assertEquals("Admit Patient", result.getPreferredName());
+    }
+
 }
