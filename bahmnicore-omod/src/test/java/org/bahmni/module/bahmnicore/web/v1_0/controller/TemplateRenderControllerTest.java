@@ -1,6 +1,6 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
-import org.bahmni.module.bahmnicore.web.v1_0.client.TemplateServiceClient;
+import org.bahmni.module.bahmnicore.service.TemplateService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 
 public class TemplateRenderControllerTest {
 
-    @Mock private TemplateServiceClient templateServiceClient;
+    @Mock private TemplateService templateService;
     @Mock private HttpServletRequest request;
 
     private TemplateRenderController controller;
@@ -30,7 +30,7 @@ public class TemplateRenderControllerTest {
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        controller = new TemplateRenderController(templateServiceClient);
+        controller = new TemplateRenderController(templateService);
     }
 
     @Test
@@ -39,14 +39,14 @@ public class TemplateRenderControllerTest {
         when(request.getCookies()).thenReturn(null);
         when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
         when(request.getContentType()).thenReturn("application/json");
-        when(templateServiceClient.render(any(HttpHeaders.class), eq(body)))
+        when(templateService.render(any(HttpHeaders.class), eq(body)))
                 .thenReturn(new ResponseEntity<>("rendered", HttpStatus.OK));
 
         ResponseEntity<String> result = controller.render(request, body);
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals("rendered", result.getBody());
-        verify(templateServiceClient).render(any(HttpHeaders.class), eq(body));
+        verify(templateService).render(any(HttpHeaders.class), eq(body));
     }
 
     @Test
@@ -56,7 +56,7 @@ public class TemplateRenderControllerTest {
         when(request.getContentType()).thenReturn(null);
         HttpHeaders serviceHeaders = new HttpHeaders();
         serviceHeaders.setContentType(MediaType.APPLICATION_PDF);
-        when(templateServiceClient.render(any(), any()))
+        when(templateService.render(any(), any()))
                 .thenReturn(new ResponseEntity<>("pdf", serviceHeaders, HttpStatus.OK));
 
         ResponseEntity<String> result = controller.render(request, "{}");
@@ -69,7 +69,7 @@ public class TemplateRenderControllerTest {
         when(request.getCookies()).thenReturn(null);
         when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
         when(request.getContentType()).thenReturn(null);
-        when(templateServiceClient.render(any(), any()))
+        when(templateService.render(any(), any()))
                 .thenReturn(new ResponseEntity<>("body", HttpStatus.OK));
 
         ResponseEntity<String> result = controller.render(request, "{}");
@@ -82,7 +82,7 @@ public class TemplateRenderControllerTest {
         when(request.getCookies()).thenReturn(null);
         when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
         when(request.getContentType()).thenReturn(null);
-        when(templateServiceClient.render(any(), any()))
+        when(templateService.render(any(), any()))
                 .thenReturn(new ResponseEntity<>("not found", HttpStatus.NOT_FOUND));
 
         ResponseEntity<String> result = controller.render(request, "{}");
@@ -96,7 +96,7 @@ public class TemplateRenderControllerTest {
         when(request.getCookies()).thenReturn(null);
         when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
         when(request.getContentType()).thenReturn(null);
-        when(templateServiceClient.render(any(), any()))
+        when(templateService.render(any(), any()))
                 .thenReturn(new ResponseEntity<>("error", HttpStatus.INTERNAL_SERVER_ERROR));
 
         ResponseEntity<String> result = controller.render(request, "{}");
