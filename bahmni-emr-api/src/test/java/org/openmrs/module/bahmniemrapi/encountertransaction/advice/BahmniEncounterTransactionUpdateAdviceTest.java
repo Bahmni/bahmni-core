@@ -18,7 +18,9 @@ import static org.junit.Assert.assertThat;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import org.apache.commons.lang.StringUtils;
-;
+
+import java.io.File;
+import java.net.URISyntaxException;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ Context.class, OpenmrsUtil.class})
@@ -29,10 +31,14 @@ public class BahmniEncounterTransactionUpdateAdviceTest {
     @Mock
     private AdministrationService administrationService;
 
+    private String getTestResourcesDirectory() throws URISyntaxException {
+        return new File(getClass().getClassLoader().getResource("").toURI()).getAbsolutePath() + File.separator;
+    }
+
     @Test
     public void shouldExecuteObsValueCalculatorFromApplicationDataDirectory() throws Throwable {
         PowerMockito.mockStatic(OpenmrsUtil.class);
-        when(OpenmrsUtil.getApplicationDataDirectory()).thenReturn(getClass().getClassLoader().getResource("").getPath());
+        when(OpenmrsUtil.getApplicationDataDirectory()).thenReturn(getTestResourcesDirectory());
         PowerMockito.mockStatic(Context.class);
         when(Context.getAdministrationService()).thenReturn(administrationService);
         when(administrationService.getGlobalProperty(BAHMNI_EXECUTE_GROOVY_SCRIPT)).thenReturn("true");
@@ -46,10 +52,8 @@ public class BahmniEncounterTransactionUpdateAdviceTest {
     @Test
     public void shouldLoadpplicationDataDirectoryPath() throws Throwable {
         PowerMockito.mockStatic(OpenmrsUtil.class);
-        String path = getClass().getClassLoader().getResource("").getPath();
-        // remove the trailing "/"
+        String path = getTestResourcesDirectory();
         path = StringUtils.chop(path);
-        System.out.println(path);
         when(OpenmrsUtil.getApplicationDataDirectory()).thenReturn(path);
         PowerMockito.mockStatic(Context.class);
         when(Context.getAdministrationService()).thenReturn(administrationService);
@@ -64,7 +68,7 @@ public class BahmniEncounterTransactionUpdateAdviceTest {
     @Test
     public void shouldNotFailIfobscalculatorDirectoryDoesNotExist() throws Throwable {
         PowerMockito.mockStatic(OpenmrsUtil.class);
-        when(OpenmrsUtil.getApplicationDataDirectory()).thenReturn(getClass().getClassLoader().getResource("").getPath() + "nonExistentDirectory");
+        when(OpenmrsUtil.getApplicationDataDirectory()).thenReturn(getTestResourcesDirectory() + "nonExistentDirectory");
         PowerMockito.mockStatic(Context.class);
         when(Context.getAdministrationService()).thenReturn(administrationService);
         when(administrationService.getGlobalProperty(BAHMNI_EXECUTE_GROOVY_SCRIPT)).thenReturn("true");
