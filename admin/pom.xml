@@ -223,7 +223,7 @@
             <version>${metadatamapping.version}</version>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+	</dependencies>
 
     <build>
         <resources>
@@ -244,7 +244,6 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.5.201505241946</version>
                 <executions>
                     <execution>
                         <id>check</id>

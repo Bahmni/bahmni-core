@@ -19,7 +19,7 @@
         <gem.home>${basedir}/.rubygems</gem.home>
         <gem.path>${basedir}/.rubygems</gem.path>
         <uiframeworkVersion>3.3.1</uiframeworkVersion>
-        <bedManagementVersion>5.13.0</bedManagementVersion>
+        <bedManagementVersion>7.3.0-SNAPSHOT</bedManagementVersion>
     </properties>
 
     <dependencies>
@@ -315,7 +315,7 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
-    </dependencies>
+	</dependencies>
 
     <build>
         <finalName>${project.artifactId}-${project.version}</finalName>
@@ -440,7 +440,6 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.5.201505241946</version>
                 <executions>
                     <execution>
                         <id>check</id>

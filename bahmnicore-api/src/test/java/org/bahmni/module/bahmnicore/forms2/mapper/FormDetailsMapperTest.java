@@ -6,8 +6,6 @@ import org.bahmni.module.bahmnicore.forms2.util.FormUtil;
 import org.bahmni.module.bahmnicore.model.Provider;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.internal.verification.VerificationModeFactory;
 import org.openmrs.Concept;
 import org.openmrs.ConceptName;
 import org.openmrs.Encounter;
@@ -15,9 +13,6 @@ import org.openmrs.Obs;
 import org.openmrs.PersonName;
 import org.openmrs.User;
 import org.openmrs.Visit;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,11 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
-@PrepareForTest({FormUtil.class})
-@RunWith(PowerMockRunner.class)
 public class FormDetailsMapperTest {
 
     private String formFieldPath = "formName.2/1-0";

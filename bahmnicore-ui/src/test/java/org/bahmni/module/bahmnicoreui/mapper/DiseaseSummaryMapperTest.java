@@ -4,9 +4,11 @@ import junit.framework.Assert;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.bahmni.module.bahmnicoreui.constant.DiseaseSummaryConstants;
 import org.bahmni.module.bahmnicoreui.contract.ConceptValue;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.ConceptName;
 import org.openmrs.Drug;
@@ -19,8 +21,6 @@ import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObser
 import org.openmrs.module.bahmniemrapi.laborder.contract.LabOrderResult;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.util.LocaleUtility;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -35,11 +35,7 @@ import java.util.Map;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(LocaleUtility.class)
 public class DiseaseSummaryMapperTest {
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DiseaseSummaryConstants.DATE_FORMAT);
@@ -50,6 +46,7 @@ public class DiseaseSummaryMapperTest {
     private String visit1Encounter1Date;
     private String visit1Encounter2Date;
     private String visit1Encounter3Date;
+    private MockedStatic<LocaleUtility> localeUtilityMockedStatic;
 
     @Before
     public void setUp() throws Exception {
@@ -59,8 +56,13 @@ public class DiseaseSummaryMapperTest {
         visit1Encounter1Date = date1 +" 12:30";
         visit1Encounter2Date = date1 + " 05:30";
         visit1Encounter3Date = date1 +" 07:30";
-        mockStatic(LocaleUtility.class);
-        when(LocaleUtility.getDefaultLocale()).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic = Mockito.mockStatic(LocaleUtility.class);
+        localeUtilityMockedStatic.when(LocaleUtility::getDefaultLocale).thenReturn(Locale.ENGLISH);
+    }
+
+    @After
+    public void tearDown() {
+        localeUtilityMockedStatic.close();
     }
 
     @Test

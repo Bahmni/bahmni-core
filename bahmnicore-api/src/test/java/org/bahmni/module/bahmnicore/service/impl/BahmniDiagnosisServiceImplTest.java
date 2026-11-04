@@ -4,12 +4,14 @@ import org.bahmni.test.builder.ConceptBuilder;
 import org.bahmni.test.builder.DiagnosisBuilder;
 import org.bahmni.test.builder.EncounterBuilder;
 import org.bahmni.test.builder.ObsBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
@@ -30,10 +32,6 @@ import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.emrapi.diagnosis.Diagnosis;
 import org.openmrs.module.emrapi.encounter.DiagnosisMapper;
 import org.openmrs.util.LocaleUtility;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,9 +52,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@PowerMockIgnore("javax.management.*")
-@PrepareForTest(LocaleUtility.class)
-@RunWith(PowerMockRunner.class)
 public class BahmniDiagnosisServiceImplTest {
     @Mock
     private EncounterService encounterService;
@@ -89,12 +84,19 @@ public class BahmniDiagnosisServiceImplTest {
     private Encounter initialEncounter;
     private Encounter modifiedEncounter;
 
+    private MockedStatic<LocaleUtility> localeUtilityMockedStatic;
+
+    @After
+    public void tearDown() {
+        localeUtilityMockedStatic.close();
+    }
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        PowerMockito.mockStatic(LocaleUtility.class);
-        PowerMockito.when(LocaleUtility.getLocalesInOrder()).thenReturn(new HashSet<>(Arrays.asList(Locale.getDefault())));
+        localeUtilityMockedStatic = Mockito.mockStatic(LocaleUtility.class);
+        localeUtilityMockedStatic.when(LocaleUtility::getLocalesInOrder).thenReturn(new HashSet<>(Arrays.asList(Locale.getDefault())));
         when(administrationService.getGlobalProperty(eq("bahmni.lookupExternalTerminologyServer"))).thenReturn("false");
     }
 

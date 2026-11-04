@@ -185,7 +185,7 @@ public class BahmniPatientProfileResource extends DelegatingCrudResource<Patient
         patientProfile.setRelationships(relationships);
     }
 
-    private PatientProfile mapForCreatePatient(SimpleObject propertiesToCreate) {
+    PatientProfile mapForCreatePatient(SimpleObject propertiesToCreate) {
         final Object patientProperty = propertiesToCreate.get("patient");
         if (propertiesToCreate.get("patient") == null || !(propertiesToCreate.get("patient") instanceof Map)) {
             throw new ConversionException("The patient property is missing");
@@ -202,7 +202,7 @@ public class BahmniPatientProfileResource extends DelegatingCrudResource<Patient
         return delegate;
     }
 
-    private PatientProfile mapForUpdatePatient(String uuid, SimpleObject propertiesToUpdate) {
+    PatientProfile mapForUpdatePatient(String uuid, SimpleObject propertiesToUpdate) {
         if (propertiesToUpdate.get("patient") == null || !(propertiesToUpdate.get("patient") instanceof Map)) {
             throw new ConversionException("The patient property is missing");
         }

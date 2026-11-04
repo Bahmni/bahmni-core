@@ -4,17 +4,17 @@ import org.bahmni.module.referencedata.labconcepts.contract.Drug;
 import org.bahmni.module.referencedata.labconcepts.model.DrugMetaData;
 import org.bahmni.test.builder.ConceptBuilder;
 import org.bahmni.test.builder.DrugBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.context.UserContext;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Locale;
 
@@ -22,12 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 
-@PowerMockIgnore("javax.management.*")
-@PrepareForTest(Context.class)
-@RunWith(PowerMockRunner.class)
 public class DrugMapperTest {
 
     private ConceptClass drugConceptClass;
@@ -35,16 +30,24 @@ public class DrugMapperTest {
 
     @Mock private UserContext userContext;
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
         Locale locale = new Locale("en", "GB");
-        mockStatic(Context.class);
-        when(Context.getLocale()).thenReturn(locale);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getLocale).thenReturn(locale);
 
         drugMapper = new DrugMapper();
         drugConceptClass = new ConceptClass();
         drugConceptClass.setUuid(ConceptClass.DRUG_UUID);
         drugConceptClass.setName("Drug");
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test

@@ -6,11 +6,13 @@ import org.bahmni.module.bahmnicore.forms2.mapper.FormDetailsMapper;
 import org.bahmni.module.bahmnicore.forms2.util.FormUtil;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.bahmni.module.bahmnicore.service.BahmniVisitService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.internal.verification.VerificationModeFactory;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
@@ -22,8 +24,6 @@ import org.openmrs.api.ObsService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.VisitService;
 import org.openmrs.parameter.EncounterSearchCriteria;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.security.InvalidParameterException;
 import java.util.Arrays;
@@ -35,21 +35,20 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
-@PrepareForTest({FormType.class, FormUtil.class, FormDetailsMapper.class})
-@RunWith(PowerMockRunner.class)
 public class BahmniFormDetailsServiceImplTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+
+    private MockedStatic<FormUtil> formUtilMockedStatic;
+    private MockedStatic<FormDetailsMapper> formDetailsMapperMockedStatic;
 
     private BahmniVisitService bahmniVisitService = mock(BahmniVisitService.class);
     private FormDetails formDetails = mock(FormDetails.class);
@@ -81,8 +80,18 @@ public class BahmniFormDetailsServiceImplTest {
         List<Encounter> encounters = singletonList(encounter);
         when(encounterService.getEncounters(any(EncounterSearchCriteria.class))).thenReturn(encounters);
         when(patient.getPerson()).thenReturn(person);
-        when(obsService.getObservations(anyListOf(Person.class), anyListOf(Encounter.class), eq(null), eq(null), eq(null), eq(null),
+        when(obsService.getObservations(anyList(), anyList(), eq(null), eq(null), eq(null), eq(null),
                 eq(null), eq(null), eq(null), eq(null), eq(null), eq(false))).thenReturn(obs);
+    }
+
+    @After
+    public void tearDown() {
+        if (formUtilMockedStatic != null) {
+            formUtilMockedStatic.close();
+        }
+        if (formDetailsMapperMockedStatic != null) {
+            formDetailsMapperMockedStatic.close();
+        }
     }
 
     @Test
@@ -101,9 +110,9 @@ public class BahmniFormDetailsServiceImplTest {
     @Test
     public void shouldReturnFormDetailsForGivenPatientUuidAndFormTypeIsV2() {
         mockFilterFormBuilderObs();
-        mockStatic(FormDetailsMapper.class);
+        formDetailsMapperMockedStatic = Mockito.mockStatic(FormDetailsMapper.class);
         List<FormDetails> expectedFormDetails = Arrays.asList(formDetails, anotherFormDetails);
-        when(FormDetailsMapper.createFormDetails(anyListOf(Obs.class), any(FormType.class)))
+        formDetailsMapperMockedStatic.when(() -> FormDetailsMapper.createFormDetails(anyList(), any(FormType.class)))
                 .thenReturn(expectedFormDetails);
         Collection<FormDetails> formBuilderFormDetails = bahmniFormDetailsService.getFormDetails("patient-uuid", FormType.FORMS2, -1);
 
@@ -119,9 +128,9 @@ public class BahmniFormDetailsServiceImplTest {
     public void shouldReturnFormDetailsOfTypeV2ForGivenPatientUuidAndNoFormTypeIsProvided() {
         mockFilterFormBuilderObs();
 
-        mockStatic(FormDetailsMapper.class);
+        formDetailsMapperMockedStatic = Mockito.mockStatic(FormDetailsMapper.class);
         List<FormDetails> expectedFormDetails = Arrays.asList(formDetails, anotherFormDetails);
-        when(FormDetailsMapper.createFormDetails(anyListOf(Obs.class), any(FormType.class)))
+        formDetailsMapperMockedStatic.when(() -> FormDetailsMapper.createFormDetails(anyList(), any(FormType.class)))
                 .thenReturn(expectedFormDetails);
         Collection<FormDetails> formBuilderFormDetails = bahmniFormDetailsService.getFormDetails("patient-uuid", null, -1);
 
@@ -147,8 +156,8 @@ public class BahmniFormDetailsServiceImplTest {
 
         mockFilterFormBuilderObs();
 
-        mockStatic(FormDetailsMapper.class);
-        when(FormDetailsMapper.createFormDetails(anyListOf(Obs.class), any(FormType.class)))
+        formDetailsMapperMockedStatic = Mockito.mockStatic(FormDetailsMapper.class);
+        formDetailsMapperMockedStatic.when(() -> FormDetailsMapper.createFormDetails(anyList(), any(FormType.class)))
                 .thenReturn(singletonList(formDetails));
         Collection<FormDetails> formBuilderFormDetails = bahmniFormDetailsService.getFormDetails("patient-uuid", FormType.FORMS2, 1);
 
@@ -175,8 +184,8 @@ public class BahmniFormDetailsServiceImplTest {
         verify(encounterService, times(0)).getEncounters(any(EncounterSearchCriteria.class));
 
         verify(patient, times(0)).getPerson();
-        verify(obsService, times(0)).getObservations(anyListOf(Person.class),
-                anyListOf(Encounter.class), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+        verify(obsService, times(0)).getObservations(anyList(),
+                anyList(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
                 any(Boolean.class));
 
     }
@@ -193,8 +202,8 @@ public class BahmniFormDetailsServiceImplTest {
         verify(encounterService, times(1)).getEncounters(any(EncounterSearchCriteria.class));
 
         verify(patient, times(0)).getPerson();
-        verify(obsService, times(0)).getObservations(anyListOf(Person.class),
-                anyListOf(Encounter.class), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+        verify(obsService, times(0)).getObservations(anyList(),
+                anyList(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
                 any(Boolean.class));
     }
 
@@ -206,8 +215,8 @@ public class BahmniFormDetailsServiceImplTest {
 
         mockFilterFormBuilderObs();
 
-        mockStatic(FormDetailsMapper.class);
-        when(FormDetailsMapper.createFormDetails(anyListOf(Obs.class), any(FormType.class)))
+        formDetailsMapperMockedStatic = Mockito.mockStatic(FormDetailsMapper.class);
+        formDetailsMapperMockedStatic.when(() -> FormDetailsMapper.createFormDetails(anyList(), any(FormType.class)))
                 .thenReturn(singletonList(formDetails));
 
         Collection<FormDetails> actualFormDetailsCollection = bahmniFormDetailsService.getFormDetails(patientUuid, FormType.FORMS2, visitUuid, null);
@@ -218,8 +227,8 @@ public class BahmniFormDetailsServiceImplTest {
         verify(patientService, times(1)).getPatientByUuid(patientUuid);
         verify(encounterService, times(1)).getEncounters(any(EncounterSearchCriteria.class));
         verify(patient, times(1)).getPerson();
-        verify(obsService, times(1)).getObservations(anyListOf(Person.class),
-                anyListOf(Encounter.class), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+        verify(obsService, times(1)).getObservations(anyList(),
+                anyList(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
                 any(Boolean.class));
         verify(bahmniVisitService, times(1)).getVisitSummary(visitUuid);
         verify(bahmniProgramWorkflowService, times(1)).getEncountersByPatientProgramUuid(null);
@@ -238,8 +247,8 @@ public class BahmniFormDetailsServiceImplTest {
 
         mockFilterFormBuilderObs();
 
-        mockStatic(FormDetailsMapper.class);
-        when(FormDetailsMapper.createFormDetails(anyListOf(Obs.class), any(FormType.class)))
+        formDetailsMapperMockedStatic = Mockito.mockStatic(FormDetailsMapper.class);
+        formDetailsMapperMockedStatic.when(() -> FormDetailsMapper.createFormDetails(anyList(), any(FormType.class)))
                 .thenReturn(singletonList(formDetails));
 
         Collection<FormDetails> actualFormDetailsCollection = bahmniFormDetailsService.getFormDetails(patientUuid, FormType.FORMS2, null, patientProgramUuid);
@@ -250,8 +259,8 @@ public class BahmniFormDetailsServiceImplTest {
         verify(patientService, times(1)).getPatientByUuid(patientUuid);
         verify(encounterService, times(1)).getEncounters(any(EncounterSearchCriteria.class));
         verify(patient, times(1)).getPerson();
-        verify(obsService, times(1)).getObservations(anyListOf(Person.class),
-                anyListOf(Encounter.class), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+        verify(obsService, times(1)).getObservations(anyList(),
+                anyList(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
                 any(Boolean.class));
         verify(bahmniVisitService, times(1)).getVisitSummary(null);
         verify(bahmniProgramWorkflowService, times(1)).getEncountersByPatientProgramUuid(patientProgramUuid);
@@ -270,8 +279,8 @@ public class BahmniFormDetailsServiceImplTest {
 
         mockFilterFormBuilderObs();
 
-        mockStatic(FormDetailsMapper.class);
-        when(FormDetailsMapper.createFormDetails(anyListOf(Obs.class), any(FormType.class)))
+        formDetailsMapperMockedStatic = Mockito.mockStatic(FormDetailsMapper.class);
+        formDetailsMapperMockedStatic.when(() -> FormDetailsMapper.createFormDetails(anyList(), any(FormType.class)))
                 .thenReturn(singletonList(formDetails));
 
         Collection<FormDetails> actualFormDetailsCollection = bahmniFormDetailsService.getFormDetails(patientUuid, FormType.FORMS2, visitUuid, patientProgramUuid);
@@ -282,8 +291,8 @@ public class BahmniFormDetailsServiceImplTest {
         verify(patientService, times(1)).getPatientByUuid(patientUuid);
         verify(encounterService, times(1)).getEncounters(any(EncounterSearchCriteria.class));
         verify(patient, times(1)).getPerson();
-        verify(obsService, times(1)).getObservations(anyListOf(Person.class),
-                anyListOf(Encounter.class), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+        verify(obsService, times(1)).getObservations(anyList(),
+                anyList(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
                 any(Boolean.class));
         verify(bahmniVisitService, times(1)).getVisitSummary(visitUuid);
         verify(bahmniProgramWorkflowService, times(1)).getEncountersByPatientProgramUuid(patientProgramUuid);
@@ -312,18 +321,18 @@ public class BahmniFormDetailsServiceImplTest {
     }
 
     public void verifyCreateFormDetailsMockCall(int wantedNumberOfInvocations) {
-        verifyStatic(FormDetailsMapper.class, VerificationModeFactory.times(wantedNumberOfInvocations));
-        FormDetailsMapper.createFormDetails(anyListOf(Obs.class), any(FormType.class));
+        formDetailsMapperMockedStatic.verify(
+                () -> FormDetailsMapper.createFormDetails(anyList(), any(FormType.class)),
+                VerificationModeFactory.times(wantedNumberOfInvocations));
     }
 
     private void verifyFilterFormBuilderObsMockCall(int wantedNumberOfInvocations) {
-        verifyStatic(FormUtil.class, VerificationModeFactory.times(wantedNumberOfInvocations));
-        FormUtil.filterFormBuilderObs(obs);
+        formUtilMockedStatic.verify(() -> FormUtil.filterFormBuilderObs(obs), VerificationModeFactory.times(wantedNumberOfInvocations));
     }
 
     private void mockFilterFormBuilderObs() {
-        mockStatic(FormUtil.class);
-        when(FormUtil.filterFormBuilderObs(obs)).thenReturn(obs);
+        formUtilMockedStatic = Mockito.mockStatic(FormUtil.class);
+        formUtilMockedStatic.when(() -> FormUtil.filterFormBuilderObs(obs)).thenReturn(obs);
     }
 
     private void verifyCommonMockCalls() {
@@ -331,8 +340,8 @@ public class BahmniFormDetailsServiceImplTest {
         verify(visitService, times(1)).getVisitsByPatient(patient);
         verify(encounterService, times(1)).getEncounters(any(EncounterSearchCriteria.class));
         verify(patient, times(1)).getPerson();
-        verify(obsService, times(1)).getObservations(anyListOf(Person.class),
-                anyListOf(Encounter.class), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+        verify(obsService, times(1)).getObservations(anyList(),
+                anyList(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
                 any(Boolean.class));
     }
 

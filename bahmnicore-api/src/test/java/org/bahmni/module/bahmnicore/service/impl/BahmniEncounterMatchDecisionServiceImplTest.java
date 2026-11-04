@@ -26,7 +26,7 @@ import org.openmrs.module.bahmniemrapi.encountertransaction.contract.EncounterMa
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.EncounterMatchResponse;
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.EncounterTypeIdentifier;
 import org.openmrs.module.emrapi.encounter.EncounterParameters;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,14 +36,13 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(PowerMockRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class BahmniEncounterMatchDecisionServiceImplTest {
 
     @Mock
@@ -76,8 +75,6 @@ public class BahmniEncounterMatchDecisionServiceImplTest {
 
     @Before
     public void setUp() {
-        initMocks(this);
-
         activeVisit = new Visit();
         activeVisit.setId(1);
         activeVisit.setUuid("visit-uuid");

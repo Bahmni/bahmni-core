@@ -1,10 +1,12 @@
 package org.bahmni.module.bahmnicore.web.v1_0.controller;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Patient;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.api.PatientService;
@@ -12,9 +14,6 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
 import org.openmrs.module.bahmniemrapi.encountertransaction.service.BahmniEncounterTransactionService;
 import org.openmrs.module.bedmanagement.service.BedManagementService;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +24,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Context.class)
 public class BahmniDischargeControllerTest {
     @Mock
     private BahmniEncounterTransactionService bahmniEncounterTransactionService;
@@ -38,15 +35,22 @@ public class BahmniDischargeControllerTest {
     @InjectMocks
     private BahmniDischargeController bahmniDischargeController;
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setUp() throws Exception {
         initMocks(this);
 
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getPatientService()).thenReturn(patientService);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getPatientService).thenReturn(patientService);
         List<OpenmrsService> services = new ArrayList<>();
         services.add(bedManagementService);
-        when(Context.getModuleOpenmrsServices(BedManagementService.class.getName())).thenReturn(services);
+        contextMockedStatic.when(() -> Context.getModuleOpenmrsServices(BedManagementService.class.getName())).thenReturn(services);
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test
