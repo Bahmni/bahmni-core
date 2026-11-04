@@ -95,11 +95,6 @@
         <dependency>
             <groupId>org.openmrs.module</groupId>
             <artifactId>emrapi-api</artifactId>
-            <version>${emrapi-omod.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openmrs.module</groupId>
-            <artifactId>appframework-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openmrs.module</groupId>

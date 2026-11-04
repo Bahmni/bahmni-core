@@ -57,10 +57,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
-            <artifactId>appframework-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.bahmni.test</groupId>
             <artifactId>bahmni-test-commons</artifactId>
             <version>${project.parent.version}</version>
