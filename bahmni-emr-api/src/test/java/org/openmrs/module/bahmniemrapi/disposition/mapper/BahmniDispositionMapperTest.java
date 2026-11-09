@@ -220,6 +220,16 @@ public class BahmniDispositionMapperTest {
     }
 
     @Test
+    public void shouldLeaveCreatorNameNullWhenCreatorHasNoPersonName() {
+        Order order = adtOrder(dispositionConcept("ADMIT", "Admit Patient", new Locale("en")));
+        order.setCreator(new User(new Person()));
+
+        BahmniDisposition result = bahmniDispositionMapper.mapFromOrder(order, new HashSet<EncounterTransaction.Provider>(), new Locale("en"));
+
+        Assert.assertNull(result.getCreatorName());
+    }
+
+    @Test
     public void shouldDefaultToEnglishWhenLocaleIsNull() {
         Order order = adtOrder(dispositionConcept("ADMIT", "Admit Patient", new Locale("en")));
 

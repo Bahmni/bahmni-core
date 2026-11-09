@@ -109,7 +109,7 @@ public class BahmniDispositionServiceImpl implements BahmniDispositionService {
 
             // Old clinic writes the Disposition Observation; new clinic writes an ADT Order
             // instead. Only fall back to the order when this encounter has no disposition
-            // observation, so an encounter that still dual-writes both isn't reported twice.
+            // observation, so legacy encounters that carry both aren't reported twice.
             if (dispositions.size() == dispositionsBefore) {
                 addBahmniDispositionsFromOrders(dispositions, encounter, eTProvider, locale);
             }

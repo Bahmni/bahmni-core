@@ -41,7 +41,7 @@ public class BahmniDispositionMapper {
         bahmniDisposition.setVoided(order.isVoided());
         bahmniDisposition.setVoidReason(order.getVoidReason());
         bahmniDisposition.setProviders(providers);
-        if (order.getCreator() != null) {
+        if (order.getCreator() != null && order.getCreator().getPersonName() != null) {
             bahmniDisposition.setCreatorName(order.getCreator().getPersonName().toString());
         }
         if (concept.getPreferredName(effectiveLocale) != null) {
