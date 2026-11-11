@@ -92,4 +92,151 @@ public class BahmniDispositionMapperTest {
 
     }
 
+    @Test
+    public void shouldNotThrowWhenConceptCannotBeResolved(){
+        String unresolvableConceptName = "Admit Patient";
+        when(conceptService.getConcept(unresolvableConceptName)).thenReturn(null);
+
+        EncounterTransaction.Disposition disposition = new EncounterTransaction.Disposition();
+        disposition.setConceptName(unresolvableConceptName);
+        disposition.setAdditionalObs(new ArrayList<EncounterTransaction.Observation>());
+
+        Person person = new Person();
+        PersonName personName = new PersonName();
+        personName.setGivenName("testPersonName");
+        Set<PersonName> personNames = new HashSet<>();
+        personNames.add(personName);
+        person.setNames(personNames);
+        User user = new User(person);
+
+        BahmniDisposition bahmniDisposition = bahmniDispositionMapper.map(disposition, new HashSet<EncounterTransaction.Provider>(), user, new Locale("en"));
+
+        Assert.assertEquals(unresolvableConceptName, bahmniDisposition.getConceptName());
+        Assert.assertNull(bahmniDisposition.getPreferredName());
+    }
+
+
+    private Concept dispositionConcept(String code, String name, Locale locale) {
+        Concept concept = new Concept();
+        if (name != null) {
+            ConceptName conceptName = new ConceptName(name, locale);
+            conceptName.setLocalePreferred(true);
+            concept.addName(conceptName);
+        }
+        if (code != null) {
+            ConceptSource source = new ConceptSource();
+            source.setName("org.openmrs.module.emrapi");
+            ConceptReferenceTerm term = new ConceptReferenceTerm();
+            term.setConceptSource(source);
+            term.setCode(code);
+            ConceptMap conceptMap = new ConceptMap();
+            conceptMap.setConceptReferenceTerm(term);
+            concept.setConceptMappings(new HashSet<>(java.util.Collections.singletonList(conceptMap)));
+        }
+        return concept;
+    }
+
+    private Order adtOrder(Concept concept) {
+        Order order = new Order();
+        order.setConcept(concept);
+        order.setDateActivated(new Date());
+        return order;
+    }
+
+    @Test
+    public void shouldMapAdtOrderToBahmniDisposition() {
+        Locale locale = new Locale("en");
+        Order order = adtOrder(dispositionConcept("ADMIT", "Admit Patient", locale));
+        Person person = new Person();
+        PersonName personName = new PersonName();
+        personName.setGivenName("testPersonName");
+        person.addName(personName);
+        order.setCreator(new User(person));
+        Set<EncounterTransaction.Provider> providers = new HashSet<>();
+
+        BahmniDisposition result = bahmniDispositionMapper.mapFromOrder(order, providers, locale);
+
+        Assert.assertEquals("ADMIT", result.getCode());
+        Assert.assertEquals("Admit Patient", result.getConceptName());
+        Assert.assertEquals("Admit Patient", result.getPreferredName());
+        Assert.assertEquals(order.getEffectiveStartDate(), result.getDispositionDateTime());
+        Assert.assertFalse(result.isVoided());
+        Assert.assertNull(result.getExistingObs());
+        Assert.assertSame(providers, result.getProviders());
+        Assert.assertTrue(result.getCreatorName().contains("testPersonName"));
+    }
+
+    @Test
+    public void shouldMapVoidedAdtOrderWithVoidReason() {
+        Locale locale = new Locale("en");
+        Order order = adtOrder(dispositionConcept("DISCHARGE", "Discharge Patient", locale));
+        order.setVoided(true);
+        order.setVoidReason("entered in error");
+
+        BahmniDisposition result = bahmniDispositionMapper.mapFromOrder(order, new HashSet<EncounterTransaction.Provider>(), locale);
+
+        Assert.assertTrue(result.isVoided());
+        Assert.assertEquals("entered in error", result.getVoidReason());
+    }
+
+    @Test
+    public void shouldLeaveCodeNullWhenConceptHasNoEmrapiMapping() {
+        Locale locale = new Locale("en");
+        Order order = adtOrder(dispositionConcept(null, "Admit Patient", locale));
+
+        BahmniDisposition result = bahmniDispositionMapper.mapFromOrder(order, new HashSet<EncounterTransaction.Provider>(), locale);
+
+        Assert.assertNull(result.getCode());
+    }
+
+    @Test
+    public void shouldIgnoreMappingsFromOtherSources() {
+        Locale locale = new Locale("en");
+        Concept concept = dispositionConcept("ADMIT", "Admit Patient", locale);
+        concept.getConceptMappings().iterator().next().getConceptReferenceTerm().getConceptSource().setName("other.source");
+
+        BahmniDisposition result = bahmniDispositionMapper.mapFromOrder(adtOrder(concept), new HashSet<EncounterTransaction.Provider>(), locale);
+
+        Assert.assertNull(result.getCode());
+    }
+
+    @Test
+    public void shouldLeaveCreatorAndPreferredNameNullWhenAbsent() {
+        Order order = adtOrder(dispositionConcept("ADMIT", null, null));
+
+        BahmniDisposition result = bahmniDispositionMapper.mapFromOrder(order, new HashSet<EncounterTransaction.Provider>(), new Locale("en"));
+
+        Assert.assertNull(result.getCreatorName());
+        Assert.assertNull(result.getPreferredName());
+    }
+
+    @Test
+    public void shouldLeaveConceptNameNullWhenConceptHasNoNames() {
+        Order order = adtOrder(dispositionConcept("ADMIT", null, null));
+
+        BahmniDisposition result = bahmniDispositionMapper.mapFromOrder(order, new HashSet<EncounterTransaction.Provider>(), new Locale("en"));
+
+        Assert.assertNull(result.getConceptName());
+    }
+
+    @Test
+    public void shouldLeaveCreatorNameNullWhenCreatorHasNoPersonName() {
+        Order order = adtOrder(dispositionConcept("ADMIT", "Admit Patient", new Locale("en")));
+        order.setCreator(new User(new Person()));
+
+        BahmniDisposition result = bahmniDispositionMapper.mapFromOrder(order, new HashSet<EncounterTransaction.Provider>(), new Locale("en"));
+
+        Assert.assertNull(result.getCreatorName());
+    }
+
+    @Test
+    public void shouldDefaultToEnglishWhenLocaleIsNull() {
+        Order order = adtOrder(dispositionConcept("ADMIT", "Admit Patient", new Locale("en")));
+
+        BahmniDisposition result = bahmniDispositionMapper.mapFromOrder(order, new HashSet<EncounterTransaction.Provider>(), null);
+
+        Assert.assertEquals("Admit Patient", result.getConceptName());
+        Assert.assertEquals("Admit Patient", result.getPreferredName());
+    }
+
 }
