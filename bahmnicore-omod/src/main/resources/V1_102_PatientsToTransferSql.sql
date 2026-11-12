@@ -22,7 +22,7 @@ VALUES (
             (SELECT encounter_type_id
               FROM encounter_type
             WHERE name = "ADMISSION")) v1 on v1.visit_id = v.visit_id
-        INNER JOIN encounter e ON v.visit_id = e.visit_id
+        INNER JOIN encounter e ON v.visit_id = e.visit_id AND e.voided = 0
         INNER JOIN obs o ON e.encounter_id = o.encounter_id
         INNER JOIN concept_name cn ON o.value_coded = cn.concept_id AND cn.concept_name_type = "FULLY_SPECIFIED" AND cn.voided is FALSE
         JOIN location l on l.uuid=${visit_location_uuid} and v.location_id = l.location_id

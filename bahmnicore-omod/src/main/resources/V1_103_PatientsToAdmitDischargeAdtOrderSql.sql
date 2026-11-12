@@ -18,7 +18,7 @@ VALUES (
         join patient_identifier_type pit on pi.identifier_type = pit.patient_identifier_type_id
         join global_property gp on gp.property="bahmni.primaryIdentifierType" and gp.property_value=pit.uuid
         join person p on v.patient_id = p.person_id
-        join encounter e on v.visit_id = e.visit_id
+        join encounter e on v.visit_id = e.visit_id and e.voided = 0
         join obs o on e.encounter_id = o.encounter_id and o.voided = 0
         join concept c on o.value_coded = c.concept_id
         join concept_name cn on c.concept_id = cn.concept_id and cn.concept_name_type = "FULLY_SPECIFIED" and cn.voided = 0
@@ -104,7 +104,7 @@ VALUES (
             (SELECT encounter_type_id
               FROM encounter_type
             WHERE name = "ADMISSION")) v1 on v1.visit_id = v.visit_id
-        INNER JOIN encounter e ON v.visit_id = e.visit_id
+        INNER JOIN encounter e ON v.visit_id = e.visit_id AND e.voided = 0
         INNER JOIN obs o ON e.encounter_id = o.encounter_id
         INNER JOIN concept_name cn ON o.value_coded = cn.concept_id AND cn.concept_name_type = "FULLY_SPECIFIED" AND cn.voided is FALSE
         JOIN location l on l.uuid=${visit_location_uuid} and v.location_id = l.location_id
