@@ -4917,4 +4917,9 @@
         <sqlFile path="V1_102_PatientsToTransferSql.sql"/>
     </changeSet>
 
+    <changeSet id="bah-5197-patients-to-admit-discharge-adt-order-20261112" author="Rohit V">
+        <comment>BAH-5197: Make emrapi.sqlSearch.patientsToAdmit and patientsToDischarge also read ADT Order dispositions, so queues work without the legacy disposition obs</comment>
+        <sqlFile path="V1_103_PatientsToAdmitDischargeAdtOrderSql.sql"/>
+    </changeSet>
+
 </databaseChangeLog>
