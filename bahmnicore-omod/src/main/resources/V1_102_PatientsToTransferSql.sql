@@ -18,7 +18,7 @@ VALUES (
         INNER JOIN person p ON v.patient_id = p.person_id
         Inner Join (SELECT DISTINCT v.visit_id
           FROM encounter en
-          INNER JOIN visit v ON v.visit_id = en.visit_id AND en.encounter_type =
+          INNER JOIN visit v ON v.visit_id = en.visit_id AND en.voided = 0 AND en.encounter_type =
             (SELECT encounter_type_id
               FROM encounter_type
             WHERE name = "ADMISSION")) v1 on v1.visit_id = v.visit_id
@@ -27,7 +27,7 @@ VALUES (
         INNER JOIN concept_name cn ON o.value_coded = cn.concept_id AND cn.concept_name_type = "FULLY_SPECIFIED" AND cn.voided is FALSE
         JOIN location l on l.uuid=${visit_location_uuid} and v.location_id = l.location_id
         left outer join visit_attribute va on va.visit_id = v.visit_id and va.attribute_type_id =
-          (select visit_attribute_type_id from visit_attribute_type where name="Admission Status")
+          (select visit_attribute_type_id from visit_attribute_type where name="Admission Status") and va.voided = 0
         WHERE v.date_stopped IS NULL AND v.voided = 0 AND o.voided = 0 AND cn.name = "Transfer Patient"
           AND NOT EXISTS (
             SELECT 1 FROM encounter ae
@@ -58,10 +58,10 @@ VALUES (
         JOIN global_property gp2 ON gp2.property="bahmni.primaryIdentifierType" and gp2.property_value=pit2.uuid
         JOIN location l2 ON l2.uuid=${visit_location_uuid} and v2.location_id = l2.location_id
         left outer join visit_attribute va2 on va2.visit_id = v2.visit_id and va2.attribute_type_id =
-          (select visit_attribute_type_id from visit_attribute_type where name="Admission Status")
+          (select visit_attribute_type_id from visit_attribute_type where name="Admission Status") and va2.voided = 0
         Inner Join (SELECT DISTINCT v.visit_id
           FROM encounter en
-          INNER JOIN visit v ON v.visit_id = en.visit_id AND en.encounter_type =
+          INNER JOIN visit v ON v.visit_id = en.visit_id AND en.voided = 0 AND en.encounter_type =
             (SELECT encounter_type_id
               FROM encounter_type
             WHERE name = "ADMISSION")) v3 on v3.visit_id = v2.visit_id

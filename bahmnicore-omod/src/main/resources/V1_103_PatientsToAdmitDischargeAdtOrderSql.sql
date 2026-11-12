@@ -100,7 +100,7 @@ VALUES (
         INNER JOIN person p ON v.patient_id = p.person_id
         Inner Join (SELECT DISTINCT v.visit_id
           FROM encounter en
-          INNER JOIN visit v ON v.visit_id = en.visit_id AND en.encounter_type =
+          INNER JOIN visit v ON v.visit_id = en.visit_id AND en.voided = 0 AND en.encounter_type =
             (SELECT encounter_type_id
               FROM encounter_type
             WHERE name = "ADMISSION")) v1 on v1.visit_id = v.visit_id
@@ -140,7 +140,7 @@ VALUES (
           (select visit_attribute_type_id from visit_attribute_type where name="Admission Status") and va2.voided = 0
         Inner Join (SELECT DISTINCT v.visit_id
           FROM encounter en
-          INNER JOIN visit v ON v.visit_id = en.visit_id AND en.encounter_type =
+          INNER JOIN visit v ON v.visit_id = en.visit_id AND en.voided = 0 AND en.encounter_type =
             (SELECT encounter_type_id
               FROM encounter_type
             WHERE name = "ADMISSION")) v3 on v3.visit_id = v2.visit_id
@@ -154,6 +154,17 @@ VALUES (
             WHERE ae2.visit_id = v2.visit_id AND ae2.voided = 0
               AND aet2.name = ''DISCHARGE''
               AND ae2.encounter_datetime > ifnull(ord.date_activated, ord.date_created)
+          )
+          AND NOT EXISTS (
+            SELECT 1 FROM orders ord_later
+            JOIN order_type ot_later ON ord_later.order_type_id = ot_later.order_type_id
+            JOIN concept_name cn_later ON ord_later.concept_id = cn_later.concept_id AND cn_later.concept_name_type = "FULLY_SPECIFIED" AND cn_later.voided is FALSE
+            JOIN encounter e_later ON ord_later.encounter_id = e_later.encounter_id
+            WHERE e_later.visit_id = v2.visit_id AND ord_later.voided = 0
+              AND ord_later.order_action <> ''DISCONTINUE'' AND ord_later.date_stopped IS NULL
+              AND ot_later.name = ''ADT Order''
+              AND cn_later.name IN (''Admit Patient'', ''Undo Discharge'')
+              AND ifnull(ord_later.date_activated, ord_later.date_created) > ifnull(ord.date_activated, ord.date_created)
           )
 ) combined',
   'Sql query to get list of patients to discharge (observation-based legacy or ADT order-based)',
