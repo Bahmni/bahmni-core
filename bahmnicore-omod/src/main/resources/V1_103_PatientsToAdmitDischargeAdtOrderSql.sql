@@ -14,14 +14,14 @@ VALUES (
         concat("", v.uuid) as activeVisitUuid
         from visit v
         join person_name pn on v.patient_id = pn.person_id and pn.voided = 0 AND v.voided = 0
-        join patient_identifier pi on v.patient_id = pi.patient_id
+        join patient_identifier pi on v.patient_id = pi.patient_id and pi.voided = 0
         join patient_identifier_type pit on pi.identifier_type = pit.patient_identifier_type_id
         join global_property gp on gp.property="bahmni.primaryIdentifierType" and gp.property_value=pit.uuid
         join person p on v.patient_id = p.person_id
         join encounter e on v.visit_id = e.visit_id
         join obs o on e.encounter_id = o.encounter_id and o.voided = 0
         join concept c on o.value_coded = c.concept_id
-        join concept_name cn on c.concept_id = cn.concept_id
+        join concept_name cn on c.concept_id = cn.concept_id and cn.concept_name_type = "FULLY_SPECIFIED" and cn.voided = 0
         join location l on l.uuid=${visit_location_uuid} and v.location_id = l.location_id
         where v.date_stopped is null and cn.name in (''Admit Patient'', ''Undo Discharge'') and not exists (
           select 1 from encounter ae
@@ -40,16 +40,18 @@ VALUES (
         from orders ord
         join order_type ot on ord.order_type_id = ot.order_type_id
         join concept c2 on ord.concept_id = c2.concept_id
-        join concept_name cn2 on c2.concept_id = cn2.concept_id
+        join concept_name cn2 on c2.concept_id = cn2.concept_id and cn2.concept_name_type = "FULLY_SPECIFIED" and cn2.voided = 0
         join encounter e2 on ord.encounter_id = e2.encounter_id
         join visit v2 on e2.visit_id = v2.visit_id
         join person p2 on v2.patient_id = p2.person_id
         join person_name pn2 on p2.person_id = pn2.person_id and pn2.voided = 0
-        join patient_identifier pi2 on v2.patient_id = pi2.patient_id
+        join patient_identifier pi2 on v2.patient_id = pi2.patient_id and pi2.voided = 0
         join patient_identifier_type pit2 on pi2.identifier_type = pit2.patient_identifier_type_id
         join global_property gp2 on gp2.property="bahmni.primaryIdentifierType" and gp2.property_value=pit2.uuid
         join location l2 on l2.uuid=${visit_location_uuid} and v2.location_id = l2.location_id
-        where ot.name = ''ADT Order'' and cn2.name in (''Admit Patient'', ''Undo Discharge'') and ord.voided = 0
+        where ot.name = ''ADT Order'' and cn2.name in (''Admit Patient'', ''Undo Discharge'') and ord.voided = 0 and v2.voided = 0
+          AND ord.order_action <> ''DISCONTINUE'' AND ord.date_stopped IS NULL
+          AND (ord.auto_expire_date IS NULL OR ord.auto_expire_date > now())
           and (
             (ord.scheduled_date is not null and date(ord.scheduled_date) >= date_sub(current_date(), interval (ifnull((select cast(gp3.property_value as signed) from global_property gp3 where gp3.property = ''bahmni.admitOrder.visibilityWindowDays''), 1) - 1) day))
             or (ord.scheduled_date is null and v2.date_stopped is null)
@@ -61,6 +63,12 @@ VALUES (
               and aet2.name in (''ADMISSION'', ''DISCHARGE'')
               and ae2.encounter_datetime > ifnull(ord.date_activated, ord.date_created)
           )
+          and not (cn2.name = ''Undo Discharge'' and exists (
+            select 1 from encounter ve
+            join encounter_type vet on ve.encounter_type = vet.encounter_type_id
+            where ve.visit_id = v2.visit_id and ve.voided = 1 and vet.name = ''DISCHARGE''
+              and ve.date_voided > ifnull(ord.date_activated, ord.date_created)
+          ))
           and not exists (
             select 1 from orders ord_later
             join order_type ot_later on ord_later.order_type_id = ot_later.order_type_id
@@ -137,6 +145,8 @@ VALUES (
               FROM encounter_type
             WHERE name = "ADMISSION")) v3 on v3.visit_id = v2.visit_id
         WHERE ot.name = ''ADT Order'' AND cn2.name = ''Discharge Patient'' AND ord.voided = 0
+          AND ord.order_action <> ''DISCONTINUE'' AND ord.date_stopped IS NULL
+          AND (ord.auto_expire_date IS NULL OR ord.auto_expire_date > now())
           AND v2.date_stopped IS NULL AND v2.voided = 0
           AND NOT EXISTS (
             SELECT 1 FROM encounter ae2

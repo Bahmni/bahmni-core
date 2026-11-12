@@ -66,6 +66,8 @@ VALUES (
               FROM encounter_type
             WHERE name = "ADMISSION")) v3 on v3.visit_id = v2.visit_id
         WHERE ot.name = ''ADT Order'' AND cn2.name = ''Transfer Patient'' AND ord.voided = 0
+          AND ord.order_action <> ''DISCONTINUE'' AND ord.date_stopped IS NULL
+          AND (ord.auto_expire_date IS NULL OR ord.auto_expire_date > now())
           AND v2.date_stopped IS NULL AND v2.voided = 0
           AND NOT EXISTS (
             SELECT 1 FROM encounter ae2
