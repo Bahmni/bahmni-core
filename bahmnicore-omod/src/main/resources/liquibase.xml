@@ -4912,4 +4912,9 @@
         </insert>
     </changeSet>
 
+    <changeSet id="bah-5197-patients-to-transfer-sql-20261112" author="Rohit V">
+        <comment>BAH-5197: Ship emrapi.sqlSearch.patientsToTransfer (legacy observation-based and ADT order-based transfers) used by the bed management transfer tab</comment>
+        <sqlFile path="V1_102_PatientsToTransferSql.sql"/>
+    </changeSet>
+
 </databaseChangeLog>
