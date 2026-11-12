@@ -93,6 +93,39 @@ public class BahmniDispositionMapperTest {
     }
 
     @Test
+    public void ensureAdditionalObsIsNeverNull(){
+        EncounterTransaction.Disposition disposition = new EncounterTransaction.Disposition();
+        disposition.setCode("1234")
+                .setExistingObs("someObsUuid")
+                .setVoided(false)
+                .setVoidReason(null)
+                .setDispositionDateTime(new Date());
+        disposition.setConceptName("Absconding");
+        disposition.setAdditionalObs(null);
+
+        Person person = new Person();
+        PersonName personName = new PersonName();
+        personName.setGivenName("testPersonName");
+        person.addName(personName);
+
+        BahmniDisposition result = bahmniDispositionMapper.map(disposition, new HashSet<EncounterTransaction.Provider>(), new User(person), new Locale("en"));
+
+        Assert.assertNotNull(result.getAdditionalObs());
+        Assert.assertEquals(0, result.getAdditionalObs().size());
+    }
+
+    @Test
+    public void shouldReturnEmptyAdditionalObsForAdtOrder() {
+        Locale locale = new Locale("en");
+        Order order = adtOrder(dispositionConcept("ADMIT", "Admit Patient", locale));
+
+        BahmniDisposition result = bahmniDispositionMapper.mapFromOrder(order, new HashSet<EncounterTransaction.Provider>(), locale);
+
+        Assert.assertNotNull(result.getAdditionalObs());
+        Assert.assertEquals(0, result.getAdditionalObs().size());
+    }
+
+    @Test
     public void shouldNotThrowWhenConceptCannotBeResolved(){
         String unresolvableConceptName = "Admit Patient";
         when(conceptService.getConcept(unresolvableConceptName)).thenReturn(null);
