@@ -11,6 +11,7 @@ import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.Locale;
 
@@ -76,7 +77,8 @@ public class BahmniDispositionMapper {
 
     public BahmniDisposition map(EncounterTransaction.Disposition disposition, Set<EncounterTransaction.Provider> providers, User user , Locale locale){
         BahmniDisposition bahmniDisposition = new BahmniDisposition();
-        bahmniDisposition.setAdditionalObs(disposition.getAdditionalObs());
+        bahmniDisposition.setAdditionalObs(disposition.getAdditionalObs() != null
+                ? disposition.getAdditionalObs() : new ArrayList<EncounterTransaction.Observation>());
         bahmniDisposition.setCode(disposition.getCode());
         bahmniDisposition.setConceptName(disposition.getConceptName());
         bahmniDisposition.setDispositionDateTime(disposition.getDispositionDateTime());
