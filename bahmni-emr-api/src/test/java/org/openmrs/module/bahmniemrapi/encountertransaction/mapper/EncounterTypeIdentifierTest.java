@@ -16,7 +16,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -67,7 +67,7 @@ public class EncounterTypeIdentifierTest {
 
         assertEquals(null, encounterTransaction.getEncounterTypeUuid());
         verify(encounterService).getEncounterType("Consultation");
-        verifyZeroInteractions(bahmniLocationService);
+        verifyNoInteractions(bahmniLocationService);
     }
 
     @Test

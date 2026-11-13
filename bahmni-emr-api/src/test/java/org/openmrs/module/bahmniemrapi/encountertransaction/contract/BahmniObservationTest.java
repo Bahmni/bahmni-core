@@ -1,10 +1,11 @@
 package org.openmrs.module.bahmniemrapi.encountertransaction.contract;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.ConceptName;
@@ -14,9 +15,6 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.ETObsToBahmniObsMapper;
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.parameters.AdditionalBahmniObservationFields;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,10 +23,7 @@ import java.util.Date;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Context.class})
 public class BahmniObservationTest {
     private EncounterTransaction.Observation eTObservation;
 
@@ -38,19 +33,26 @@ public class BahmniObservationTest {
     @Mock
     private User authenticatedUser;
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setUp() throws Exception {
         eTObservation = new EncounterTransaction.Observation();
         initMocks(this);
-        mockStatic(Context.class);
-        Mockito.when(Context.getAuthenticatedUser()).thenReturn(authenticatedUser);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getAuthenticatedUser).thenReturn(authenticatedUser);
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test
     public void shouldCreateBahmniObservationFromETObservation(){
         Date obsDate = new Date();
         EncounterTransaction.Concept concept = createConcept("concept-uuid", "concept-name");
-        Concept conceptFromService = PowerMockito.mock(Concept.class);
+        Concept conceptFromService = Mockito.mock(Concept.class);
         conceptFromService.setUuid("concept-uuid");
         ConceptName conceptNameFromService = new ConceptName();
         conceptNameFromService.setName("concept-name");

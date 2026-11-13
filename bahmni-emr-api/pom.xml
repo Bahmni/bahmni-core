@@ -168,7 +168,7 @@
             <artifactId>javax.el</artifactId>
             <version>2.2.4</version>
         </dependency>
-    </dependencies>
+	</dependencies>
 
     <build>
         <resources>
@@ -189,7 +189,6 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.6.201602180812</version>
                 <executions>
                     <execution>
                         <id>check</id>

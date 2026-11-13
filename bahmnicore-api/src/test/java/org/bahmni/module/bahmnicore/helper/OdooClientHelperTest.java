@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -128,17 +127,12 @@ public class OdooClientHelperTest {
         Field field = OdooClientHelper.class.getDeclaredField("objectMapper");
         field.setAccessible(true);
 
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-
         ObjectMapper original = (ObjectMapper) field.get(null);
         try {
             field.set(null, brokenMapper);
             OdooClientHelper.createAuthenticationRequestBody("db", "login", "pass");
         } finally {
             field.set(null, original);
-            modifiersField.setInt(field, field.getModifiers() | Modifier.FINAL);
         }
     }
 }

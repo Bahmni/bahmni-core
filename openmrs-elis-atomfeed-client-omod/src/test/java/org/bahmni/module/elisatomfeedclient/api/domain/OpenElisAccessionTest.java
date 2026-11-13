@@ -5,7 +5,8 @@ import org.bahmni.module.elisatomfeedclient.api.builder.OpenElisTestDetailBuilde
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterRole;
@@ -14,9 +15,6 @@ import org.openmrs.Order;
 import org.openmrs.Provider;
 import org.openmrs.User;
 import org.openmrs.api.context.Context;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -25,10 +23,7 @@ import java.util.Set;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
 
-@PrepareForTest(Context.class)
-@RunWith(PowerMockRunner.class)
 public class OpenElisAccessionTest {
     private HashSet<Encounter> accessionNotesEncounters;
     private Concept accessionNotesConcept;
@@ -194,9 +189,9 @@ public class OpenElisAccessionTest {
         assertEquals(panel1ReOrdered, diff.getAddedTestDetails().toArray()[0]);
     }
 
-    public void accessionNotesTestSetup() {
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getAuthenticatedUser()).thenReturn(new User());
+    public MockedStatic<Context> accessionNotesTestSetup() {
+        MockedStatic<Context> contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getAuthenticatedUser).thenReturn(new User());
 
         accessionNotesEncounters = new HashSet<>();
         Encounter encounter1 = createEncounterWithProviderAndObservations("e1","p1","c1","note1");
@@ -207,6 +202,7 @@ public class OpenElisAccessionTest {
         defaultLabManagerProvider.setUuid("default");
         accessionNotesConcept = new Concept();
         accessionNotesConcept.setUuid("c1");
+        return contextMockedStatic;
     }
 
     private Encounter createEncounterWithProviderAndObservations(String encUuid,String providerUuid,String conceptUuid,String... observations) {
@@ -230,39 +226,42 @@ public class OpenElisAccessionTest {
 
     @Test
     public void shouldUpdateTheAccessionNotesToBeAdded() {
-        accessionNotesTestSetup();
-        openElisAccessionWithNotes = new OpenElisAccessionBuilder().withAccessionNotes(
-                new OpenElisAccessionNote("note1","p1", "2014-01-30T11:50:18+0530"),
-                new OpenElisAccessionNote("note2","p2", "2014-01-30T11:50:18+0530"),
-                new OpenElisAccessionNote("note3","p2", "2014-01-30T11:50:18+0530"),
-                new OpenElisAccessionNote("note4","p1", "2014-01-30T11:50:18+0530")).build();
+        try (MockedStatic<Context> contextMockedStatic = accessionNotesTestSetup()) {
+            openElisAccessionWithNotes = new OpenElisAccessionBuilder().withAccessionNotes(
+                    new OpenElisAccessionNote("note1","p1", "2014-01-30T11:50:18+0530"),
+                    new OpenElisAccessionNote("note2","p2", "2014-01-30T11:50:18+0530"),
+                    new OpenElisAccessionNote("note3","p2", "2014-01-30T11:50:18+0530"),
+                    new OpenElisAccessionNote("note4","p1", "2014-01-30T11:50:18+0530")).build();
 
-        AccessionDiff diff = openElisAccessionWithNotes.getAccessionNoteDiff(accessionNotesEncounters, accessionNotesConcept,defaultLabManagerProvider);
-        assertNotNull(diff);
-        assertEquals(1, diff.getAccessionNotesToBeAdded().size());
-        assertEquals("note4", diff.getAccessionNotesToBeAdded().get(0).getNote());
-        assertEquals("p1", diff.getAccessionNotesToBeAdded().get(0).getProviderUuid());
+            AccessionDiff diff = openElisAccessionWithNotes.getAccessionNoteDiff(accessionNotesEncounters, accessionNotesConcept,defaultLabManagerProvider);
+            assertNotNull(diff);
+            assertEquals(1, diff.getAccessionNotesToBeAdded().size());
+            assertEquals("note4", diff.getAccessionNotesToBeAdded().get(0).getNote());
+            assertEquals("p1", diff.getAccessionNotesToBeAdded().get(0).getProviderUuid());
+        }
     }
 
    @Test
     public void shouldntReturnDiffWhenNotesAlreadyExist() {
-        accessionNotesTestSetup();
-       openElisAccessionWithNotes = new OpenElisAccessionBuilder().withAccessionNotes(
-               new OpenElisAccessionNote("note1","p1", "2014-01-30T11:50:18+0530"),
-               new OpenElisAccessionNote("note2","p2", "2014-01-30T11:50:18+0530"),
-               new OpenElisAccessionNote("note3","p2", "2014-01-30T11:50:18+0530")).build();
-        AccessionDiff diff = openElisAccessionWithNotes.getAccessionNoteDiff(accessionNotesEncounters, accessionNotesConcept,defaultLabManagerProvider);
-        assertNotNull(diff);
-        assertEquals(0, diff.getAccessionNotesToBeAdded().size());
+        try (MockedStatic<Context> contextMockedStatic = accessionNotesTestSetup()) {
+            openElisAccessionWithNotes = new OpenElisAccessionBuilder().withAccessionNotes(
+                    new OpenElisAccessionNote("note1","p1", "2014-01-30T11:50:18+0530"),
+                    new OpenElisAccessionNote("note2","p2", "2014-01-30T11:50:18+0530"),
+                    new OpenElisAccessionNote("note3","p2", "2014-01-30T11:50:18+0530")).build();
+            AccessionDiff diff = openElisAccessionWithNotes.getAccessionNoteDiff(accessionNotesEncounters, accessionNotesConcept,defaultLabManagerProvider);
+            assertNotNull(diff);
+            assertEquals(0, diff.getAccessionNotesToBeAdded().size());
+        }
     }
 
     @Test
     public void shouldntReturnDiffWhenNotesAreAddedAndNoNotesExist() {
-        accessionNotesTestSetup();
-        OpenElisAccession openElisAccession = new OpenElisAccessionBuilder().build();
-        AccessionDiff diff = openElisAccession.getAccessionNoteDiff(accessionNotesEncounters, accessionNotesConcept, defaultLabManagerProvider);
-        assertNotNull(diff);
-        assertEquals(0, diff.getAccessionNotesToBeAdded().size());
+        try (MockedStatic<Context> contextMockedStatic = accessionNotesTestSetup()) {
+            OpenElisAccession openElisAccession = new OpenElisAccessionBuilder().build();
+            AccessionDiff diff = openElisAccession.getAccessionNoteDiff(accessionNotesEncounters, accessionNotesConcept, defaultLabManagerProvider);
+            assertNotNull(diff);
+            assertEquals(0, diff.getAccessionNotesToBeAdded().size());
+        }
     }
 
     private Order getOrderByName(Encounter encounter, String testUuid) {

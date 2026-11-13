@@ -7,20 +7,19 @@ import org.bahmni.test.builder.ConceptBuilder;
 import org.ict4h.atomfeed.server.service.EventService;
 import org.ict4h.atomfeed.transaction.AFTransactionWork;
 import org.ict4h.atomfeed.transaction.AFTransactionWorkWithoutResult;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.openmrs.Concept;
 import org.openmrs.ConceptSet;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.atomfeed.transaction.support.AtomFeedSpringTransactionManager;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -28,14 +27,12 @@ import java.util.List;
 import java.util.Locale;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-@PrepareForTest(Context.class)
-@RunWith(PowerMockRunner.class)
 public class ConceptServiceEventInterceptorTest {
     @Mock
     private AtomFeedSpringTransactionManager atomFeedSpringTransactionManager;
@@ -50,6 +47,7 @@ public class ConceptServiceEventInterceptorTest {
 
     private Concept concept;
 
+    private MockedStatic<Context> contextMockedStatic;
 
     @Before
     public void setup() {
@@ -64,11 +62,16 @@ public class ConceptServiceEventInterceptorTest {
         when(conceptService.getSetsContainingConcept(any(Concept.class))).thenReturn(conceptSets);
 
         Locale defaultLocale = new Locale("en", "GB");
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getConceptService()).thenReturn(conceptService);
-        PowerMockito.when(Context.getLocale()).thenReturn(defaultLocale);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getConceptService).thenReturn(conceptService);
+        contextMockedStatic.when(Context::getLocale).thenReturn(defaultLocale);
 
         publishedFeed = new ConceptServiceEventInterceptor(atomFeedSpringTransactionManager, eventService);
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     public static List<ConceptSet> getConceptSets(Concept parentConcept, Concept conceptMember) {

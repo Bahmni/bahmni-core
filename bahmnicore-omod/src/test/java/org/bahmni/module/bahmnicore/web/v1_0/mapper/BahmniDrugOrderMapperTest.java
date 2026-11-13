@@ -5,10 +5,12 @@ import org.bahmni.test.builder.DrugOrderBuilder;
 import org.bahmni.test.builder.EncounterBuilder;
 import org.bahmni.test.builder.PersonBuilder;
 import org.bahmni.test.builder.VisitBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
@@ -25,9 +27,6 @@ import org.openmrs.module.bahmniemrapi.drugorder.mapper.OrderAttributesMapper;
 import org.openmrs.module.emrapi.encounter.ConceptMapper;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.util.LocaleUtility;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,10 +40,8 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
-@PrepareForTest(LocaleUtility.class)
-@RunWith(PowerMockRunner.class)
 public class BahmniDrugOrderMapperTest {
 
     @Mock
@@ -63,15 +60,22 @@ public class BahmniDrugOrderMapperTest {
     private EncounterTransaction.Concept reasonETConcept;
     private BahmniDrugOrderMapper bahmniDrugOrderMapper;
 
+    private MockedStatic<LocaleUtility> localeUtilityMockedStatic;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        PowerMockito.mockStatic(LocaleUtility.class);
-        when(LocaleUtility.getLocalesInOrder()).thenReturn(new HashSet<Locale>(Arrays.asList(Locale.getDefault())));
+        localeUtilityMockedStatic = Mockito.mockStatic(LocaleUtility.class);
+        localeUtilityMockedStatic.when(LocaleUtility::getLocalesInOrder).thenReturn(new HashSet<Locale>(Arrays.asList(Locale.getDefault())));
         when(providerMapper.map(null)).thenReturn(null);
         bahmniDrugOrderMapper = new BahmniDrugOrderMapper();
         bahmniDrugOrderMapper.setMappers(providerMapper, orderAttributesMapper, conceptMapper);
+    }
+
+    @After
+    public void tearDown() {
+        localeUtilityMockedStatic.close();
     }
 
 
