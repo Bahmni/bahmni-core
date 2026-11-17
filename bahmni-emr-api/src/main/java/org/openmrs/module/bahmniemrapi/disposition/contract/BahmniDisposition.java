@@ -12,7 +12,7 @@ public class BahmniDisposition {
     private boolean voided;
     private String voidReason;
     private String creatorName;
-    private List<EncounterTransaction.Observation> additionalObs;
+    private List<EncounterTransaction.Observation> additionalObs = new ArrayList<>();
     private Date dispositionDateTime;
     private Set<EncounterTransaction.Provider> providers = new HashSet<>();
 

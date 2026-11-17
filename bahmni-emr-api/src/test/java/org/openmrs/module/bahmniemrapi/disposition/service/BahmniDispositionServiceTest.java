@@ -13,7 +13,10 @@ import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterProvider;
 import org.openmrs.Obs;
+import org.openmrs.Order;
+import org.openmrs.OrderType;
 import org.openmrs.Visit;
+import org.openmrs.api.OrderService;
 import org.openmrs.api.VisitService;
 import org.openmrs.module.bahmniemrapi.disposition.contract.BahmniDisposition;
 import org.openmrs.module.bahmniemrapi.disposition.mapper.BahmniDispositionMapper;
@@ -30,6 +33,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Locale;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class BahmniDispositionServiceTest {
@@ -53,6 +59,8 @@ public class BahmniDispositionServiceTest {
     @Mock
     private BahmniDispositionMapper bahmniDispositionMapper;
 
+    @Mock
+    private OrderService orderService;
 
     private Obs height = null;
 
@@ -73,7 +81,7 @@ public class BahmniDispositionServiceTest {
         visit = new VisitBuilder().withEncounter(encounter).build();
 
         bahmniDispositionService = new BahmniDispositionServiceImpl(visitService, dispositionMapper, observationTypeMatcher,
-                encounterProviderMapper, bahmniDispositionMapper);
+                encounterProviderMapper, bahmniDispositionMapper, orderService);
 
     }
 
@@ -155,6 +163,106 @@ public class BahmniDispositionServiceTest {
         List<BahmniDisposition> actualDispositions = bahmniDispositionService.getDispositionByVisitUuid("visitUuid", new Locale("en"));
 
         assertEquals(0, actualDispositions.size());
+    }
+
+    @Test
+    public void shouldReturnDispositionFromAdtOrderWhenEncounterHasNoDispositionObservation() {
+        Set<EncounterTransaction.Provider> eTProvider = new HashSet<>();
+
+        OrderType adtOrderType = new OrderType();
+        adtOrderType.setName("ADT Order");
+
+        Concept admitConcept = new ConceptBuilder().withName("Admit Patient").build();
+        Order admitOrder = new Order();
+        admitOrder.setOrderType(adtOrderType);
+        admitOrder.setConcept(admitConcept);
+
+        Encounter encounter = new EncounterBuilder().build();
+        encounter.setObs(new HashSet<Obs>());
+        encounter.addOrder(admitOrder);
+
+        Visit orderVisit = new VisitBuilder().withEncounter(encounter).build();
+
+        BahmniDisposition bahmniDisposition = new BahmniDisposition();
+        bahmniDisposition.setCode("ADMIT");
+
+        when(visitService.getVisitByUuid("visitUuid")).thenReturn(orderVisit);
+        when(encounterProviderMapper.convert(new HashSet<EncounterProvider>())).thenReturn(eTProvider);
+        when(orderService.getOrderTypeByName("ADT Order")).thenReturn(adtOrderType);
+        when(bahmniDispositionMapper.mapFromOrder(admitOrder, eTProvider, new Locale("en"))).thenReturn(bahmniDisposition);
+
+        List<BahmniDisposition> actualDispositions = bahmniDispositionService.getDispositionByVisitUuid("visitUuid", new Locale("en"));
+
+        assertEquals(1, actualDispositions.size());
+        assertEquals(bahmniDisposition, actualDispositions.get(0));
+    }
+
+    @Test
+    public void shouldSkipVoidedAndDiscontinueAdtOrders() {
+        Set<EncounterTransaction.Provider> eTProvider = new HashSet<>();
+        OrderType adtOrderType = new OrderType();
+        adtOrderType.setName("ADT Order");
+        Concept admitConcept = new ConceptBuilder().withName("Admit Patient").build();
+
+        Order voidedOrder = new Order();
+        voidedOrder.setOrderType(adtOrderType);
+        voidedOrder.setConcept(admitConcept);
+        voidedOrder.setVoided(true);
+
+        Order discontinueOrder = new Order();
+        discontinueOrder.setOrderType(adtOrderType);
+        discontinueOrder.setConcept(admitConcept);
+        discontinueOrder.setAction(Order.Action.DISCONTINUE);
+
+        Encounter encounter = new EncounterBuilder().build();
+        encounter.setObs(new HashSet<Obs>());
+        encounter.addOrder(voidedOrder);
+        encounter.addOrder(discontinueOrder);
+        Visit orderVisit = new VisitBuilder().withEncounter(encounter).build();
+
+        when(visitService.getVisitByUuid("visitUuid")).thenReturn(orderVisit);
+        when(encounterProviderMapper.convert(new HashSet<EncounterProvider>())).thenReturn(eTProvider);
+        when(orderService.getOrderTypeByName("ADT Order")).thenReturn(adtOrderType);
+
+        List<BahmniDisposition> actualDispositions = bahmniDispositionService.getDispositionByVisitUuid("visitUuid", new Locale("en"));
+
+        assertEquals(0, actualDispositions.size());
+    }
+
+    @Test
+    public void shouldNotReadAdtOrderWhenEncounterAlreadyHasDispositionObservation() {
+        Set<EncounterTransaction.Provider> eTProvider = new HashSet<>();
+        OrderType adtOrderType = new OrderType();
+        adtOrderType.setName("ADT Order");
+        Concept admitConcept = new ConceptBuilder().withName("Admit Patient").build();
+        Order admitOrder = new Order();
+        admitOrder.setOrderType(adtOrderType);
+        admitOrder.setConcept(admitConcept);
+
+        Set<Obs> allObs = new HashSet<>();
+        allObs.add(height);
+        Encounter encounter = new EncounterBuilder().build();
+        encounter.setObs(allObs);
+        encounter.addOrder(admitOrder);
+        Visit bothVisit = new VisitBuilder().withEncounter(encounter).build();
+
+        EncounterTransaction.Disposition eTDisposition = new EncounterTransaction.Disposition();
+        eTDisposition.setCode("ADMIT");
+        BahmniDisposition obsDisposition = new BahmniDisposition();
+        obsDisposition.setCode("ADMIT");
+
+        when(visitService.getVisitByUuid("visitUuid")).thenReturn(bothVisit);
+        when(encounterProviderMapper.convert(new HashSet<EncounterProvider>())).thenReturn(eTProvider);
+        when(observationTypeMatcher.getObservationType(height)).thenReturn(ObservationTypeMatcher.ObservationType.DISPOSITION);
+        when(dispositionMapper.getDisposition(height)).thenReturn(eTDisposition);
+        when(bahmniDispositionMapper.map(eTDisposition, eTProvider, null, new Locale("en"))).thenReturn(obsDisposition);
+        when(orderService.getOrderTypeByName("ADT Order")).thenReturn(adtOrderType);
+
+        List<BahmniDisposition> actualDispositions = bahmniDispositionService.getDispositionByVisitUuid("visitUuid", new Locale("en"));
+
+        assertEquals(1, actualDispositions.size());
+        assertEquals(obsDisposition, actualDispositions.get(0));
+        verify(bahmniDispositionMapper, never()).mapFromOrder(any(Order.class), any(Set.class), any(Locale.class));
     }
 
     @Test
