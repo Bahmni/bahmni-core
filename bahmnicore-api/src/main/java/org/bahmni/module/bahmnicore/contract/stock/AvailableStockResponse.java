@@ -1,10 +1,7 @@
 package org.bahmni.module.bahmnicore.contract.stock;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.util.List;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class AvailableStockResponse {
 
     private int count;
