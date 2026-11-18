@@ -28,9 +28,9 @@ public class InventoryStockServiceImplTest {
     private static final String VALID_RESPONSE_JSON = "{"
             + "\"count\":3,"
             + "\"data\":["
-            + "  {\"stockLocationName\":\"Stock\",\"availableQuantity\":100.0,\"onHandQuantity\":150.0,\"unit\":\"Units\",\"batchNumber\":\"AB0001\",\"expiryDate\":\"2026-06-26T10:10:08Z\"},"
-            + "  {\"stockLocationName\":\"Stock\",\"availableQuantity\":200.0},"
-            + "  {\"stockLocationName\":\"Spare Stock\",\"availableQuantity\":300.0,\"onHandQuantity\":400.0,\"unit\":\"Tablets\",\"batchNumber\":\"AB0002\",\"expiryDate\":\"2026-08-29T10:10:37Z\"}"
+            + "  {\"stock_location_name\":\"Stock\",\"available_quantity\":100.0,\"on_hand_quantity\":150.0,\"unit\":\"Units\",\"batch_number\":\"AB0001\",\"expiry_date\":\"2026-06-26T10:10:08Z\"},"
+            + "  {\"stock_location_name\":\"Stock\",\"available_quantity\":200.0},"
+            + "  {\"stock_location_name\":\"Spare Stock\",\"available_quantity\":300.0,\"on_hand_quantity\":400.0,\"unit\":\"Tablets\",\"batch_number\":\"AB0002\",\"expiry_date\":\"2026-08-29T10:10:37Z\"}"
             + "]}";
 
     @Mock
