@@ -23,6 +23,7 @@ public class BahmniCoreModuleConfig implements ModuleAppConfig {
                 "drugOrder.drugOther",
                 "concept.reasonForDeath",
                 "bahmni.relationshipTypeMap",
-                "bahmni.primaryIdentifierType");
+                "bahmni.primaryIdentifierType",
+                "bahmni.allowedDomains");
     }
 }
