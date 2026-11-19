@@ -24,6 +24,6 @@ public class BahmniCoreModuleConfig implements ModuleAppConfig {
                 "concept.reasonForDeath",
                 "bahmni.relationshipTypeMap",
                 "bahmni.primaryIdentifierType",
-                "bahmni.allowedDomains");
+                "bahmni.duplicateCheckExtensions.allowedDomains");
     }
 }

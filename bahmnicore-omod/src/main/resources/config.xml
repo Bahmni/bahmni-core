@@ -225,7 +225,7 @@
     </globalProperty>
 
     <globalProperty>
-        <property>bahmni.allowedDomains</property>
+        <property>bahmni.duplicateCheckExtensions.allowedDomains</property>
         <defaultValue></defaultValue>
         <description>Comma-separated list of allowed domains, e.g. example.com,sub.example.org. Empty by default.</description>
     </globalProperty>
