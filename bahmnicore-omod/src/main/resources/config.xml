@@ -224,6 +224,12 @@
         <description>UUID of the concept used in operative report forms to select a surgery. Links form submission to a specific surgical appointment, enabling care instruction observations to be traced back to the surgery for nurse acknowledgement.</description>
     </globalProperty>
 
+    <globalProperty>
+        <property>bahmni.duplicateCheckExtensions.allowedDomains</property>
+        <defaultValue></defaultValue>
+        <description>Comma-separated list of allowed domains, e.g. example.com,sub.example.org. Empty by default.</description>
+    </globalProperty>
+
     <advice>
         <point>org.openmrs.api.PatientService</point>
         <class>org.bahmni.module.bahmnicore.events.advice.PatientAdvice</class>
