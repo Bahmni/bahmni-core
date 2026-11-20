@@ -6,10 +6,12 @@ import org.bahmni.module.referencedata.labconcepts.contract.Panel;
 import org.bahmni.module.referencedata.labconcepts.contract.Sample;
 import org.bahmni.module.referencedata.labconcepts.mapper.PanelMapper;
 import org.bahmni.test.builder.ConceptBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -20,10 +22,6 @@ import org.openmrs.ConceptSet;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.context.UserContext;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Date;
 import java.util.List;
@@ -33,13 +31,10 @@ import static org.bahmni.module.referencedata.labconcepts.advice.ConceptServiceE
 import static org.bahmni.module.referencedata.labconcepts.advice.ConceptServiceEventInterceptorTest.getConceptSets;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 //TODO: Mihir : write a test for empty tests list
-@PowerMockIgnore("javax.management.*")
-@PrepareForTest(Context.class)
-@RunWith(PowerMockRunner.class)
 public class PanelMapperTest {
     private PanelMapper panelMapper;
     private Date dateCreated;
@@ -53,6 +48,8 @@ public class PanelMapperTest {
     @Mock
     private UserContext userContext;
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -61,8 +58,8 @@ public class PanelMapperTest {
         dateCreated = new Date();
         dateChanged = new Date();
         Locale defaultLocale = new Locale("en", "GB");
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getLocale()).thenReturn(defaultLocale);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getLocale).thenReturn(defaultLocale);
         testConcept = new ConceptBuilder().withUUID("Test UUID").withDateCreated(dateCreated).withClass(LabTest.LAB_TEST_CONCEPT_CLASSES.get(0)).withDescription("SomeDescription")
                 .withDateChanged(dateChanged).withShortName("ShortName").withName("Panel Name Here").withDataType(ConceptDatatype.NUMERIC).build();
         panelConcept = new ConceptBuilder().withUUID("Panel UUID").withDateCreated(dateCreated).withClassUUID(ConceptClass.LABSET_UUID).withDescription("SomeDescription")
@@ -100,7 +97,12 @@ public class PanelMapperTest {
                 return null;
             }
         });
-        when(Context.getConceptService()).thenReturn(conceptService);
+        contextMockedStatic.when(Context::getConceptService).thenReturn(conceptService);
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test

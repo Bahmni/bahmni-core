@@ -1,9 +1,10 @@
 package org.openmrs.module.bahmniemrapi.encountertransaction.mapper;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
@@ -27,8 +28,6 @@ import org.openmrs.module.emrapi.encounter.matcher.ObservationTypeMatcher;
 import org.openmrs.test.TestUtil;
 import org.openmrs.util.LocaleUtility;
 import org.openmrs.util.OpenmrsConstants;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -40,14 +39,11 @@ import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({LocaleUtility.class, Context.class})
 public class OMRSObsToBahmniObsMapperTest {
 
     @Mock
@@ -59,25 +55,34 @@ public class OMRSObsToBahmniObsMapperTest {
     @Mock
     private AdministrationService administrationService;
 
+    private MockedStatic<LocaleUtility> localeUtilityMockedStatic;
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        mockStatic(LocaleUtility.class);
-        mockStatic(Context.class);
-        when(Context.getLocale()).thenReturn(Locale.ENGLISH);
-        when(LocaleUtility.getDefaultLocale()).thenReturn(Locale.ENGLISH);
-        when(Context.getAuthenticatedUser()).thenReturn(authenticatedUser);
+        localeUtilityMockedStatic = Mockito.mockStatic(LocaleUtility.class);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getLocale).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic.when(LocaleUtility::getDefaultLocale).thenReturn(Locale.ENGLISH);
+        contextMockedStatic.when(Context::getAuthenticatedUser).thenReturn(authenticatedUser);
         when(observationTypeMatcher.getObservationType(any(Obs.class))).thenReturn(ObservationTypeMatcher.ObservationType.OBSERVATION);
         observationMapper = new ObservationMapper(new ConceptMapper(), new DefaultDrugMapper(), new UserMapper());
+    }
+
+    @After
+    public void tearDown() {
+        localeUtilityMockedStatic.close();
+        contextMockedStatic.close();
     }
 
     @Test
     public void returnMappedObservationsForAbnormalObservationStructure() throws Exception {
 
         Mockito.when(authenticatedUser.getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCALE)).thenReturn("en");
-        Mockito.when(LocaleUtility.fromSpecification("en")).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic.when(() -> LocaleUtility.fromSpecification("en")).thenReturn(Locale.ENGLISH);
         Mockito.when(administrationService.getGlobalProperty("default_locale")).thenReturn("en");
-        Mockito.when(LocaleUtility.fromSpecification("en")).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic.when(() -> LocaleUtility.fromSpecification("en")).thenReturn(Locale.ENGLISH);
 
         Date date = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH).parse("January 2, 2010");
         Person person = new PersonBuilder().withUUID("puuid").withPersonName("testPersonName").build();
@@ -136,7 +141,7 @@ public class OMRSObsToBahmniObsMapperTest {
     @Test
     public void shouldMapPreviousVersionUuidWhenObsHasPreviousVersion() throws Exception {
         Mockito.when(authenticatedUser.getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCALE)).thenReturn("en");
-        Mockito.when(LocaleUtility.fromSpecification("en")).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic.when(() -> LocaleUtility.fromSpecification("en")).thenReturn(Locale.ENGLISH);
 
         Date date = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH).parse("January 2, 2010");
         Person person = new PersonBuilder().withUUID("puuid").withPersonName("testPersonName").build();
@@ -160,7 +165,7 @@ public class OMRSObsToBahmniObsMapperTest {
     @Test
     public void shouldNotSetPreviousVersionUuidWhenObsHasNoPreviousVersion() throws Exception {
         Mockito.when(authenticatedUser.getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCALE)).thenReturn("en");
-        Mockito.when(LocaleUtility.fromSpecification("en")).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic.when(() -> LocaleUtility.fromSpecification("en")).thenReturn(Locale.ENGLISH);
 
         Date date = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH).parse("January 2, 2010");
         Person person = new PersonBuilder().withUUID("puuid").withPersonName("testPersonName").build();

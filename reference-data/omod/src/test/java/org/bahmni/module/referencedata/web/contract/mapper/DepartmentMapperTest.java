@@ -4,20 +4,18 @@ import org.bahmni.module.referencedata.labconcepts.contract.Department;
 import org.bahmni.module.referencedata.labconcepts.contract.ResourceReference;
 import org.bahmni.module.referencedata.labconcepts.mapper.DepartmentMapper;
 import org.bahmni.test.builder.ConceptBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.openmrs.Concept;
 import org.openmrs.ConceptSet;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.context.UserContext;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Date;
 import java.util.List;
@@ -27,12 +25,9 @@ import static org.bahmni.module.referencedata.labconcepts.advice.ConceptServiceE
 import static org.bahmni.module.referencedata.labconcepts.advice.ConceptServiceEventInterceptorTest.getConceptSets;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@PowerMockIgnore("javax.management.*")
-@PrepareForTest(Context.class)
-@RunWith(PowerMockRunner.class)
 public class DepartmentMapperTest {
 
     private DepartmentMapper departmentMapper;
@@ -45,6 +40,8 @@ public class DepartmentMapperTest {
     @Mock
     private UserContext userContext;
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -53,8 +50,8 @@ public class DepartmentMapperTest {
         dateCreated = new Date();
         dateChanged = new Date();
         Locale defaultLocale = new Locale("en", "GB");
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getLocale()).thenReturn(defaultLocale);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getLocale).thenReturn(defaultLocale);
         departmentConcept = new ConceptBuilder().forDepartment().build();
         Concept allDepartmentsConcept = new ConceptBuilder().withUUID("Laboratory UUID")
                 .withName(Department.DEPARTMENT_PARENT_CONCEPT_NAME).withClass(Department.DEPARTMENT_CONCEPT_CLASS)
@@ -62,7 +59,12 @@ public class DepartmentMapperTest {
         ConceptSet conceptSet = createConceptSet(allDepartmentsConcept, departmentConcept);
         List<ConceptSet> conceptSets = getConceptSets(conceptSet);
         when(conceptService.getSetsContainingConcept(any(Concept.class))).thenReturn(conceptSets);
-        when(Context.getConceptService()).thenReturn(conceptService);
+        contextMockedStatic.when(Context::getConceptService).thenReturn(conceptService);
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test

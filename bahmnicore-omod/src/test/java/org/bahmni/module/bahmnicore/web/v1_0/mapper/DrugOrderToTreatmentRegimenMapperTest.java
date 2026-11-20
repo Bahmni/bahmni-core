@@ -2,9 +2,11 @@ package org.bahmni.module.bahmnicore.web.v1_0.mapper;
 
 import org.bahmni.test.builder.ConceptBuilder;
 import org.bahmni.test.builder.DrugOrderBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.ConceptName;
 import org.openmrs.DrugOrder;
@@ -16,8 +18,6 @@ import org.openmrs.module.bahmniemrapi.drugogram.contract.RegimenRow;
 import org.openmrs.module.bahmniemrapi.drugogram.contract.TreatmentRegimen;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.util.LocaleUtility;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,25 +32,27 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({LocaleUtility.class})
 public class DrugOrderToTreatmentRegimenMapperTest {
 
     private DrugOrderToRegimenMapper drugOrderToTreatmentRegimenMapper;
 
     public static final String DAY_DURATION_UNIT = "Day";
 
+    private MockedStatic<LocaleUtility> localeUtilityMockedStatic;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        mockStatic(LocaleUtility.class);
-        when(LocaleUtility.getDefaultLocale()).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic = Mockito.mockStatic(LocaleUtility.class);
+        localeUtilityMockedStatic.when(LocaleUtility::getDefaultLocale).thenReturn(Locale.ENGLISH);
         Context.setUserContext(new UserContext(new TestUsernameAuthenticationScheme()));
         drugOrderToTreatmentRegimenMapper = new DrugOrderToRegimenMapper();
+    }
+
+    @After
+    public void tearDown() {
+        localeUtilityMockedStatic.close();
     }
 
     @Test

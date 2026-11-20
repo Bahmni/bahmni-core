@@ -2,28 +2,23 @@ package org.bahmni.module.admin.csv.persister;
 
 import org.bahmni.csv.Messages;
 import org.bahmni.module.admin.csv.models.RelationshipRow;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.context.UserContext;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@PowerMockIgnore("javax.management.*")
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Context.class})
 public class RelationshipPersisterTest {
 
     @Mock
@@ -35,12 +30,19 @@ public class RelationshipPersisterTest {
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setUp() {
         initMocks(this);
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getAdministrationService()).thenReturn(administrationService);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getAdministrationService).thenReturn(administrationService);
         when(administrationService.getGlobalProperty(eq("bahmni.admin.csv.upload.dateFormat"))).thenReturn("yyyy-M-d");
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test

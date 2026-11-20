@@ -8,13 +8,11 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.openmrs.Patient;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.emrapi.patient.EmrPatientProfileService;
 import org.openmrs.module.emrapi.patient.PatientProfile;
 import org.openmrs.module.idgen.contract.IdentifierSource;
 import org.openmrs.module.idgen.webservices.services.IdentifierSourceServiceWrapper;
 import org.openmrs.module.webservices.rest.SimpleObject;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -29,13 +27,12 @@ import java.util.List;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@PrepareForTest(Context.class)
 public class BahmniPatientProfileResourceIT extends BaseIntegrationTest {
 
     @Autowired
@@ -59,7 +56,7 @@ public class BahmniPatientProfileResourceIT extends BaseIntegrationTest {
         when(identifierSourceServiceWrapper.getSequenceValueUsingIdentifierSourceUuid("dead-cafe")).thenReturn("300010");
         when(identifierSourceServiceWrapper.generateIdentifierUsingIdentifierSourceUuid("dead-cafe", "")).thenReturn("BAH300010");
         classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("patient.json").getFile());
+        File file = new File(classLoader.getResource("patient.json").toURI());
         String jsonString = FileUtils.readFileToString(file);
         propertiesToCreate = SimpleObject.parseJson(jsonString);
     }
@@ -136,7 +133,7 @@ public class BahmniPatientProfileResourceIT extends BaseIntegrationTest {
 
     @Test
     public void shouldUpdatePatient() throws Exception {
-        File file = new File(classLoader.getResource("updatePatient.json").getFile());
+        File file = new File(classLoader.getResource("updatePatient.json").toURI());
         String jsonString = FileUtils.readFileToString(file);
         propertiesToCreate = SimpleObject.parseJson(jsonString);
         String uuid = "592b29e1-b3f5-423e-83cb-0d2c9b80867f";
@@ -151,7 +148,7 @@ public class BahmniPatientProfileResourceIT extends BaseIntegrationTest {
 
     @Test
     public void shouldReturnBadRequestForLongPatientName() throws Exception {
-        File file = new File(classLoader.getResource("updatePatient.json").getFile());
+        File file = new File(classLoader.getResource("updatePatient.json").toURI());
         String jsonString = FileUtils.readFileToString(file);
         propertiesToCreate = SimpleObject.parseJson(jsonString);
         LinkedHashMap name = (LinkedHashMap) ((ArrayList) ((LinkedHashMap) ((LinkedHashMap) propertiesToCreate.get("patient")).get("person")).get("names")).get(0);

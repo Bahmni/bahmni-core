@@ -1,8 +1,10 @@
 package org.bahmni.module.bahmnicore.web.v1_0.mapper;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
@@ -14,9 +16,6 @@ import org.openmrs.module.bahmniemrapi.builder.ConceptBuilder;
 import org.openmrs.module.bahmniemrapi.drugogram.contract.RegimenRow;
 import org.openmrs.module.bahmniemrapi.drugogram.contract.TreatmentRegimen;
 import org.openmrs.util.LocaleUtility;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,10 +31,7 @@ import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({LocaleUtility.class})
 public class DrugOrderToRegimenMapperTest {
 
     private DrugOrderToRegimenMapper drugOrderToRegimenMapper;
@@ -45,16 +41,22 @@ public class DrugOrderToRegimenMapperTest {
 
     Concept dlm;
 
+    private MockedStatic<LocaleUtility> localeUtilityMockedStatic;
 
     @Before
     public void setUp() {
         initMocks(this);
-        mockStatic(LocaleUtility.class);
-        PowerMockito.when(LocaleUtility.getDefaultLocale()).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic = Mockito.mockStatic(LocaleUtility.class);
+        localeUtilityMockedStatic.when(LocaleUtility::getDefaultLocale).thenReturn(Locale.ENGLISH);
         Context.setUserContext(new UserContext(new TestUsernameAuthenticationScheme()));
         bdq = new ConceptBuilder().withName("Bedaquiline").withDataType("N/A").build();
         dlm = new ConceptBuilder().withName("Delamanid").withDataType("N/A").build();
         drugOrderToRegimenMapper = new DrugOrderToRegimenMapper();
+    }
+
+    @After
+    public void tearDown() {
+        localeUtilityMockedStatic.close();
     }
 
 

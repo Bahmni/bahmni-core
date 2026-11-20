@@ -6,17 +6,16 @@ import org.bahmni.module.admin.csv.persister.PatientPersister;
 import org.bahmni.module.bahmnicore.security.PrivilegeConstants;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.User;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.context.UserContext;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
@@ -38,9 +37,8 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Context.class)
 public class AdminImportControllerTest {
 
     private static final String TMP_UPLOAD_DIR = "/tmp/admin_import_test";
@@ -66,8 +64,11 @@ public class AdminImportControllerTest {
     @Mock
     User mockUser;
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setUp() throws Exception {
+        initMocks(this);
         controller = new AdminImportController() {
             @Override
             protected FileImporter createFileImporter() {
@@ -78,13 +79,13 @@ public class AdminImportControllerTest {
         ReflectionTestUtils.setField(controller, "administrationService", administrationService);
         ReflectionTestUtils.setField(controller, "sessionFactory", sessionFactory);
 
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getUserContext()).thenReturn(mockUserContext);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getUserContext).thenReturn(mockUserContext);
         when(mockUserContext.getAuthenticatedUser()).thenReturn(mockUser);
         when(mockUser.getSystemId()).thenReturn("admin");
         when(mockUser.getId()).thenReturn(1);
         when(mockUser.getUserId()).thenReturn(1);
-        when(Context.getAuthenticatedUser()).thenReturn(mockUser);
+        contextMockedStatic.when(Context::getAuthenticatedUser).thenReturn(mockUser);
         when(mockUserContext.hasPrivilege(any())).thenReturn(true);
 
         when(administrationService.getGlobalProperty(AdminImportController.PARENT_DIRECTORY_UPLOADED_FILES_CONFIG))
@@ -94,6 +95,11 @@ public class AdminImportControllerTest {
                 .thenReturn(true);
 
         FileUtils.deleteDirectory(new File(TMP_UPLOAD_DIR));
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test

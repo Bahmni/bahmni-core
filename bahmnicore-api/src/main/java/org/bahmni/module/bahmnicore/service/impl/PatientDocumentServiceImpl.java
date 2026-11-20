@@ -1,6 +1,6 @@
 package org.bahmni.module.bahmnicore.service.impl;
 
-import liquibase.util.file.FilenameUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;

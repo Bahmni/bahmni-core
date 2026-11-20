@@ -2,27 +2,24 @@ package org.bahmni.module.admin.config.service.impl;
 
 import org.bahmni.module.admin.config.dao.impl.BahmniConfigDaoImpl;
 import org.bahmni.module.admin.config.model.BahmniConfig;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.openmrs.User;
 import org.openmrs.api.context.Context;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Context.class)
 public class BahmniConfigServiceImplTest {
     @Mock
     private BahmniConfigDaoImpl bahmniConfigDao;
@@ -31,13 +28,19 @@ public class BahmniConfigServiceImplTest {
     private BahmniConfig newConfig;
     private BahmniConfigServiceImpl bahmniConfigService;
     private User creator;
+    private MockedStatic<Context> contextMockedStatic;
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
+    }
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         creator = new User();
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getAuthenticatedUser()).thenReturn(creator);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getAuthenticatedUser).thenReturn(creator);
 
         existingConfig = new BahmniConfig();
         existingConfig.setUuid("existing");

@@ -12,7 +12,7 @@ public class OdooClientHelper {
         // Utility class — prevent instantiation
     }
     private static final Logger logger = LogManager.getLogger(OdooClientHelper.class);
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static ObjectMapper objectMapper = new ObjectMapper();
     private static final String SESSION_COOKIE_NAME = "session_id";
 
     public static String createAuthenticationRequestBody(

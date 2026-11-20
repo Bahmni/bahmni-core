@@ -3,17 +3,16 @@ package org.bahmni.module.bahmnicore.service.impl;
 import org.apache.commons.io.FileUtils;
 import org.bahmni.module.bahmnicore.contract.encounter.data.ConceptData;
 import org.bahmni.module.bahmnicore.contract.encounter.data.EncounterModifierData;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.util.OpenmrsUtil;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,11 +20,9 @@ import java.io.IOException;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Context.class, OpenmrsUtil.class})
 public class BahmniEncounterModifierServiceImplTest {
 
     @Rule
@@ -37,17 +34,26 @@ public class BahmniEncounterModifierServiceImplTest {
     private File appDataDir;
     private BahmniEncounterModifierServiceImpl service;
 
+    private MockedStatic<OpenmrsUtil> openmrsUtilMockedStatic;
+    private MockedStatic<Context> contextMockedStatic;
+
+    @After
+    public void tearDown() {
+        openmrsUtilMockedStatic.close();
+        contextMockedStatic.close();
+    }
+
     private void setUp(String allowCaching) throws IOException {
         initMocks(this);
 
         appDataDir = temporaryFolder.newFolder("openmrsAppData");
         new File(appDataDir, "encounterModifier").mkdirs();
 
-        PowerMockito.mockStatic(OpenmrsUtil.class);
-        when(OpenmrsUtil.getApplicationDataDirectory()).thenReturn(appDataDir.getAbsolutePath());
+        openmrsUtilMockedStatic = Mockito.mockStatic(OpenmrsUtil.class);
+        openmrsUtilMockedStatic.when(OpenmrsUtil::getApplicationDataDirectory).thenReturn(appDataDir.getAbsolutePath());
 
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getAdministrationService()).thenReturn(administrationService);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getAdministrationService).thenReturn(administrationService);
         when(administrationService.getGlobalProperty("encounterModifier.groovy.allowCaching")).thenReturn(allowCaching);
 
         service = new BahmniEncounterModifierServiceImpl();

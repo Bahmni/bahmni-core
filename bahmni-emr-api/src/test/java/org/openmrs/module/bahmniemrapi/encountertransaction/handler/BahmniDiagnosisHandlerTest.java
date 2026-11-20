@@ -2,10 +2,12 @@ package org.openmrs.module.bahmniemrapi.encountertransaction.handler;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.Encounter;
@@ -21,9 +23,6 @@ import org.openmrs.module.bahmniemrapi.diagnosis.contract.BahmniDiagnosisRequest
 import org.openmrs.module.bahmniemrapi.diagnosis.helper.BahmniDiagnosisMetadata;
 import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Set;
 import java.util.UUID;
@@ -37,10 +36,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-
-@PrepareForTest({Context.class})
-@RunWith(PowerMockRunner.class)
 
 public class BahmniDiagnosisHandlerTest {
 
@@ -57,14 +52,16 @@ public class BahmniDiagnosisHandlerTest {
     @Mock
     private ObsService obsService;
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setup() {
         initMocks(this);
-        mockStatic(Context.class);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
         ConceptDatatype booleanDataType = new ConceptDatatype();
         booleanDataType.setUuid(BOOLEAN_DATATYPE_UUID);
         revisedConcept.setDatatype(booleanDataType);
-        PowerMockito.when(Context.getConceptService()).thenReturn(conceptService);
+        contextMockedStatic.when(Context::getConceptService).thenReturn(conceptService);
         Concept trueConcept = new Concept();
         when(conceptService.getTrueConcept()).thenReturn(trueConcept);
         when(conceptService.getFalseConcept()).thenReturn(new Concept());
@@ -76,6 +73,11 @@ public class BahmniDiagnosisHandlerTest {
         when(bahmniDiagnosisMetadata.getBahmniDiagnosisStatusConcept()).thenReturn(statusConcept);
         when(bahmniDiagnosisMetadata.getBahmniDiagnosisRevisedConcept()).thenReturn(revisedConcept);
         when(bahmniDiagnosisMetadata.getBahmniInitialDiagnosisConcept()).thenReturn(initialDiagnosisConcept);
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test
