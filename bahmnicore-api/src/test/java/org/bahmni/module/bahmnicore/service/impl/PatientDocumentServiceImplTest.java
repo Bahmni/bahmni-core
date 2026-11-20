@@ -385,4 +385,57 @@ public class PatientDocumentServiceImplTest {
             verify(thumbnailGenerator, times(0)).generateThumbnail(any(File.class));
         }
     }
+
+    @Test
+    public void shouldSavePngImageAndCreateReadableThumbnail() throws Exception {
+        assertImageSavedWithThumbnail("png", BufferedImage.TYPE_INT_ARGB);
+    }
+
+    @Test
+    public void shouldSaveJpegImageAndCreateReadableThumbnail() throws Exception {
+        assertImageSavedWithThumbnail("jpeg", BufferedImage.TYPE_INT_RGB);
+    }
+
+    @Test
+    public void shouldSavePdfWithoutThumbnail() throws Exception {
+        String baseDir = temporaryFolder.getRoot().getAbsolutePath();
+        try (MockedStatic<BahmniCoreProperties> props = Mockito.mockStatic(BahmniCoreProperties.class)) {
+            props.when(() -> BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn(baseDir);
+            patientDocumentService = new PatientDocumentServiceImpl();
+
+            byte[] pdfBytes = "%PDF-1.4 test".getBytes();
+            String relativePath = patientDocumentService.saveDocument(
+                    1, "Consultation", java.util.Base64.getEncoder().encodeToString(pdfBytes), "pdf", "file", "report");
+
+            File saved = new File(baseDir, relativePath);
+            assertTrue(saved.exists());
+            assertArrayEquals(pdfBytes, Files.readAllBytes(saved.toPath()));
+            assertFalse(new File(baseDir, relativePath.replace(".pdf", "_thumbnail.pdf")).exists());
+        }
+    }
+
+    private void assertImageSavedWithThumbnail(String format, int imageType) throws Exception {
+        String baseDir = temporaryFolder.getRoot().getAbsolutePath();
+        BufferedImage source = new BufferedImage(400, 300, imageType);
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        assertTrue(ImageIO.write(source, format, out));
+        String content = java.util.Base64.getEncoder().encodeToString(out.toByteArray());
+
+        try (MockedStatic<BahmniCoreProperties> props = Mockito.mockStatic(BahmniCoreProperties.class)) {
+            props.when(() -> BahmniCoreProperties.getProperty("bahmnicore.documents.baseDirectory")).thenReturn(baseDir);
+            patientDocumentService = new PatientDocumentServiceImpl();
+
+            String relativePath = patientDocumentService.saveDocument(1, "Consultation", content, format, "image", "scan");
+
+            File saved = new File(baseDir, relativePath);
+            assertTrue("image should be saved", saved.exists());
+            assertNotNull(ImageIO.read(saved));
+
+            File thumbnail = new File(baseDir, relativePath.replace("." + format, "_thumbnail." + format));
+            assertTrue("thumbnail should be created next to the image", thumbnail.exists());
+            BufferedImage thumb = ImageIO.read(thumbnail);
+            assertNotNull(thumb);
+            assertEquals(100, thumb.getWidth());
+        }
+    }
 }
