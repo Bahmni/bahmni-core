@@ -24,13 +24,6 @@ public class DoseCalculatorController extends BaseRestController {
 
     private RulesEngine rulesEngine = new RulesEngineImpl();
 
-    /**
-     * The rules engine signals user-correctable problems (missing weight/height observation via
-     * {@code org.openmrs.module.rulesengine.util.Validator}, unknown rule, drug missing from the
-     * dosage CSV, malformed request JSON) with plain checked exceptions. Those are reported as
-     * 400 with the engine's message so the UI can show it. Unchecked exceptions indicate a server
-     * or configuration fault and are left to propagate as 500.
-     */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Object> calculateDose(@RequestParam(value = "dosageRequest") String dosageRequest) {

@@ -79,7 +79,6 @@ public class DoseCalculatorControllerTest {
         doseCalculatorController.calculateDose(DOSAGE_REQUEST);
     }
 
-    @SuppressWarnings("unchecked")
     private String errorMessage(ResponseEntity<Object> response) {
         SimpleObject body = (SimpleObject) response.getBody();
         return (String) ((Map<String, Object>) body.get("error")).get("message");
