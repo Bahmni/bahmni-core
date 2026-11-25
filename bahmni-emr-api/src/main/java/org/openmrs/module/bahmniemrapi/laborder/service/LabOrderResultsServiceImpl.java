@@ -1,5 +1,7 @@
 package org.openmrs.module.bahmniemrapi.laborder.service;
 
+import org.openmrs.Concept;
+import org.openmrs.ConceptNumeric;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterProvider;
 import org.openmrs.Obs;
@@ -8,7 +10,9 @@ import org.openmrs.Patient;
 import org.openmrs.Provider;
 import org.openmrs.TestOrder;
 import org.openmrs.Visit;
+import org.openmrs.api.ConceptService;
 import org.openmrs.api.EncounterService;
+import org.openmrs.api.context.Context;
 import org.openmrs.api.db.hibernate.HibernateUtil;
 import org.openmrs.module.bahmniemrapi.accessionnote.contract.AccessionNote;
 import org.openmrs.module.bahmniemrapi.laborder.contract.LabOrderResult;
@@ -20,13 +24,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -35,6 +43,7 @@ public class LabOrderResultsServiceImpl implements LabOrderResultsService {
     public static final String LAB_MINNORMAL = "LAB_MINNORMAL";
     public static final String LAB_MAXNORMAL = "LAB_MAXNORMAL";
     public static final String LAB_NOTES = "LAB_NOTES";
+    public static final String LAB_RESULT = "LAB_RESULT";
     private static final String REFERRED_OUT = "REFERRED_OUT";
     public static final String LAB_REPORT = "LAB_REPORT";
     private static final String VALIDATION_NOTES_ENCOUNTER_TYPE = "VALIDATION NOTES";
@@ -48,6 +57,9 @@ public class LabOrderResultsServiceImpl implements LabOrderResultsService {
     
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private ConceptService conceptService;
 
     @Override
     @Transactional(readOnly = true)
@@ -84,6 +96,180 @@ public class LabOrderResultsServiceImpl implements LabOrderResultsService {
 
         return new LabOrderResults(filterLabOrderResults(labOrderResults));
     }
+
+    public enum TestAttribute {
+        ABNORMAL,
+        MIN_NORMAL,
+        MAX_NORMAL,
+        REFERRED_OUT,
+        LAB_REPORT,
+        LAB_NOTES,
+        LAB_RESULT
+    }
+
+    @Override
+    public List<LabOrderResult> resultsForOrders(List<Order> orders, List<Obs> obsForOrders, Integer numberOfAccessions) {
+        if (orders.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Map<TestAttribute, Integer> testAttributeConceptMap = new HashMap<>();
+        testAttributeConceptMap.put(TestAttribute.ABNORMAL, Optional.ofNullable(conceptService.getConceptByName(LAB_ABNORMAL)).map(concept -> concept.getConceptId()).orElse(null));
+        testAttributeConceptMap.put(TestAttribute.MIN_NORMAL, Optional.ofNullable(conceptService.getConceptByName(LAB_MINNORMAL)).map(concept -> concept.getConceptId()).orElse(null));
+        testAttributeConceptMap.put(TestAttribute.MAX_NORMAL, Optional.ofNullable(conceptService.getConceptByName(LAB_MAXNORMAL)).map(concept -> concept.getConceptId()).orElse(null));
+        testAttributeConceptMap.put(TestAttribute.REFERRED_OUT, Optional.ofNullable(conceptService.getConceptByName(REFERRED_OUT)).map(concept -> concept.getConceptId()).orElse(null));
+        testAttributeConceptMap.put(TestAttribute.LAB_REPORT, Optional.ofNullable(conceptService.getConceptByName(LAB_REPORT)).map(concept -> concept.getConceptId()).orElse(null));
+        testAttributeConceptMap.put(TestAttribute.LAB_NOTES, Optional.ofNullable(conceptService.getConceptByName(LAB_NOTES)).map(concept -> concept.getConceptId()).orElse(null));
+        testAttributeConceptMap.put(TestAttribute.LAB_RESULT, Optional.ofNullable(conceptService.getConceptByName(LAB_RESULT)).map(concept -> concept.getConceptId()).orElse(null));
+
+        //now get the observations for the orders
+        List<LabOrderResult> labOrderResultList = orders.stream().map(order -> {
+            List<Obs> obsForOrder = obsForOrders.stream().filter(obs -> obs.getOrder().getOrderId().equals(order.getOrderId())).collect(Collectors.toList());
+            Concept orderConcept = order.getConcept();
+            List<AccessionNote> accessionNotes = Collections.emptyList();
+            /**
+             * TODO
+             * visit(?) Start time
+             * accession notes
+             */
+            if (obsForOrder.isEmpty()) {
+                if (orderConcept.getSet()) {
+                    return orderConcept.getSetMembers().stream().map(panelMember -> unFulfilledTestOrderResult(order, panelMember, accessionNotes)).collect(Collectors.toList());
+                }
+                return Collections.singletonList(unFulfilledTestOrderResult(order, orderConcept, accessionNotes));
+            }
+            Obs obsForTest = obsForOrder.get(0);
+            Date visitStartTime = obsForTest.getEncounter().getVisit().getStartDatetime();
+            if (orderConcept.getSet()) {
+                //order is a panel
+                List<LabOrderResult> panelLabResults = orderConcept.getSetMembers().stream().map(memberConcept -> {
+                    Optional<Obs> memberResult = obsForTest.getGroupMembers().stream().filter(memberObs -> memberObs.getConcept().equals(memberConcept)).findFirst();
+                    if (!memberResult.isPresent()) {
+                        return unFulfilledTestOrderResult(order, memberConcept, accessionNotes);
+                    }
+                    List<Obs> leafPanelMemberObs = new ArrayList<>();
+                    flattenObsGroup(memberResult.get(), leafPanelMemberObs);
+                    return getLabOrderResult(order, leafPanelMemberObs, testAttributeConceptMap, memberConcept, accessionNotes, visitStartTime);
+                }).collect(Collectors.toList());
+                return panelLabResults;
+            }
+            //this is for individual test, not panel members
+            List<Obs> testResultList = new ArrayList<>();
+            flattenObsGroup(obsForTest, testResultList);
+            LabOrderResult labResult = getLabOrderResult(order, testResultList, testAttributeConceptMap, orderConcept, accessionNotes, visitStartTime);
+            return Collections.singletonList(labResult);
+        }).flatMap(Collection::stream).collect(Collectors.toList());
+        return labOrderResultList;
+    }
+
+    private Optional<Obs> getResultForAttribute(List<Obs> results, Optional<Integer> attributeConceptId) {
+        return attributeConceptId.map(conceptId -> results.stream().filter(obs -> obs.getConcept().getConceptId().equals(conceptId)).findFirst()).orElse(Optional.empty());
+    }
+
+    private LabOrderResult getLabOrderResult(
+            Order order, List<Obs> leafPanelMemberObs,
+            Map<TestAttribute, Integer> testAttributeConceptMap,
+            Concept test,
+            List<AccessionNote> accessionNotes,
+            Date visitStartTime) {
+
+        Optional<Obs> abnormalObs = getResultForAttribute(leafPanelMemberObs, Optional.ofNullable(testAttributeConceptMap.get(TestAttribute.ABNORMAL)));
+        Optional<Obs> minNormalObs = getResultForAttribute(leafPanelMemberObs, Optional.ofNullable(testAttributeConceptMap.get(TestAttribute.MIN_NORMAL)));
+        Optional<Obs> maxNormalObs = getResultForAttribute(leafPanelMemberObs, Optional.ofNullable(testAttributeConceptMap.get(TestAttribute.MAX_NORMAL)));
+        Optional<Obs> resultObs = getResultForAttribute(leafPanelMemberObs, Optional.ofNullable(testAttributeConceptMap.get(TestAttribute.LAB_RESULT)));
+        Optional<Obs> referredOutObs = getResultForAttribute(leafPanelMemberObs, Optional.ofNullable(testAttributeConceptMap.get(TestAttribute.REFERRED_OUT)));
+        Optional<Obs> labReportObs = getResultForAttribute(leafPanelMemberObs, Optional.ofNullable(testAttributeConceptMap.get(TestAttribute.LAB_REPORT)));
+        Optional<Obs> labNotesObs = getResultForAttribute(leafPanelMemberObs, Optional.ofNullable(testAttributeConceptMap.get(TestAttribute.LAB_NOTES)));
+        //TODO: result is null in case of just report upload
+        Set<EncounterProvider> providers = resultObs.map(obs -> obs.getEncounter().getEncounterProviders())
+                .orElseGet(() -> labReportObs.isPresent() ? labReportObs.get().getEncounter().getEncounterProviders() : Collections.emptySet());
+
+        Concept orderConcept = order.getConcept();
+        return new LabOrderResult.Builder()
+                .order(order.getUuid())
+                .action(order.getAction().name())
+                .accession(Optional.ofNullable(order.getEncounter()).map(encounter -> encounter.getUuid()).orElse(null))
+                .accessionDateTime(Optional.ofNullable(order.getEncounter()).map(encounter -> encounter.getEncounterDatetime()).orElse(null))
+                .testName(test.getName().getName())
+                .testUuid(test.getUuid())
+                .preferredTestName(test.getShortNames().stream().findFirst().map(conceptName -> conceptName.getName()).orElse(test.getName().getName()))
+                .uom(getUom(test))
+                .result(resultObs.map(obs -> {
+                    Object res = getValue(obs);
+                    return res != null ? res.toString() : null;
+                }).orElse(null))
+                .resultDateTime(resultObs.map(obs -> obs.getObsDatetime()).orElseGet(() -> labReportObs.map(obs -> obs.getObsDatetime()).orElse(null)))
+                .minNormal(minNormalObs.map(obs -> (Double) getValue(obs)).orElse(null))
+                .maxNormal(maxNormalObs.map(obs -> (Double) getValue(obs)).orElse(null))
+                .abnormal(abnormalObs.map(obs -> (Boolean) getValue(obs)).orElse(false))
+                .referredOut(referredOutObs.map(obs -> (Boolean) getValue(obs)).orElse(false))
+                .uploadedFileName(labReportObs.map(obs -> (String) getValue(obs)).orElse(null))
+                .notes(labNotesObs.map(obs -> (String) getValue(obs)).orElse(null))
+                .accessionNotes(accessionNotes)
+                .provider(providers != null && !providers.isEmpty() ? providers.stream().findFirst().get().getProvider().getName() : null)
+                .visitStartTime(visitStartTime)
+                .panelName(orderConcept.getSet() ? orderConcept.getName().getName() : null)
+                .preferredPanelName(orderConcept.getSet() ?
+                        orderConcept.getShortNames().stream().findFirst().map(conceptName -> conceptName.getName()).orElse(orderConcept.getName().getName())
+                        : null)
+                .panelUuid(orderConcept.getSet() ? orderConcept.getUuid() : null)
+                .build();
+    }
+
+
+    private LabOrderResult unFulfilledTestOrderResult(Order order, Concept test, List<AccessionNote> accessionNotes) {
+        Concept orderConcept = order.getConcept();
+        return new LabOrderResult.Builder()
+                .order(order.getUuid())
+                .action(order.getAction().name())
+                .accession(Optional.ofNullable(order.getEncounter()).map(encounter -> encounter.getUuid()).orElse(null))
+                .accessionDateTime(Optional.ofNullable(order.getEncounter()).map(encounter -> encounter.getEncounterDatetime()).orElse(null))
+                .panelName(orderConcept.getSet() ? orderConcept.getName().getName() : null)
+                .preferredPanelName(orderConcept.getSet() ?
+                        orderConcept.getShortNames().stream().findFirst().map(conceptName -> conceptName.getName()).orElse(orderConcept.getName().getName())
+                        : null)
+                .panelUuid(orderConcept.getSet() ? orderConcept.getUuid() : null)
+                .testName(test.getName().getName())
+                .uom(getUom(test))
+                .testUuid(orderConcept.getUuid())
+                .preferredTestName(test.getShortNames().stream().findFirst().map(conceptName -> conceptName.getName()).orElse(test.getName().getName()))
+                .referredOut(false)
+                .accessionNotes(accessionNotes)
+                .visitStartTime(order.getEncounter().getVisit().getStartDatetime())
+                .build();
+    }
+
+    private String getUom(Concept concept) {
+        if (!concept.isNumeric()) {
+            return null;
+        }
+        if (concept instanceof ConceptNumeric) {
+            return ((ConceptNumeric) concept).getUnits();
+        } else {
+            return Optional.ofNullable(conceptService.getConceptNumeric(concept.getConceptId())).map(conceptNumeric -> conceptNumeric.getUnits()).orElse(null);
+        }
+    }
+
+    private Object getValue(Obs obs) {
+        Concept concept = obs.getConcept();
+        if (concept.getDatatype().isNumeric()) return obs.getValueNumeric();
+        if (concept.getDatatype().isCoded()) {
+            return obs.getValueCoded().getDisplayString();
+        }
+        if (concept.getDatatype().isBoolean()) return obs.getValueBoolean();
+        if (concept.getDatatype().isDate()) return obs.getValueDate() != null ? new SimpleDateFormat("yyyy-MM-dd").format(obs.getValueDate()) : null;;
+        if (concept.getDatatype().isDateTime()) return obs.getValueDatetime() != null ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(obs.getValueDatetime()) : null;
+        return obs.getValueAsString(Context.getLocale());
+    }
+
+    private void flattenObsGroup(Obs obs, List<Obs> obsList) {
+        if (!obs.isObsGrouping()) {
+            obsList.add(obs);
+        } else {
+            obs.getGroupMembers().forEach(member -> flattenObsGroup(member, obsList));
+        }
+    }
+
 
     private List<LabOrderResult> filterLabOrderResults(List<LabOrderResult> labOrderResults) {
         List<LabOrderResult> filteredResults = new ArrayList<>();

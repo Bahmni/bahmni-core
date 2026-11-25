@@ -1,8 +1,10 @@
 package org.bahmni.module.bahmnicore.service.impl;
 
+import org.bahmni.module.bahmnicore.dao.ObsDao;
 import org.bahmni.module.bahmnicore.dao.OrderDao;
 import org.bahmni.module.bahmnicore.dao.VisitDao;
 import org.bahmni.module.bahmnicore.service.OrderService;
+import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
@@ -22,12 +24,15 @@ public class OrderServiceImpl implements OrderService {
     private VisitDao visitDao;
     private OrderDao orderDao;
 
+    private ObsDao obsDao;
+
     @Autowired
-    public OrderServiceImpl(org.openmrs.api.OrderService orderService, PatientService patientService, VisitDao visitDao, OrderDao orderDao) {
+    public OrderServiceImpl(org.openmrs.api.OrderService orderService, PatientService patientService, VisitDao visitDao, OrderDao orderDao, ObsDao obsDao) {
         this.orderService = orderService;
         this.patientService = patientService;
         this.visitDao = visitDao;
         this.orderDao = orderDao;
+        this.obsDao = obsDao;
     }
 
     @Override
@@ -72,4 +77,17 @@ public class OrderServiceImpl implements OrderService {
     public Order getChildOrder(Order order) {
         return orderDao.getChildOrder(order);
     }
+
+    @Override
+    public List<Order> getLabOrdersForPatient(String patientUuid, Integer numberOfVisits) {
+        List<Order> orders = orderDao.getLabOrdersForPatient(patientService.getPatientByUuid(patientUuid), numberOfVisits, true);
+        return orders;
+    }
+
+    @Override
+    public List<Obs> getObsForOrders(List<Order> orders) {
+        return obsDao.getObsForOrders(orders);
+    }
+
+
 }
