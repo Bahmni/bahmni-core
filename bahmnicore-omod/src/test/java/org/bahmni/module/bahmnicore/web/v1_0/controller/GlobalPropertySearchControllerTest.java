@@ -4,11 +4,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.openmrs.GlobalProperty;
 import org.openmrs.api.AdministrationService;
-import org.openmrs.api.context.Context;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
@@ -18,8 +16,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
-@PrepareForTest(Context.class)
-@RunWith(PowerMockRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class GlobalPropertySearchControllerTest {
 
     @Mock

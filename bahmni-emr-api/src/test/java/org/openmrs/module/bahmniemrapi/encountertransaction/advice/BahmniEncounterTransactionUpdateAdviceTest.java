@@ -1,27 +1,24 @@
 package org.openmrs.module.bahmniemrapi.encountertransaction.advice;
 
+import org.junit.After;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniEncounterTransaction;
 import org.openmrs.util.OpenmrsUtil;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
-import org.apache.commons.lang.StringUtils;
-;
+import java.io.File;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ Context.class, OpenmrsUtil.class})
 public class BahmniEncounterTransactionUpdateAdviceTest {
     private static String DEFAULT_ENCOUNTER_UUID = "defaultEncounterUuid";
     private static final String BAHMNI_EXECUTE_GROOVY_SCRIPT = "bahmni.executeGroovyObsValueCalculator" ;
@@ -29,12 +26,30 @@ public class BahmniEncounterTransactionUpdateAdviceTest {
     @Mock
     private AdministrationService administrationService;
 
+    private MockedStatic<OpenmrsUtil> openmrsUtilMockedStatic;
+    private MockedStatic<Context> contextMockedStatic;
+
+    @After
+    public void tearDown() {
+        if (openmrsUtilMockedStatic != null) {
+            openmrsUtilMockedStatic.close();
+        }
+        if (contextMockedStatic != null) {
+            contextMockedStatic.close();
+        }
+    }
+
+    private String getTestClassesDir() throws Exception {
+        return new File(getClass().getClassLoader().getResource("").toURI()).getAbsolutePath();
+    }
+
     @Test
     public void shouldExecuteObsValueCalculatorFromApplicationDataDirectory() throws Throwable {
-        PowerMockito.mockStatic(OpenmrsUtil.class);
-        when(OpenmrsUtil.getApplicationDataDirectory()).thenReturn(getClass().getClassLoader().getResource("").getPath());
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getAdministrationService()).thenReturn(administrationService);
+        initMocks(this);
+        openmrsUtilMockedStatic = Mockito.mockStatic(OpenmrsUtil.class);
+        openmrsUtilMockedStatic.when(OpenmrsUtil::getApplicationDataDirectory).thenReturn(getTestClassesDir() + File.separator);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getAdministrationService).thenReturn(administrationService);
         when(administrationService.getGlobalProperty(BAHMNI_EXECUTE_GROOVY_SCRIPT)).thenReturn("true");
 
         BahmniEncounterTransaction bahmniEncounterTransaction = new BahmniEncounterTransaction();
@@ -45,14 +60,14 @@ public class BahmniEncounterTransactionUpdateAdviceTest {
 
     @Test
     public void shouldLoadpplicationDataDirectoryPath() throws Throwable {
-        PowerMockito.mockStatic(OpenmrsUtil.class);
-        String path = getClass().getClassLoader().getResource("").getPath();
-        // remove the trailing "/"
-        path = StringUtils.chop(path);
+        initMocks(this);
+        openmrsUtilMockedStatic = Mockito.mockStatic(OpenmrsUtil.class);
+        // no trailing "/" on this path, unlike the other test
+        String path = getTestClassesDir();
         System.out.println(path);
-        when(OpenmrsUtil.getApplicationDataDirectory()).thenReturn(path);
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getAdministrationService()).thenReturn(administrationService);
+        openmrsUtilMockedStatic.when(OpenmrsUtil::getApplicationDataDirectory).thenReturn(path);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getAdministrationService).thenReturn(administrationService);
         when(administrationService.getGlobalProperty(BAHMNI_EXECUTE_GROOVY_SCRIPT)).thenReturn("true");
 
         BahmniEncounterTransaction bahmniEncounterTransaction = new BahmniEncounterTransaction();
@@ -63,10 +78,11 @@ public class BahmniEncounterTransactionUpdateAdviceTest {
 
     @Test
     public void shouldNotFailIfobscalculatorDirectoryDoesNotExist() throws Throwable {
-        PowerMockito.mockStatic(OpenmrsUtil.class);
-        when(OpenmrsUtil.getApplicationDataDirectory()).thenReturn(getClass().getClassLoader().getResource("").getPath() + "nonExistentDirectory");
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getAdministrationService()).thenReturn(administrationService);
+        initMocks(this);
+        openmrsUtilMockedStatic = Mockito.mockStatic(OpenmrsUtil.class);
+        openmrsUtilMockedStatic.when(OpenmrsUtil::getApplicationDataDirectory).thenReturn(getTestClassesDir() + File.separator + "nonExistentDirectory");
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getAdministrationService).thenReturn(administrationService);
         when(administrationService.getGlobalProperty(BAHMNI_EXECUTE_GROOVY_SCRIPT)).thenReturn("true");
 
         BahmniEncounterTransaction bahmniEncounterTransaction = new BahmniEncounterTransaction();

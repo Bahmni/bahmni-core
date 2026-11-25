@@ -1,10 +1,12 @@
 package org.bahmni.module.bahmnicore.web.v1_0.search;
 
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
@@ -17,10 +19,6 @@ import org.openmrs.module.bacteriology.api.encounter.domain.Specimen;
 import org.openmrs.module.bacteriology.api.encounter.domain.Specimens;
 import org.openmrs.module.webservices.rest.web.RequestContext;
 import org.openmrs.module.webservices.rest.web.resource.impl.NeedsPaging;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,9 +27,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@PowerMockIgnore("javax.management.*")
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Context.class)
 public class BacteriologySpecimenSearchHandlerTest {
 
     @Mock private ConceptService conceptService;
@@ -44,15 +39,22 @@ public class BacteriologySpecimenSearchHandlerTest {
     private BacteriologySpecimenSearchHandler bacteriologySpecimenSearchHandler;
     private final String BACTERIOLOGY_CONCEPT_SET = "BACTERIOLOGY CONCEPT SET";
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void before() {
         initMocks(this);
         when(requestContext.getLimit()).thenReturn(5);
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getService(BacteriologyService.class)).thenReturn(bacteriologyService);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(() -> Context.getService(BacteriologyService.class)).thenReturn(bacteriologyService);
 
         bacteriologySpecimenSearchHandler = new BacteriologySpecimenSearchHandler(bahmniProgramWorkflowService,
             conceptService, obsService);
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test

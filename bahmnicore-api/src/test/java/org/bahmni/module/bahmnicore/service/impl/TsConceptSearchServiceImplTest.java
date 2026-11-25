@@ -1,11 +1,14 @@
 package org.bahmni.module.bahmnicore.service.impl;
 
 import org.bahmni.module.bahmnicore.service.BahmniDiagnosisService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.openmrs.Concept;
 import org.openmrs.ConceptName;
 import org.openmrs.ConceptSearchResult;
@@ -15,10 +18,6 @@ import org.openmrs.api.context.UserContext;
 import org.openmrs.module.emrapi.concept.EmrConceptService;
 import org.openmrs.module.webservices.rest.SimpleObject;
 import org.openmrs.util.LocaleUtility;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,9 +28,6 @@ import static org.junit.Assert.*;
 
 import static org.mockito.Mockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Context.class)
-@PowerMockIgnore("javax.management.*")
 public class TsConceptSearchServiceImplTest {
 
 
@@ -50,12 +46,21 @@ public class TsConceptSearchServiceImplTest {
     int searchLimit = 20;
     String locale = LocaleUtility.getDefaultLocale().toString();
     List<Locale> locales =  Collections.singletonList(LocaleUtility.getDefaultLocale());
+
+    private MockedStatic<Context> contextMockedStatic;
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
+    }
+
     @Before
     public void setUp() {
-        PowerMockito.mockStatic(Context.class);
+        MockitoAnnotations.initMocks(this);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
         Locale defaultLocale = new Locale("en", "GB");
-        when(Context.getLocale()).thenReturn(defaultLocale);
-        when(Context.getAdministrationService()).thenReturn(administrationService);
+        contextMockedStatic.when(Context::getLocale).thenReturn(defaultLocale);
+        contextMockedStatic.when(Context::getAdministrationService).thenReturn(administrationService);
         when(administrationService.getAllowedLocales()).thenReturn(locales);
     }
 

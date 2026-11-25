@@ -1,27 +1,17 @@
 package org.bahmni.module.bahmnicore.contract.stock;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class StockData {
 
-    @JsonProperty("stock_location_name")
     private String stockLocationName;
 
-    @JsonProperty("available_quantity")
     private Double availableQuantity;
 
-    @JsonProperty("on_hand_quantity")
     private Double onHandQuantity;
 
-    @JsonProperty("unit")
     private String unit;
 
-    @JsonProperty("batch_number")
     private String batchNumber;
 
-    @JsonProperty("expiry_date")
     private String expiryDate;
 
     public String getStockLocationName() {

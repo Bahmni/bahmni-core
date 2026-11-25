@@ -7,10 +7,12 @@ import org.bahmni.module.bahmnicore.service.BahmniObsService;
 import org.bahmni.module.bahmnicore.service.BahmniProgramWorkflowService;
 import org.bahmni.test.builder.ConceptBuilder;
 import org.bahmni.test.builder.VisitBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
@@ -23,8 +25,6 @@ import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObser
 import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.OMRSObsToBahmniObsMapper;
 import org.openmrs.module.emrapi.encounter.matcher.ObservationTypeMatcher;
 import org.openmrs.util.LocaleUtility;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,17 +40,14 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(LocaleUtility.class)
 public class BahmniObsServiceImplTest {
 
     private BahmniObsService bahmniObsService;
@@ -74,12 +71,19 @@ public class BahmniObsServiceImplTest {
     @Mock
     private OMRSObsToBahmniObsMapper omrsObsToBahmniObsMapper;
 
+    private MockedStatic<LocaleUtility> localeUtilityMockedStatic;
+
+    @After
+    public void tearDown() {
+        localeUtilityMockedStatic.close();
+    }
+
     @Before
     public void setUp() {
         initMocks(this);
 
-        mockStatic(LocaleUtility.class);
-        when(LocaleUtility.getDefaultLocale()).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic = Mockito.mockStatic(LocaleUtility.class);
+        localeUtilityMockedStatic.when(LocaleUtility::getDefaultLocale).thenReturn(Locale.ENGLISH);
         when(observationTypeMatcher.getObservationType(any(Obs.class))).thenReturn(ObservationTypeMatcher.ObservationType.OBSERVATION);
         bahmniObsService = new BahmniObsServiceImpl(obsDao, omrsObsToBahmniObsMapper, visitService, conceptService, visitDao, bahmniProgramWorkflowService, obsService);
     }

@@ -5,10 +5,13 @@ import org.bahmni.test.builder.ConceptBuilder;
 import org.bahmni.test.builder.EncounterBuilder;
 import org.bahmni.test.builder.ObsBuilder;
 import org.bahmni.test.builder.VisitBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
@@ -16,8 +19,6 @@ import org.openmrs.Visit;
 import org.openmrs.module.bahmniemrapi.diagnosis.contract.BahmniDiagnosisRequest;
 import org.openmrs.module.bahmniemrapi.encountertransaction.contract.BahmniObservation;
 import org.openmrs.util.LocaleUtility;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,13 +29,9 @@ import java.util.Locale;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.powermock.api.mockito.PowerMockito.whenNew;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({DuplicateObservationsMatcher.class, LocaleUtility.class})
 public class DuplicateObservationsMatcherTest {
 
     public static final Date VISIT_START_DATETIME = new Date();
@@ -42,16 +39,20 @@ public class DuplicateObservationsMatcherTest {
     private DuplicateObservationsMatcher duplicateObservationsMatcher;
 
     @Mock
-    private BahmniVisit bahmniVisit;
-
-    @Mock
     private Visit visit;
+
+    private MockedStatic<LocaleUtility> localeUtilityMockedStatic;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        mockStatic(LocaleUtility.class);
-        when(LocaleUtility.getDefaultLocale()).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic = Mockito.mockStatic(LocaleUtility.class);
+        localeUtilityMockedStatic.when(LocaleUtility::getDefaultLocale).thenReturn(Locale.ENGLISH);
+    }
+
+    @After
+    public void tearDown() {
+        localeUtilityMockedStatic.close();
     }
 
     @Test
@@ -73,11 +74,12 @@ public class DuplicateObservationsMatcherTest {
         List<Obs> obsList = new ArrayList<>();
         obsList.addAll(allObs);
 
-        when(bahmniVisit.obsFor("OPD")).thenReturn(obsList);
-        whenNew(BahmniVisit.class).withArguments(existingVisit).thenReturn(bahmniVisit);
-        duplicateObservationsMatcher = new DuplicateObservationsMatcher(existingVisit, "OPD");
-        Collection<BahmniObservation> newlyAddedBahmniObservations = duplicateObservationsMatcher.getNewlyAddedBahmniObservations(bahmniObservations, ENCOUNTER_DATE);
-        assertEquals(0, newlyAddedBahmniObservations.size());
+        try (MockedConstruction<BahmniVisit> bahmniVisitMockedConstruction = Mockito.mockConstruction(BahmniVisit.class,
+                (mock, context) -> when(mock.obsFor("OPD")).thenReturn(obsList))) {
+            duplicateObservationsMatcher = new DuplicateObservationsMatcher(existingVisit, "OPD");
+            Collection<BahmniObservation> newlyAddedBahmniObservations = duplicateObservationsMatcher.getNewlyAddedBahmniObservations(bahmniObservations, ENCOUNTER_DATE);
+            assertEquals(0, newlyAddedBahmniObservations.size());
+        }
     }
 
     @Test
@@ -99,13 +101,13 @@ public class DuplicateObservationsMatcherTest {
         List<Obs> obsList = new ArrayList<>();
         obsList.addAll(allObs);
 
-        when(bahmniVisit.obsFor("OPD")).thenReturn(obsList);
-        whenNew(BahmniVisit.class).withArguments(existingVisit).thenReturn(bahmniVisit);
+        try (MockedConstruction<BahmniVisit> bahmniVisitMockedConstruction = Mockito.mockConstruction(BahmniVisit.class,
+                (mock, context) -> when(mock.obsFor("OPD")).thenReturn(obsList))) {
+            duplicateObservationsMatcher = new DuplicateObservationsMatcher(existingVisit, "OPD");
+            Collection<BahmniObservation> newlyAddedBahmniObservations = duplicateObservationsMatcher.getNewlyAddedBahmniObservations(bahmniObservations, ENCOUNTER_DATE);
 
-        duplicateObservationsMatcher = new DuplicateObservationsMatcher(existingVisit, "OPD");
-        Collection<BahmniObservation> newlyAddedBahmniObservations = duplicateObservationsMatcher.getNewlyAddedBahmniObservations(bahmniObservations, ENCOUNTER_DATE);
-
-        assertEquals(1, newlyAddedBahmniObservations.size());
+            assertEquals(1, newlyAddedBahmniObservations.size());
+        }
     }
 
     @Test
@@ -128,13 +130,13 @@ public class DuplicateObservationsMatcherTest {
         List<Obs> obsList = new ArrayList<>();
         obsList.addAll(allObs);
 
-        when(bahmniVisit.obsFor("OPD")).thenReturn(obsList);
-        whenNew(BahmniVisit.class).withArguments(existingVisit).thenReturn(bahmniVisit);
+        try (MockedConstruction<BahmniVisit> bahmniVisitMockedConstruction = Mockito.mockConstruction(BahmniVisit.class,
+                (mock, context) -> when(mock.obsFor("OPD")).thenReturn(obsList))) {
+            duplicateObservationsMatcher = new DuplicateObservationsMatcher(existingVisit, "OPD");
+            Collection<BahmniObservation> newlyAddedBahmniObservations = duplicateObservationsMatcher.getNewlyAddedBahmniObservations(bahmniObservations, newEncounterDate);
 
-        duplicateObservationsMatcher = new DuplicateObservationsMatcher(existingVisit, "OPD");
-        Collection<BahmniObservation> newlyAddedBahmniObservations = duplicateObservationsMatcher.getNewlyAddedBahmniObservations(bahmniObservations, newEncounterDate);
-
-        assertEquals(1, newlyAddedBahmniObservations.size());
+            assertEquals(1, newlyAddedBahmniObservations.size());
+        }
     }
 
     @Test
@@ -157,13 +159,13 @@ public class DuplicateObservationsMatcherTest {
         List<Obs> obsList = new ArrayList<>();
         obsList.addAll(allObs);
 
-        when(bahmniVisit.obsFor("OPD")).thenReturn(obsList);
-        whenNew(BahmniVisit.class).withArguments(existingVisit).thenReturn(bahmniVisit);
+        try (MockedConstruction<BahmniVisit> bahmniVisitMockedConstruction = Mockito.mockConstruction(BahmniVisit.class,
+                (mock, context) -> when(mock.obsFor("OPD")).thenReturn(obsList))) {
+            duplicateObservationsMatcher = new DuplicateObservationsMatcher(existingVisit, "OPD");
+            Collection<BahmniObservation> newlyAddedBahmniObservations = duplicateObservationsMatcher.getNewlyAddedBahmniObservations(bahmniObservations, newEncounterDate);
 
-        duplicateObservationsMatcher = new DuplicateObservationsMatcher(existingVisit, "OPD");
-        Collection<BahmniObservation> newlyAddedBahmniObservations = duplicateObservationsMatcher.getNewlyAddedBahmniObservations(bahmniObservations, newEncounterDate);
-
-        assertEquals(1, newlyAddedBahmniObservations.size());
+            assertEquals(1, newlyAddedBahmniObservations.size());
+        }
     }
 
     @Test
@@ -189,30 +191,30 @@ public class DuplicateObservationsMatcherTest {
         List<Obs> obsList = new ArrayList<>();
         obsList.addAll(allObs);
 
-        when(bahmniVisit.obsFor("OPD")).thenReturn(obsList);
-        whenNew(BahmniVisit.class).withArguments(existingVisit).thenReturn(bahmniVisit);
+        try (MockedConstruction<BahmniVisit> bahmniVisitMockedConstruction = Mockito.mockConstruction(BahmniVisit.class,
+                (mock, context) -> when(mock.obsFor("OPD")).thenReturn(obsList))) {
+            duplicateObservationsMatcher = new DuplicateObservationsMatcher(existingVisit, "OPD");
+            Collection<BahmniObservation> newlyAddedBahmniObservations = duplicateObservationsMatcher.getNewlyAddedBahmniObservations(bahmniObservations, ENCOUNTER_DATE);
 
-        duplicateObservationsMatcher = new DuplicateObservationsMatcher(existingVisit, "OPD");
-        Collection<BahmniObservation> newlyAddedBahmniObservations = duplicateObservationsMatcher.getNewlyAddedBahmniObservations(bahmniObservations, ENCOUNTER_DATE);
-
-        assertEquals(0, newlyAddedBahmniObservations.size());
+            assertEquals(0, newlyAddedBahmniObservations.size());
+        }
     }
 
     @Test
     public void shouldIgnoreDuplicateObservationMatchingForFreeTextDiagnosisRequest() throws Exception {
 
-        whenNew(BahmniVisit.class).withArguments(visit).thenReturn(bahmniVisit);
-        when(bahmniVisit.obsFor("OPD")).thenReturn(new ArrayList<Obs>());
-        List<BahmniDiagnosisRequest> requests = new ArrayList<>();
-        BahmniDiagnosisRequest request = new BahmniDiagnosisRequest();
-        request.setCodedAnswer(null);
-        request.setFreeTextAnswer("Some Non-coded concept");
-        requests.add(request);
+        try (MockedConstruction<BahmniVisit> bahmniVisitMockedConstruction = Mockito.mockConstruction(BahmniVisit.class,
+                (mock, context) -> when(mock.obsFor("OPD")).thenReturn(new ArrayList<Obs>()))) {
+            List<BahmniDiagnosisRequest> requests = new ArrayList<>();
+            BahmniDiagnosisRequest request = new BahmniDiagnosisRequest();
+            request.setCodedAnswer(null);
+            request.setFreeTextAnswer("Some Non-coded concept");
+            requests.add(request);
 
-        duplicateObservationsMatcher = new DuplicateObservationsMatcher(visit, "OPD");
-        requests = duplicateObservationsMatcher.getUniqueDiagnoses(requests);
+            duplicateObservationsMatcher = new DuplicateObservationsMatcher(visit, "OPD");
+            requests = duplicateObservationsMatcher.getUniqueDiagnoses(requests);
 
-        assertEquals(1,requests.size());
-
+            assertEquals(1, requests.size());
+        }
     }
 }

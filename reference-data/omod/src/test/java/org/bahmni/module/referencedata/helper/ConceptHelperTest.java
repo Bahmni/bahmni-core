@@ -6,10 +6,12 @@ import org.bahmni.module.referencedata.contract.ConceptDetails;
 import org.bahmni.module.referencedata.contract.ConceptName;
 import org.bahmni.test.builder.ConceptBuilder;
 import org.bahmni.test.builder.ConceptNumericBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.User;
 import org.openmrs.api.ConceptService;
@@ -26,13 +28,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.MockitoAnnotations.initMocks;
 import org.openmrs.api.context.Context;
 import org.openmrs.util.LocaleUtility;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@PrepareForTest({Context.class,LocaleUtility.class})
-@RunWith(PowerMockRunner.class)
 public class ConceptHelperTest {
     @Mock
     private ConceptService conceptService;
@@ -41,6 +37,8 @@ public class ConceptHelperTest {
 
     private boolean withoutAttributes = false;
 
+    private MockedStatic<Context> contextMockedStatic;
+    private MockedStatic<LocaleUtility> localeUtilityMockedStatic;
 
     @Before
     public void setUp() throws Exception {
@@ -48,15 +46,21 @@ public class ConceptHelperTest {
         User mockUser = new User();
         mockUser.setUserProperty("defaultLocale","en");
 
-        mockStatic(Context.class);
-        when(Context.getAuthenticatedUser()).thenReturn(mockUser);
-        when(Context.getLocale()).thenReturn(Locale.ENGLISH);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getAuthenticatedUser).thenReturn(mockUser);
+        contextMockedStatic.when(Context::getLocale).thenReturn(Locale.ENGLISH);
 
-        mockStatic(LocaleUtility.class);
-        when(LocaleUtility.fromSpecification("en")).thenReturn(Locale.ENGLISH);
-        when(LocaleUtility.getDefaultLocale()).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic = Mockito.mockStatic(LocaleUtility.class);
+        localeUtilityMockedStatic.when(() -> LocaleUtility.fromSpecification("en")).thenReturn(Locale.ENGLISH);
+        localeUtilityMockedStatic.when(LocaleUtility::getDefaultLocale).thenReturn(Locale.ENGLISH);
 
         conceptHelper = new ConceptHelper(conceptService);
+    }
+
+    @After
+    public void tearDown() {
+        localeUtilityMockedStatic.close();
+        contextMockedStatic.close();
     }
 
     @Test

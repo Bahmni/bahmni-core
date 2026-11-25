@@ -4,16 +4,18 @@ import org.bahmni.module.bahmnicore.client.BahmniOdooClient;
 import org.bahmni.module.bahmnicore.contract.stock.AvailableStockResponse;
 import org.bahmni.module.bahmnicore.exception.OdooApiException;
 import org.bahmni.webclients.WebClientsException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,6 +62,38 @@ public class InventoryStockServiceImplTest {
         assertEquals("2026-06-26T10:10:08Z", response.getData().get(0).getExpiryDate());
     }
 
+
+    @Test
+    public void getAvailableStocks_FromInventory_shouldReturnCamelCaseKeysToUiWhileReadingOdooSnakeCase() throws Exception {
+        when(bahmniOdooClient.get(anyString())).thenReturn(VALID_RESPONSE_JSON);
+
+        AvailableStockResponse response =
+                inventoryStockService.getAvailableStocksFromInventory(PRODUCT_UUID, LOCATION_UUID);
+
+        JsonNode first = new ObjectMapper().readTree(new ObjectMapper().writeValueAsString(response))
+                .get("data").get(0);
+        assertEquals("AB0001", first.get("batchNumber").asText());
+        assertEquals("2026-06-26T10:10:08Z", first.get("expiryDate").asText());
+        assertEquals("Stock", first.get("stockLocationName").asText());
+        assertEquals(100.0, first.get("availableQuantity").asDouble(), 0.001);
+        assertEquals(150.0, first.get("onHandQuantity").asDouble(), 0.001);
+        assertEquals("Units", first.get("unit").asText());
+        org.junit.Assert.assertFalse(first.has("batch_number"));
+        org.junit.Assert.assertFalse(first.has("stock_location_name"));
+    }
+
+    @Test
+    public void getAvailableStocks_FromInventory_shouldIgnoreUnknownKeysFromOdoo() {
+        when(bahmniOdooClient.get(anyString())).thenReturn(
+                "{\"count\":1,\"data\":[{\"stock_location_name\":\"Stock\",\"batch_number\":\"AB1\",\"manufacturer\":\"Pfizer\"}],\"extra\":true}");
+
+        AvailableStockResponse response =
+                inventoryStockService.getAvailableStocksFromInventory(PRODUCT_UUID, LOCATION_UUID);
+
+        assertEquals(1, response.getCount());
+        assertEquals("AB1", response.getData().get(0).getBatchNumber());
+    }
+
     @Test
     public void getAvailableStocks_FromInventory_shouldHandleStockEntriesWithoutBatchInfo() {
         when(bahmniOdooClient.get(anyString())).thenReturn(VALID_RESPONSE_JSON);
@@ -84,7 +118,7 @@ public class InventoryStockServiceImplTest {
         inventoryStockService.getAvailableStocksFromInventory(PRODUCT_UUID, LOCATION_UUID);
 
         verify(bahmniOdooClient).get(
-                org.mockito.Matchers.contains("product_uuid=" + PRODUCT_UUID));
+                org.mockito.ArgumentMatchers.contains("product_uuid=" + PRODUCT_UUID));
     }
 
     @Test

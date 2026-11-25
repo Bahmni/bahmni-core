@@ -1,7 +1,6 @@
 package org.openmrs.module.bahmnicore.web.v1_0.resource;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientProgram;
@@ -9,17 +8,23 @@ import org.openmrs.module.webservices.rest.web.representation.DefaultRepresentat
 import org.openmrs.module.webservices.rest.web.representation.FullRepresentation;
 import org.openmrs.module.webservices.rest.web.representation.Representation;
 import org.openmrs.module.webservices.rest.web.resource.impl.DelegatingResourceDescription;
-import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.openmrs.module.webservices.rest.web.RestUtil;
 
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(PowerMockRunner.class)
-@SuppressStaticInitializationFor("org.openmrs.module.webservices.rest.web.RestConstants")
 public class BahmniProgramEnrollmentResourceIdentifiersTest {
+
+    static {
+        // RestConstants' static initializer calls Context.removeProxyPrivilege() via
+        // RestUtil.setUriPrefix(), which requires an open OpenMRS session - unavailable in a
+        // plain unit test. disableContext() makes setUriPrefix() skip that call entirely.
+        // Previously masked by PowerMock's @SuppressStaticInitializationFor(RestConstants.class),
+        // which fully skipped RestConstants' <clinit> - not available with plain Mockito.
+        RestUtil.disableContext();
+    }
 
     @Test
     public void shouldReturnIdentifiersLinkedToProgram() {

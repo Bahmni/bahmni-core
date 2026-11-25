@@ -4,19 +4,18 @@ import org.bahmni.module.referencedata.labconcepts.contract.AllSamples;
 import org.bahmni.module.referencedata.labconcepts.model.Operation;
 import org.bahmni.test.builder.ConceptBuilder;
 import org.ict4h.atomfeed.server.service.Event;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.context.UserContext;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.List;
 import java.util.Locale;
@@ -26,9 +25,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
-@PowerMockIgnore("javax.management.*")
-@PrepareForTest(Context.class)
-@RunWith(PowerMockRunner.class)
 public class AllLabSamplesEventTest {
 
     private Concept parentConcept;
@@ -37,16 +33,24 @@ public class AllLabSamplesEventTest {
     @Mock
     private UserContext userContext;
 
+    private MockedStatic<Context> contextMockedStatic;
+
     @Before
     public void setup() {
+        MockitoAnnotations.initMocks(this);
         Locale defaultLocale = new Locale("en", "GB");
-        PowerMockito.mockStatic(Context.class);
-        when(Context.getLocale()).thenReturn(defaultLocale);
-        when(Context.getConceptService()).thenReturn(conceptService);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        contextMockedStatic.when(Context::getLocale).thenReturn(defaultLocale);
+        contextMockedStatic.when(Context::getConceptService).thenReturn(conceptService);
         Concept concept = new ConceptBuilder().withClassUUID(ConceptClass.LABSET_UUID).build();
         Concept anotherConcept = new ConceptBuilder().withClassUUID(ConceptClass.LABSET_UUID).build();
         parentConcept = new ConceptBuilder().withName(AllSamples.ALL_SAMPLES).withClass("ConvSet").withSetMember(concept).withSetMember(anotherConcept).build();
 
+    }
+
+    @After
+    public void tearDown() {
+        contextMockedStatic.close();
     }
 
     @Test

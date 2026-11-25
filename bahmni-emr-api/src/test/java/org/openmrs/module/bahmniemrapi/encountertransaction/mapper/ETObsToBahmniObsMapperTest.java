@@ -1,10 +1,11 @@
 package org.openmrs.module.bahmniemrapi.encountertransaction.mapper;
 
 import org.bahmni.test.builder.ConceptNumericBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.openmrs.Concept;
 import org.openmrs.ConceptNumeric;
@@ -17,8 +18,6 @@ import org.openmrs.module.bahmniemrapi.encountertransaction.mapper.parameters.Ad
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.util.LocaleUtility;
 import org.openmrs.util.OpenmrsConstants;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -28,12 +27,8 @@ import java.util.Locale;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({LocaleUtility.class, Context.class})
 
 public class ETObsToBahmniObsMapperTest {
 
@@ -45,6 +40,9 @@ public class ETObsToBahmniObsMapperTest {
 
     @Mock
     private User authenticatedUser;
+
+    private MockedStatic<LocaleUtility> localeUtilityMockedStatic;
+    private MockedStatic<Context> contextMockedStatic;
 
     private ETObsToBahmniObsMapper etObsToBahmniObsMapper;
     private String person1name = "superman";
@@ -59,13 +57,18 @@ public class ETObsToBahmniObsMapperTest {
     public void setUp() throws Exception {
         initMocks(this);
         etObsToBahmniObsMapper = new ETObsToBahmniObsMapper(conceptService, Arrays.asList());
-        mockStatic(LocaleUtility.class);
-        mockStatic(Context.class);
-        mockStatic(LocaleUtility.class);
-        when(LocaleUtility.getDefaultLocale()).thenReturn(Locale.ENGLISH);
-        Mockito.when(Context.getAuthenticatedUser()).thenReturn(authenticatedUser);
-        Mockito.when(Context.getLocale()).thenReturn(Locale.ENGLISH);
-        Mockito.when(Context.getAdministrationService()).thenReturn(administrationService);
+        localeUtilityMockedStatic = Mockito.mockStatic(LocaleUtility.class);
+        contextMockedStatic = Mockito.mockStatic(Context.class);
+        localeUtilityMockedStatic.when(LocaleUtility::getDefaultLocale).thenReturn(Locale.ENGLISH);
+        contextMockedStatic.when(Context::getAuthenticatedUser).thenReturn(authenticatedUser);
+        contextMockedStatic.when(Context::getLocale).thenReturn(Locale.ENGLISH);
+        contextMockedStatic.when(Context::getAdministrationService).thenReturn(administrationService);
+    }
+
+    @After
+    public void tearDown() {
+        localeUtilityMockedStatic.close();
+        contextMockedStatic.close();
     }
 
     private EncounterTransaction.User createETUser(String personname) {

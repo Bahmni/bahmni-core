@@ -12,6 +12,7 @@ import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -206,9 +207,9 @@ public class BahmniEncounterTransactionTest {
     }
 
     @Test
-    public void shouldDeserializeBahmniEncounterTransactionFromJson() throws IOException {
+    public void shouldDeserializeBahmniEncounterTransactionFromJson() throws IOException, URISyntaxException {
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("sampleEncounterTransaction.json").getFile());
+        File file = new File(classLoader.getResource("sampleEncounterTransaction.json").toURI());
 
         BahmniEncounterTransaction encounterTransaction = new ObjectMapper().readValue(file, BahmniEncounterTransaction.class);
         assertNotNull(encounterTransaction);
