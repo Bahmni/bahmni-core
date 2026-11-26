@@ -63,6 +63,16 @@ public class DoseCalculatorControllerTest {
     }
 
     @Test
+    public void shouldReturnBadRequestWithDefaultMessageWhenExceptionHasNoMessage() throws Exception {
+        when(rulesEngine.calculateDose(any(DosageRequest.class))).thenThrow(new Exception());
+
+        ResponseEntity<Object> response = doseCalculatorController.calculateDose(DOSAGE_REQUEST);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(DoseCalculatorController.DEFAULT_ERROR_MESSAGE, errorMessage(response));
+    }
+
+    @Test
     public void shouldReturnBadRequestWhenDosageRequestJsonIsMalformed() throws Exception {
         ResponseEntity<Object> response = doseCalculatorController.calculateDose("{ not json");
 

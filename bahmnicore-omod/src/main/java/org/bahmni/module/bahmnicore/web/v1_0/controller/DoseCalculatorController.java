@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class DoseCalculatorController extends BaseRestController {
 
     private static final Log log = LogFactory.getLog(DoseCalculatorController.class);
+    static final String DEFAULT_ERROR_MESSAGE = "Dose calculation failed validation";
 
     private RulesEngine rulesEngine = new RulesEngineImpl();
 
@@ -33,8 +34,9 @@ public class DoseCalculatorController extends BaseRestController {
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            log.warn("Unable to calculate dose: " + e.getMessage());
-            return new ResponseEntity<>(WebUtils.wrapErrorResponse(null, e.getMessage()), HttpStatus.BAD_REQUEST);
+            log.warn("Unable to calculate dose: " + e.getMessage(), e);
+            String message = e.getMessage() != null && !e.getMessage().isEmpty() ? e.getMessage() : DEFAULT_ERROR_MESSAGE;
+            return new ResponseEntity<>(WebUtils.wrapErrorResponse(null, message), HttpStatus.BAD_REQUEST);
         }
     }
 }
